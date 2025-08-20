@@ -1,0 +1,13 @@
+# Laravel
+vendor/
+storage/
+bootstrap/cache/
+public/build/
+public/hot
+node_modules/
+
+# Env & misc
+.env
+*.log
+
+*.php
