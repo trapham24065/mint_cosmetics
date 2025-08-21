@@ -1,27 +1,32 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+<x-auth-layout>
+    <div class="my-4">
+        <div class="mb-4 text-sm text-muted">
+            {{ __('This is an application-wide area. Please confirm your password before continuing.') }}
+        </div>
+
+        <form method="POST" action="{{ route('password.confirm') }}">
+            @csrf
+
+            <div class="form-group">
+                <label class="form-label" for="password">{{ __('Password') }}</label>
+                <input type="password" class="form-control @error('password') is-invalid @enderror"
+                       name="password" id="password" placeholder="Enter your password"
+                       required autocomplete="current-password">
+
+                @error('password')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group mb-0 row">
+                <div class="col-12">
+                    <div class="d-grid mt-3">
+                        <button class="btn btn-primary" type="submit">
+                            {{ __('Confirm') }} <i class="fas fa-check ms-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
-
-    <form method="POST" action="{{ route('password.confirm') }}">
-        @csrf
-
-        <!-- Password -->
-        <div>
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <div class="flex justify-end mt-4">
-            <x-primary-button>
-                {{ __('Confirm') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+</x-auth-layout>
