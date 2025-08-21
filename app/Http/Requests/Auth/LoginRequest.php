@@ -47,10 +47,18 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => __('Incorrect email or password'),
             ]);
         }
+        // ADDED: Check for user status
+        if (Auth::user()->status === 0) {
+            $userEmail = Auth::user()->email;
+            Auth::logout();
 
+            throw ValidationException::withMessages([
+                'email' => __('Your account is not active at the moment', ['email' => $userEmail]),
+            ]);
+        }
         RateLimiter::clear($this->throttleKey());
     }
 
