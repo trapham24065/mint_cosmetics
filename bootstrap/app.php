@@ -9,6 +9,13 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function () {
+            // Define the route group for the admin panel
+            Route::middleware(['web', 'auth'])
+                ->prefix('admin')
+                ->name('admin.')
+                ->group(base_path('routes/admin.php'));
+        }
     )
     ->withMiddleware(function (Middleware $middleware): void {
         //
