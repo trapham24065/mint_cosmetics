@@ -8,12 +8,13 @@
  * @time 3:11 PM
  */
 declare(strict_types=1);
+use App\Http\Controllers\Admin\CategoryController;
 use Illuminate\Support\Facades\Route;
 
 // The prefix 'admin' and middleware 'auth' are already applied from bootstrap/app.php
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
+Route::get('/dashboard', static function () {
+    return view('admin.dashboard');
 })->name('dashboard');
 
 // Category Management
