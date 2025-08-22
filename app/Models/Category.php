@@ -1,12 +1,19 @@
 <?php
+/**
+ * @project mint_cosmetics
+ * @author PhamTra
+ * @email trapham24065@gmail.com
+ * @date 8/22/2025
+ * @time 3:24 PM
+ */
 
 declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
@@ -33,17 +40,22 @@ class Category extends Model
         'active' => 'boolean',
     ];
 
-    /**
-     * The "booted" method of the model.
-     *
-     * This method automatically generates a slug from the name
-     * when a category is being created or updated.
-     */
-    protected static function booted(): void
+    public function products(): HasMany|Category
     {
-        static::saving(static function (self $category) {
-            $category->slug = Str::slug($category->name);
-        });
+        return $this->hasMany(Product::class);
+    }
+
+    /**
+     * A category can have multiple product attributes.
+     */
+    public function productAttributes(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Attribute::class,
+            'attribute_category',
+            'category_id',
+            'attribute_id'
+        );
     }
 
 }
