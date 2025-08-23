@@ -1,9 +1,14 @@
 <?php
+
 /**
  * @project mint_cosmetics
+ *
  * @author PhamTra
+ *
  * @email trapham24065@gmail.com
+ *
  * @date 8/22/2025
+ *
  * @time 3:27 PM
  */
 
@@ -11,7 +16,6 @@ namespace App\Enums;
 
 enum CustomerStatus: int
 {
-
     case INACTIVE = 0;
     case ACTIVE = 1;
     case SUSPENDED = 2;
@@ -36,5 +40,4 @@ enum CustomerStatus: int
             self::DELETED => 'danger',
         };
     }
-
 }

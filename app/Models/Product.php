@@ -1,9 +1,14 @@
 <?php
+
 /**
  * @project mint_cosmetics
+ *
  * @author PhamTra
+ *
  * @email trapham24065@gmail.com
+ *
  * @date 8/22/2025
+ *
  * @time 3:24 PM
  */
 
@@ -18,7 +23,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
-
     use HasFactory;
 
     protected $fillable = [
@@ -34,7 +38,7 @@ class Product extends Model
 
     protected $casts = [
         'list_image' => 'array',
-        'active'     => 'boolean',
+        'active' => 'boolean',
     ];
 
     public function category(): BelongsTo
@@ -49,8 +53,6 @@ class Product extends Model
 
     /**
      * Get a list of related products (same category).
-     *
-     * @return Collection
      */
     public function getRelatedProducts(): Collection
     {
@@ -74,6 +76,4 @@ class Product extends Model
     {
         return $this->belongsToMany(Attribute::class, 'attribute_product');
     }
-
 }
-

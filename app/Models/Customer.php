@@ -1,9 +1,14 @@
 <?php
+
 /**
  * @project mint_cosmetics
+ *
  * @author PhamTra
+ *
  * @email trapham24065@gmail.com
+ *
  * @date 8/22/2025
+ *
  * @time 3:24 PM
  */
 
@@ -18,7 +23,6 @@ use Illuminate\Notifications\Notifiable;
 
 class Customer extends Authenticatable
 {
-
     use HasCustomerStatus;
     use HasFactory;
     use Notifiable;
@@ -63,5 +67,4 @@ class Customer extends Authenticatable
     {
         return "bg-{$this->status_color} bg-opacity-10 text-{$this->status_color}";
     }
-
 }

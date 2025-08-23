@@ -1,9 +1,14 @@
 <?php
+
 /**
  * @project mint_cosmetics
+ *
  * @author PhamTra
+ *
  * @email trapham24065@gmail.com
+ *
  * @date 8/22/2025
+ *
  * @time 3:24 PM
  */
 
@@ -15,9 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ProductVariant extends Model
-
 {
-
     use HasFactory;
 
     protected $fillable = [
@@ -44,5 +47,4 @@ class ProductVariant extends Model
     {
         return $this->belongsToMany(AttributeValue::class, 'attribute_value_product_variant');
     }
-
 }

@@ -1,9 +1,14 @@
 <?php
+
 /**
  * @project mint_cosmetics
+ *
  * @author PhamTra
+ *
  * @email trapham24065@gmail.com
+ *
  * @date 8/22/2025
+ *
  * @time 3:24 PM
  */
 
@@ -16,13 +21,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Attribute extends Model
 {
-
     use HasFactory;
 
     protected $fillable = ['name'];
 
     /**
-     *
      * An attribute has multiple values.
      */
     public function values(): HasMany
@@ -42,5 +45,4 @@ class Attribute extends Model
     {
         return $this->belongsToMany(Product::class, 'attribute_product');
     }
-
 }

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -11,7 +12,6 @@ use Illuminate\View\View;
 
 class PasswordResetLinkController extends Controller
 {
-
     /**
      * Display the password reset link request view.
      */
@@ -43,5 +43,4 @@ class PasswordResetLinkController extends Controller
             : back()->withInput($request->only('email'))
                 ->withErrors(['email' => __($status)]);
     }
-
 }

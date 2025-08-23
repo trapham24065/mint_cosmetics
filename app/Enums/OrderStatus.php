@@ -1,9 +1,14 @@
 <?php
+
 /**
  * @project mint_cosmetics
+ *
  * @author PhamTra
+ *
  * @email trapham24065@gmail.com
+ *
  * @date 8/22/2025
+ *
  * @time 3:26 PM
  */
 
@@ -11,7 +16,6 @@ namespace App\Enums;
 
 enum OrderStatus: string
 {
-
     case Pending = 'pending';
     case Processing = 'processing';
     case Shipped = 'shipped';
@@ -43,6 +47,4 @@ enum OrderStatus: string
             self::Cancelled, self::Failed => 'danger',
         };
     }
-
 }
-

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
@@ -12,7 +13,6 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-
     /**
      * Display the user's profile form.
      */
@@ -59,5 +59,4 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
-
 }

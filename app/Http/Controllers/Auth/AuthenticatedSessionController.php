@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -12,7 +13,6 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-
     /**
      * Display the login view.
      */
@@ -46,5 +46,4 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/')->with('status', 'Signed out successfully.');
     }
-
 }

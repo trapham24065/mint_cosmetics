@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -16,7 +17,6 @@ use Illuminate\View\View;
 
 class NewPasswordController extends Controller
 {
-
     /**
      * Display the password reset view.
      */
@@ -33,8 +33,8 @@ class NewPasswordController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'token'    => ['required'],
-            'email'    => ['required', 'email'],
+            'token' => ['required'],
+            'email' => ['required', 'email'],
             'password' => [
                 'required',
                 'confirmed',
@@ -51,7 +51,7 @@ class NewPasswordController extends Controller
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user) use ($request) {
                 $user->forceFill([
-                    'password'       => Hash::make($request->password),
+                    'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
                 ])->save();
 
@@ -67,5 +67,4 @@ class NewPasswordController extends Controller
             : back()->withInput($request->only('email'))
                 ->withErrors(['email' => __($status)]);
     }
-
 }

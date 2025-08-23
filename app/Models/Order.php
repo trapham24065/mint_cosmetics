@@ -1,9 +1,14 @@
 <?php
+
 /**
  * @project mint_cosmetics
+ *
  * @author PhamTra
+ *
  * @email trapham24065@gmail.com
+ *
  * @date 8/22/2025
+ *
  * @time 3:24 PM
  */
 
@@ -18,7 +23,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
-
     use HasFactory;
     use HasOrderStatus;
 
@@ -68,13 +72,9 @@ class Order extends Model
 
     /**
      * Calculate total revenue from completed orders.
-     *
-     * @return float
      */
     public static function getTotalRevenue(): float
     {
         return self::where('status', OrderStatus::Completed)->sum('total_price');
     }
-
 }
-

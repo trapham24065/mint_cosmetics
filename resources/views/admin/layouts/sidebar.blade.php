@@ -324,8 +324,8 @@
                     </li><!--end nav-item-->
                     <li class="nav-item">
                         <a class="nav-link" href="payment.html">
-                            <i class="iconoir-hand-cash menu-icon"></i>
-                            <span>Payment</span>
+                            <i class="iconoir-consumable menu-icon"></i>
+                            <span>Product</span>
                         </a>
                     </li><!--end nav-item-->
                     <li class="nav-item">
