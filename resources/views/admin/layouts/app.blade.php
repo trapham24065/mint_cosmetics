@@ -13,32 +13,50 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{asset('assets/images/favicon.ico')}}">
-
-    <!-- App css -->
-    <link href="{{asset('assets/css/bootstrap.min.css')}}" rel="stylesheet" type="text/css" />
+    <!-- Vendor css (Require in all Page) -->
+    <link href="{{asset('assets/css/vendor.min.css')}}" rel="stylesheet" type="text/css" />
+    <!-- Icons css (Require in all Page) -->
     <link href="{{asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
+    <!-- App css (Require in all Page) -->
     <link href="{{asset('assets/css/app.min.css')}}" rel="stylesheet" type="text/css" />
+    <!-- Theme Config js (Require in all Page) -->
+    <script src="{{asset('assets/js/config.js')}}"></script>
 
 </head>
 
 <body>
-@include('admin.layouts.sidebar')
-<div class="page-wrapper">
-    <!-- Page Content-->
-    @yield('content')
-    <!-- end page content -->
+
+
+<!-- START Wrapper -->
+<div class="wrapper">
+    @include('admin.layouts.header')
+    @include('admin.layouts.timeline')
+    @include('admin.layouts.sidebar')
+    @include('admin.layouts.menu')
+    <div class="page-content">
+        <!-- Page Content-->
+        @yield('content')
+        @include('admin.layouts.footer')
+        <!-- end page content -->
+    </div>
+
 
 </div>
-@include('admin.layouts.footer')
-<!-- vendor js -->
 
-<script src="{{asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
-<script src="{{asset('assets/libs/simplebar/simplebar.min.js')}}"></script>
+<!-- Vendor Javascript (Require in all Page) -->
+<script src="{{asset('assets/js/vendor.js')}}"></script>
 
-<script src="{{asset('assets/libs/apexcharts/apexcharts.min.js')}}"></script>
-<script src="{{asset('assets/js/pages/index.init.js')}}"></script>
-<script src="{{asset('assets/js/DynamicSelect.js')}}"></script>
+<!-- App Javascript (Require in all Page) -->
 <script src="{{asset('assets/js/app.js')}}"></script>
+
+<!-- Vector Map Js -->
+<script src="{{asset('assets/vendor/jsvectormap/js/jsvectormap.min.js')}}"></script>
+<script src="{{asset('assets/vendor/jsvectormap/maps/world-merc.js')}}"></script>
+<script src="{{asset('assets/vendor/jsvectormap/maps/world.js')}}"></script>
+
+<!-- Dashboard Js -->
+<script src="{{asset('assets/js/pages/dashboard.js')}}"></script>
+
 </body>
 
 </html>

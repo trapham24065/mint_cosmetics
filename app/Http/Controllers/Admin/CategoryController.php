@@ -1,23 +1,18 @@
 <?php
 
-/**
- * @project mint_cosmetics
- * @author PhamTra
- * @email trapham24065@gmail.com
- * @date 8/22/2025
- * @time 3:15 PM
- */
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\Categories\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
+use App\Models\Attribute;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class CategoryController
+class CategoryController extends Controller
 {
 
     /**
@@ -26,8 +21,17 @@ class CategoryController
     public function index(): View
     {
         $categories = Category::latest()->paginate(10);
+        $totalCategories = Category::count();
+        $latestCategories = Category::latest()->take(4)->get();
 
-        return view('admin.categories.index', compact('categories'));
+        return view(
+            'admin.management.categories.index',
+            compact(
+                'categories',
+                'totalCategories',
+                'latestCategories'
+            )
+        );
     }
 
     /**
@@ -35,15 +39,30 @@ class CategoryController
      */
     public function create(): View
     {
-        return view('admin.categories.create');
+        $attributes = Attribute::all();
+
+        // FIXED: Return the 'create' view
+        return view('admin.management.categories.create', compact('attributes'));
     }
 
     /**
      * Store a newly created category in storage.
      */
+    /**
+     * Store a newly created category in storage.
+     */
     public function store(StoreCategoryRequest $request): RedirectResponse
     {
-        Category::create($request->validated());
+        // The request is already validated by StoreCategoryRequest
+        $validatedData = $request->validated();
+
+        // Create the category first
+        $category = Category::create($validatedData);
+
+        // Attach attributes if they are provided
+        if (isset($validatedData['attribute_ids'])) {
+            $category->productAttributes()->sync($validatedData['attribute_ids']);
+        }
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Category created successfully.');
@@ -54,7 +73,8 @@ class CategoryController
      */
     public function edit(Category $category): View
     {
-        return view('admin.categories.edit', compact('category'));
+        // FIXED: Return the 'edit' view and pass the category data
+        return view('admin.management.categories.edit', compact('category'));
     }
 
     /**

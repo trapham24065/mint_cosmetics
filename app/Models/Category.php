@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
@@ -44,6 +45,15 @@ class Category extends Model
     public function products(): HasMany|Category
     {
         return $this->hasMany(Product::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $category) {
+            if ($category->isDirty('name')) { // Only update slug if name has changed
+                $category->slug = Str::slug($category->name);
+            }
+        });
     }
 
     /**
