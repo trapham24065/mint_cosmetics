@@ -27,10 +27,9 @@
     <!-- Page Content-->
     <div class="page-content">
         @yield('content')
-
+        @include('admin.layouts.footer')
     </div>
 </div>
-@include('admin.layouts.footer')
 <!-- vendor js -->
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 <script src="{{asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
