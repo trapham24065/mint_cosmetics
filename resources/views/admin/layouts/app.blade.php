@@ -21,6 +21,8 @@
     <link href="{{asset('assets/css/app.min.css')}}" rel="stylesheet" type="text/css" />
     <!-- Theme Config js (Require in all Page) -->
     <script src="{{asset('assets/js/config.js')}}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 </head>
 
@@ -34,6 +36,7 @@
     @include('admin.layouts.sidebar')
     @include('admin.layouts.menu')
     <div class="page-content">
+        
         <!-- Page Content-->
         @yield('content')
         @include('admin.layouts.footer')
@@ -56,7 +59,7 @@
 
 <!-- Dashboard Js -->
 <script src="{{asset('assets/js/pages/dashboard.js')}}"></script>
-
+<x-toast />
 </body>
 
 </html>

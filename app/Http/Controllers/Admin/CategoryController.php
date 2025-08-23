@@ -6,9 +6,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Categories\StoreCategoryRequest;
-use App\Http\Requests\UpdateCategoryRequest;
+use App\Http\Requests\Categories\UpdateCategoryRequest;
 use App\Models\Attribute;
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -55,7 +56,7 @@ class CategoryController extends Controller
     {
         // The request is already validated by StoreCategoryRequest
         $validatedData = $request->validated();
-
+        $validatedData['active'] = $request->has('active');
         // Create the category first
         $category = Category::create($validatedData);
 
@@ -73,8 +74,20 @@ class CategoryController extends Controller
      */
     public function edit(Category $category): View
     {
-        // FIXED: Return the 'edit' view and pass the category data
-        return view('admin.management.categories.edit', compact('category'));
+        // Fetch all available attributes for the select input
+        $attributes = Attribute::all();
+
+        // Get an array of IDs for the attributes already linked to this category
+        $selectedAttributeIds = $category->productAttributes()->pluck('attribute_id')->toArray();
+
+        return view(
+            'admin.management.categories.edit',
+            compact(
+                'category',
+                'attributes',
+                'selectedAttributeIds'
+            )
+        );
     }
 
     /**
@@ -82,7 +95,32 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category): RedirectResponse
     {
-        $category->update($request->validated());
+        $validatedData = $request->validated();
+        $newAttributeIds = $validatedData['attribute_ids'] ?? [];
+
+        // START: Add logic to check for in-use attributes before updating
+        $currentAttributeIds = $category->productAttributes()->pluck('attribute_id')->toArray();
+        $attributesToBeRemoved = array_diff($currentAttributeIds, $newAttributeIds);
+
+        if (!empty($attributesToBeRemoved)) {
+            $conflictingProductCount = Product::where('category_id', $category->id)
+                ->whereHas('variants.attributeValues.attribute', function ($query) use ($attributesToBeRemoved) {
+                    $query->whereIn('attributes.id', $attributesToBeRemoved);
+                })
+                ->count();
+
+            if ($conflictingProductCount > 0) {
+                return back()->withInput()->withErrors([
+                    'attribute_ids' => "Cannot remove some attributes because {$conflictingProductCount} products in this category are currently using them.",
+                ]);
+            }
+        }
+        // END: Check logic
+        $validatedData['active'] = $request->has('active');
+
+        // If check passes, proceed with the update
+        $category->update($validatedData);
+        $category->productAttributes()->sync($newAttributeIds);
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Category updated successfully.');
@@ -93,6 +131,14 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category): RedirectResponse
     {
+        // Check if the category has any associated products.
+        if ($category->products()->count() > 0) {
+            // If it does, prevent deletion and return with an error message.
+            return redirect()->route('admin.categories.index')
+                ->with('error', "Cannot delete '{$category->name}'. It is assigned to products.");
+        }
+
+        // If no products are associated, proceed with deletion.
         $category->delete();
 
         return redirect()->route('admin.categories.index')
