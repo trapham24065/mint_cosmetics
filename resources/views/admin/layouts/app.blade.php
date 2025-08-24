@@ -36,7 +36,7 @@
     @include('admin.layouts.sidebar')
     @include('admin.layouts.menu')
     <div class="page-content">
-        
+
         <!-- Page Content-->
         @yield('content')
         @include('admin.layouts.footer')
@@ -59,6 +59,7 @@
 
 <!-- Dashboard Js -->
 <script src="{{asset('assets/js/pages/dashboard.js')}}"></script>
+@stack('scripts')
 <x-toast />
 </body>
 
