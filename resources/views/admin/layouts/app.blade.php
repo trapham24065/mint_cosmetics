@@ -14,13 +14,13 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{asset('assets/images/favicon.ico')}}">
     <!-- Vendor css (Require in all Page) -->
-    <link href="{{asset('assets/css/vendor.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{asset('assets/admin/css/vendor.min.css')}}" rel="stylesheet" type="text/css" />
     <!-- Icons css (Require in all Page) -->
-    <link href="{{asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{asset('assets/admin/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
     <!-- App css (Require in all Page) -->
-    <link href="{{asset('assets/css/app.min.css')}}" rel="stylesheet" type="text/css" />
+    <link href="{{asset('assets/admin/css/app.min.css')}}" rel="stylesheet" type="text/css" />
     <!-- Theme Config js (Require in all Page) -->
-    <script src="{{asset('assets/js/config.js')}}"></script>
+    <script src="{{asset('assets/admin/js/config.js')}}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
@@ -31,15 +31,15 @@
 
 <!-- START Wrapper -->
 <div class="wrapper">
-    @include('admin.layouts.header')
+    @include('admin.partials.header')
     @include('admin.layouts.timeline')
-    @include('admin.layouts.sidebar')
+    @include('admin.partials.sidebar')
     @include('admin.layouts.menu')
     <div class="page-content">
 
         <!-- Page Content-->
         @yield('content')
-        @include('admin.layouts.footer')
+        @include('admin.partials.footer')
         <!-- end page content -->
     </div>
 
@@ -47,18 +47,18 @@
 </div>
 
 <!-- Vendor Javascript (Require in all Page) -->
-<script src="{{asset('assets/js/vendor.js')}}"></script>
+<script src="{{asset('assets/admin/js/vendor.js')}}"></script>
 
 <!-- App Javascript (Require in all Page) -->
-<script src="{{asset('assets/js/app.js')}}"></script>
+<script src="{{asset('assets/admin/js/app.js')}}"></script>
 
 <!-- Vector Map Js -->
-<script src="{{asset('assets/vendor/jsvectormap/js/jsvectormap.min.js')}}"></script>
-<script src="{{asset('assets/vendor/jsvectormap/maps/world-merc.js')}}"></script>
-<script src="{{asset('assets/vendor/jsvectormap/maps/world.js')}}"></script>
+<script src="{{asset('assets/admin/vendor/jsvectormap/js/jsvectormap.min.js')}}"></script>
+<script src="{{asset('assets/admin/vendor/jsvectormap/maps/world-merc.js')}}"></script>
+<script src="{{asset('assets/admin/vendor/jsvectormap/maps/world.js')}}"></script>
 
 <!-- Dashboard Js -->
-<script src="{{asset('assets/js/pages/dashboard.js')}}"></script>
+<script src="{{asset('assets/admin/js/pages/dashboard.js')}}"></script>
 @stack('scripts')
 <x-toast />
 </body>

@@ -13,14 +13,21 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Attributes\StoreAttributeRequest;
 use App\Http\Requests\Attributes\UpdateAttributeRequest;
 use App\Models\Attribute;
-use App\Models\AttributeValue;
 use App\Models\Product;
+use App\Services\Admin\AttributeService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\DB;
 
 class AttributeController extends Controller
 {
+
+    protected AttributeService $attributeService;
+
+    public function __construct(AttributeService $attributeService)
+    {
+        $this->attributeService = $attributeService;
+    }
 
     /**
      * Display a listing of the attribute.
@@ -38,7 +45,7 @@ class AttributeController extends Controller
     {
         $attribute->load('categories', 'values');
 
-        $productIds = Product::whereHas('variants.attributeValues', function ($query) use ($attribute) {
+        $productIds = Product::whereHas('variants.attributeValues', static function ($query) use ($attribute) {
             $query->where('attribute_id', $attribute->id);
         })->pluck('id');
 
@@ -60,35 +67,14 @@ class AttributeController extends Controller
      */
     public function store(StoreAttributeRequest $request): RedirectResponse
     {
-        $validatedData = $request->validated();
-
         try {
-            DB::beginTransaction();
-
-            // Create the parent attribute
-            $attribute = Attribute::create(['name' => $validatedData['name']]);
-
-            // Create attribute values if they exist
-            if (!empty($validatedData['values'])) {
-                $valuesToCreate = [];
-                foreach ($validatedData['values'] as $value) {
-                    // Only add non-empty values
-                    if (!empty($value)) {
-                        $valuesToCreate[] = ['value' => $value];
-                    }
-                }
-                if (!empty($valuesToCreate)) {
-                    $attribute->values()->createMany($valuesToCreate);
-                }
-            }
-
-            DB::commit();
+            $this->attributeService->createAttribute($request->validated());
 
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute and its values created successfully.');
         } catch (\Exception $e) {
-            DB::rollBack();
-            // You can log the error here if needed: Log::error($e->getMessage());
+            Log::error('Attribute Creation Failed: '.$e->getMessage());
+
             return back()->withInput()->with('error', 'Failed to create attribute. Please try again.');
         }
     }
@@ -100,6 +86,7 @@ class AttributeController extends Controller
     {
         // Eager-load values to display in the form
         $attribute->load('values');
+
         return view('admin.management.attributes.edit', compact('attribute'));
     }
 
@@ -108,59 +95,15 @@ class AttributeController extends Controller
      */
     public function update(UpdateAttributeRequest $request, Attribute $attribute): RedirectResponse
     {
-        $validatedData = $request->validated();
-
         try {
-            DB::beginTransaction();
-
-            $attribute->update(['name' => $validatedData['name']]);
-
-            $submittedValueIds = array_keys($validatedData['values'] ?? []);
-
-            if (!empty($validatedData['values'])) {
-                foreach ($validatedData['values'] as $id => $valueText) {
-                    AttributeValue::where('id', $id)
-                        ->where('attribute_id', $attribute->id) // Security check
-                        ->update(['value' => $valueText]);
-                }
-            }
-
-            $originalValueIds = $attribute->values()->pluck('id')->toArray();
-            $valueIdsToDelete = array_diff($originalValueIds, $submittedValueIds);
-
-            if (!empty($valueIdsToDelete)) {
-                $inUseCount = DB::table('attribute_value_product_variant')
-                    ->whereIn('attribute_value_id', $valueIdsToDelete)
-                    ->count();
-
-                if ($inUseCount > 0) {
-                    DB::rollBack();
-                    return back()->withInput()
-                        ->with('error', "Cannot delete one or more values as they are currently in use by products.");
-                }
-
-                AttributeValue::whereIn('id', $valueIdsToDelete)->delete();
-            }
-
-            if (!empty($validatedData['new_values'])) {
-                $valuesToCreate = [];
-                foreach ($validatedData['new_values'] as $value) {
-                    if (!empty($value)) {
-                        $valuesToCreate[] = ['value' => $value];
-                    }
-                }
-                if (!empty($valuesToCreate)) {
-                    $attribute->values()->createMany($valuesToCreate);
-                }
-            }
-
-            DB::commit();
+            $this->attributeService->updateAttribute($attribute, $request->validated());
 
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute updated successfully.');
         } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withInput()->with('error', 'Failed to update attribute. Please try again.');
+            Log::error('Attribute Update Failed: '.$e->getMessage());
+            // The service throws the specific error message
+            return back()->withInput()->with('error', $e->getMessage());
         }
     }
 
@@ -169,20 +112,15 @@ class AttributeController extends Controller
      */
     public function destroy(Attribute $attribute): RedirectResponse
     {
-        if ($attribute->categories()->exists()) {
+        try {
+            $this->attributeService->deleteAttribute($attribute);
             return redirect()->route('admin.attributes.index')
-                ->with('error', "Cannot delete '{$attribute->name}'. It is linked to one or more categories.");
-        }
-
-        if ($attribute->values()->whereHas('productVariants')->exists()) {
+                ->with('success', 'Attribute deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Attribute Deletion Failed: '.$e->getMessage());
             return redirect()->route('admin.attributes.index')
-                ->with('error', "Cannot delete '{$attribute->name}'. Its values are in use by one or more products.");
+                ->with('error', $e->getMessage());
         }
-
-        $attribute->delete();
-
-        return redirect()->route('admin.attributes.index')
-            ->with('success', 'Attribute deleted successfully.');
     }
 
 }

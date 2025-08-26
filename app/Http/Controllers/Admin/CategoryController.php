@@ -16,15 +16,30 @@ use App\Http\Requests\Categories\StoreCategoryRequest;
 use App\Http\Requests\Categories\UpdateCategoryRequest;
 use App\Models\Attribute;
 use App\Models\Category;
-use App\Models\Product;
+use App\Services\Admin\CategoryService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
 
     /**
+     * The service for handling category logic.
+     */
+    protected CategoryService $categoryService;
+
+    /**
+     * Inject the service.
+     */
+    public function __construct(CategoryService $categoryService)
+    {
+        $this->categoryService = $categoryService;
+    }
+
+    /**
      * Display a listing of the categories.
+     * (No business logic here, so it remains unchanged)
      */
     public function index(): View
     {
@@ -44,47 +59,40 @@ class CategoryController extends Controller
 
     /**
      * Show the form for creating a new category.
+     * (No business logic here, so it remains unchanged)
      */
     public function create(): View
     {
         $attributes = Attribute::all();
-
-        // FIXED: Return the 'create' view
         return view('admin.management.categories.create', compact('attributes'));
     }
 
     /**
      * Store a newly created category in storage.
      */
-    /**
-     * Store a newly created category in storage.
-     */
     public function store(StoreCategoryRequest $request): RedirectResponse
     {
-        // The request is already validated by StoreCategoryRequest
-        $validatedData = $request->validated();
-        $validatedData['active'] = $request->has('active');
-        // Create the category first
-        $category = Category::create($validatedData);
+        try {
+            $data = $request->validated();
+            $data['active'] = $request->has('active'); // Prepare data for the service
 
-        // Attach attributes if they are provided
-        if (isset($validatedData['attribute_ids'])) {
-            $category->productAttributes()->sync($validatedData['attribute_ids']);
+            $this->categoryService->createCategory($data);
+
+            return redirect()->route('admin.categories.index')
+                ->with('success', 'Category created successfully.');
+        } catch (\Exception $e) {
+            Log::error('Category Creation Failed: '.$e->getMessage());
+            return back()->withInput()->with('error', 'Failed to create category.');
         }
-
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Category created successfully.');
     }
 
     /**
      * Show the form for editing the specified category.
+     * (No business logic here, so it remains unchanged)
      */
     public function edit(Category $category): View
     {
-        // Fetch all available attributes for the select input
         $attributes = Attribute::all();
-
-        // Get an array of IDs for the attributes already linked to this category
         $selectedAttributeIds = $category->productAttributes()->pluck('attribute_id')->toArray();
 
         return view(
@@ -102,35 +110,18 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category): RedirectResponse
     {
-        $validatedData = $request->validated();
-        $newAttributeIds = $validatedData['attribute_ids'] ?? [];
+        try {
+            $data = $request->validated();
+            $data['active'] = $request->has('active'); // Prepare data for the service
 
-        // START: Add logic to check for in-use attributes before updating
-        $currentAttributeIds = $category->productAttributes()->pluck('attribute_id')->toArray();
-        $attributesToBeRemoved = array_diff($currentAttributeIds, $newAttributeIds);
+            $this->categoryService->updateCategory($category, $data);
 
-        if (!empty($attributesToBeRemoved)) {
-            $conflictingProductCount = Product::where('category_id', $category->id)
-                ->whereHas('variants.attributeValues.attribute', function ($query) use ($attributesToBeRemoved) {
-                    $query->whereIn('attributes.id', $attributesToBeRemoved);
-                })
-                ->count();
-
-            if ($conflictingProductCount > 0) {
-                return back()->withInput()->withErrors([
-                    'attribute_ids' => "Cannot remove some attributes because {$conflictingProductCount} products in this category are currently using them.",
-                ]);
-            }
+            return redirect()->route('admin.categories.index')
+                ->with('success', 'Category updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Category Update Failed: '.$e->getMessage());
+            return back()->withInput()->with('error', $e->getMessage());
         }
-        // END: Check logic
-        $validatedData['active'] = $request->has('active');
-
-        // If check passes, proceed with the update
-        $category->update($validatedData);
-        $category->productAttributes()->sync($newAttributeIds);
-
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Category updated successfully.');
     }
 
     /**
@@ -138,18 +129,15 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category): RedirectResponse
     {
-        // Check if the category has any associated products.
-        if ($category->products()->count() > 0) {
-            // If it does, prevent deletion and return with an error message.
+        try {
+            $this->categoryService->deleteCategory($category);
             return redirect()->route('admin.categories.index')
-                ->with('error', "Cannot delete '{$category->name}'. It is assigned to products.");
+                ->with('success', 'Category deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Category Deletion Failed: '.$e->getMessage());
+            return redirect()->route('admin.categories.index')
+                ->with('error', $e->getMessage());
         }
-
-        // If no products are associated, proceed with deletion.
-        $category->delete();
-
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Category deleted successfully.');
     }
 
 }

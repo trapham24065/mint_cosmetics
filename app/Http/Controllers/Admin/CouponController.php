@@ -15,27 +15,37 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Coupons\StoreCouponRequest;
 use App\Http\Requests\Coupons\UpdateCouponRequest;
 use App\Models\Coupon;
+use App\Services\Admin\CouponService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class CouponController extends Controller
 {
 
     /**
+     * The service for handling coupon logic.
+     */
+    protected CouponService $couponService;
+
+    /**
+     * Inject the service.
+     */
+    public function __construct(CouponService $couponService)
+    {
+        $this->couponService = $couponService;
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(): View
     {
-        // Data for the main table (paginated)
         $coupons = Coupon::latest()->paginate(10);
-
-        // Data for the summary cards
         $totalCoupons = Coupon::count();
         $activeCoupons = Coupon::where('is_active', true)
-            ->where(function ($query) {
-                $query->where('expires_at', '>=', now())
-                    ->orWhereNull('expires_at');
-            })->count();
+            ->where(fn($query) => $query->where('expires_at', '>=', now())->orWhereNull('expires_at'))
+            ->count();
         $expiredCoupons = Coupon::where('expires_at', '<', now())->count();
 
         return view(
@@ -58,22 +68,23 @@ class CouponController extends Controller
         return view('admin.management.coupons.create', compact('types'));
     }
 
+    /**
+     * Store a newly created coupon in storage.
+     */
     public function store(StoreCouponRequest $request): RedirectResponse
     {
-        $validatedData = $request->validated();
-        $validatedData['is_active'] = $request->has('is_active');
+        try {
+            $data = $request->validated();
+            $data['is_active'] = $request->has('is_active');
 
-        Coupon::create($validatedData);
+            $this->couponService->createCoupon($data);
 
-        return redirect()->route('admin.coupons.index')->with('success', 'Coupon created successfully.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Coupon $coupon)
-    {
-        //
+            return redirect()->route('admin.coupons.index')
+                ->with('success', 'Coupon created successfully.');
+        } catch (\Exception $e) {
+            Log::error('Coupon Creation Failed: '.$e->getMessage());
+            return back()->withInput()->with('error', 'Failed to create coupon.');
+        }
     }
 
     /**
@@ -90,33 +101,18 @@ class CouponController extends Controller
      */
     public function update(UpdateCouponRequest $request, Coupon $coupon): RedirectResponse
     {
-        if ($coupon->times_used > 0) {
-            // If coupons are in use, prevent changing core financial fields.
-            // Compare submitted type and value with the existing ones.
-            if ($coupon->type->value !== $request->input('type') || (float)$coupon->value !== (float)$request->input(
-                    'value'
-                )) {
-                return back()->withInput()
-                    ->with('error', 'Cannot change Type or Value of a coupon that has already been used.');
-            }
+        try {
+            $data = $request->validated();
+            $data['is_active'] = $request->has('is_active');
+
+            $this->couponService->updateCoupon($coupon, $data);
+
+            return redirect()->route('admin.coupons.index')
+                ->with('success', 'Coupon updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Coupon Update Failed: '.$e->getMessage());
+            return back()->withInput()->with('error', $e->getMessage());
         }
-
-        // Prevent setting max_uses to a value less than the current usage count
-        if ($request->filled('max_uses') && $request->input('max_uses') < $coupon->times_used) {
-            return back()->withInput()
-                ->with(
-                    'error',
-                    "Max uses cannot be less than the current number of times used ({$coupon->times_used})."
-                );
-        }
-
-        $validatedData = $request->validated();
-        $validatedData['is_active'] = $request->has('is_active');
-
-        $coupon->update($validatedData);
-
-        return redirect()->route('admin.coupons.index')
-            ->with('success', 'Coupon updated successfully.');
     }
 
     /**
@@ -124,21 +120,15 @@ class CouponController extends Controller
      */
     public function destroy(Coupon $coupon): RedirectResponse
     {
-        // Check if the coupon has been used at least once.
-        if ($coupon->times_used > 0) {
-            // If it has been used, prevent deletion and return with an error.
+        try {
+            $this->couponService->deleteCoupon($coupon);
             return redirect()->route('admin.coupons.index')
-                ->with(
-                    'error',
-                    "Cannot delete coupon '{$coupon->code}'. It has already been used {$coupon->times_used} time(s). Please deactivate it instead."
-                );
+                ->with('success', 'Coupon deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Coupon Deletion Failed: '.$e->getMessage());
+            return redirect()->route('admin.coupons.index')
+                ->with('error', $e->getMessage());
         }
-
-        // If the check passes (coupon has never been used), proceed with deletion.
-        $coupon->delete();
-
-        return redirect()->route('admin.coupons.index')
-            ->with('success', 'Coupon deleted successfully.');
     }
 
 }
