@@ -12,33 +12,54 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Laravel') }}</title>
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{asset('assets/images/favicon.ico')}}">
+    <link rel="shortcut icon" href="{{asset('assets/admin/images/favicon.ico')}}">
+    <!-- Vendor css (Require in all Page) -->
+    <link href="{{asset('assets/admin/css/vendor.min.css')}}" rel="stylesheet" type="text/css" />
+    <!-- Icons css (Require in all Page) -->
+    <link href="{{asset('assets/admin/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
+    <!-- App css (Require in all Page) -->
+    <link href="{{asset('assets/admin/css/app.min.css')}}" rel="stylesheet" type="text/css" />
+    <!-- Theme Config js (Require in all Page) -->
+    <script src="{{asset('assets/admin/js/config.js')}}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- App css -->
-    <link href="{{asset('assets/css/bootstrap.min.css')}}" rel="stylesheet" type="text/css" />
-    <link href="{{asset('assets/css/icons.min.css')}}" rel="stylesheet" type="text/css" />
-    <link href="{{asset('assets/css/app.min.css')}}" rel="stylesheet" type="text/css" />
 
 </head>
 
 <body>
-@include('admin.layouts.sidebar')
-<div class="page-wrapper">
-    <!-- Page Content-->
-    <div class="page-content">
-        @yield('content')
-        @include('admin.layouts.footer')
-    </div>
-</div>
-<!-- vendor js -->
-@vite(['resources/css/app.css', 'resources/js/app.js'])
-<script src="{{asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
-<script src="{{asset('assets/libs/simplebar/simplebar.min.js')}}"></script>
 
-<script src="{{asset('assets/libs/apexcharts/apexcharts.min.js')}}"></script>
-<script src="{{asset('assets/js/pages/index.init.js')}}"></script>
-<script src="{{asset('assets/js/DynamicSelect.js')}}"></script>
-<script src="{{asset('assets/js/app.js')}}"></script>
+
+<!-- START Wrapper -->
+<div class="wrapper">
+    @include('admin.partials.header')
+    @include('admin.layouts.timeline')
+    @include('admin.partials.sidebar')
+    @include('admin.layouts.menu')
+    <div class="page-content">
+
+        <!-- Page Content-->
+        @yield('content')
+        @include('admin.partials.footer')
+        <!-- end page content -->
+    </div>
+
+
+</div>
+
+<!-- Vendor Javascript (Require in all Page) -->
+<script src="{{asset('assets/admin/js/vendor.js')}}"></script>
+
+<!-- App Javascript (Require in all Page) -->
+<script src="{{asset('assets/admin/js/app.js')}}"></script>
+
+<!-- Vector Map Js -->
+<script src="{{asset('assets/admin/vendor/jsvectormap/js/jsvectormap.min.js')}}"></script>
+<script src="{{asset('assets/admin/vendor/jsvectormap/maps/world-merc.js')}}"></script>
+<script src="{{asset('assets/admin/vendor/jsvectormap/maps/world.js')}}"></script>
+
+<!-- Dashboard Js -->
+<script src="{{asset('assets/admin/js/pages/dashboard.js')}}"></script>
+<x-toast />
 </body>
 
 </html>
