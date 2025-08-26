@@ -2,8 +2,7 @@
 vendor/
 storage/
 bootstrap/cache/
-public/build/
-public/hot
+public/
 node_modules/
 
 # Env & misc
