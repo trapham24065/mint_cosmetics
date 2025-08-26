@@ -11,7 +11,7 @@
  *
  * @time 3:24 PM
  */
-
+declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,7 +38,12 @@ class Attribute extends Model
      */
     public function categories(): BelongsToMany
     {
-        return $this->belongsToMany(Category::class, 'attribute_category');
+        return $this->belongsToMany(
+            Category::class,
+            'attribute_category',
+            'attribute_id',
+            'category_id'
+        );
     }
 
     public function products(): BelongsToMany
