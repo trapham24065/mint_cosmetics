@@ -76,9 +76,6 @@
                             <a class="sub-nav-link" href="{{route('admin.categories.index')}}">List</a>
                         </li>
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="category-edit.html">Edit</a>
-                        </li>
-                        <li class="sub-nav-item">
                             <a class="sub-nav-link" href="category-add.html">Create</a>
                         </li>
                     </ul>
@@ -317,7 +314,7 @@
                 <div class="collapse" id="sidebarCoupons">
                     <ul class="nav sub-navbar-nav">
                         <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="coupons-list.html">List</a>
+                            <a class="sub-nav-link" href="{{route('admin.coupons.index')}}">List</a>
                         </li>
                         <li class="sub-nav-item">
                             <a class="sub-nav-link" href="coupons-add.html">Add</a>
