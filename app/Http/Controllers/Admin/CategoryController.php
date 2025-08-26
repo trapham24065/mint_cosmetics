@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @project mint_cosmetics
+ * @author PhamTra
+ * @email trapham24065@gmail.com
+ * @date 8/25/2025
+ * @time 4:56 PM
+ */
 declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;

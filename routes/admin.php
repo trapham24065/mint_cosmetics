@@ -9,6 +9,7 @@
  */
 declare(strict_types=1);
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,3 +19,5 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 // Category Management
 Route::resource('categories', CategoryController::class);
+// Coupon Management
+Route::resource('coupons', CouponController::class);
