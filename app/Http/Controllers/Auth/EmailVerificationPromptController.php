@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -10,7 +11,6 @@ use Illuminate\View\View;
 
 class EmailVerificationPromptController extends Controller
 {
-
     /**
      * Display the email verification prompt.
      */
@@ -20,5 +20,4 @@ class EmailVerificationPromptController extends Controller
             ? redirect()->intended(route('dashboard', absolute: false))
             : view('admin.auth.verify-email');
     }
-
 }

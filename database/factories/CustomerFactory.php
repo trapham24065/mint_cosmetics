@@ -1,9 +1,14 @@
 <?php
+
 /**
  * @project mint_cosmetics
+ *
  * @author PhamTra
+ *
  * @email trapham24065@gmail.com
+ *
  * @date 8/22/2025
+ *
  * @time 3:31 PM
  */
 
@@ -14,7 +19,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CustomerFactory extends Factory
 {
-
     protected $model = Customer::class;
 
     public function definition(): array
@@ -23,5 +27,4 @@ class CustomerFactory extends Factory
 
         ];
     }
-
 }

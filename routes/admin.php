@@ -8,8 +8,10 @@
  * @time 3:11 PM
  */
 declare(strict_types=1);
+
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +23,5 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 Route::resource('categories', CategoryController::class);
 // Attribute Management
 Route::resource('attributes', AttributeController::class);
+// Coupon Management
+Route::resource('coupons', CouponController::class);

@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -12,7 +13,6 @@ use Illuminate\View\View;
 
 class ConfirmablePasswordController extends Controller
 {
-
     /**
      * Show the confirm password view.
      */
@@ -26,8 +26,8 @@ class ConfirmablePasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        if (!Auth::guard('web')->validate([
-            'email'    => $request->user()->email,
+        if (! Auth::guard('web')->validate([
+            'email' => $request->user()->email,
             'password' => $request->password,
         ])) {
             throw ValidationException::withMessages([
@@ -39,5 +39,4 @@ class ConfirmablePasswordController extends Controller
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
-
 }

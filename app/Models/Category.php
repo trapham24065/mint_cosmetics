@@ -1,43 +1,31 @@
 <?php
+
 /**
  * @project mint_cosmetics
+ *
  * @author PhamTra
+ *
  * @email trapham24065@gmail.com
+ *
  * @date 8/22/2025
+ *
  * @time 3:24 PM
  */
 
-declare(strict_types=1);
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
 
 class Category extends Model
 {
-
-    use HasFactory;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'slug',
         'active',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'active' => 'boolean',
     ];
@@ -45,15 +33,6 @@ class Category extends Model
     public function products(): HasMany|Category
     {
         return $this->hasMany(Product::class);
-    }
-
-    protected static function booted(): void
-    {
-        static::saving(function (self $category) {
-            if ($category->isDirty('name')) { // Only update slug if name has changed
-                $category->slug = Str::slug($category->name);
-            }
-        });
     }
 
     /**
@@ -68,5 +47,4 @@ class Category extends Model
             'attribute_id'
         );
     }
-
 }
