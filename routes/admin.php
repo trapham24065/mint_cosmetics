@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
 // The prefix 'admin' and middleware 'auth' are already applied from bootstrap/app.php
@@ -25,3 +26,8 @@ Route::resource('categories', CategoryController::class);
 Route::resource('attributes', AttributeController::class);
 // Coupon Management
 Route::resource('coupons', CouponController::class);
+// Product Management
+Route::resource('products', ProductController::class);
+
+Route::get('/categories/{category}/attributes', [CategoryController::class, 'getAttributes'])
+    ->name('categories.attributes');

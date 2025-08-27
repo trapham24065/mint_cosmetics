@@ -20,10 +20,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
-    use HasFactory;
+
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'category_id',
@@ -38,7 +41,7 @@ class Product extends Model
 
     protected $casts = [
         'list_image' => 'array',
-        'active' => 'boolean',
+        'active'     => 'boolean',
     ];
 
     public function category(): BelongsTo
@@ -76,4 +79,20 @@ class Product extends Model
     {
         return $this->belongsToMany(Attribute::class, 'attribute_product');
     }
+
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::creating(static function (Product $product) {
+            $product->slug = Str::slug($product->name);
+        });
+    }
+
 }

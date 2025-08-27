@@ -17,9 +17,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Category extends Model
 {
+
     protected $fillable = [
         'name',
         'slug',
@@ -47,4 +49,17 @@ class Category extends Model
             'attribute_id'
         );
     }
+
+    /**
+     * The "booted" method of the model.
+     *
+     * @return void
+     */
+    protected static function booted(): void
+    {
+        static::creating(static function (Category $category) {
+            $category->slug = Str::slug($category->name);
+        });
+    }
+
 }

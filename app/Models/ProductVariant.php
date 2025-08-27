@@ -18,9 +18,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProductVariant extends Model
 {
+
     use HasFactory;
 
     protected $fillable = [
@@ -47,4 +49,13 @@ class ProductVariant extends Model
     {
         return $this->belongsToMany(AttributeValue::class, 'attribute_value_product_variant');
     }
+
+    /**
+     * Get the order items for the product variant.
+     */
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
 }
