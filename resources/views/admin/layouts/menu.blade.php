@@ -112,6 +112,25 @@
                     </ul>
                 </div>
             </li>
+            <li class="nav-item">
+                <a class="nav-link menu-arrow" href="#sidebarBrands" data-bs-toggle="collapse"
+                   role="button" aria-expanded="false" aria-controls="sidebarCoupons">
+                                   <span class="nav-icon">
+                                        <iconify-icon icon="solar:ufo-2-bold-duotone"></iconify-icon>
+                                   </span>
+                    <span class="nav-text"> Brands </span>
+                </a>
+                <div class="collapse" id="sidebarBrands">
+                    <ul class="nav sub-navbar-nav">
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{route('admin.brands.index')}}">List</a>
+                        </li>
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{route('admin.brands.create')}}">Add</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
         </ul>
     </div>
 </div>

@@ -10,6 +10,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -31,3 +32,5 @@ Route::resource('products', ProductController::class);
 
 Route::get('/categories/{category}/attributes', [CategoryController::class, 'getAttributes'])
     ->name('categories.attributes');
+// Brand Management
+Route::resource('brands', BrandController::class);

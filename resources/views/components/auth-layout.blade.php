@@ -23,7 +23,7 @@
                             <div class="card-body p-0 bg-black auth-header-box rounded-top">
                                 <div class="text-center p-3">
                                     <a href="/" class="logo logo-admin">
-                                        <img src="{{ asset('assets/images/logo-sm.png') }}" height="50" alt="logo"
+                                        <img src="{{ asset('assets/admin/images/logo-sm.png') }}" height="50" alt="logo"
                                              class="auth-logo">
                                     </a>
                                     <h4 class="mt-3 mb-1 fw-semibold text-white fs-18">Welcome Back!</h4>
@@ -31,7 +31,7 @@
                                 </div>
                             </div>
                             <div class="card-body pt-0">
-                                {{ $slot }}
+                                @yield('content')
                             </div>
                         </div>
                     </div>
@@ -40,5 +40,13 @@
         </div>
     </div>
 </div>
+<link rel="shortcut icon" href="{{ asset('assets/admin/images/favicon.ico') }}">
+
+<link href="{{ asset('assets/admin/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="{{ asset('assets/admin/css/app.min.css') }}" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+@stack('scripts')
 </body>
 </html>

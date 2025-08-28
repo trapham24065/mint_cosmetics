@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author PhamTra
@@ -6,7 +7,7 @@
  * @date 8/24/2025
  * @time 5:05 PM
  */
-
+declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;

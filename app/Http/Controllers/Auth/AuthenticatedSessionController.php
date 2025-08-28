@@ -13,6 +13,7 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
+
     /**
      * Display the login view.
      */
@@ -44,6 +45,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/')->with('status', 'Signed out successfully.');
+        return redirect('/admin/login')->with('status', 'Signed out successfully.');
     }
+
 }
