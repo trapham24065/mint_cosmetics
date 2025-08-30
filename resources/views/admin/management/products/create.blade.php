@@ -66,7 +66,7 @@
                                         <option value="">Choose a category...</option>
                                         @foreach($categories as $category)
                                             <option
-                                                value="{{ $category->id }}" @selected(old('category_id') == $category->id)>{{ $category->name }}</option>
+                                                value="{{ $category->id }}" @selected(old('category_id') === $category->id)>{{ $category->name }}</option>
                                         @endforeach
                                     </select>
                                     @error('category_id')
@@ -79,7 +79,7 @@
                                         <option value="">Choose a brand</option>
                                         @foreach($brands as $brand)
                                             <option
-                                                value="{{ $brand->id }}" @selected(old('brand_id') == $brand->id)>{{ $brand->name }}</option>
+                                                value="{{ $brand->id }}" @selected(old('brand_id') === $brand->id)>{{ $brand->name }}</option>
                                         @endforeach
                                     </select>
                                     @error('brand_id')

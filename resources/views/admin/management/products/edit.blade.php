@@ -83,7 +83,7 @@
                                         <option value="">Choose a brand</option>
                                         @foreach($brands as $brand)
                                             <option value="{{ $brand->id }}"
-                                                @selected(old('brand_id', $product->brand_id) == $brand->id)>
+                                                @selected(old('brand_id', $product->brand_id) === $brand->id)>
                                                 {{ $brand->name }}
                                             </option>
                                         @endforeach
@@ -127,6 +127,11 @@
                                                value="{{ old('price', $firstVariant->price ?? '') }}">
                                     </div>
                                     <div class="col-md-4 mb-3">
+                                        <label class="form-label">Discount Price</label>
+                                        <input type="number" step="any" name="discount_price" class="form-control"
+                                               value="{{ old('discount_price', $firstVariant->discount_price ?? '') }}">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
                                         <label class="form-label">Stock</label>
                                         <input type="number" name="stock" class="form-control"
                                                value="{{ old('stock', $firstVariant->stock ?? '') }}">
@@ -148,57 +153,50 @@
                                 <label class="form-label fw-bold">Existing Variants:</label>
                                 <div id="variants-container">
                                     @foreach($product->variants as $variant)
-                                        @php
-                                            // Prepare the unique key for this variant's combination of attribute values
-                                            $combinationIds = $variant->attributeValues->pluck('id')->sort()->join(',');
-                                        @endphp
-                                        <div class="card mb-3 bg-light-subtle variant-form-row"
-                                             data-combination-ids="{{ $combinationIds }}"
-                                             data-variant-id="{{ $variant->id }}">
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <h6 class="card-title mb-0">
-                                                        {{-- Generate the variant name from its attribute values --}}
-                                                        {{ $variant->attributeValues->map(fn($val) => $val->attribute->name . ': ' . $val->value)->implode(' / ') ?: 'Default Variant' }}
-                                                    </h6>
-                                                    {{-- This button is handled by JavaScript to mark the variant for deletion --}}
-                                                    <button type="button" class="btn-close" aria-label="Close"></button>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-4">
-                                                        <label class="form-label">Price</label>
-                                                        <input type="number" step="any"
-                                                               name="variants[{{ $variant->id }}][price]"
-                                                               class="form-control @error('variants.'.$variant->id.'.price') is-invalid @enderror"
-                                                               value="{{ old('variants.'.$variant->id.'.price', $variant->price) }}"
-                                                               required>
-                                                        @error('variants.'.$variant->id.'.price')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
+                                        {{-- CHỈ HIỂN THỊ NẾU BIẾN THỂ NÀY CÓ GẮN THUỘC TÍNH --}}
+                                        @if($variant->attributeValues->isNotEmpty())
+                                            @php
+                                                $combinationIds = $variant->attributeValues->pluck('id')->sort()->join(',');
+                                            @endphp
+                                            <div class="card mb-3 bg-light-subtle variant-form-row"
+                                                 data-combination-ids="{{ $combinationIds }}"
+                                                 data-variant-id="{{ $variant->id }}">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <h6 class="card-title mb-0">
+                                                            {{ $variant->attributeValues->map(fn($val) => $val->attribute->name . ': ' . $val->value)->implode(' / ') }}
+                                                        </h6>
+                                                        <button type="button" class="btn-close"
+                                                                aria-label="Close"></button>
                                                     </div>
-                                                    <div class="col-md-4">
-                                                        <label class="form-label">Discount Price</label>
-                                                        <input type="number" step="any"
-                                                               name="variants[{{ $variant->id }}][discount_price]"
-                                                               class="form-control @error('variants.'.$variant->id.'.discount_price') is-invalid @enderror"
-                                                               value="{{ old('variants.'.$variant->id.'.discount_price', $variant->discount_price) }}">
-                                                        @error('variants.'.$variant->id.'.discount_price')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                    <div class="col-md-4">
-                                                        <label class="form-label">Stock</label>
-                                                        <input type="number" name="variants[{{ $variant->id }}][stock]"
-                                                               class="form-control @error('variants.'.$variant->id.'.stock') is-invalid @enderror"
-                                                               value="{{ old('variants.'.$variant->id.'.stock', $variant->stock) }}"
-                                                               required>
-                                                        @error('variants.'.$variant->id.'.stock')
-                                                        <div class="invalid-feedback">{{ $message }}</div>
-                                                        @enderror
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">Price</label>
+                                                            <input type="number" step="any"
+                                                                   name="variants[{{ $variant->id }}][price]"
+                                                                   class="form-control"
+                                                                   value="{{ old('variants.'.$variant->id.'.price', $variant->price) }}"
+                                                                   required>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">Discount Price</label>
+                                                            <input type="number" step="any"
+                                                                   name="variants[{{ $variant->id }}][discount_price]"
+                                                                   class="form-control"
+                                                                   value="{{ old('variants.'.$variant->id.'.discount_price', $variant->discount_price) }}">
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">Stock</label>
+                                                            <input type="number"
+                                                                   name="variants[{{ $variant->id }}][stock]"
+                                                                   class="form-control"
+                                                                   value="{{ old('variants.'.$variant->id.'.stock', $variant->stock) }}"
+                                                                   required>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        @endif
                                     @endforeach
                                 </div>
                                 <div id="new-variants-container"></div>
@@ -258,162 +256,168 @@
 
     @push('scripts')
         <!-- @formatter:off -->
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    // --- Pass data from PHP to JavaScript ---
-                    const allAttributesForCategory = @json($allAttributesForCategory);
-                    const selectedAttributeValueIds = @json($selectedAttributeValueIds);
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // --- 1. Pass data from PHP to JavaScript ---
+                const allAttributesForCategory = @json($allAttributesForCategory);
+                const selectedAttributeValueIds = @json($selectedAttributeValueIds);
 
-                    // --- Get DOM Elements ---
-                    const simpleFields = document.getElementById('simple-product-fields');
-                    const variableFields = document.getElementById('variable-product-fields');
-                    const categorySelect = document.getElementById('product-category');
-                    const attributesContainer = document.getElementById('attributes-container');
-                    const generateBtn = document.getElementById('generate-variants-btn');
-                    const variantsContainer = document.getElementById('variants-container');
-                    const newVariantsContainer = document.getElementById('new-variants-container');
-                    const mainForm = document.querySelector('form');
+                // --- 2. Get All Necessary DOM Elements ---
+                const simpleFields = document.getElementById('simple-product-fields');
+                const variableFields = document.getElementById('variable-product-fields');
+                const typeRadios = document.querySelectorAll('input[name="product_type"]');
+                const categorySelect = document.getElementById('product-category');
+                const attributesContainer = document.getElementById('attributes-container');
+                const generateBtn = document.getElementById('generate-variants-btn');
+                const variantsContainer = document.getElementById('variants-container'); // For existing variants
+                const newVariantsContainer = document.getElementById('new-variants-container'); // For newly generated variants
+                const mainForm = document.querySelector('form');
 
-                    // --- UI Toggle Logic ---
-                    function toggleProductTypeFields() {
-                        if (document.getElementById('type_simple').checked) {
-                            simpleFields.style.display = 'block';
-                            variableFields.style.display = 'none';
-                        } else {
-                            simpleFields.style.display = 'none';
-                            variableFields.style.display = 'block';
+                // --- 3. UI Toggle Logic ---
+                function toggleProductTypeFields() {
+                    const isSimple = document.getElementById('type_simple').checked;
+                    simpleFields.style.display = isSimple ? 'block' : 'none';
+                    variableFields.style.display = isSimple ? 'none' : 'block';
+                    simpleFields.querySelectorAll('input, select, textarea').forEach(input => input.disabled = !isSimple);
+                    variableFields.querySelectorAll('input, select, textarea, button').forEach(input => input.disabled = isSimple);
+                }
+
+                // --- 4. Event Listener for Product Type Change ---
+                typeRadios.forEach(radio => {
+                    radio.addEventListener('change', function () {
+                        toggleProductTypeFields();
+                        if (this.value === 'variable') {
+                            // Clear out generated variants when switching, but keep existing ones
+                            newVariantsContainer.innerHTML = '';
+                            categorySelect.dispatchEvent(new Event('change'));
                         }
-                    }
-                    document.querySelectorAll('input[name="product_type"]').forEach(radio => radio.addEventListener('change', toggleProductTypeFields));
-                    toggleProductTypeFields(); // Set the initial state
+                    });
+                });
 
-                    // --- Attribute & Variant Logic ---
-                    function renderAttributes(attributes) {
+                // --- 5. Attribute & Variant Logic ---
+                categorySelect.addEventListener('change', async function() {
+                    const categoryId = this.value;
+                    attributesContainer.innerHTML = '<p>Loading attributes...</p>';
+                    generateBtn.style.display = 'none';
+
+                    if (!categoryId) {
                         attributesContainer.innerHTML = '';
-                        if (attributes.length === 0) {
-                            generateBtn.style.display = 'none';
-                            return;
-                        }
+                        return;
+                    }
 
-                        attributes.forEach(attr => {
-                            let valuesHtml = attr.values.map(val => {
-                                const isChecked = selectedAttributeValueIds.includes(val.id) ? 'checked' : '';
-                                return `
+                    try {
+                        const response = await fetch(`/admin/categories/${categoryId}/attributes`);
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        const attributes = await response.json();
+                        renderAttributes(attributes);
+                    } catch (error) {
+                        attributesContainer.innerHTML = '<p class="text-danger">Failed to load attributes.</p>';
+                        console.error('Error fetching attributes:', error);
+                    }
+                });
+
+                function renderAttributes(attributes) {
+                    attributesContainer.innerHTML = '';
+                    if (attributes.length === 0) {
+                        attributesContainer.innerHTML = '<p class="text-muted">This category has no attributes linked.</p>';
+                        generateBtn.style.display = 'none';
+                        return;
+                    }
+
+                    attributes.forEach(attr => {
+                        let valuesHtml = attr.values.map(val => {
+                            const isChecked = selectedAttributeValueIds.includes(val.id) ? 'checked' : '';
+                            return `
                 <div class="form-check form-check-inline">
                     <input class="form-check-input attribute-value-check" type="checkbox" id="value-${val.id}"
                            data-attribute-id="${attr.id}" value="${val.id}" ${isChecked}>
                     <label class="form-check-label" for="value-${val.id}">${val.value}</label>
                 </div>`;
-                            }).join('');
+                        }).join('');
 
-                            attributesContainer.innerHTML += `<div class="mb-3 p-3 border rounded"><h6>${attr.name}</h6>${valuesHtml}</div>`;
-                        });
-                        generateBtn.style.display = 'block';
-                    }
+                        attributesContainer.innerHTML += `<div class="mb-3 p-3 border rounded"><h6>${attr.name}</h6>${valuesHtml}</div>`;
+                    });
+                    generateBtn.style.display = 'block';
+                }
 
-                    generateBtn.addEventListener('click', function() {
-                        // 1. Get all selected attribute values, grouped by attribute
-                        let selectedAttributeValues = {};
-                        document.querySelectorAll('.attribute-value-check:checked').forEach(checkbox => {
-                            const attrId = checkbox.dataset.attributeId;
-                            if (!selectedAttributeValues[attrId]) {
-                                selectedAttributeValues[attrId] = [];
-                            }
-                            selectedAttributeValues[attrId].push({
-                                id: checkbox.value,
-                                text: checkbox.nextElementSibling.textContent.trim()
-                            });
-                        });
-
-                        const attributesWithOptions = Object.values(selectedAttributeValues);
-                        if (attributesWithOptions.length === 0) {
-                            return; // Do nothing if no attributes are selected
+                generateBtn.addEventListener('click', function() {
+                    let selectedAttributeValues = {};
+                    document.querySelectorAll('.attribute-value-check:checked').forEach(checkbox => {
+                        const attrId = checkbox.dataset.attributeId;
+                        if (!selectedAttributeValues[attrId]) {
+                            selectedAttributeValues[attrId] = [];
                         }
-
-                        // 2. Get all combinations that ALREADY EXIST on the page
-                        const existingCombinations = new Set();
-                        document.querySelectorAll('.variant-form-row').forEach(row => {
-                            if (row.dataset.combinationIds) {
-                                existingCombinations.add(row.dataset.combinationIds);
-                            }
+                        selectedAttributeValues[attrId].push({
+                            id: checkbox.value,
+                            text: checkbox.nextElementSibling.textContent.trim()
                         });
+                    });
 
-                        // 3. Calculate all possible new combinations (Cartesian Product)
-                        const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
-                        const allPossibleCombinations = cartesian(...attributesWithOptions);
+                    const attributesWithOptions = Object.values(selectedAttributeValues);
+                    if (attributesWithOptions.length === 0) return;
 
-                        const newVariantsContainer = document.getElementById('new-variants-container');
+                    const existingCombinations = new Set();
+                    document.querySelectorAll('.variant-form-row').forEach(row => {
+                        if (row.dataset.combinationIds && row.style.display !== 'none') {
+                            existingCombinations.add(row.dataset.combinationIds);
+                        }
+                    });
 
-                        // 4. Filter and Render ONLY the truly new combinations
-                        allPossibleCombinations.forEach((combo, index) => {
-                            const comboArray = Array.isArray(combo) ? combo : [combo];
-                            const valueIds = comboArray.map(v => v.id);
-                            const combinationKey = [...valueIds].sort().join(','); // Create a sorted key for comparison
+                    const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+                    const allPossibleCombinations = cartesian(...attributesWithOptions);
 
-                            // Check if this combination already exists
-                            if (existingCombinations.has(combinationKey)) {
-                                return; // Skip if it already exists
-                            }
+                    newVariantsContainer.innerHTML = ''; // Clear previously generated new variants
 
-                            // If it's a new combination, render the form for it
-                            const variantName = comboArray.map(v => v.text).join(' / ');
-                            const formHtml = `
+                    allPossibleCombinations.forEach((combo, index) => {
+                        const comboArray = Array.isArray(combo) ? combo : [combo];
+                        const valueIds = comboArray.map(v => v.id);
+                        const combinationKey = [...valueIds].sort().join(',');
+
+                        if (existingCombinations.has(combinationKey)) return;
+
+                        const variantName = comboArray.map(v => v.text).join(' / ');
+                        const formHtml = `
             <div class="card mb-3 bg-success-subtle new-variant-form-row">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <h6 class="card-title"><span class="badge bg-success">NEW</span> ${variantName}</h6>
                         <button type="button" class="btn-close" onclick="this.closest('.new-variant-form-row').remove()"></button>
                     </div>
-
-                    {{-- Use 'new_variants' for the name attribute --}}
-                            <input type="hidden" name="new_variants[${index}][attribute_value_ids]" value="${valueIds.join(',')}">
-
+                    <input type="hidden" name="new_variants[${index}][attribute_value_ids]" value="${valueIds.join(',')}">
                     <div class="row">
-                        <div class="col-md-4">
-                            <label class="form-label">Price</label>
-                            <input type="number" step="any" name="new_variants[${index}][price]" class="form-control" placeholder="Price" required>
-                        </div>
-                         <div class="col-md-4">
-                            <label class="form-label">Discount Price</label>
-                            <input type="number" step="any" name="new_variants[${index}][discount_price]" class="form-control" placeholder="Discount Price">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Stock</label>
-                            <input type="number" name="new_variants[${index}][stock]" class="form-control" placeholder="Stock" required>
-                        </div>
+                        <div class="col-md-4"><label class="form-label">Price</label><input type="number" step="any" name="new_variants[${index}][price]" class="form-control" placeholder="Price" required></div>
+                        <div class="col-md-4"><label class="form-label">Discount Price</label><input type="number" step="any" name="new_variants[${index}][discount_price]" class="form-control" placeholder="Discount Price"></div>
+                        <div class="col-md-4"><label class="form-label">Stock</label><input type="number" name="new_variants[${index}][stock]" class="form-control" placeholder="Stock" required></div>
                     </div>
                 </div>
-            </div>
-        `;
-                            newVariantsContainer.insertAdjacentHTML('beforeend', formHtml);
-
-                            // Add the newly rendered combination to the set to avoid duplicating it if the button is clicked again
-                            existingCombinations.add(combinationKey);
-                        });
+            </div>`;
+                        newVariantsContainer.insertAdjacentHTML('beforeend', formHtml);
                     });
-
-                    // --- Variant Deletion Logic ---
-                    variantsContainer.addEventListener('click', function(event) {
-                        if (event.target.classList.contains('btn-close')) {
-                            const variantRow = event.target.closest('.variant-form-row');
-                            const variantId = variantRow.dataset.variantId;
-
-                            // Create a hidden input to mark for deletion
-                            const hiddenInput = document.createElement('input');
-                            hiddenInput.type = 'hidden';
-                            hiddenInput.name = 'deleted_variants[]';
-                            hiddenInput.value = variantId;
-                            mainForm.appendChild(hiddenInput);
-
-                            // Hide the row from the UI
-                            variantRow.style.display = 'none';
-                        }
-                    });
-
-                    // Initial render for the pre-selected category's attributes
-                    renderAttributes(allAttributesForCategory);
                 });
-            </script>
+
+                // --- 6. Variant Deletion Logic ---
+                variantsContainer.addEventListener('click', function(event) {
+                    if (event.target.classList.contains('btn-close')) {
+                        const variantRow = event.target.closest('.variant-form-row');
+                        const variantId = variantRow.dataset.variantId;
+
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'deleted_variants[]';
+                        hiddenInput.value = variantId;
+                        mainForm.appendChild(hiddenInput);
+
+                        variantRow.style.display = 'none';
+                    }
+                });
+
+                // --- 7. INITIALIZATION ---
+                toggleProductTypeFields();
+                if (document.getElementById('type_variable').checked) {
+                    renderAttributes(allAttributesForCategory);
+                }
+            });
+        </script>
         <!-- @formatter:on -->
     @endpush
 @endsection

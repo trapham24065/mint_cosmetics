@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace App\Services\Admin;
 
 use App\Models\Product;
-use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -105,45 +104,38 @@ class ProductService
             // 2. Update the main Product details
             $product->update($data);
 
-            // 3. Handle Variants
+            // 3. Data Integrity Check: Ensure no variants are in existing orders before deleting them
+            if ($product->variants()->whereHas('orderItems')->exists()) {
+                throw new \RuntimeException("Cannot update variants because one or more are part of existing orders.");
+            }
+
+            // 4. Create a clean slate: Delete all old variants
+            $product->variants()->delete();
+
+            // 5. Re-create variants based on the new product type (using the same logic as create)
             if ($data['product_type'] === 'simple') {
-                $variant = $product->variants()->firstOrNew([]);
-                $variant->price = $data['price'];
-                $variant->stock = $data['stock'];
-                $variant->save();
-                $product->variants()->where('id', '!=', $variant->id)->delete(); // Delete others
+                $product->variants()->create([
+                    'price'          => $data['price'],
+                    'discount_price' => $data['discount_price'] ?? null,
+                    'stock'          => $data['stock'],
+                ]);
             } elseif ($data['product_type'] === 'variable') {
-                $submittedVariantIds = [];
-
-                // Update existing variants
-                if (!empty($data['variants'])) {
-                    foreach ($data['variants'] as $id => $variantData) {
-                        $product->variants()->where('id', $id)->update($variantData);
-                        $submittedVariantIds[] = $id;
-                    }
+                // Combine existing edited variants and newly generated variants
+                $allVariantsData = array_merge($data['variants'] ?? [], $data['new_variants'] ?? []);
+                if (empty($allVariantsData)) {
+                    throw new \RuntimeException('A variable product must have at least one variant.');
                 }
 
-                // Delete variants that were removed from the form
-                $variantsToDelete = $product->variants()->whereNotIn('id', $submittedVariantIds)->get();
-                foreach ($variantsToDelete as $variantToDelete) {
-                    // DATA INTEGRITY CHECK
-                    if ($variantToDelete->orderItems()->exists()) {
-                        throw new \RuntimeException("Cannot delete variant because it is part of existing orders.");
-                    }
-                    $variantToDelete->delete();
-                }
-
-                // Create new variants
-                if (!empty($data['new_variants'])) {
-                    foreach ($data['new_variants'] as $variantData) {
-                        $newVariant = $product->variants()->create($variantData);
+                foreach ($allVariantsData as $variantData) {
+                    $variant = $product->variants()->create($variantData);
+                    if (!empty($variantData['attribute_value_ids'])) {
                         $valueIds = explode(',', $variantData['attribute_value_ids']);
-                        $newVariant->attributeValues()->sync($valueIds);
+                        $variant->attributeValues()->sync($valueIds);
                     }
                 }
             }
 
-            return $product->fresh();
+            return $product->fresh(['variants']);
         });
     }
 
