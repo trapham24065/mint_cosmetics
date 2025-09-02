@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Add to Cart</title>
+    <meta name="csrf-token" content="test-token">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <h1>Test Add to Cart</h1>
+    
+    <!-- Test Button -->
+    <button type="button" class="action-btn-cart" 
+            data-variant-id="1" 
+            data-quantity="1">
+        Add to Cart Test
+    </button>
+
+    <div id="cart-count">0</div>
+
+    <script>
+        // Test addToCart function
+        window.addToCart = function (variantId, quantity, buttonElement) {
+            console.log('Add to cart called with:', { variantId, quantity, buttonElement });
+            
+            if (!variantId || !quantity) {
+                console.error('Missing variantId or quantity:', { variantId, quantity });
+                alert('Could not determine product variant or quantity.');
+                return;
+            }
+            
+            alert('Add to cart function works! Variant ID: ' + variantId);
+        };
+
+        // Test event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            document.body.addEventListener('click', function(event) {
+                console.log('Click detected on:', event.target);
+                
+                const addToCartButton = event.target.closest('.action-btn-cart');
+                console.log('Add to cart button found:', addToCartButton);
+
+                if (addToCartButton) {
+                    event.preventDefault();
+                    const variantId = addToCartButton.dataset.variantId;
+                    const quantity = addToCartButton.dataset.quantity || 1;
+
+                    console.log('Add to cart button clicked:', { variantId, quantity, button: addToCartButton });
+
+                    if (window.addToCart) {
+                        window.addToCart(variantId, quantity, addToCartButton);
+                    } else {
+                        console.error('addToCart function not found');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

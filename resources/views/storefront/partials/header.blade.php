@@ -4,7 +4,7 @@
         <div class="row align-items-center">
             <div class="col-5 col-sm-6 col-lg-3">
                 <div class="header-logo">
-                    <a href="index.html">
+                    <a href="{{route('home')}}">
                         <img class="logo-main" src="{{asset('assets/storefront/images/logo.webp')}}" width="95"
                              height="68" alt="Logo" />
                     </a>
@@ -17,13 +17,6 @@
                         <li><a href="#">about</a></li>
                         <li><a href="{{route('shop')}}">shop</a></li>
                         <li><a href="#">Blog</a></li>
-                        <li class="has-submenu"><a href="account-login.html">Pages</a>
-                            <ul class="submenu-nav">
-                                <li><a href="account-login.html">My Account</a></li>
-                                <li><a href="faq.html">Frequently Questions</a></li>
-                                <li><a href="page-not-found.html">Page Not Found</a></li>
-                            </ul>
-                        </li>
                         <li><a href="#">Contact</a></li>
                     </ul>
                 </div>
@@ -49,36 +42,25 @@
 
                     <button class="header-action-btn" type="button" data-bs-toggle="offcanvas"
                             data-bs-target="#AsideOffcanvasCart" aria-controls="AsideOffcanvasCart">
-                                <span class="icon">
-                  <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"
-                       xmlns:xlink="http://www.w3.org/1999/xlink">
-                    <rect class="icon-rect" width="30" height="30" fill="url(#pattern2)" />
-                    <defs>
-                      <pattern id="pattern2" patternContentUnits="objectBoundingBox" width="1" height="1">
-                        <use xlink:href="#image0_504:9" transform="scale(0.0333333)" />
-                      </pattern>
-                      <image id="image0_504:9" width="30" height="30"
-                             xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABmJLR0QA/wD/AP+gvaeTAAABFUlEQVRIie2VMU7DMBSGvwAqawaYuAmKxCW4A1I5Qg4AA93KBbp1ZUVUlQJSVVbCDVhgzcTQdLEVx7WDQ2xLRfzSvzzb+d6zn2MYrkugBBYevuWsHKiFn2JBMwH8Bq6Aw1jgBwHOYwGlPgT4LDZ4I8BJDNiEppl034UEJ8DMAJ0DByHBACPgUYEugePQUKkUWAmnsaB/Ry/YO9aXCwlT72AdrqaWEohwBWxSwc8ReIVtYIr5bM5pXqO+Men7rozGlkVSv4lJj1WQfsbvXVkNVNk1eEK4ik9/yuwzAPhLh5iuU4jtftMDR4ZJJXChxTJ2H3zXGDgWc43/X2Wro8G81a8u2fXU2nXiLVAxvNIKuPGW/r/2SltF+a3Rkw4pmwAAAABJRU5ErkJggg==" />
-                    </defs>
-                  </svg>
-                </span>
+                        <span class="icon position-relative">
+                            <svg width="30" height="30" viewBox="0 0 30 30" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 xmlns:xlink="http://www.w3.org/1999/xlink">
+                                <rect class="icon-rect" width="30" height="30" fill="url(#pattern2)" />
+                                <defs>
+                                  <pattern id="pattern2" patternContentUnits="objectBoundingBox" width="1" height="1">
+                                    <use xlink:href="#image0_504:9" transform="scale(0.0333333)" />
+                                  </pattern>
+                                  <image id="image0_504:9" width="30" height="30"
+                                         xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABmJLR0QA/wD/AP+gvaeTAAABFUlEQVRIie2VMU7DMBSGvwAqawaYuAmKxCW4A1I5Qg4AA93KBbp1ZUVUlQJSVVbCDVhgzcTQdLEVx7WDQ2xLRfzSvzzb+d6zn2MYrkugBBYevuWsHKiFn2JBMwH8Bq6Aw1jgBwHOYwGlPgT4LDZ4I8BJDNiEppl034UEJ8DMAJ0DByHBACPgUYEugePQUKkUWAmnsaB/Ry/YO9aXCwlT72AdrqaWEohwBWxSwc8ReIVtYIr5bM5pXqO+Men7rozGlkVSv4lJj1WQfsbvXVkNVNk1eEK4ik9/yuwzAPhLh5iuU4jtftMDR4ZJJXChxTJ2H3zXGDgWc43/X2Wro8G81a8u2fXU2nXiLVAxvNIKuPGW/r/2SltF+a3Rkw4pmwAAAABJRU5ErkJggg==" />
+                                </defs>
+                            </svg>
+                            <span id="cart-count"
+                                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ get_cart_count() }}
+                            </span>
+                        </span>
                     </button>
-
-                    <a class="header-action-btn" href="account-login.html">
-                                <span class="icon">
-                  <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"
-                       xmlns:xlink="http://www.w3.org/1999/xlink">
-                    <rect class="icon-rect" width="30" height="30" fill="url(#pattern3)" />
-                    <defs>
-                      <pattern id="pattern3" patternContentUnits="objectBoundingBox" width="1" height="1">
-                        <use xlink:href="#image0_504:10" transform="scale(0.0333333)" />
-                      </pattern>
-                      <image id="image0_504:10" width="30" height="30"
-                             xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAABmJLR0QA/wD/AP+gvaeTAAABEUlEQVRIie3UMUoDYRDF8Z8psqUpLBRrBS+gx7ATD6E5iSjeQQ/gJUzEwmChnZZaKZiQ0ljsLkhQM5/5Agr74DX7DfOfgZ1Hoz+qAl30Marcx2H1thCtY4DJN76parKqmAH9DM+6eTcArX2QE3yVAO7lBA8TwMNIw6UgeJI46My+rWCjUQL0LVIUBd8lgEO1UfBZAvg8oXamCuWNRu64nRNMmUo/wReSXLXayoDoKc9miMvqW/ZNG2VRNLla2MYudrCFTvX2intlnl/gGu/zDraGYzyLZ/UTjrD6G2AHpxgnAKc9xgmWo9BNPM4BnPYDNiLg24zQ2oNpyFdZvRKZLlGhnvvKPzXXti/Yy7hEo3+iD9EHtgdqxQnwAAAAAElFTkSuQmCC" />
-                    </defs>
-                  </svg>
-                </span>
-                    </a>
 
                     <button class="header-menu-btn" type="button" data-bs-toggle="offcanvas"
                             data-bs-target="#AsideOffcanvasMenu" aria-controls="AsideOffcanvasMenu">

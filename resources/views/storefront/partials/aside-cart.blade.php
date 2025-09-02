@@ -26,8 +26,8 @@
             </li>
         </ul>
         <p class="cart-total"><span>Subtotal:</span><span class="amount">£89.99</span></p>
-        <a class="btn-total" href="{{route('cart')}}">View cart</a>
-        <a class="btn-total" href="{{route('checkout')}}">Checkout</a>
+        <a class="btn-total" href="{{route('cart.index')}}">View cart</a>
+        <a class="btn-total" href="{{route('checkout.index')}}">Checkout</a>
     </div>
 </aside>
 <!--== End Aside Cart ==-->

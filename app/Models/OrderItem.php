@@ -14,22 +14,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderItem extends Model
 {
 
-    use HasFactory;
-
     protected $fillable = [
-        'order_id',
-        'product_id',
-        'product_variant_id',
-        'product_name',
-        'quantity',
-        'price',
+        'order_id', 'product_variant_id', 'product_name',
+        'quantity', 'price', 'total'
     ];
 
     public function order(): BelongsTo
@@ -37,9 +30,10 @@ class OrderItem extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function product(): BelongsTo
+    public function productVariant(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(ProductVariant::class);
     }
 
 }
+
