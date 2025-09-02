@@ -13,5 +13,6 @@ return [
     'vietqr' => [
         'bank_id'        => env('VIETQR_BANK_ID'),
         'account_number' => env('VIETQR_ACCOUNT_NUMBER'),
+        'prefix'         => env('VIETQR_PREFIX', 'DH'),
     ],
 ];

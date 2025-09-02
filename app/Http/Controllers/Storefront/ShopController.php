@@ -13,15 +13,15 @@ namespace App\Http\Controllers\Storefront;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class ShopController extends Controller
 {
 
-    public function index(Request $request): View
+    public function index(): View
     {
         // Base query for active products only
         $query = Product::query()->where('active', true)->with(['variants']);
@@ -47,22 +47,23 @@ class ShopController extends Controller
 
             // Log for debugging
             Log::info('Quick view product found:', [
-                'id' => $product->id,
-                'name' => $product->name,
-                'variants_count' => $product->variants->count()
+                'id'             => $product->id,
+                'name'           => $product->name,
+                'variants_count' => $product->variants->count(),
             ]);
 
             return response()->json($product);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Quick view error:', [
                 'product' => $product->id ?? 'unknown',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ]);
 
             return response()->json([
-                'error' => 'Product not found',
-                'message' => $e->getMessage()
+                'error'   => 'Product not found',
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
+
 }

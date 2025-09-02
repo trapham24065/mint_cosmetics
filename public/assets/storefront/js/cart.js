@@ -44,9 +44,17 @@ window.addToCart = function (variantId, quantity, buttonElement) {
 
         if (modalImage) modalImage.src = imageUrl;
         if (modalProductName) modalProductName.textContent = data.addedItem.product_name;
+          document.querySelectorAll('.modal.show').forEach(openModal => {
+              const instance = bootstrap.Modal.getInstance(openModal);
+              if (instance) instance.hide();
+          });
 
-        const cartModal = new bootstrap.Modal(document.getElementById('action-CartAddModal'));
-        cartModal.show();
+          const cartModalEl = document.getElementById('action-CartAddModal');
+          let cartModal = bootstrap.Modal.getInstance(cartModalEl);
+          if (!cartModal) {
+              cartModal = new bootstrap.Modal(cartModalEl);
+          }
+          cartModal.show();
       } else {
         Swal.fire('Error', data.message || 'Could not add product to cart.', 'error');
       }

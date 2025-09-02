@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author PhamTra
@@ -6,34 +7,43 @@
  * @date 9/1/2025
  * @time 3:07 PM
  */
-
+declare(strict_types=1);
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-
 use App\Services\Storefront\CartService;
 use App\Services\Storefront\OrderService;
+use App\Services\Storefront\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-use cuongnm\viet_qr_pay\QRPay;
-
 class PaymentController extends Controller
 {
+
+    protected CartService $cartService;
+
+    protected OrderService $orderService;
+
+    protected PaymentService $paymentService;
+
+    public function __construct(CartService $cartService, OrderService $orderService, PaymentService $paymentService)
+    {
+        $this->cartService = $cartService;
+        $this->orderService = $orderService;
+        $this->paymentService = $paymentService;
+    }
 
     /**
      * Handle the submission of the checkout form and create an order.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Services\Storefront\OrderService  $orderService
-     * @param  \App\Services\Storefront\CartService  $cartService
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function placeOrder(Request $request, OrderService $orderService, CartService $cartService): RedirectResponse
+    public function placeOrder(Request $request): RedirectResponse
     {
         // 1. Validate customer information from the checkout form
         $validatedData = $request->validate([
@@ -46,13 +56,13 @@ class PaymentController extends Controller
         ]);
 
         // 2. Get cart contents from the service
-        $cartData = $cartService->getCartContents();
+        $cartData = $this->cartService->getCartContents();
         if (empty($cartData['items'])) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
         // 3. Call the OrderService to create a new order in the database
-        $order = $orderService->createOrder($validatedData, $cartData);
+        $order = $this->orderService->createOrder($validatedData, $cartData);
 
         // 4. Clear the cart from the session after the order is created
         session()->forget('cart');
@@ -70,19 +80,8 @@ class PaymentController extends Controller
      */
     public function showPaymentPage(Order $order): View
     {
-        $paymentDescription = 'DH'.$order->id;
-        // 1. Initialize the QRPay object using the correct library
-        $qrPay = QRPay::initVietQR(
-            config('payment.vietqr.bank_id'),
-            config('payment.vietqr.account_number'),
-            (string)(int)$order->total_price,
-            $paymentDescription
-        );
+        $qrString = $this->paymentService->generateVietQrString($order);
 
-        // 2. Generate the QR string
-        $qrString = $qrPay->build();
-
-        // 3. Return the view, passing the order and the QR string
         return view('storefront.payment.show', compact('order', 'qrString'));
     }
 

@@ -30,9 +30,9 @@ class WebhookController extends Controller
                 $order->status = OrderStatus::Processing;
                 $order->save();
 
-                Log::info("Order #{$orderId} was updated successfully via webhook from SePay.");
+                Log::info("Order #$orderId was updated successfully via webhook from SePay.");
             } else {
-                Log::warning("Webhook for Order #{$orderId}: Mismatch or order not found/pending.", [
+                Log::warning("Webhook for Order #$orderId: Mismatch or order not found/pending.", [
                     'expected_amount' => (int)($order->total_price ?? 'N/A'),
                     'received_amount' => (int)$amount,
                     'current_status'  => $order->status ?? 'Not Found',
@@ -42,7 +42,7 @@ class WebhookController extends Controller
             Log::warning('Webhook received but could not extract Order ID from code.', ['code' => $paymentCode]);
         }
 
-        return response()->json(['status' => 'success'], 200);
+        return response()->json(['status' => 'success']);
     }
 
 }

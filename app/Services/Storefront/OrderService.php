@@ -18,7 +18,7 @@ class OrderService
     public function createOrder(array $customerData, array $cartData): Order
     {
         return DB::transaction(function () use ($customerData, $cartData) {
-            // 1. Tạo đơn hàng chính
+            // 1. Create a single row main
             $order = Order::create([
                 'total_price' => $cartData['total'],
                 'status'      => 'pending',
@@ -30,7 +30,7 @@ class OrderService
                 'notes'       => $customerData['notes'] ?? null,
             ]);
 
-            // 2. Tạo các mục trong đơn hàng từ giỏ hàng
+            // 2. Create order items from cart
             $orderItems = [];
             foreach ($cartData['items'] as $item) {
                 $orderItems[] = [

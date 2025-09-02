@@ -78,7 +78,7 @@ class CartService
                 $newQuantity = max(1, (int)$quantity); // Ensure quantity is at least 1
 
                 if ($variant && $variant->stock < $newQuantity) {
-                    throw new \Exception("Not enough stock for one of the products.");
+                    throw new \RuntimeException("Not enough stock for one of the products.");
                 }
                 $cart[$variantId]['quantity'] = $newQuantity;
             }
