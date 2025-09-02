@@ -12,6 +12,7 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Services\Storefront\CartService;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -49,7 +50,7 @@ class CartController extends Controller
                 'message' => 'Cart updated successfully.',
                 'cart'    => $cartData,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
     }
@@ -66,7 +67,7 @@ class CartController extends Controller
                 'message' => 'Item removed from cart.',
                 'cart'    => $cartData,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception) {
             return response()->json(['success' => false, 'message' => 'Could not remove item.'], 500);
         }
     }
@@ -84,7 +85,7 @@ class CartController extends Controller
                 (int)$request->input('quantity')
             );
             return response()->json($result);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
     }

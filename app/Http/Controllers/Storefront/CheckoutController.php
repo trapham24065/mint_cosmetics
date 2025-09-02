@@ -13,14 +13,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
-use App\Models\Order;
-use App\Models\OrderItem;
+
 use App\Services\Storefront\CartService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Session;
-use cuongnm\viet_qr_pay\VietQRPay;
 use Illuminate\View\View;
 
 class CheckoutController extends Controller
