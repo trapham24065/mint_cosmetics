@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,7 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        //hàm để chạy được js , css trên ngrok
+        if (app()->environment('production') || str_contains(request()->getHost(), 'ngrok-free.app')) {
+            URL::forceScheme('https');
+        }
     }
 
 }

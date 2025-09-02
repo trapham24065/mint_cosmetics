@@ -92,78 +92,11 @@
         <section class="section-space">
             <div class="container">
                 <div class="row mb-n4 mb-sm-n10 g-3 g-sm-6">
+                    {{-- DYNAMIC PRODUCT GRID --}}
                     @forelse ($products as $product)
                         <div class="col-6 col-lg-4 mb-4 mb-sm-8">
-                            <!--== Start Product Item ==-->
-                            <div class="product-item">
-                                <div class="product-thumb">
-                                    <a class="d-block" href="{{-- route('products.show', $product->slug) --}}">
-                                        <img
-                                            src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/storefront/images/shop/1.webp') }}"
-                                            width="370"
-                                            height="450" alt="{{ $product->name }}">
-                                    </a>
-                                    <span class=" flag-new">new</span>
-                                    <div class="product-action">
-                                        <button type="button" class="product-action-btn action-btn-quick-view"
-                                                data-product-id="{{ $product->id }}">
-                                            <i class="fa fa-expand"></i>
-                                        </button>
-                                        <button type="button" class="product-action-btn action-btn-cart"
-                                                data-bs-toggle="modal" data-bs-target="#action-CartAddModal">
-                                            <span>Add to cart</span>
-                                        </button>
-                                        <button type="button" class="product-action-btn action-btn-wishlist"
-                                                data-bs-toggle="modal" data-bs-target="#action-WishlistModal">
-                                            <i class="fa fa-heart-o"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="product-info">
-                                    <div class="product-rating">
-                                        <div class="rating">
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-o"></i>
-                                            <i class="fa fa-star-half-o"></i>
-                                        </div>
-                                        <div class="reviews">150 reviews</div>
-                                    </div>
-                                    <h4 class="title"><a
-                                            href="{{-- route('products.show', $product->slug) --}}">{{ $product->name }}</a>
-                                    </h4>
-                                    <div class="prices">
-                                        @php $firstVariant = $product->variants->first(); @endphp
-                                        @if($firstVariant)
-                                            @if($firstVariant->discount_price && $firstVariant->discount_price < $firstVariant->price)
-                                                <span class="price">{{ number_format($firstVariant->discount_price, 0, ',', '.') }} VNĐ</span>
-                                                <span class="price-old">{{ number_format($firstVariant->price, 0, ',', '.') }} VNĐ</span>
-                                            @else
-                                                <span class="price">{{ number_format($firstVariant->price, 0, ',', '.') }} VNĐ</span>
-                                            @endif
-                                        @endif
-                                    </div>
-                                    <div class="product-action-bottom">
-                                        <button type="button" class="product-action-btn action-btn-quick-view"
-                                                data-bs-toggle="modal" data-bs-target="#action-QuickViewModal">
-                                            <i class="fa fa-expand"></i>
-                                        </button>
-                                        <button type="button" class="product-action-btn action-btn-wishlist"
-                                                data-bs-toggle="modal" data-bs-target="#action-WishlistModal">
-                                            <i class="fa fa-heart-o"></i>
-                                        </button>
-                                        <button type="button" class="product-action-btn action-btn-cart"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#action-CartAddModal">
-                                            <span>Add to cart</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <!--== End product Item ==-->
-
-                            </div>
-
+                            {{-- Call the component and pass the product data into it --}}
+                            <x-product-card :product="$product" />
                         </div>
                     @empty
                         <div class="col-12">

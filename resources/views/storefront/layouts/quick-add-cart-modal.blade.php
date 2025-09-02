@@ -12,10 +12,12 @@
                     </div>
                     <div class="modal-action-product">
                         <div class="thumb">
-                            <img src="assets/images/shop/modal1.webp" alt="Organic Food Juice" width="466"
-                                 height="320">
+
+                            <img id="modal-product-image" src="{{ asset('assets/storefront/images/shop/modal1.webp') }}"
+                                 alt="Product" width="466" height="320">
                         </div>
-                        <h4 class="product-name"><a href="product-details.html">Readable content DX22</a></h4>
+                        <h4 class="product-name"><a id="modal-product-name">Product Name</a>
+                        </h4>
                     </div>
                 </div>
             </div>

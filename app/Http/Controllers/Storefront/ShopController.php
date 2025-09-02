@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author PhamTra
@@ -14,6 +15,7 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class ShopController extends Controller
@@ -39,10 +41,28 @@ class ShopController extends Controller
      */
     public function quickView(Product $product): JsonResponse
     {
-        // Eager-load the first variant to get price info
-        $product->load(['variants.attributeValues.attribute']);
+        try {
+            // Eager-load the first variant to get price info
+            $product->load(['variants.attributeValues.attribute', 'category', 'brand']);
 
-        return response()->json($product);
+            // Log for debugging
+            Log::info('Quick view product found:', [
+                'id' => $product->id,
+                'name' => $product->name,
+                'variants_count' => $product->variants->count()
+            ]);
+
+            return response()->json($product);
+        } catch (\Exception $e) {
+            Log::error('Quick view error:', [
+                'product' => $product->id ?? 'unknown',
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'error' => 'Product not found',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
-
 }
