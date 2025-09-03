@@ -16,6 +16,7 @@ namespace App\Enums;
 
 enum OrderStatus: string
 {
+
     case Pending = 'pending';
     case Processing = 'processing';
     case Shipped = 'shipped';
@@ -37,6 +38,11 @@ enum OrderStatus: string
         };
     }
 
+    /**
+     * Get the corresponding color class for the status.
+     *
+     * @return string
+     */
     public function color(): string
     {
         return match ($this) {
@@ -47,4 +53,20 @@ enum OrderStatus: string
             self::Cancelled, self::Failed => 'danger',
         };
     }
+
+    /**
+     * Get the numerical step for the progress bar.
+     */
+    public function step(): int
+    {
+        return match ($this) {
+            self::Pending => 1,
+            self::Processing => 2,
+            self::Shipped => 3,
+            self::Delivered => 4,
+            self::Completed => 5,
+            self::Cancelled => 0,
+        };
+    }
+
 }

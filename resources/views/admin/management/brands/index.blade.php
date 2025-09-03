@@ -66,11 +66,12 @@
                     </div>
                     @if ($brands->hasPages())
                         <div class="card-footer border-top">
-                            <nav aria-label="Page navigation">
-                                {{ $brands->links() }}
+                            <nav>
+                                {{ $brands->appends(request()->query())->links('vendor.pagination.admin-paginnation') }}
                             </nav>
                         </div>
                     @endif
+
                 </div>
             </div>
         </div>

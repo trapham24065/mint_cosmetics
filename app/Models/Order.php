@@ -23,18 +23,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
+
     use HasFactory;
     use HasOrderStatus;
 
     protected $fillable = [
-        'customer_id',
         'total_price',
         'status',
         'payment_method',
         'transaction_id',
-        'bank_code',
         'notes',
-        'cart_items',
         'first_name',
         'last_name',
         'address',
@@ -51,7 +49,7 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function orderItems(): HasMany
+    public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
@@ -77,4 +75,5 @@ class Order extends Model
     {
         return self::where('status', OrderStatus::Completed)->sum('total_price');
     }
+
 }

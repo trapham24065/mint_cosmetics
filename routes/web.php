@@ -17,15 +17,12 @@ Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::patch('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/remove/{variantId}', [CartController::class, 'remove'])->name('cart.remove');
-// Route để hiển thị trang checkout
+
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-// Route để xử lý việc đặt hàng
 Route::post('/checkout/place-order', [PaymentController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::post('/hooks/sepay-payment', [WebhookController::class, 'handlePaymentWebhook']);
 
-// Route để hiển thị trang chứa mã QR
 Route::get('/order/{order}/payment', [PaymentController::class, 'showPaymentPage'])->name('payment.show');
-// Route để JavaScript kiểm tra trạng thái đơn hàng
 Route::get('/order/{order}/status', [PaymentController::class, 'checkOrderStatus'])->name('payment.status');
 
 Route::get('/products/{product}/quick-view', [ShopController::class, 'quickView'])->name('products.quickView');
