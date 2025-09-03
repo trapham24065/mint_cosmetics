@@ -115,7 +115,13 @@
 
                 <div class="mt-3">
                     {{-- Append query strings to pagination links --}}
-                    {{ $products->appends(request()->query())->links() }}
+                    @if ($products->hasPages())
+                        <div class="card-footer border-top">
+                            <nav>
+                                {{ $products->appends(request()->query())->links('vendor.pagination.admin-paginnation') }}
+                            </nav>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

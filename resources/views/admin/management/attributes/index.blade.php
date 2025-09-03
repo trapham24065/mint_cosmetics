@@ -72,8 +72,8 @@
                     </div>
                     @if ($attributes->hasPages())
                         <div class="card-footer border-top">
-                            <nav aria-label="Page navigation">
-                                {{ $attributes->links() }}
+                            <nav>
+                                {{ $attributes->appends(request()->query())->links('vendor.pagination.admin-paginnation') }}
                             </nav>
                         </div>
                     @endif

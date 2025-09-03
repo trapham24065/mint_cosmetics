@@ -92,9 +92,8 @@
                     </div>
                     @if ($categories->hasPages())
                         <div class="card-footer border-top">
-                            <nav aria-label="Page navigation example">
-                                {{-- Dynamic Pagination Links --}}
-                                {{ $categories->links() }}
+                            <nav>
+                                {{ $categories->appends(request()->query())->links('vendor.pagination.admin-paginnation') }}
                             </nav>
                         </div>
                     @endif
