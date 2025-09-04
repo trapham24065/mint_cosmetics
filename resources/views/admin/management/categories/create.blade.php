@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container-xxl">
-        <form method="POST" action="{{ route('admin.categories.store') }}">
+        <form method="POST" action="{{ route('admin.categories.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="row">
                 <div class="col-xl-3 col-lg-4">
@@ -49,7 +49,23 @@
                                         @enderror
                                     </div>
                                 </div>
-
+                                <div class="col-12 mb-3">
+                                    <label for="category-image" class="form-label">Category Image</label>
+                                    {{-- Show current image on edit page --}}
+                                    @if (isset($category) && $category->image)
+                                        <div class="mb-2">
+                                            <img src="{{ asset('storage/' . $category->image) }}"
+                                                 alt="{{ $category->name }}" class="img-thumbnail" width="150">
+                                        </div>
+                                        <label for="category-image" class="form-label fst-italic">Upload new image to
+                                            replace</label>
+                                    @endif
+                                    <input class="form-control @error('image') is-invalid @enderror" type="file"
+                                           id="category-image" name="image">
+                                    @error('image')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                                 {{-- Active Status --}}
                                 <div class="col-lg-12">
                                     <div class="mb-3">
