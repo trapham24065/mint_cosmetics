@@ -66,7 +66,9 @@
 <!-- Custom Main JS -->
 <script src="{{asset('assets/storefront/js/main.js')}}"></script>
 <!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{asset('assets/storefront/js/cart.js')}}"></script>
+<script src="{{ asset('assets/storefront/js/aside-cart.js') }}"></script>
 @stack('scripts')
 
 <!-- Test Script -->
@@ -116,7 +118,7 @@
                     return response.json();
                 }).then(product => {
 
-                    // Check if product has required data
+                    // Check if the product has required data
                     if (!product || !product.name) {
                         throw new Error('Invalid product data received');
                     }
@@ -134,7 +136,7 @@
                 return;
             }
 
-            // Handle Add to Cart
+            // Handle Adds to Cart
             const addToCartButton = event.target.closest('.action-btn-cart');
             if (addToCartButton) {
                 event.preventDefault();

@@ -7,25 +7,9 @@
                 class="fa fa-chevron-right"></i></button>
     </div>
     <div class="offcanvas-body">
-        <ul class="aside-cart-product-list">
-            <li class="aside-product-list-item">
-                <a href="#/" class="remove">×</a>
-                <a href="product-details.html">
-                    <img src="assets/images/shop/cart1.webp" width="68" height="84" alt="Image">
-                    <span class="product-title">Leather Mens Slipper</span>
-                </a>
-                <span class="product-price">1 × £69.99</span>
-            </li>
-            <li class="aside-product-list-item">
-                <a href="#/" class="remove">×</a>
-                <a href="product-details.html">
-                    <img src="assets/images/shop/cart2.webp" width="68" height="84" alt="Image">
-                    <span class="product-title">Quickiin Mens shoes</span>
-                </a>
-                <span class="product-price">1 × £20.00</span>
-            </li>
+        <ul class="aside-cart-product-list" id="aside-cart-product-list">
         </ul>
-        <p class="cart-total"><span>Subtotal:</span><span class="amount">£89.99</span></p>
+        <p class="cart-total"><span>Subtotal:</span><span class="amount" id="aside-cart-subtotal">0 VNĐ</span></p>
         <a class="btn-total" href="{{route('cart.index')}}">View cart</a>
         <a class="btn-total" href="{{route('checkout.index')}}">Checkout</a>
     </div>

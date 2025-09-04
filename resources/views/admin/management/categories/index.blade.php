@@ -11,8 +11,11 @@
                             <div
                                 class="rounded bg-secondary-subtle d-flex align-items-center justify-content-center mx-auto"
                                 style="height: 80px; width: 80px;">
+                                <img
+                                    src="{{ $category->image ? asset('storage/' . $category->image) : asset('assets/admin/images/default-category.png') }}"
+                                    alt="{{ $category->name }}" style="height: 80px; width: 80px;">
                                 {{-- Placeholder Icon, you can add dynamic images later if available --}}
-                                <i class="fas fa-tag fa-2x text-secondary"></i>
+
                             </div>
                             <h5 class="mt-3 mb-0">{{ $category->name }}</h5>
                             <small class="text-muted">{{ $category->created_at->format('Y-m-d') }}</small>
@@ -38,6 +41,7 @@
                                 <thead class="bg-light-subtle">
                                 <tr>
                                     <th>ID</th>
+                                    <th>Image</th>
                                     <th>Name</th>
                                     <th>Slug</th>
                                     <th>Status</th>
@@ -51,6 +55,11 @@
                                         <td>{{ $category->id }}</td>
                                         <td>
                                             <p class="text-dark fw-medium fs-15 mb-0">{{ $category->name }}</p>
+                                        </td>
+                                        <td>
+                                            <img
+                                                src="{{ $category->image ? asset('storage/' . $category->image) : asset('assets/admin/images/default-category.png') }}"
+                                                alt="{{ $category->name }}" class="avatar-sm">
                                         </td>
                                         <td>{{ $category->slug }}</td>
                                         <td>
