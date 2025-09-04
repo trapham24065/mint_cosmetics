@@ -50,10 +50,11 @@
                                         @enderror
                                     </div>
                                 </div>
+
+                                {{-- Category Image --}}
                                 <div class="col-12 mb-3">
                                     <label for="category-image" class="form-label">Category Image</label>
-                                    {{-- Show current image on edit page --}}
-                                    @if (isset($category) && $category->image)
+                                    @if ($category->image)
                                         <div class="mb-2">
                                             <img src="{{ asset('storage/' . $category->image) }}"
                                                  alt="{{ $category->name }}" class="img-thumbnail" width="150">
@@ -67,13 +68,14 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
+
                                 {{-- Active Status --}}
                                 <div class="col-lg-12">
                                     <div class="mb-3">
                                         <div class="form-check form-switch form-switch-success">
                                             <input class="form-check-input" type="checkbox" id="category-active"
                                                    name="active" value="1"
-                                                   @if(old('active', $category->active)) checked @endif>
+                                                @checked(old('active', $category->active))>
                                             <label class="form-check-label" for="category-active">Active</label>
                                         </div>
                                         @error('active')
@@ -91,7 +93,7 @@
                                             <option value="">Select attributes...</option>
                                             @foreach ($attributes as $attribute)
                                                 <option value="{{ $attribute->id }}"
-                                                        @if(in_array($attribute->id, old('attribute_ids', $selectedAttributeIds))) selected @endif>
+                                                    @selected(in_array($attribute->id, old('attribute_ids', $selectedAttributeIds)))>
                                                     {{ $attribute->name }}
                                                 </option>
                                             @endforeach

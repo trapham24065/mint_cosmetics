@@ -89,6 +89,18 @@ class CategoryController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(Category $category): View
+    {
+        $category->load('productAttributes');
+
+        $products = $category->products()->latest()->paginate(10);
+
+        return view('admin.management.categories.show', compact('category', 'products'));
+    }
+
+    /**
      * Show the form for editing the specified category.
      * (No business logic here, so it remains unchanged)
      */

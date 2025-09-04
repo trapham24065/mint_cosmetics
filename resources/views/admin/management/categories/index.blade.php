@@ -72,6 +72,11 @@
                                         <td>{{ $category->created_at->format('Y-m-d H:i') }}</td>
                                         <td>
                                             <div class="d-flex gap-2">
+                                                <a href="{{ route('admin.categories.show', $category) }}"
+                                                   class="btn btn-soft-info btn-sm">
+                                                    <iconify-icon icon="solar:eye-broken"
+                                                                  class="align-middle fs-18"></iconify-icon>
+                                                </a>
                                                 <a href="{{ route('admin.categories.edit', $category) }}"
                                                    class="btn btn-soft-primary btn-sm">
                                                     <iconify-icon icon="solar:pen-2-broken"

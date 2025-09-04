@@ -90,4 +90,13 @@ class CartController extends Controller
         }
     }
 
+    /**
+     * Get the current contents of the cart as JSON.
+     */
+    public function getContents(): JsonResponse
+    {
+        $cartData = $this->cartService->getCartContents();
+        return response()->json($cartData);
+    }
+
 }

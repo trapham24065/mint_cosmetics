@@ -36,6 +36,7 @@ class UpdateCategoryRequest extends FormRequest
 
         return [
             'name'            => ['required', 'string', 'max:255', Rule::unique('categories')->ignore($categoryId)],
+            'image'           => ['nullable', 'image', 'mimes:jpg,png,jpeg,webp', 'max:1024'],
             'active'          => ['sometimes', 'boolean'],
             'attribute_ids'   => ['nullable', 'array'],
             'attribute_ids.*' => ['exists:attributes,id'],

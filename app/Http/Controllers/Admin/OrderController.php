@@ -13,7 +13,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -24,7 +24,7 @@ class OrderController extends Controller
 
     public function index(Request $request): View
     {
-        // --- Lấy dữ liệu cho bảng chính ---
+        // --- Get data for main table ---
         $query = Order::query();
 
         if ($request->filled('status')) {
@@ -41,11 +41,11 @@ class OrderController extends Controller
             );
         }
 
-        $orders = $query->latest()->paginate(15);
+        $orders = $query->latest()->paginate(10);
 
         // --- Get data for summary tags ---
         $statusCounts = Order::query()
-            ->select('status', (array)DB::raw('count(*) as total'))
+            ->select('status', DB::raw('count(*) as total'))
             ->groupBy('status')
             ->pluck('total', 'status');
 
