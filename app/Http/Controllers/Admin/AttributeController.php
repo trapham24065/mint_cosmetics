@@ -16,6 +16,7 @@ use App\Http\Requests\Attributes\UpdateAttributeRequest;
 use App\Models\Attribute;
 use App\Models\Product;
 use App\Services\Admin\AttributeService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -35,8 +36,7 @@ class AttributeController extends Controller
      */
     public function index(): View
     {
-        $attributes = Attribute::with('values')->latest()->paginate(10);
-        return view('admin.management.attributes.index', compact('attributes'));
+        return view('admin.management.attributes.index');
     }
 
     /**
@@ -122,6 +122,28 @@ class AttributeController extends Controller
             return redirect()->route('admin.attributes.index')
                 ->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Provide data for the Grid.js table via AJAX.
+     */
+    public function getDataForGrid(): JsonResponse
+    {
+        $attributes = Attribute::with('values')->latest()->get();
+
+        // Format data for Grid.js
+        $data = $attributes->map(function ($attribute) {
+            return [
+                'id'         => $attribute->id,
+                'name'       => $attribute->name,
+                'values'     => $attribute->values->pluck('value')->implode(', '),
+                'created_at' => $attribute->created_at->format('d M, Y'),
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+        ]);
     }
 
 }

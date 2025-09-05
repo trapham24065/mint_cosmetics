@@ -16,6 +16,7 @@ use App\Http\Requests\Coupons\StoreCouponRequest;
 use App\Http\Requests\Coupons\UpdateCouponRequest;
 use App\Models\Coupon;
 use App\Services\Admin\CouponService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -129,6 +130,31 @@ class CouponController extends Controller
             return redirect()->route('admin.coupons.index')
                 ->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Provide data for the Grid.js table via AJAX.
+     */
+    public function getDataForGrid(): JsonResponse
+    {
+        $coupons = Coupon::latest()->get();
+
+        // Format data for Grid.js
+        $data = $coupons->map(function ($coupon) {
+            return [
+                'id'        => $coupon->id,
+                'code'      => $coupon->code,
+                'type'      => $coupon->type->value,
+                'value'     => (float)$coupon->value,
+                'usage'     => ($coupon->times_used ?? 0).' / '.($coupon->max_uses ?? '∞'),
+                'dates'     => $coupon->starts_at->format('d/m/Y').' - '.$coupon->expires_at->format('d/m/Y'),
+                'is_active' => $coupon->isValid(),
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+        ]);
     }
 
 }

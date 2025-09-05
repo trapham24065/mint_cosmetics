@@ -10,80 +10,87 @@
                             <i class="bx bx-plus"></i> New Brand
                         </a>
                     </div>
-                    <div>
-                        <div class="table-responsive">
-                            <table class="table align-middle mb-0 table-hover table-centered">
-                                <thead class="bg-light-subtle">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Logo</th>
-                                    <th>Name</th>
-                                    <th>Slug</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @forelse ($brands as $brand)
-                                    <tr>
-                                        <td>{{ $brand->id }}</td>
-                                        <td>
-                                            <img
-                                                src="{{ $brand->logo ? asset('storage/' . $brand->logo) : asset('assets/admin/images/default-brand.png') }}"
-                                                alt="{{ $brand->name }}" class="avatar-sm">
-                                        </td>
-                                        <td>{{ $brand->name }}</td>
-                                        <td>{{ $brand->slug }}</td>
-                                        <td>
-                                            @if ($brand->is_active)
-                                                <span class="badge bg-success">Active</span>
-                                            @else
-                                                <span class="badge bg-secondary">Inactive</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('admin.brands.show', $brand) }}"
-                                               class="btn btn-sm btn-soft-info">
-                                                <iconify-icon icon="solar:eye-broken"
-                                                              class="align-middle fs-18"></iconify-icon>
-                                            </a>
-                                            <a href="{{ route('admin.brands.edit', $brand) }}"
-                                               class="btn btn-sm btn-primary">
-                                                <iconify-icon icon="solar:pen-2-broken"
-                                                              class="align-middle fs-18"></iconify-icon>
-                                            </a>
-                                            <form action="{{ route('admin.brands.destroy', $brand) }}" method="POST"
-                                                  class="d-inline"
-                                                  onsubmit="return confirm('Are you sure?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">
-                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
-                                                                  class="align-middle fs-18"></iconify-icon>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center">No coupons found.</td>
-                                    </tr>
-                                @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="card-body">
+                        <div id="table-data-brands"></div>
                     </div>
-                    @if ($brands->hasPages())
-                        <div class="card-footer border-top">
-                            <nav>
-                                {{ $brands->appends(request()->query())->links('vendor.pagination.admin-paginnation') }}
-                            </nav>
-                        </div>
-                    @endif
-
                 </div>
             </div>
         </div>
 
     </div>
 @endsection
+
+@push('scripts')
+    <!-- @formatter:off -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (document.getElementById("table-data-brands")) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                new gridjs.Grid({
+                    columns: [
+                        { id: 'id', name: 'ID', width: '80px' },
+                        {
+                            id: 'logo',
+                            name: 'Logo',
+                            width: '100px',
+                            formatter: (cell) => {
+                                const imageUrl = cell ? `{{ asset('storage') }}/${cell}` : `{{ asset('assets/admin/images/default-brand.png') }}`;
+                                return gridjs.html(`<img src="${imageUrl}" alt="Logo" class="avatar-sm">`);
+                            }
+                        },
+                        { id: 'name', name: 'Name' },
+                        { id: 'slug', name: 'Slug' },
+                        {
+                            id: 'is_active',
+                            name: 'Status',
+                            formatter: (cell) => {
+                                return cell
+                                    ? gridjs.html('<span class="badge bg-success">Active</span>')
+                                    : gridjs.html('<span class="badge bg-secondary">Inactive</span>');
+                            }
+                        },
+                        {
+                            name: 'Actions',
+                            width: '150px',
+                            formatter: (cell, row) => {
+                                const brandId = row.cells[0].data;
+                                const showUrl = `{{ route('admin.brands.index') }}/${brandId}`;
+                                const editUrl = `{{ route('admin.brands.index') }}/${brandId}/edit`;
+                                const deleteUrl = `{{ route('admin.brands.index') }}/${brandId}`;
+
+                                return gridjs.html(`
+                                <div class="d-flex gap-2">
+                                    <a href="${showUrl}" class="btn btn-sm btn-soft-info"><iconify-icon icon="solar:eye-broken"
+                                                                  class="align-middle fs-18"></iconify-icon></a>
+                                    <a href="${editUrl}" class="btn btn-sm btn-primary"> <iconify-icon icon="solar:pen-2-broken"
+                                                                  class="align-middle fs-18"></iconify-icon></a>
+
+                                    <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                        <input type="hidden" name="_token" value="${csrfToken}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn-sm btn-danger"><iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
+                                                                      class="align-middle fs-18"></iconify-icon></button>
+                                    </form>
+                                </div>`
+                                );
+                            }
+                        }
+                    ],
+                    server: {
+                        url: '{{ route('admin.api.brands.data') }}',
+                        then: results => results.data,
+                    },
+                    sort: true,
+                    search: true,
+                    pagination: {
+                        limit: 10
+                    },
+                }).render(document.getElementById("table-data-brands"));
+            }
+        });
+    </script>
+    <!-- @formatter:on -->
+
+@endpush

@@ -13,6 +13,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,16 +30,6 @@ class OrderController extends Controller
 
         if ($request->filled('status')) {
             $query->where('status', $request->input('status'));
-        }
-        if ($request->filled('search')) {
-            $searchTerm = '%'.$request->input('search').'%';
-            $query->where(
-                fn($q) => $q->where('id', 'like', $searchTerm)->orWhere('first_name', 'like', $searchTerm)->orWhere(
-                    'email',
-                    'like',
-                    $searchTerm
-                )
-            );
         }
 
         $orders = $query->latest()->paginate(10);
@@ -78,6 +69,30 @@ class OrderController extends Controller
         } catch (ValueError) {
             return back()->with('error', 'Invalid status selected.');
         }
+    }
+
+    /**
+     * Provide data for the Grid.js table via AJAX.
+     */
+    public function getDataForGrid(): JsonResponse
+    {
+        $query = Order::latest()->get();
+
+        // Format data for Grid.js
+        $data = $query->map(function ($order) {
+            return [
+                'id'           => $order->id,
+                'customer'     => $order->first_name.' '.$order->last_name,
+                'total'        => $order->total_price,
+                'status'       => $order->status->value,
+                'status_color' => $order->status->color(),
+                'created_at'   => $order->created_at->format('d M, Y'),
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+        ]);
     }
 
 }
