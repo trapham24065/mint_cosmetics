@@ -92,15 +92,24 @@
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.products.show', $product) }}"
-                                       class="btn btn-sm btn-soft-info">View</a>
+                                       class="btn btn-sm btn-soft-info">
+                                        <iconify-icon icon="solar:eye-broken"
+                                                      class="align-middle fs-18"></iconify-icon>
+                                    </a>
                                     <a href="{{ route('admin.products.edit', $product) }}"
-                                       class="btn btn-sm btn-soft-primary">Edit</a>
+                                       class="btn btn-sm btn-soft-primary">
+                                        <iconify-icon icon="solar:pen-2-broken"
+                                                      class="align-middle fs-18"></iconify-icon>
+                                    </a>
                                     <form action="{{ route('admin.products.destroy', $product) }}" method="POST"
                                           class="d-inline"
                                           onsubmit="return confirm('[MSG-P8] Are you sure you want to delete this product?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-soft-danger">Delete</button>
+                                        <button type="submit" class="btn btn-sm btn-soft-danger">
+                                            <iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
+                                                          class="align-middle fs-18"></iconify-icon>
+                                        </button>
                                     </form>
                                 </td>
                             </tr>

@@ -43,15 +43,24 @@
                                         </td>
                                         <td>
                                             <a href="{{ route('admin.brands.show', $brand) }}"
-                                               class="btn btn-sm btn-soft-info">View</a>
+                                               class="btn btn-sm btn-soft-info">
+                                                <iconify-icon icon="solar:eye-broken"
+                                                              class="align-middle fs-18"></iconify-icon>
+                                            </a>
                                             <a href="{{ route('admin.brands.edit', $brand) }}"
-                                               class="btn btn-sm btn-primary">Edit</a>
+                                               class="btn btn-sm btn-primary">
+                                                <iconify-icon icon="solar:pen-2-broken"
+                                                              class="align-middle fs-18"></iconify-icon>
+                                            </a>
                                             <form action="{{ route('admin.brands.destroy', $brand) }}" method="POST"
                                                   class="d-inline"
                                                   onsubmit="return confirm('Are you sure?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
+                                                                  class="align-middle fs-18"></iconify-icon>
+                                                </button>
                                             </form>
                                         </td>
                                     </tr>

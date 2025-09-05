@@ -50,7 +50,7 @@
                             clearInterval(pollInterval);
                             clearInterval(countdownInterval);
                             statusElement.innerHTML = `<h3><span class="badge bg-success">Payment Confirmed!</span></h3><p>You will be redirected shortly...</p>`;
-                            setTimeout(() => window.location.href = '/', 3000);
+                            setTimeout(() => window.location.href = `/order/${orderId}/thank-you`, 3000);
                         }
                     }).catch(error => {
                         console.error('Polling error:', error);
