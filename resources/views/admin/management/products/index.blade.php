@@ -10,129 +10,92 @@
                 </a>
             </div>
             <div class="card-body">
-                <form method="GET" action="{{ route('admin.products.index') }}" class="mb-4">
-                    <div class="row g-2">
-                        <div class="col-md-4">
-                            <input type="text" name="search" class="form-control"
-                                   placeholder="Search by product name..." value="{{ request('search') }}">
-                        </div>
-                        <div class="col-md-2">
-                            <select name="category_id" class="form-select">
-                                <option value="">All Categories</option>
-                                @foreach($categories as $category)
-                                    <option
-                                        value="{{ $category->id }}" @selected(request('category_id') === $category->id)>
-                                        {{ $category->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <select name="status" class="form-select">
-                                <option value="">All Statuses</option>
-                                <option value="1" @selected(request('status') === '1')>Active</option>
-                                <option value="0" @selected(request('status') === '0')>Inactive</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary">Filter</button>
-                        </div>
-                    </div>
-                </form>
-
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                        <tr>
-                            <th>Image</th>
-                            <th>Name</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @forelse ($products as $product)
-                            <tr>
-                                <td>
-                                    <img
-                                        src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/admin/images/default-product.png') }}"
-                                        alt="{{ $product->name }}" class="avatar-sm">
-                                </td>
-                                <td>{{ $product->name }}</td>
-                                <td>
-                                    @if($product->variants->isNotEmpty())
-                                        @php
-                                            $minPrice = $product->variants->min('discount_price');
-                                            $maxPrice = $product->variants->max('discount_price');
-                                        @endphp
-
-                                        @if ($minPrice === $maxPrice)
-                                            {{-- If min and max price are the same, show only one price --}}
-                                            {{ number_format($minPrice, 0, ',', '.') }} VNĐ
-                                        @else
-                                            {{-- Otherwise, show the price range --}}
-                                            {{ number_format($minPrice, 0, ',', '.') }}
-                                            - {{ number_format($maxPrice, 0, ',', '.') }} VNĐ
-                                        @endif
-                                    @else
-                                        N/A
-                                    @endif
-                                </td>
-                                <td>{{ $product->variants->sum('stock') }}</td>
-                                <td>{{ $product->category->name ?? 'N/A' }}</td>
-                                <td>
-                                    @if ($product->active)
-                                        <span class="badge bg-success">Active</span>
-                                    @else
-                                        <span class="badge bg-secondary">Inactive</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <a href="{{ route('admin.products.show', $product) }}"
-                                       class="btn btn-sm btn-soft-info">
-                                        <iconify-icon icon="solar:eye-broken"
-                                                      class="align-middle fs-18"></iconify-icon>
-                                    </a>
-                                    <a href="{{ route('admin.products.edit', $product) }}"
-                                       class="btn btn-sm btn-soft-primary">
-                                        <iconify-icon icon="solar:pen-2-broken"
-                                                      class="align-middle fs-18"></iconify-icon>
-                                    </a>
-                                    <form action="{{ route('admin.products.destroy', $product) }}" method="POST"
-                                          class="d-inline"
-                                          onsubmit="return confirm('[MSG-P8] Are you sure you want to delete this product?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-soft-danger">
-                                            <iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
-                                                          class="align-middle fs-18"></iconify-icon>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center"> No products found.</td>
-                            </tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="mt-3">
-                    {{-- Append query strings to pagination links --}}
-                    @if ($products->hasPages())
-                        <div class="card-footer border-top">
-                            <nav>
-                                {{ $products->appends(request()->query())->links('vendor.pagination.admin-paginnation') }}
-                            </nav>
-                        </div>
-                    @endif
-                </div>
+                {{-- Grid.js will render the table here --}}
+                <div id="table-products-gridjs"></div>
             </div>
         </div>
     </div>
 @endsection
+@push('scripts')
+    <!-- @formatter:off -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (document.getElementById("table-products-gridjs")) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                new gridjs.Grid({
+                    columns: [
+                        { id: 'id', name: 'ID' },
+                        {
+                            id: 'image', name: 'Image',
+                            formatter: (cell) => {
+                                const imageUrl = cell ? `/storage/${cell}` : `{{ asset('assets/admin/images/default-product.png') }}`;
+                                return gridjs.html(`<img src="${imageUrl}" alt="Product" class="avatar-sm">`);
+                            }
+                        },
+                        { id: 'name', name: 'Name' },
+                        {
+                            id: 'price', name: 'Price',
+                            formatter: (cell) => cell ? `${parseFloat(cell).toLocaleString('vi-VN')} VNĐ` : 'N/A'
+                        },
+                        { id: 'stock', name: 'Stock' },
+                        { id: 'category', name: 'Category' },
+                        {
+                            id: 'is_active', name: 'Status',
+                            formatter: (cell) => cell
+                                ? gridjs.html('<span class="badge bg-success">Active</span>')
+                                : gridjs.html('<span class="badge bg-secondary">Inactive</span>')
+                        },
+                        {
+                            name: 'Actions', width: '150px',
+                            formatter: (cell, row) => {
+                                const productId = row.cells[0].data;
+                                const showUrl = `/admin/products/${productId}`;
+                                const editUrl = `/admin/products/${productId}/edit`;
+                                const deleteUrl = `/admin/products/${productId}`;
+
+                                return gridjs.html(`
+                                <div class="d-flex gap-2">
+                                    <a href="${showUrl}" class="btn btn-sm btn-soft-info"><iconify-icon icon="solar:eye-broken"
+                                                                  class="align-middle fs-18"></iconify-icon></a>
+                                    <a href="${editUrl}" class="btn btn-sm btn-primary"><iconify-icon icon="solar:pen-2-broken"
+                                                                  class="align-middle fs-18"></iconify-icon></a>
+                                    <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                        <input type="hidden" name="_token" value="${csrfToken}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn-sm btn-danger"><iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
+                                                                      class="align-middle fs-18"></iconify-icon></button>
+                                    </form>
+                                </div>`
+                                );
+                            }
+                        },
+                        { id: 'id', name: 'ID', hidden: true }
+                    ],
+                    server: {
+                        url: '{{ route('admin.api.products.data') }}',
+                        then: results => results.data.map(product => [
+                            product.id,
+                            product.image,
+                            product.name,
+                            product.price,
+                            product.stock,
+                            product.category,
+                            product.is_active,
+                            null, // Placeholder cho Actions
+                            product.id
+                        ]),
+                        total: results => results.total
+                    },
+                    sort: true,
+                    search: true,
+                    pagination: {
+                        limit: 10
+                    },
+                }).render(document.getElementById("table-products-gridjs"));
+            }
+        });
+    </script>
+    <!-- @formatter:on -->
+
+@endpush

@@ -20,6 +20,7 @@ use App\Models\Category;
 use App\Models\Brand;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\JsonResponse;
 
 class ProductController
 {
@@ -36,37 +37,7 @@ class ProductController
      */
     public function index(Request $request): View
     {
-        // Start with a base query, eager-load relationships to avoid N+1 issues
-        $query = Product::query()->with(['category', 'brand', 'variants']);
-
-        // Search by name
-        if ($request->filled('search')) {
-            $query->where('name', 'like', '%'.$request->input('search').'%');
-        }
-
-        // Filter by category, brand, status
-        if ($request->filled('category_id')) {
-            $query->where('category_id', $request->input('category_id'));
-        }
-        if ($request->filled('brand_id')) {
-            $query->where('brand_id', $request->input('brand_id'));
-        }
-        if ($request->filled('status')) {
-            $query->where('active', $request->input('status'));
-        }
-
-        // Sort
-        $sortBy = $request->input('sort_by', 'created_at');
-        $sortDirection = $request->input('sort_direction', 'desc');
-        $query->orderBy($sortBy, $sortDirection);
-
-        $products = $query->paginate(15);
-
-        // Data for filter dropdowns
-        $categories = Category::all();
-        $brands = Brand::all();
-
-        return view('admin.management.products.index', compact('products', 'categories', 'brands'));
+        return view('admin.management.products.index');
     }
 
     /**
@@ -181,6 +152,33 @@ class ProductController
             return redirect()->route('admin.products.index')
                 ->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Provide data for the Grid.js table via AJAX.
+     */
+    public function getDataForGrid(Request $request): JsonResponse
+    {
+        $query = Product::query()->with(['category', 'variants']);
+
+        $paginatedProducts = $query->latest()->get();
+
+        $data = $paginatedProducts->map(function ($product) {
+            $firstVariant = $product->variants->first();
+            return [
+                'id'        => $product->id,
+                'image'     => $product->image,
+                'name'      => $product->name,
+                'price'     => $firstVariant ? $firstVariant->price : null,
+                'stock'     => $product->variants->sum('stock'),
+                'category'  => $product->category->name ?? 'N/A',
+                'is_active' => $product->active,
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+        ]);
     }
 
 }

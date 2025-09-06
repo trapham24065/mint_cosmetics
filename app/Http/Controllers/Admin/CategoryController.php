@@ -166,4 +166,28 @@ class CategoryController extends Controller
         return response()->json($attributes);
     }
 
+    /**
+     * Provide data for the Grid.js table via AJAX.
+     */
+    public function getDataForGrid(): JsonResponse
+    {
+        $orders = Category::latest()->get();
+
+        // Format data for Grid.js
+        $data = $orders->map(function ($order) {
+            return [
+                'id'         => $order->id,
+                'image'      => $order->image,
+                'name'       => $order->name,
+                'slug'       => $order->slug,
+                'is_active'  => $order->active,
+                'created_at' => $order->created_at->format('d M, Y'),
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+        ]);
+    }
+
 }

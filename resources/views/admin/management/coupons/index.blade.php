@@ -38,87 +38,103 @@
                             <i class="bx bx-plus"></i> New Coupon
                         </a>
                     </div>
-                    <div>
-                        <div class="table-responsive">
-                            <table class="table align-middle mb-0 table-hover table-centered">
-                                <thead class="bg-light-subtle">
-                                <tr>
-                                    <th>Code</th>
-                                    <th>Type</th>
-                                    <th>Value</th>
-                                    <th>Usage (Used/Max)</th>
-                                    <th>Effective Dates</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @forelse ($coupons as $coupon)
-                                    <tr>
-                                        <td><span
-                                                class="badge bg-secondary-subtle text-secondary fs-13">{{ $coupon->code }}</span>
-                                        </td>
-                                        <td>{{ $coupon->type->name }}</td>
-                                        <td>
-                                            @if ($coupon->type === \App\Enums\CouponType::PERCENTAGE)
-                                                {{ rtrim(rtrim($coupon->value, '0'), '.') }}%
-                                            @else
-                                                {{ number_format($coupon->value, 0, ',', '.') }} VNĐ
-                                            @endif
-                                        </td>
-                                        <td>{{ $coupon->times_used }} / {{ $coupon->max_uses ?? '∞' }}</td>
-                                        <td>
-                                            {{ $coupon->starts_at?->format('d-m-Y') }}
-                                            - {{ $coupon->expires_at?->format('d-m-Y') }}
-                                        </td>
-                                        <td>
-                                            @if ($coupon->isValid())
-                                                <span class="badge text-success bg-success-subtle fs-12"><i
-                                                        class="bx bx-check-double"></i> Active</span>
-                                            @else
-                                                <span class="badge text-danger bg-danger-subtle fs-12"><i
-                                                        class="bx bx-x"></i> Inactive/Expired</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="d-flex gap-2">
-                                                <a href="{{ route('admin.coupons.edit', $coupon) }}"
-                                                   class="btn btn-soft-primary btn-sm">
-                                                    <iconify-icon icon="solar:pen-2-broken"
-                                                                  class="align-middle fs-18"></iconify-icon>
-                                                </a>
-                                                <form action="{{ route('admin.coupons.destroy', $coupon) }}"
-                                                      method="POST" class="d-inline"
-                                                      onsubmit="return confirm('Are you sure you want to permanently delete this coupon? This action cannot be undone.');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-soft-danger btn-sm">
-                                                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
-                                                                      class="align-middle fs-18"></iconify-icon>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center">No coupons found.</td>
-                                    </tr>
-                                @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="card-body">
+
+                        <div id="table-coupons-gridjs"></div>
                     </div>
-                    @if ($coupons->hasPages())
-                        <div class="card-footer border-top">
-                            <nav>
-                                {{ $coupons->appends(request()->query())->links('vendor.pagination.admin-paginnation') }}
-                            </nav>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
 
     </div>
+
 @endsection
+@push('scripts')
+    <!-- @formatter:off -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (document.getElementById("table-coupons-gridjs")) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                new gridjs.Grid({
+                    columns: [
+                        { id: 'id', name: 'ID' },
+                        { id: 'code', name: 'Code',
+                            attributes: () => ({
+                                style: ' min-width: 100px; max-width: 100px;'
+                            }) },
+                        { id: 'type', name: 'Type' },
+                        {
+                            id: 'value',
+                            name: 'Value',
+                            formatter: (cell, row) => {
+                                const type = row.cells[1].data;
+                                if (type === 'percentage') {
+                                    return `${cell}%`;
+                                }
+                                return `${parseFloat(cell).toLocaleString('vi-VN')} VNĐ`;
+                            }
+                        },
+                        { id: 'usage', name: 'Usage (Used/Max)'    ,
+                            attributes: () => ({
+                                style: ' min-width: 40px; max-width: 40px;'
+                            })
+                        },
+                        { id: 'dates', name: 'Effective Dates' },
+                        {
+                            id: 'is_active',
+                            name: 'Status',
+                            formatter: (cell) => cell
+                                ? gridjs.html('<span class="badge bg-success">Active</span>')
+                                : gridjs.html('<span class="badge bg-secondary">Inactive</span>')
+                        },
+                        {
+                            name: 'Actions',
+                            width: '120px',
+                            formatter: (cell, row) => {
+                                const couponId = row.cells[0].data;
+                                const editUrl = `/admin/coupons/${couponId}/edit`;
+                                const deleteUrl = `/admin/coupons/${couponId}`;
+
+                                return gridjs.html(`
+                                <div class="d-flex gap-2">
+                                    <a href="${editUrl}" class="btn btn-sm btn-primary"><iconify-icon icon="solar:pen-2-broken"
+                                                                  class="align-middle fs-18"></iconify-icon></a></a>
+                                    <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                        <input type="hidden" name="_token" value="${csrfToken}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn-sm btn-danger"><iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
+                                                                      class="align-middle fs-18"></iconify-icon></button>
+                                    </form>
+                                </div>`
+                                );
+                            }
+                        },
+                        { id: 'id', name: 'ID', hidden: true }
+                    ],
+                    server: {
+                        url: '{{ route('admin.api.coupons.data') }}',
+                        then: results => results.data.map(coupon => [
+                            coupon.id,
+                            coupon.code,
+                            coupon.type,
+                            coupon.value,
+                            coupon.usage,
+                            coupon.dates,
+                            coupon.is_active,
+                            null,
+                            coupon.id
+                        ])
+                    },
+                    sort: true,
+                    search: true,
+                    pagination: {
+                        limit: 10
+                    },
+                }).render(document.getElementById("table-coupons-gridjs"));
+            }
+        });
+    </script>
+    <!-- @formatter:on -->
+@endpush

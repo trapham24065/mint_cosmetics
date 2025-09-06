@@ -12,73 +12,69 @@
                         </a>
                     </div>
                     <div>
-                        <div class="table-responsive">
-                            <table class="table align-middle mb-0 table-hover table-centered">
-                                <thead class="bg-light-subtle">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Attribute Name</th>
-                                    <th>Values</th>
-                                    <th>Created At</th>
-                                    <th>Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @forelse ($attributes as $attribute)
-                                    <tr>
-                                        <td>{{ $attribute->id }}</td>
-                                        <td>
-                                            <p class="text-dark fw-medium fs-15 mb-0">{{ $attribute->name }}</p>
-                                        </td>
-                                        <td>
-                                            {{-- Use Collection methods to cleanly display values --}}
-                                            {{ $attribute->values->pluck('value')->implode(', ') }}
-                                        </td>
-                                        <td>{{ $attribute->created_at->format('Y-m-d') }}</td>
-                                        <td>
-                                            <div class="d-flex gap-2">
-                                                <a href="{{ route('admin.attributes.show', $attribute) }}"
-                                                   class="btn btn-soft-info btn-sm">
-                                                    <iconify-icon icon="solar:eye-broken"
-                                                                  class="align-middle fs-18"></iconify-icon>
-                                                </a>
-                                                {{-- Update these routes when you build the edit/delete functionality --}}
-                                                <a href="{{ route('admin.attributes.edit', $attribute) }}"
-                                                   class="btn btn-soft-primary btn-sm">
-                                                    <iconify-icon icon="solar:pen-2-broken"
-                                                                  class="align-middle fs-18"></iconify-icon>
-                                                </a>
-                                                <form action="{{ route('admin.attributes.destroy', $attribute) }}"
-                                                      method="POST" class="d-inline"
-                                                      onsubmit="return confirm('Are you sure you want to delete this attribute and all its values?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-soft-danger btn-sm">
-                                                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
-                                                                      class="align-middle fs-18"></iconify-icon>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center">No attributes found.</td>
-                                    </tr>
-                                @endforelse
-                                </tbody>
-                            </table>
+                        <div class="card-body">
+                            <div id="table-data-attributes"></div>
                         </div>
                     </div>
-                    @if ($attributes->hasPages())
-                        <div class="card-footer border-top">
-                            <nav>
-                                {{ $attributes->appends(request()->query())->links('vendor.pagination.admin-paginnation') }}
-                            </nav>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
     </div>
 @endsection
+@push('scripts')
+    <!-- @formatter:off -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (document.getElementById("table-data-attributes")) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                new gridjs.Grid({
+                    columns: [
+                        { id: 'id', name: 'ID', width: '80px' },
+                        { id: 'name', name: 'Name' },
+                        { id: 'values', name: 'Values' },
+                        {id: 'created_at', name: 'Created At'},
+                        {
+                            name: 'Actions',
+                            width: '150px',
+                            formatter: (cell, row) => {
+                                const attributeId = row.cells[0].data;
+                                const showUrl = `{{ route('admin.attributes.index') }}/${attributeId}`;
+                                const editUrl = `{{ route('admin.attributes.index') }}/${attributeId}/edit`;
+                                const deleteUrl = `{{ route('admin.attributes.index') }}/${attributeId}`;
+
+                                return gridjs.html(`
+                                <div class="d-flex gap-2">
+                                    <a href="${showUrl}" class="btn btn-sm btn-soft-info"><iconify-icon icon="solar:eye-broken"
+                                                                  class="align-middle fs-18"></iconify-icon></a>
+                                    <a href="${editUrl}" class="btn btn-sm btn-primary"> <iconify-icon icon="solar:pen-2-broken"
+                                                                  class="align-middle fs-18"></iconify-icon></a>
+
+                                    <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                        <input type="hidden" name="_token" value="${csrfToken}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn-sm btn-danger"><iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
+                                                                      class="align-middle fs-18"></iconify-icon></button>
+                                    </form>
+                                </div>`
+                                );
+                            }
+                        }
+                    ],
+                    server: {
+                        url: '{{ route('admin.api.attributes.data') }}',
+                        then: results => results.data,
+                    },
+                    sort: true,
+                    search: true,
+                    pagination: {
+                        limit: 10
+                    },
+                }).render(document.getElementById("table-data-attributes"));
+            }
+        });
+    </script>
+    <!-- @formatter:on -->
+
+@endpush

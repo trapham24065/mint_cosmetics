@@ -94,64 +94,66 @@
                         <h4 class="card-title">All Order List</h4>
                         {{-- Filter/Search Form can be added here if needed --}}
                     </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table align-middle mb-0 table-hover table-centered">
-                                <thead class="bg-light-subtle">
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Created At</th>
-                                    <th>Customer</th>
-                                    <th>Total</th>
-                                    <th>Payment Status</th>
-                                    <th>Order Status</th>
-                                    <th>Action</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @forelse ($orders as $order)
-                                    <tr>
-                                        <td><a href="{{ route('admin.orders.show', $order) }}"
-                                               class="link-primary">#{{ $order->id }}</a></td>
-                                        <td>{{ $order->created_at->format('d M, Y') }}</td>
-                                        <td>{{ $order->first_name }} {{ $order->last_name }}</td>
-                                        <td>{{ number_format($order->total_price, 0, ',', '.') }} VNĐ</td>
-                                        <td><span class="badge bg-light text-dark px-2 py-1 fs-13">{{-- Payment logic --}} Paid</span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-{{ $order->status->color() }}">
-                                                {{ $order->status->name }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex gap-2">
-                                                <a href="{{ route('admin.orders.show', $order) }}"
-                                                   class="btn btn-light btn-sm">
-                                                    <iconify-icon icon="solar:eye-broken"
-                                                                  class="align-middle fs-18"></iconify-icon>
-                                                </a>
-                                                {{-- Add edit/delete buttons if needed --}}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center">No orders found.</td>
-                                    </tr>
-                                @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="card-body">
+                        {{-- Grid.js will render the table here --}}
+                        <div id="table-orders-gridjs"></div>
                     </div>
-                    @if ($orders->hasPages())
-                        <div class="card-footer border-top">
-                            <nav>
-                                {{ $orders->appends(request()->query())->links('vendor.pagination.admin-paginnation') }}
-                            </nav>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>
     </div>
 @endsection
+@push('scripts')
+    <!-- @formatter:off -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (document.getElementById("table-orders-gridjs")) {
+
+                new gridjs.Grid({
+                    columns: [
+                        { id: 'id', name: 'Order ID', formatter: (cell) => gridjs.html(`<a href="/admin/orders/${cell}" class="fw-bold">#${cell}</a>`) },
+                        { id: 'created_at', name: 'Date' },
+                        { id: 'customer', name: 'Customer' },
+                        {
+                            id: 'total',
+                            name: 'Total',
+                            formatter: (cell) => `${parseFloat(cell).toLocaleString('vi-VN')} VNĐ`
+                        },
+                        {
+                            id: 'status',
+                            name: 'Order Status',
+                            formatter: (cell, row) => {
+                                const statusValue = row.cells[4].data;
+                                const statusColor = row.cells[6].data;
+                                return gridjs.html(`<span class="badge bg-${statusColor}">${statusValue}</span>`);
+                            }
+                        },
+                        {
+                            name: 'Actions',
+                            width: '100px',
+                            formatter: (cell, row) => {
+                                const orderId = row.cells[0].data;
+                                const showUrl = `/admin/orders/${orderId}`;
+                                return gridjs.html(`<a href="${showUrl}" class="btn btn-sm btn-light"><iconify-icon icon="solar:eye-broken"
+                                                                  class="align-middle fs-18"></iconify-icon></a>`);
+                            }
+                        },
+                        { id: 'status_color', name: 'Status Color', hidden: true }
+                    ],
+                    server: {
+                        url: '{{ route('admin.api.orders.data') }}',
+                        then: results => results.data,
+                    },
+                    sort: true,
+                    search: true,
+                    pagination: {
+                        limit: 10
+                    },
+                }).render(document.getElementById("table-orders-gridjs"));
+            }
+        });
+    </script>
+    <!-- @formatter:on -->
+
+@endpush

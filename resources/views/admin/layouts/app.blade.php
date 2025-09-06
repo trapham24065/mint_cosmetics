@@ -12,7 +12,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'Laravel') }}</title>
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{asset('assets/images/favicon.ico')}}">
+    <link rel="shortcut icon" href="{{asset('assets/admin/images/favicon.ico')}}">
+    <!-- Gridjs Plugin css -->
+    <link href="{{asset('assets/admin/vendor/gridjs/theme/mermaid.min.css')}}" rel="stylesheet" type="text/css">
     <!-- Vendor css (Require in all Page) -->
     <link href="{{asset('assets/admin/css/vendor.min.css')}}" rel="stylesheet" type="text/css" />
     <!-- Icons css (Require in all Page) -->
@@ -51,7 +53,9 @@
 
 <!-- App Javascript (Require in all Page) -->
 <script src="{{asset('assets/admin/js/app.js')}}"></script>
-
+<!-- Gridjs Plugin js -->
+<script src="{{asset('assets/admin/vendor/gridjs/gridjs.umd.js')}}"></script>
+<script src="{{asset('assets/admin/js/components/table-gridjs.js')}}"></script>
 <!-- Vector Map Js -->
 <script src="{{asset('assets/admin/vendor/jsvectormap/js/jsvectormap.min.js')}}"></script>
 <script src="{{asset('assets/admin/vendor/jsvectormap/maps/world-merc.js')}}"></script>
