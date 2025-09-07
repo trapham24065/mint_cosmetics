@@ -113,83 +113,119 @@
     </main>
 
     @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const updateCartBtn = document.getElementById('update-cart-btn');
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        <!-- @formatter:off -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const updateCartBtn = document.getElementById('update-cart-btn');
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const cartForm = document.querySelector('.shopping-cart-form'); // Tìm đến form cha
 
-                // Enable update button when quantity changes
-                document.querySelectorAll('.quantity').forEach(input => {
-                    input.addEventListener('change', () => {
+                    if (!cartForm) return;
+
+                    function enableUpdateButton() {
                         updateCartBtn.classList.remove('disabled');
                         updateCartBtn.disabled = false;
-                    });
-                });
+                    }
 
-                // Handle cart update
-                updateCartBtn.addEventListener('click', function() {
-                    const updates = {};
-                    document.querySelectorAll('.tbody-item').forEach(row => {
-                        const variantId = row.dataset.variantId;
-                        const quantity = row.querySelector('.quantity').value;
-                        if (variantId) {
-                            updates[variantId] = quantity;
-                        }
-                    });
-
-                    fetch('{{ route('cart.update') }}', {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                        body: JSON.stringify({ updates: updates }),
-                    }).then(response => response.json()).then(data => {
-                        if (data.success) {
-                            updateCartView(data.cart);
-                            Swal.fire(
-                                { toast: true, icon: 'success', title: 'Cart updated!', position: 'top-end', showConfirmButton: false, timer: 3000 });
-                            updateCartBtn.classList.add('disabled');
-                            updateCartBtn.disabled = true;
-                        } else {
-                            Swal.fire('Error', data.message, 'error');
-                        }
-                    });
-                });
-
-                // Handle item removal
-                document.querySelectorAll('.product-remove .remove').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const row = this.closest('.tbody-item');
-                        const variantId = row.dataset.variantId;
-
-                        fetch(`/cart/remove/${variantId}`, {
-                            method: 'DELETE',
-                            headers: { 'X-CSRF-TOKEN': csrfToken },
-                        }).then(response => response.json()).then(data => {
-                            if (data.success) {
-                                row.remove();
-                                updateCartView(data.cart);
-                                const cartCountEl = document.getElementById('cart-count');
-                                if (cartCountEl) {
-                                    cartCountEl.textContent = Object.keys(data.cart.items).length;
+                    // Common function to update the interface after a response from the server
+                    function updateCartView(cart) {
+                        document.querySelectorAll('tr.tbody-item').forEach(row => {
+                            const variantId = row.dataset.variantId;
+                            if (cart.items && cart.items[variantId]) {
+                                const item = cart.items[variantId];
+                                const subtotalEl = row.querySelector('.subtotal-price');
+                                if (subtotalEl) {
+                                    subtotalEl.textContent = (item.price * item.quantity).toLocaleString('vi-VN') + ' VNĐ';
                                 }
                             }
                         });
-                    });
-                });
+                        const cartSubtotalEl = document.getElementById('cart-subtotal');
+                        const cartTotalEl = document.getElementById('cart-total');
+                        if (cartSubtotalEl) {
+                            cartSubtotalEl.textContent = cart.subtotal.toLocaleString('vi-VN') + ' VNĐ';
+                        }
+                        if (cartTotalEl) {
+                            cartTotalEl.textContent = cart.total.toLocaleString('vi-VN') + ' VNĐ';
+                        }
+                    }
 
-                function updateCartView (cart) {
-                    document.querySelectorAll('.tbody-item').forEach(row => {
-                        const variantId = row.dataset.variantId;
-                        if (cart.items[variantId]) {
-                            const item = cart.items[variantId];
-                            const subtotalEl = row.querySelector('.subtotal-price');
-                            subtotalEl.textContent = (item.price * item.quantity).toLocaleString('vi-VN') + ' VNĐ';
+                    // --- EVENT LISTENER ---
+
+                    // 1. Listen when users TYPE DIRECTLY into the quantity box
+                    cartForm.addEventListener('input', function(event) {
+                        if (event.target.classList.contains('quantity')) {
+                            enableUpdateButton();
                         }
                     });
-                    document.getElementById('cart-subtotal').textContent = cart.subtotal.toLocaleString('vi-VN') +
-                        ' VNĐ';
-                    document.getElementById('cart-total').textContent = cart.total.toLocaleString('vi-VN') + ' VNĐ';
-                }
-            });
-        </script>
+
+                    // 2. Listen when the user CLICKS anywhere in the form
+                    cartForm.addEventListener('click', function(event) {
+                        const removeButton = event.target.closest('.product-remove .remove');
+                        const proQtyContainer = event.target.closest('.pro-qty');
+
+                        // 2a. Handling when pressing the DELETE PRODUCT button
+                        if (removeButton) {
+                            event.preventDefault();
+                            const row = removeButton.closest('.tbody-item');
+                            const variantId = row.dataset.variantId;
+
+                            fetch(`/cart/remove/${variantId}`, {
+                                method: 'DELETE',
+                                headers: { 'X-CSRF-TOKEN': csrfToken },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    row.remove();
+                                    updateCartView(data.cart);
+                                    const cartCountEl = document.getElementById('cart-count');
+                                    if (cartCountEl) {
+                                        const newCount = Object.keys(data.cart.items).length;
+                                        cartCountEl.textContent = newCount > 0 ? `(${newCount})` : '';
+                                    }
+                                }
+                            });
+                        }
+
+                        // 2b. Handle when the + /-button is pressed (your theme can manage this in pro-qty)
+                        if (proQtyContainer) {
+                            enableUpdateButton();
+                        }
+                    });
+
+                    // 3.Handling when pressing the "UPDATE CART" button
+                    updateCartBtn.addEventListener('click', function() {
+                        this.disabled = true;
+                        this.classList.add('disabled');
+
+                        const updates = {};
+                        document.querySelectorAll('.tbody-item').forEach(row => {
+                            const variantId = row.dataset.variantId;
+                            const quantity = row.querySelector('.quantity')?.value;
+                            if (variantId && quantity) {
+                                updates[variantId] = quantity;
+                            }
+                        });
+
+                        fetch('{{ route('cart.update') }}', {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                            body: JSON.stringify({ updates: updates }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                updateCartView(data.cart);
+                                Swal.fire({ toast: true, icon: 'success', title: 'Cart updated!', position: 'top-end', showConfirmButton: false, timer: 2000 });
+                            } else {
+                                Swal.fire('Error', data.message, 'error');
+                            }
+                        })
+                        .catch(error => console.error('Update Cart Error:', error));
+                    });
+                });
+            </script>
+
+        <!-- @formatter:on -->
     @endpush
 @endsection

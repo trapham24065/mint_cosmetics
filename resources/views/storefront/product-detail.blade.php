@@ -50,7 +50,8 @@
 
                             <div class="product-details-pro-qty">
                                 <div class="pro-qty">
-                                    <input type="number" id="quantity" title="Quantity" value="1" min="1">
+                                    <!-- Thay đổi ID từ "quantity" thành "productDetailQuantity" -->
+                                    <input type="number" id="productDetailQuantity" title="Quantity" value="1" min="1">
                                 </div>
                             </div>
 
@@ -60,8 +61,9 @@
                                     <button type="button" class="btn-wishlist" data-bs-toggle="modal"
                                             data-bs-target="#action-WishlistModal"><i class="fa fa-heart-o"></i>
                                     </button>
-                                    <button type="button" class="btn action-btn-cart" id="add-to-cart-btn" disabled>Add
-                                        to cart
+                                    <!-- Thêm data-context="product-detail" -->
+                                    <button type="button" class="btn action-btn-cart" id="add-to-cart-btn"
+                                            data-context="product-detail" disabled>Add to cart
                                     </button>
                                 </div>
                             </div>
@@ -220,15 +222,6 @@
                     addToCartBtn.disabled = false;
                 }
 
-                // Add event listener for add to cart button
-                addToCartBtn.addEventListener('click', function() {
-                    const variantId = this.dataset.variantId;
-                    const quantity = document.getElementById('quantity').value || 1;
-
-                    if (variantId && window.addToCart) {
-                        window.addToCart(variantId, quantity, this);
-                    }
-                });
             });
         </script>
     @endpush
