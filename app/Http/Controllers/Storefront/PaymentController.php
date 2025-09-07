@@ -98,4 +98,10 @@ class PaymentController extends Controller
         return response()->json(['status' => $order->status]);
     }
 
+    public function thankYou(Order $order): View
+    {
+        $order->load('items');
+        return view('storefront.payment.thank-you', compact('order'));
+    }
+
 }
