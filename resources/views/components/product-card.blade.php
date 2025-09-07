@@ -11,22 +11,22 @@
         {{-- <span class="flag-new">new</span> --}}
         <div class="product-action">
             <button type="button" class="product-action-btn action-btn-quick-view"
-                data-product-id="{{ $product->id }}">
+                    data-product-id="{{ $product->id }}">
                 <i class="fa fa-expand"></i>
             </button>
             @if($product->variants->isNotEmpty())
-            <button type="button" class="product-action-btn action-btn-cart"
-                data-variant-id="{{ $product->variants->first()->id }}"
-                data-quantity="1">
-                <span>Add to cart</span>
-            </button>
+                <button type="button" class="product-action-btn action-btn-cart"
+                        data-variant-id="{{ $product->variants->first()->id }}"
+                        data-context="product-card">
+                    <span>Add to cart</span>
+                </button>
             @else
-            <button type="button" class="product-action-btn" disabled>
-                <span>Out of stock</span>
-            </button>
+                <button type="button" class="product-action-btn" disabled>
+                    <span>Out of stock</span>
+                </button>
             @endif
             <button type="button" class="product-action-btn action-btn-wishlist"
-                data-bs-toggle="modal" data-bs-target="#action-WishlistModal">
+                    data-bs-toggle="modal" data-bs-target="#action-WishlistModal">
                 <i class="fa fa-heart-o"></i>
             </button>
         </div>
@@ -44,13 +44,14 @@
         <div class="prices">
             @php $firstVariant = $product->variants->first(); @endphp
             @if($firstVariant)
-            @if($firstVariant->discount_price && $firstVariant->discount_price < $firstVariant->price)
-                <span class="price">{{ number_format($firstVariant->discount_price, 0, ',', '.') }} VNĐ</span>
-                <span class="price-old">{{ number_format($firstVariant->price, 0, ',', '.') }} VNĐ</span>
+                @if($firstVariant->discount_price && $firstVariant->discount_price < $firstVariant->price)
+                    <span class="price">{{ number_format($firstVariant->discount_price, 0, ',', '.') }} VNĐ</span>
+                    <span class="price-old">{{ number_format($firstVariant->price, 0, ',', '.') }} VNĐ</span>
                 @else
-                <span class="price">{{ number_format($firstVariant->price, 0, ',', '.') }} VNĐ</span>
+                    <span class="price">{{ number_format($firstVariant->price, 0, ',', '.') }} VNĐ</span>
                 @endif
-                @endif
+            @endif
         </div>
+        
     </div>
 </div>
