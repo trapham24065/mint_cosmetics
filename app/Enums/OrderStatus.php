@@ -65,7 +65,7 @@ enum OrderStatus: string
             self::Shipped => 3,
             self::Delivered => 4,
             self::Completed => 5,
-            self::Cancelled => 0,
+            self::Cancelled, self::Failed => 0,
         };
     }
 

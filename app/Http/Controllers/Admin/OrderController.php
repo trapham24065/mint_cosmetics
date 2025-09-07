@@ -12,11 +12,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
+use App\Mail\OrderStatusUpdated;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use ValueError;
 
@@ -63,7 +65,7 @@ class OrderController extends Controller
             $newStatus = OrderStatus::from($request->input('status'));
             $order->status = $newStatus;
             $order->save();
-
+            Mail::to($order->email)->send(new OrderStatusUpdated($order));
             return redirect()->route('admin.orders.show', $order)
                 ->with('success', "Order #$order->id status updated to '$newStatus->value'.");
         } catch (ValueError) {

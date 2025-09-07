@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
+use App\Mail\OrderConfirmed;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class WebhookController extends Controller
 {
@@ -30,6 +32,8 @@ class WebhookController extends Controller
                 $order->status = OrderStatus::Processing;
                 $order->save();
 
+                Mail::to($order->email)->send(new OrderConfirmed($order));
+                
                 Log::info("Order #$orderId was updated successfully via webhook from SePay.");
             } else {
                 Log::warning("Webhook for Order #$orderId: Mismatch or order not found/pending.", [
