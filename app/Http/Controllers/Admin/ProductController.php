@@ -169,7 +169,7 @@ class ProductController
                 'id'        => $product->id,
                 'image'     => $product->image,
                 'name'      => $product->name,
-                'price'     => $firstVariant ? $firstVariant->price : null,
+                'price'     => $firstVariant->price ?? null,
                 'stock'     => $product->variants->sum('stock'),
                 'category'  => $product->category->name ?? 'N/A',
                 'is_active' => $product->active,

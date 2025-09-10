@@ -13,6 +13,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Mail\OrderStatusUpdated;
+use App\Mail\RequestReview;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +22,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use ValueError;
+use Illuminate\Support\Str;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Response;
 
 class OrderController extends Controller
 {
@@ -63,6 +67,19 @@ class OrderController extends Controller
 
         try {
             $newStatus = OrderStatus::from($request->input('status'));
+            // CHỈ GỬI EMAIL KHI TRẠNG THÁI LÀ COMPLETED
+            if ($newStatus === OrderStatus::Completed && $order->status !== OrderStatus::Completed) {
+                $order->load('items');
+                foreach ($order->items as $item) {
+                    if (is_null($item->reviewed_at)) {
+                        $item->review_token = Str::random(32);
+                        $item->save();
+
+                        // Gửi email
+                        Mail::to($order->email)->send(new RequestReview($item));
+                    }
+                }
+            }
             $order->status = $newStatus;
             $order->save();
             Mail::to($order->email)->send(new OrderStatusUpdated($order));
@@ -95,6 +112,18 @@ class OrderController extends Controller
         return response()->json([
             'data' => $data,
         ]);
+    }
+
+    /**
+     * Generate and download an invoice for the specified order.
+     */
+    public function downloadInvoice(Order $order): Response
+    {
+        $order->load('items');
+
+        return Pdf::loadView('admin.management.orders.invoice', compact('order'))->download(
+            'invoice-'.$order->id.'.pdf'
+        );
     }
 
 }

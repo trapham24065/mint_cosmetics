@@ -95,4 +95,32 @@ class Product extends Model
         });
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
+
+    /**
+     * Calculate the average rating from approved reviews.
+     * Returns an integer from 0 to 5.
+     */
+    public function averageRating(): int
+    {
+        // avg() will return null if there are no reviews, so we default to 0
+        return (int)round($this->approvedReviews()->avg('rating') ?? 0);
+    }
+
+    /**
+     * Get the total count of approved reviews.
+     */
+    public function reviewsCount(): int
+    {
+        return $this->approvedReviews()->count();
+    }
+
 }

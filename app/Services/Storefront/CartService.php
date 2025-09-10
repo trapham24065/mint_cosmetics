@@ -10,6 +10,8 @@
 declare(strict_types=1);
 namespace App\Services\Storefront;
 
+use App\Enums\CouponType;
+use App\Models\Coupon;
 use App\Models\ProductVariant;
 
 class CartService
@@ -23,7 +25,7 @@ class CartService
             throw new \RuntimeException('Product is out of stock.');
         }
 
-        $cart = session()->get('cart', []);
+        $cart = session()->get('cart.items', []);
         $cartItemId = $variant->id;
 
         if (isset($cart[$cartItemId])) {
@@ -41,7 +43,7 @@ class CartService
             ];
         }
 
-        session()->put('cart', $cart);
+        session()->put('cart.items', $cart);
 
         return [
             'success'   => true,
@@ -52,26 +54,84 @@ class CartService
 
     public function getCartContents(): array
     {
-        $cartItems = session()->get('cart', []);
+        $cartItems = session()->get('cart.items', []);
+        $coupon = session()->get('cart.coupon', null);
         $subtotal = 0;
 
         foreach ($cartItems as $item) {
             $subtotal += $item['price'] * $item['quantity'];
         }
+        $discountAmount = 0;
+        if ($coupon) {
+            $discountAmount = $this->calculateDiscount($coupon, $subtotal);
+        }
 
         // You can add shipping logic here later
-        $total = $subtotal;
+        $total = $subtotal - $discountAmount;
 
         return [
             'items'    => $cartItems,
+            'coupon'   => $coupon,
             'subtotal' => $subtotal,
+            'discount' => $discountAmount,
             'total'    => $total,
         ];
     }
 
+    public function applyCoupon(string $couponCode): array
+    {
+        $coupon = Coupon::where('code', $couponCode)->first();
+        $cart = $this->getCartContents();
+
+        // Kiểm tra coupon
+        if (!$coupon) {
+            throw new \RuntimeException('Coupon code is invalid.');
+        }
+        if (!$coupon->isValid()) {
+            throw new \RuntimeException('This coupon is expired or no longer active.');
+        }
+        if ($coupon->min_purchase_amount && $cart['subtotal'] < $coupon->min_purchase_amount) {
+            throw new \RuntimeException('Your cart does not meet the minimum purchase amount for this coupon.');
+        }
+
+        // Lưu coupon vào session
+        session()->put('cart.coupon', $coupon);
+
+        return $this->getCartContents();
+    }
+
+    public function removeCoupon(): array
+    {
+        session()->forget('cart.coupon');
+        return $this->getCartContents();
+    }
+
+    /**
+     * Calculate the discount amount for a given coupon and subtotal.
+     *
+     * @param  \App\Models\Coupon  $coupon
+     * @param  float  $subtotal
+     *
+     * @return float
+     */
+    private function calculateDiscount(Coupon $coupon, float $subtotal): float
+    {
+        $discountValue = 0.0;
+
+        if ($coupon->type === \App\Enums\CouponType::PERCENTAGE) {
+            $discountValue = ($subtotal * (float)$coupon->value) / 100;
+        } else {
+            // Ensure the discount is not greater than the subtotal
+            $discountValue = min((float)$coupon->value, $subtotal);
+        }
+
+        // Always return a raw float value, no formatting here.
+        return $discountValue;
+    }
+
     public function updateQuantities(array $updates): array
     {
-        $cart = session()->get('cart', []);
+        $cart = session()->get('cart.items', []);
         foreach ($updates as $variantId => $quantity) {
             if (isset($cart[$variantId])) {
                 $variant = ProductVariant::find($variantId);
@@ -83,13 +143,13 @@ class CartService
                 $cart[$variantId]['quantity'] = $newQuantity;
             }
         }
-        session()->put('cart', $cart);
+        session()->put('cart.items', $cart);
         return $this->getCartContents();
     }
 
     public function remove(int $variantId): array
     {
-        session()->forget("cart.{$variantId}");
+        session()->forget("cart.items.{$variantId}");
         return $this->getCartContents();
     }
 

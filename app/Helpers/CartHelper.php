@@ -17,6 +17,6 @@ declare(strict_types=1);
 if (!function_exists('get_cart_count')) {
     function get_cart_count(): int
     {
-        return count(session()->get('cart', []));
+        return count(session()->get('cart.items', []));
     }
 }

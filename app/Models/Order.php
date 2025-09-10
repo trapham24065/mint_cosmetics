@@ -31,6 +31,8 @@ class Order extends Model
         'total_price',
         'status',
         'payment_method',
+        'coupon_code',
+        'discount_amount',
         'transaction_id',
         'notes',
         'first_name',

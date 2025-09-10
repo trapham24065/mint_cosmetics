@@ -26,9 +26,9 @@ class PaymentService
     public function generateVietQrString(Order $order): string
     {
         // Get bank details from config to keep them secure and manageable
-        $bankId = config('payment.vietqr.bank_id');
-        $accountNumber = config('payment.vietqr.account_number');
-        $paymentPrefix = config('payment.vietqr.prefix', 'DH');
+        $bankId = setting('vietqr_bank_id');
+        $accountNumber = setting('vietqr_account_no');
+        $paymentPrefix = setting('vietqr_prefix', 'DH');
 
         // Create the payment description
         $paymentDescription = $paymentPrefix.$order->id;
