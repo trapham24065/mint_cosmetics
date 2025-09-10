@@ -18,16 +18,20 @@ class OrderService
     public function createOrder(array $customerData, array $cartData): Order
     {
         return DB::transaction(function () use ($customerData, $cartData) {
+            $coupon = $cartData['coupon'];
+
             // 1. Create a single row main
             $order = Order::create([
-                'total_price' => $cartData['total'],
-                'status'      => 'pending',
-                'first_name'  => $customerData['first_name'],
-                'last_name'   => $customerData['last_name'],
-                'address'     => $customerData['address'],
-                'phone'       => $customerData['phone'],
-                'email'       => $customerData['email'],
-                'notes'       => $customerData['notes'] ?? null,
+                'total_price'     => $cartData['total'],
+                'status'          => 'pending',
+                'first_name'      => $customerData['first_name'],
+                'last_name'       => $customerData['last_name'],
+                'address'         => $customerData['address'],
+                'phone'           => $customerData['phone'],
+                'email'           => $customerData['email'],
+                'notes'           => $customerData['notes'] ?? null,
+                'coupon_code'     => $coupon ? $coupon->code : null,
+                'discount_amount' => $cartData['discount'],
             ]);
 
             // 2. Create order items from cart
@@ -45,7 +49,9 @@ class OrderService
                 ];
             }
             DB::table('order_items')->insert($orderItems);
-
+            if ($coupon) {
+                $coupon->increment('times_used');
+            }
             return $order;
         });
     }

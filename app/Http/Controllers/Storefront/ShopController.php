@@ -27,7 +27,8 @@ class ShopController extends Controller
         // Base query for active products only
         $query = Product::query()
             ->where('active', true)
-            ->with(['variants']);
+            ->with(['variants'])
+            ->withCount('approvedReviews');
 
         if ($request->filled('category')) {
             $categorySlug = $request->input('category');

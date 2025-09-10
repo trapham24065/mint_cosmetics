@@ -47,7 +47,7 @@ class UpdateProductRequest extends FormRequest
             // Rules specific to a simple product
             $rules['price'] = ['required', 'numeric', 'min:0'];
             $rules['stock'] = ['required', 'integer', 'min:0'];
-            $rules['discount_price'] = ['nullable', 'numeric', 'min:0', 'lt:price'];
+            $rules['discount_price'] = ['nullable', 'numeric', 'min:0', 'lte:price'];
             // Forbid variable fields if the type is simple
             $rules['variants'] = ['prohibited'];
             $rules['new_variants'] = ['prohibited'];

@@ -99,4 +99,21 @@ class CartController extends Controller
         return response()->json($cartData);
     }
 
+    public function applyCoupon(Request $request): JsonResponse
+    {
+        $request->validate(['coupon_code' => 'required|string']);
+        try {
+            $cartData = $this->cartService->applyCoupon($request->input('coupon_code'));
+            return response()->json(['success' => true, 'cart' => $cartData]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+    }
+
+    public function removeCoupon(): JsonResponse
+    {
+        $cartData = $this->cartService->removeCoupon();
+        return response()->json(['success' => true, 'cart' => $cartData]);
+    }
+
 }

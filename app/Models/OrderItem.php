@@ -16,13 +16,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class OrderItem extends Model
 {
 
     protected $fillable = [
-        'order_id', 'product_variant_id', 'product_name',
-        'quantity', 'price', 'total'
+        'order_id',
+        'product_variant_id',
+        'product_name',
+        'quantity',
+        'price',
+        'total',
     ];
 
     public function order(): BelongsTo
@@ -33,6 +38,11 @@ class OrderItem extends Model
     public function productVariant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class);
+    }
+
+    public function review(): HasOne
+    {
+        return $this->hasOne(Review::class);
     }
 
 }

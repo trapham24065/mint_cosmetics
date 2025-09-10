@@ -8,17 +8,21 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\OrderItem;
 
 class RequestReview extends Mailable
 {
+
     use Queueable, SerializesModels;
+
+    public OrderItem $orderItem;
 
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(OrderItem $orderItem)
     {
-        //
+        $this->orderItem = $orderItem;
     }
 
     /**
@@ -26,9 +30,7 @@ class RequestReview extends Mailable
      */
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: 'Request Review',
-        );
+        return new Envelope(subject: 'Please review your recent purchase');
     }
 
     /**
@@ -36,9 +38,7 @@ class RequestReview extends Mailable
      */
     public function content(): Content
     {
-        return new Content(
-            view: 'view.name',
-        );
+        return new Content(view: 'emails.reviews.request');
     }
 
     /**
@@ -50,4 +50,5 @@ class RequestReview extends Mailable
     {
         return [];
     }
+
 }

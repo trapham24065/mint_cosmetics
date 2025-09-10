@@ -15,7 +15,7 @@ use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    
+
     /**
      * Display the specified product.
      */
@@ -26,6 +26,7 @@ class ProductController extends Controller
             'category',
             'brand',
             'variants.attributeValues.attribute',
+            'approvedReviews',
         ]);
 
         // Get related products (e.g., other products in the same category)
@@ -33,6 +34,7 @@ class ProductController extends Controller
             ->where('id', '!=', $product->id) // Exclude the current product
             ->where('active', true)
             ->with('variants')
+            ->withCount('approvedReviews')
             ->limit(10)
             ->get();
 
