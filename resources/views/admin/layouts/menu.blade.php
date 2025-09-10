@@ -148,6 +148,22 @@
                     </ul>
                 </div>
             </li>
+            <li class="nav-item ">
+                <a class="nav-link " href="{{route('admin.reviews.index')}}">
+                                   <span class="nav-icon">
+                                        <iconify-icon icon="solar:chat-square-like-bold-duotone"></iconify-icon>
+                                   </span>
+                    <span class="nav-text"> Reviews </span>
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a class="nav-link " href="{{route('admin.settings.index')}}">
+                                   <span class="nav-icon">
+                                        <iconify-icon icon="solar:settings-bold-duotone"></iconify-icon>
+                                   </span>
+                    <span class="nav-text"> Settings </span>
+                </a>
+            </li>
         </ul>
     </div>
 </div>

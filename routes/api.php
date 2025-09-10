@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ReviewController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\OrderController;
@@ -27,4 +28,6 @@ Route::name('api.')->group(function () {
     Route::get('/coupons/api', [CouponController::class, 'getDataForGrid'])->name('coupons.data');
 
     Route::get('/products/api', [ProductController::class, 'getDataForGrid'])->name('products.data');
+
+    Route::get('/reviews/api', [ReviewController::class, 'getDataForGrid'])->name('reviews.data');
 });

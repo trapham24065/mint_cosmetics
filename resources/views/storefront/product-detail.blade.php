@@ -37,20 +37,31 @@
                             <h3 class="product-details-title">{{ $product->name }}</h3>
 
                             <div class="product-details-review">
+                                @php
+                                    $averageRating = $product->averageRating();
+                                    $reviewsCount = $product->approvedReviews->count();
+                                @endphp
                                 <div class="product-review-icon">
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-half-o"></i>
+                                    @if ($reviewsCount > 0)
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <= $averageRating)
+                                                <i class="fa fa-star"></i>
+                                            @else
+                                                <i class="fa fa-star-o"></i>
+                                            @endif
+                                        @endfor
+                                    @else
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <i class="fa fa-star-o"></i>
+                                        @endfor
+                                    @endif
                                 </div>
-                                <button type="button" class="product-review-show">150 reviews</button>
-                            </div>
+                                <a href="#review-tab" class="product-review-show">{{ $reviewsCount }} reviews</a></div>
                             <div id="variant-options-container" class="mb-4"></div>
 
                             <div class="product-details-pro-qty">
                                 <div class="pro-qty">
-                                    <!-- Thay đổi ID từ "quantity" thành "productDetailQuantity" -->
+                                    <!-- Change ID from "quantity" to "productDetailQuantity" -->
                                     <input type="number" id="productDetailQuantity" title="Quantity" value="1" min="1">
                                 </div>
                             </div>
@@ -61,7 +72,6 @@
                                     <button type="button" class="btn-wishlist" data-bs-toggle="modal"
                                             data-bs-target="#action-WishlistModal"><i class="fa fa-heart-o"></i>
                                     </button>
-                                    <!-- Thêm data-context="product-detail" -->
                                     <button type="button" class="btn action-btn-cart" id="add-to-cart-btn"
                                             data-context="product-detail" disabled>Add to cart
                                     </button>
@@ -76,11 +86,55 @@
                             <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#description-tab"
                                     type="button">Description
                             </button>
-                            {{-- You can add tabs for specification and reviews later --}}
+                            <button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review"
+                                    type="button">
+                                Reviews ({{ $product->approvedReviews->count() }})
+                            </button>
                         </div>
                         <div class="tab-content" id="product-details-nav-tabContent">
                             <div class="tab-pane fade show active" id="description-tab" role="tabpanel">
                                 {!! nl2br(e($product->description)) !!}
+                            </div>
+
+                            {{-- NEW ADD: Tab for Reviews --}}
+                            <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
+                                @forelse($product->approvedReviews as $review)
+                                    <div class="product-review-item">
+                                        <div class="product-review-top">
+                                            <div class="product-review-content">
+                                                <span class="product-review-name">{{ $review->reviewer_name }}</span>
+                                                <span class="product-review-designation">Verified Buyer</span>
+                                                <div class="product-review-icon">
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        @if ($i <= $review->rating)
+                                                            <i class="fa fa-star"></i>
+                                                        @else
+                                                            <i class="fa fa-star-o"></i>
+                                                        @endif
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="desc">{{ $review->review }}</p>
+                                        @if(!empty($review->media) && is_array($review->media))
+                                            <div class="review-media-gallery d-flex flex-wrap gap-2 mt-3">
+                                                {{-- Loop through array of image paths --}}
+                                                @foreach($review->media as $mediaPath)
+                                                    <a href="{{ asset('storage/' . $mediaPath) }}"
+                                                       data-fancybox="review-{{ $review->id }}">
+                                                        <img src="{{ asset('storage/' . $mediaPath) }}"
+                                                             alt="Review image" class="img-thumbnail" width="80"
+                                                             height="80" style="object-fit: cover;">
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <div class="product-review-item">
+                                        <p>This product has no reviews yet.</p>
+                                    </div>
+                                @endforelse
                             </div>
                         </div>
                     </div>

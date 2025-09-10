@@ -88,19 +88,21 @@
                                 const deleteUrl = `{{ route('admin.categories.index') }}/${categoryId}`;
 
                                 return gridjs.html(`
-                                <div class="d-flex gap-2">
-                                    <a href="${showUrl}" class="btn btn-sm btn-soft-info"><iconify-icon icon="solar:eye-broken"
-                                                                  class="align-middle fs-18"></iconify-icon></a>
-                                    <a href="${editUrl}" class="btn btn-sm btn-primary"> <iconify-icon icon="solar:pen-2-broken"
-                                                                  class="align-middle fs-18"></iconify-icon></a>
-
-                                    <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
-                                        <input type="hidden" name="_token" value="${csrfToken}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-sm btn-danger"><iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
-                                                                      class="align-middle fs-18"></iconify-icon></button>
-                                    </form>
-                                </div>`
+                                    <div class="d-flex gap-2">
+                                        <a href="${showUrl}" class="btn btn-sm btn-soft-info" aria-label="View category ${categoryId}">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="${editUrl}" class="btn btn-sm btn-primary"aria-label="Edit category ${categoryId}">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                            <input type="hidden" name="_token" value="${csrfToken}">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="submit" class="btn btn-sm btn-danger" aria-label="Delete category ${categoryId}">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>`
                                 );
                             }
                         }
@@ -110,7 +112,18 @@
                         then: results => results.data,
                     },
                     sort: true,
-                    search: true,
+                    search: {
+                        enabled: true,
+                        selector: (cell, rowIndex, cellIndex) => {
+                            if (cellIndex === 1 || cellIndex === 6) {
+                                return '';
+                            }
+                            if (cellIndex === 4) {
+                                return cell ? 'active' : 'inactive';
+                            }
+                            return cell ? cell.toString() : '';
+                        }
+                    },
                     pagination: {
                         limit: 10
                     },

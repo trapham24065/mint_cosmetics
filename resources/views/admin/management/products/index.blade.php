@@ -23,11 +23,13 @@
         document.addEventListener('DOMContentLoaded', function () {
             if (document.getElementById("table-products-gridjs")) {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
                 new gridjs.Grid({
                     columns: [
                         { id: 'id', name: 'ID' },
                         {
-                            id: 'image', name: 'Image',
+                            id: 'image',
+                            name: 'Image',
                             formatter: (cell) => {
                                 const imageUrl = cell ? `/storage/${cell}` : `{{ asset('assets/admin/images/default-product.png') }}`;
                                 return gridjs.html(`<img src="${imageUrl}" alt="Product" class="avatar-sm">`);
@@ -47,7 +49,8 @@
                                 : gridjs.html('<span class="badge bg-secondary">Inactive</span>')
                         },
                         {
-                            name: 'Actions', width: '150px',
+                            name: 'Actions',
+                            width: '150px',
                             formatter: (cell, row) => {
                                 const productId = row.cells[0].data;
                                 const showUrl = `/admin/products/${productId}`;
@@ -55,19 +58,21 @@
                                 const deleteUrl = `/admin/products/${productId}`;
 
                                 return gridjs.html(`
-                                <div class="d-flex gap-2">
-                                    <a href="${showUrl}" class="btn btn-sm btn-soft-info"><iconify-icon icon="solar:eye-broken"
-                                                                  class="align-middle fs-18"></iconify-icon></a>
-                                    <a href="${editUrl}" class="btn btn-sm btn-primary"><iconify-icon icon="solar:pen-2-broken"
-                                                                  class="align-middle fs-18"></iconify-icon></a>
-                                    <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
-                                        <input type="hidden" name="_token" value="${csrfToken}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-sm btn-danger"><iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
-                                                                      class="align-middle fs-18"></iconify-icon></button>
-                                    </form>
-                                </div>`
-                                );
+                        <div class="d-flex gap-2">
+                            <a href="${showUrl}" class="btn btn-sm btn-soft-info" aria-label="View product ${productId}">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="${editUrl}" class="btn btn-sm btn-primary" aria-label="Edit product ${productId}">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                <input type="hidden" name="_token" value="${csrfToken}">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn-sm btn-danger" aria-label="Delete product ${productId}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>`);
                             }
                         },
                         { id: 'id', name: 'ID', hidden: true }
@@ -88,7 +93,18 @@
                         total: results => results.total
                     },
                     sort: true,
-                    search: true,
+                    search: {
+                        enabled: true,
+                        selector: (cell, rowIndex, cellIndex) => {
+                            if (cellIndex === 1 || cellIndex === 7) {
+                                return '';
+                            }
+                            if (cellIndex === 6) {
+                                return cell ? 'active' : 'inactive';
+                            }
+                            return cell ? cell.toString() : '';
+                        }
+                    },
                     pagination: {
                         limit: 10
                     },

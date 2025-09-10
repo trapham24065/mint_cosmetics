@@ -19,6 +19,10 @@
                                             at {{ $order->created_at->format('g:i a') }}</p>
                                     </div>
                                     <div>
+                                        <a href="{{ route('admin.orders.invoice.download', $order) }}"
+                                           class="btn btn-secondary" target="_blank">
+                                            <i class="fa fa-print"></i> Download Invoice
+                                        </a>
                                         <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary">Back
                                             to List</a>
                                     </div>

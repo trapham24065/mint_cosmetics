@@ -69,14 +69,14 @@
                             id: 'value',
                             name: 'Value',
                             formatter: (cell, row) => {
-                                const type = row.cells[1].data;
+                                const type = row.cells[2].data;
                                 if (type === 'percentage') {
                                     return `${cell}%`;
                                 }
                                 return `${parseFloat(cell).toLocaleString('vi-VN')} VNĐ`;
                             }
                         },
-                        { id: 'usage', name: 'Usage (Used/Max)'    ,
+                        { id: 'usage', name: 'Usage (Used/Max)',
                             attributes: () => ({
                                 style: ' min-width: 40px; max-width: 40px;'
                             })
@@ -91,41 +91,32 @@
                         },
                         {
                             name: 'Actions',
-                            width: '120px',
+                            attributes: () => ({ style: 'min-width:120px;' }),
                             formatter: (cell, row) => {
                                 const couponId = row.cells[0].data;
                                 const editUrl = `/admin/coupons/${couponId}/edit`;
                                 const deleteUrl = `/admin/coupons/${couponId}`;
 
                                 return gridjs.html(`
-                                <div class="d-flex gap-2">
-                                    <a href="${editUrl}" class="btn btn-sm btn-primary"><iconify-icon icon="solar:pen-2-broken"
-                                                                  class="align-middle fs-18"></iconify-icon></a></a>
-                                    <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
-                                        <input type="hidden" name="_token" value="${csrfToken}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-sm btn-danger"><iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
-                                                                      class="align-middle fs-18"></iconify-icon></button>
-                                    </form>
-                                </div>`
+                        <div class="d-flex gap-2">
+                            <a href="${editUrl}" class="btn btn-sm btn-primary" aria-label="Edit coupon ${couponId}">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                <input type="hidden" name="_token" value="${csrfToken}">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn-sm btn-danger" aria-label="Delete coupon ${couponId}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>`
                                 );
                             }
                         },
-                        { id: 'id', name: 'ID', hidden: true }
                     ],
                     server: {
                         url: '{{ route('admin.api.coupons.data') }}',
-                        then: results => results.data.map(coupon => [
-                            coupon.id,
-                            coupon.code,
-                            coupon.type,
-                            coupon.value,
-                            coupon.usage,
-                            coupon.dates,
-                            coupon.is_active,
-                            null,
-                            coupon.id
-                        ])
+                        then: results => results.data,
                     },
                     sort: true,
                     search: true,
