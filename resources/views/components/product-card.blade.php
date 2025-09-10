@@ -32,13 +32,29 @@
         </div>
     </div>
     <div class="product-info">
-        {{-- You can add a dynamic rating system later --}}
         <div class="product-rating">
+            @php
+                $averageRating = $product->averageRating();
+                $reviewsCount = $product->approved_reviews_count; // Sử dụng thuộc tính đã được eager-load
+            @endphp
+
             <div class="rating">
-                <i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i class="fa fa-star-o"></i><i
-                    class="fa fa-star-o"></i><i class="fa fa-star-half-o"></i>
+                @if ($reviewsCount > 0)
+                    @for ($i = 1; $i <= 5; $i++)
+                        @if ($i <= $averageRating)
+                            <i class="fa fa-star"></i>
+                        @else
+                            <i class="fa fa-star-o"></i>
+                        @endif
+                    @endfor
+                @else
+                    {{-- Show empty seats if there are no reviews yet --}}
+                    @for ($i = 1; $i <= 5; $i++)
+                        <i class="fa fa-star-o"></i>
+                    @endfor
+                @endif
             </div>
-            <div class="reviews">150 reviews</div>
+            <div class="reviews">{{ $reviewsCount }} reviews</div>
         </div>
         <h4 class="title"><a href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a></h4>
         <div class="prices">
@@ -52,6 +68,6 @@
                 @endif
             @endif
         </div>
-        
+
     </div>
 </div>

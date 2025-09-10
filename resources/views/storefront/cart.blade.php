@@ -79,8 +79,18 @@
                         <div class="coupon-wrap">
                             <h4 class="title">Coupon</h4>
                             <p class="desc">Enter your coupon code if you have one.</p>
-                            <input type="text" class="form-control" placeholder="Coupon code">
-                            <button type="button" class="btn-coupon">Apply coupon</button>
+                            <div id="coupon-form-container">
+                                @if ($coupon)
+                                    <div class="d-flex align-items-center">
+                                        <p class="me-2">Applied coupon: <strong>{{ $coupon->code }}</strong></p>
+                                        <button type="button" id="remove-coupon-btn" class="btn-coupon">Remove</button>
+                                    </div>
+                                @else
+                                    <input type="text" id="coupon-code-input" class="form-control"
+                                           placeholder="Coupon code">
+                                    <button type="button" id="apply-coupon-btn" class="btn-coupon">Apply coupon</button>
+                                @endif
+                            </div>
                         </div>
                     </div>
                     <div class="col-12 col-lg-6">
@@ -90,14 +100,17 @@
                                 <tbody>
                                 <tr class="cart-subtotal">
                                     <th>Subtotal</th>
-                                    <td>
-                                        <span class="amount" id="cart-subtotal">{{ number_format($subtotal, 0, ',', '.') }} VNĐ</span>
+                                    <td><span class="amount" id="cart-subtotal">{{ number_format($subtotal, 0, ',', '.') }} VNĐ</span>
+                                    </td>
+                                </tr>
+                                <tr class="cart-discount" style="{{ !$coupon ? 'display: none;' : '' }}">
+                                    <th>Discount</th>
+                                    <td><span class="amount text-danger" id="cart-discount">-{{ number_format($discount, 0, ',', '.') }} VNĐ</span>
                                     </td>
                                 </tr>
                                 <tr class="order-total">
                                     <th>Total</th>
-                                    <td>
-                                        <span class="amount" id="cart-total">{{ number_format($total, 0, ',', '.') }} VNĐ</span>
+                                    <td><span class="amount" id="cart-total">{{ number_format($total, 0, ',', '.') }} VNĐ</span>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -119,6 +132,7 @@
                     const updateCartBtn = document.getElementById('update-cart-btn');
                     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     const cartForm = document.querySelector('.shopping-cart-form'); // Tìm đến form cha
+                    const couponContainer = document.getElementById('coupon-form-container');
 
                     if (!cartForm) return;
 
@@ -223,6 +237,66 @@
                         })
                         .catch(error => console.error('Update Cart Error:', error));
                     });
+                    couponContainer.addEventListener('click', function(event) {
+                        // Xử lý khi nhấn nút Apply
+                        if (event.target.id === 'apply-coupon-btn') {
+                            const codeInput = document.getElementById('coupon-code-input');
+                            if (codeInput.value) {
+                                applyCoupon(codeInput.value);
+                            }
+                        }
+                        // Xử lý khi nhấn nút Remove
+                        if (event.target.id === 'remove-coupon-btn') {
+                            removeCoupon();
+                        }
+                    });
+
+                    function applyCoupon(code) {
+                        fetch('{{ route('cart.applyCoupon') }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                            body: JSON.stringify({ coupon_code: code })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                updateTotalsAndCoupon(data.cart);
+                                Swal.fire({ toast: true, icon: 'success', title: 'Coupon applied!', position: 'top-end', showConfirmButton: false, timer: 2000 });
+                            } else {
+                                Swal.fire('Error', data.message, 'error');
+                            }
+                        });
+                    }
+
+                    function removeCoupon() {
+                        fetch('{{ route('cart.removeCoupon') }}', {
+                            method: 'POST',
+                            headers: { 'X-CSRF-TOKEN': csrfToken }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                updateTotalsAndCoupon(data.cart);
+                            }
+                        });
+                    }
+
+                    function updateTotalsAndCoupon(cart) {
+                        // Cập nhật Subtotal, Discount, Total
+                        document.getElementById('cart-subtotal').textContent = cart.subtotal.toLocaleString('vi-VN') + ' VNĐ';
+                        document.getElementById('cart-total').textContent = cart.total.toLocaleString('vi-VN') + ' VNĐ';
+                        const discountRow = document.querySelector('.cart-discount');
+                        const discountAmountEl = document.getElementById('cart-discount');
+
+                        if (cart.coupon) {
+                            discountAmountEl.textContent = '-' + cart.discount.toLocaleString('vi-VN') + ' VNĐ';
+                            discountRow.style.display = '';
+                            couponContainer.innerHTML = `<div class="d-flex align-items-center"><p class="me-2">Applied coupon: <strong>${cart.coupon.code}</strong></p><button type="button" id="remove-coupon-btn" class="btn-coupon">Remove</button></div>`;
+                        } else {
+                            discountRow.style.display = 'none';
+                            couponContainer.innerHTML = `<input type="text" id="coupon-code-input" class="form-control" placeholder="Coupon code"><button type="button" id="apply-coupon-btn" class="btn-coupon">Apply coupon</button>`;
+                        }
+                    }
                 });
             </script>
 

@@ -46,16 +46,13 @@
 
                                 return gridjs.html(`
                                 <div class="d-flex gap-2">
-                                    <a href="${showUrl}" class="btn btn-sm btn-soft-info"><iconify-icon icon="solar:eye-broken"
-                                                                  class="align-middle fs-18"></iconify-icon></a>
-                                    <a href="${editUrl}" class="btn btn-sm btn-primary"> <iconify-icon icon="solar:pen-2-broken"
-                                                                  class="align-middle fs-18"></iconify-icon></a>
+                                    <a href="${showUrl}" class="btn btn-sm btn-soft-info" aria-label="View attribute ${attributeId}"><i class="bi bi-eye"></i></a>
+                                    <a href="${editUrl}" class="btn btn-sm btn-primary" aria-label="Edit attribute ${attributeId}"><i class="bi bi-pencil-square"></i></a>
 
                                     <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
                                         <input type="hidden" name="_token" value="${csrfToken}">
                                         <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-sm btn-danger"><iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
-                                                                      class="align-middle fs-18"></iconify-icon></button>
+                                        <button type="submit" class="btn btn-sm btn-danger" aria-label="Delete attribute ${attributeId}"><i class="bi bi-trash"></i></button>
                                     </form>
                                 </div>`
                                 );

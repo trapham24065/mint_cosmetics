@@ -16,6 +16,8 @@ use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 // The prefix 'admin' and middleware 'auth' are already applied from bootstrap/app.php
@@ -39,5 +41,12 @@ Route::resource('brands', BrandController::class);
 Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
 Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 Route::put('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice.download');
 
+Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+Route::put('/reviews/{review}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
+Route::put('/reviews/{review}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
+Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
+Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
