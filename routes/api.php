@@ -9,6 +9,8 @@
 
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ChatbotController;
+use App\Http\Controllers\Admin\ChatbotReplyController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReviewController;
@@ -30,4 +32,8 @@ Route::name('api.')->group(function () {
     Route::get('/products/api', [ProductController::class, 'getDataForGrid'])->name('products.data');
 
     Route::get('/reviews/api', [ReviewController::class, 'getDataForGrid'])->name('reviews.data');
+
+    Route::get('/chatbots/api', [ChatbotController::class, 'getDataForGrid'])->name('chatbot.data');
+
+    Route::get('/chatbot-replies/api', [ChatbotReplyController::class, 'getDataForGrid'])->name('chatbot-replies.data');
 });

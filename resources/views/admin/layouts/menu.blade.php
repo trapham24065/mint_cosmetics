@@ -148,6 +148,26 @@
                     </ul>
                 </div>
             </li>
+            <li class="nav-item">
+                <a class="nav-link menu-arrow" href="#sidebarChatbot" data-bs-toggle="collapse"
+                   role="button" aria-expanded="false" aria-controls="sidebarChatbot">
+                       <span class="nav-icon">
+                            <iconify-icon icon="solar:chat-round-bold-duotone"></iconify-icon>
+                       </span>
+                    <span class="nav-text"> Chat bot </span>
+                </a>
+                <div class="collapse" id="sidebarChatbot">
+                    <ul class="nav sub-navbar-nav">
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{ route('admin.chatbot.index') }}">Quick Hints</a>
+                        </li>
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{ route('admin.chatbot-replies.index') }}">Training
+                                Center</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
             <li class="nav-item ">
                 <a class="nav-link " href="{{route('admin.reviews.index')}}">
                                    <span class="nav-icon">
