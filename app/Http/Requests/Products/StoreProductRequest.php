@@ -49,7 +49,7 @@ class StoreProductRequest extends FormRequest
                 'integer',
                 'min:0',
             ],
-            'discount_price'                 => ['nullable', 'numeric', 'min:0', 'lt:price'],
+            'discount_price'                 => ['nullable', 'numeric', 'min:0', 'lte:price'],
 
             // --- Rules for Variable Product ---
             'variants'                       => [

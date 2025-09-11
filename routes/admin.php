@@ -12,6 +12,8 @@ declare(strict_types=1);
 use App\Http\Controllers\Admin\AttributeController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ChatbotController;
+use App\Http\Controllers\Admin\ChatbotReplyController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
@@ -50,3 +52,19 @@ Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('
 
 Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
 Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+Route::prefix('chatbot')->name('chatbot.')->group(function () {
+    Route::get('/', [ChatbotController::class, 'index'])->name('index');
+    Route::get('/create', [ChatbotController::class, 'create'])->name('create');
+    Route::post('/', [ChatbotController::class, 'store'])->name('store');
+    Route::get('/{rule}/edit', [ChatbotController::class, 'edit'])->name('edit');
+    Route::put('/{rule}', [ChatbotController::class, 'update'])->name('update');
+    Route::delete('/{rule}', [ChatbotController::class, 'destroy'])->name('destroy');
+});
+Route::resource('chatbot-replies', ChatbotReplyController::class);
+Route::post('chatbot-replies/{reply}/keywords', [ChatbotReplyController::class, 'storeKeyword'])->name(
+    'chatbot-replies.keywords.store'
+);
+Route::delete('chatbot-keywords/{keyword}', [ChatbotReplyController::class, 'destroyKeyword'])->name(
+    'chatbot-keywords.destroy'
+);

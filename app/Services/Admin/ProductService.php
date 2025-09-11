@@ -101,11 +101,11 @@ class ProductService
             }
 
             // 3. Update basic product information (always allowed)
-            $basicFields = ['name', 'description', 'category_id', 'brand_id', 'status', 'image', 'list_image'];
+            $basicFields = ['name', 'description', 'category_id', 'brand_id', 'active', 'image', 'list_image'];
             $basicData = array_intersect_key($data, array_flip($basicFields));
             $product->update($basicData);
 
-            // 4. Handle variants update with smart integrity check
+            // 4. Handle variants update with a smart integrity check
             $hasOrderedVariants = $product->variants()->whereHas('orderItems')->exists();
 
             if (!$hasOrderedVariants) {
@@ -179,7 +179,7 @@ class ProductService
             foreach ($variantsInOrders as $existingVariant) {
                 // Find matching variant data by ID if provided
                 $matchingData = collect($allVariantsData)->first(function ($variantData) use ($existingVariant) {
-                    return isset($variantData['id']) && $variantData['id'] == $existingVariant->id;
+                    return isset($variantData['id']) && $variantData['id'] === $existingVariant->id;
                 });
 
                 if ($matchingData) {

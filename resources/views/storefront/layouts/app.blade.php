@@ -49,8 +49,9 @@
     @yield('content')
     <!--== Scroll Top Button ==-->
     <div id="scroll-to-top" class="scroll-to-top"><span class="fa fa-angle-up"></span></div>
-
+    @include('storefront.partials._chat-widget')
     @include('storefront.partials.footer')
+
 </div>
 
 <script src="{{asset('assets/storefront/js/vendor/modernizr-3.11.7.min.js')}}"></script>
@@ -69,6 +70,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{asset('assets/storefront/js/cart.js')}}"></script>
 <script src="{{ asset('assets/storefront/js/aside-cart.js') }}"></script>
+<script src="{{ asset('assets/storefront/js/chatbot.js') }}"></script>
+
 @stack('scripts')
 
 <!-- Test Script -->
