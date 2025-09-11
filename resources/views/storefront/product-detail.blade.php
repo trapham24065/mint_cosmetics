@@ -69,8 +69,8 @@
                             <div class="product-details-action">
                                 <h6 class="price" id="product-price">Select options to see price</h6>
                                 <div class="product-details-cart-wishlist">
-                                    <button type="button" class="btn-wishlist" data-bs-toggle="modal"
-                                            data-bs-target="#action-WishlistModal"><i class="fa fa-heart-o"></i>
+                                    <button type="button" class="btn-wishlist" data-product-id="{{ $product->id }}"><i
+                                            class="fa fa-heart-o"></i>
                                     </button>
                                     <button type="button" class="btn action-btn-cart" id="add-to-cart-btn"
                                             data-context="product-detail" disabled>Add to cart

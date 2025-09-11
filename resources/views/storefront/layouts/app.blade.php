@@ -71,7 +71,7 @@
 <script src="{{asset('assets/storefront/js/cart.js')}}"></script>
 <script src="{{ asset('assets/storefront/js/aside-cart.js') }}"></script>
 <script src="{{ asset('assets/storefront/js/chatbot.js') }}"></script>
-
+<script src="{{ asset('assets/storefront/js/wishlist.js') }}"></script>
 @stack('scripts')
 
 <!-- Test Script -->

@@ -26,7 +26,7 @@
                 </button>
             @endif
             <button type="button" class="product-action-btn action-btn-wishlist"
-                    data-bs-toggle="modal" data-bs-target="#action-WishlistModal">
+                    data-product-id="{{ $product->id }}">
                 <i class="fa fa-heart-o"></i>
             </button>
         </div>
@@ -35,7 +35,7 @@
         <div class="product-rating">
             @php
                 $averageRating = $product->averageRating();
-                $reviewsCount = $product->approved_reviews_count; // Sử dụng thuộc tính đã được eager-load
+                $reviewsCount = $product->approved_reviews_count;
             @endphp
 
             <div class="rating">

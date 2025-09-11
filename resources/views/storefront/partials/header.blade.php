@@ -61,7 +61,19 @@
                             </span>
                         </span>
                     </button>
-
+                    <a class="header-action-btn" href="{{ route('wishlist.index') }}">
+        <span class="icon position-relative">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M14.9999 27.2375C14.5874 27.0375 1.2499 15.6 1.2499 8.75C1.2499 5.375 4.1249 2.5 7.4999 2.5C9.8374 2.5 12.0499 3.8625 13.4374 5.75C14.1624 4.8125 15.1499 3.325 16.5624 2.5C18.4249 1.4875 21.0374 2.0125 22.4999 3.475C25.3249 6.3 23.9124 10.975 22.4999 12.3875L14.9999 20.225L13.5249 18.75"
+                    stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span id="wishlist-count"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ get_wishlist_count() }}
+            </span>
+        </span>
+                    </a>
                     <button class="header-menu-btn" type="button" data-bs-toggle="offcanvas"
                             data-bs-target="#AsideOffcanvasMenu" aria-controls="AsideOffcanvasMenu">
                         <span></span>
