@@ -9,6 +9,7 @@ use App\Http\Controllers\Storefront\PaymentController;
 use App\Http\Controllers\Storefront\ProductController;
 use App\Http\Controllers\Storefront\ShopController;
 use App\Http\Controllers\Storefront\WebhookController;
+use App\Http\Controllers\Storefront\WishlistController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Storefront\ReviewController;
 
@@ -46,5 +47,9 @@ Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->nam
 
 Route::post('/chatbot/send', [ChatbotController::class, 'sendMessage'])->name('chatbot.send');
 Route::get('/chatbot/suggestions', [ChatbotController::class, 'getSuggestions'])->name('chatbot.suggestions');
+
+Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+Route::get('/wishlist/ids', [WishlistController::class, 'getIds'])->name('wishlist.ids');
 require __DIR__.'/auth.php';
 
