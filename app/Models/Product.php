@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -80,9 +81,9 @@ class Product extends Model
         return $this->belongsToMany(Attribute::class, 'attribute_product');
     }
 
-    public function orderItems(): HasMany
+    public function orderItems(): HasManyThrough|Product
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasManyThrough(OrderItem::class, ProductVariant::class);
     }
 
     /**

@@ -8,12 +8,16 @@
  * @time 12:54 AM
  */
 declare(strict_types=1);
+
 namespace App\Services\Admin;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
+use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ProductService
 {
@@ -42,44 +46,29 @@ class ProductService
             $product = Product::create($data);
 
             // 3. Create variants based on the product type
-            if ($data['product_type'] === 'simple') {
-                $product->variants()->create([
-                    'price'          => $data['price'],
-                    'discount_price' => $data['discount_price'] ?? null,
-                    'stock'          => $data['stock'],
-                ]);
-            } elseif ($data['product_type'] === 'variable' && !empty($data['variants'])) {
-                foreach ($data['variants'] as $variantData) {
-                    $variant = $product->variants()->create($variantData);
-                    if (!empty($variantData['attribute_value_ids'])) {
-                        $valueIds = explode(',', $variantData['attribute_value_ids']);
-                        $variant->attributeValues()->sync($valueIds);
-                    }
-                }
-            }
+            $this->createVariants($product, $data);
+
             return $product;
         });
     }
 
     /**
      * Update an existing product with the given data.
-     *
-     * @param  Product  $product  The product to update.
-     * @param  array  $data  The new data for the product.
-     *
-     * @return Product The updated product.
-     * @throws \Exception|\Throwable If there is an error during the update process.
      */
     public function updateProduct(Product $product, array $data): Product
     {
         return DB::transaction(function () use ($product, $data) {
+            // Log incoming data for debugging
+            Log::info('Updating product', ['product_id' => $product->id, 'data_keys' => array_keys($data)]);
+
             // 1. Handle main image update
-            if (!empty($data['image'])) {
+            if (!empty($data['image']) && $data['image'] instanceof UploadedFile) {
                 if ($product->image) {
                     Storage::disk('public')->delete($product->image);
                 }
                 $data['image'] = $data['image']->store('products', 'public');
             }
+
             // 2. Handle gallery images update
             if (!empty($data['list_image'])) {
                 // First, delete all old gallery images
@@ -91,145 +80,176 @@ class ProductService
                 // Then, store the new gallery images
                 $galleryPaths = [];
                 foreach ($data['list_image'] as $file) {
-                    // Ensure we are working with an uploaded file object
                     if ($file instanceof UploadedFile) {
                         $galleryPaths[] = $file->store('products/gallery', 'public');
                     }
                 }
-                // Update the data array with the new paths
                 $data['list_image'] = $galleryPaths;
+            } else {
+                // Remove list_image from data to avoid overwriting with null
+                unset($data['list_image']);
             }
 
             // 3. Update basic product information (always allowed)
-            $basicFields = ['name', 'description', 'category_id', 'brand_id', 'active', 'image', 'list_image'];
+            $basicFields = [
+                'name',
+                'slug',
+                'short_description',
+                'description',
+                'category_id',
+                'brand_id',
+                'active',
+                'is_featured',
+                'meta_title',
+                'meta_description',
+                'meta_keywords',
+                'image',
+                'list_image',
+            ];
+
             $basicData = array_intersect_key($data, array_flip($basicFields));
-            $product->update($basicData);
 
-            // 4. Handle variants update with a smart integrity check
-            $hasOrderedVariants = $product->variants()->whereHas('orderItems')->exists();
-
-            if (!$hasOrderedVariants) {
-                // No variants in orders - full update allowed
-                $product->variants()->delete();
-                $this->createVariants($product, $data);
-            } else {
-                // Some variants in orders - selective update
-                $this->updateVariantsSelectively($product, $data);
+            // Only update if there's actual data
+            if (!empty($basicData)) {
+                $product->update($basicData);
             }
 
-            return $product->fresh(['variants']);
+            // 3. Handle Variants based on the submitted product type
+            if ($data['product_type'] === 'simple') {
+                // For simple products, we ensure there is only one variant.
+                $variant = $product->variants()->firstOrNew([]);
+                $variant->price = $data['price'];
+                $variant->stock = $data['stock'];
+                $variant->discount_price = $data['discount_price'] ?? null;
+                $variant->save();
+
+                // Delete all other variants except this one (handles switching from variable to simple)
+                $variantsToDelete = $product->variants()->where('id', '!=', $variant->id)->get();
+                foreach ($variantsToDelete as $v) {
+                    if ($v->orderItems()->exists()) {
+                        throw new \RuntimeException(
+                            "Cannot switch to simple product because a variant is part of an existing order."
+                        );
+                    }
+                    $v->delete();
+                }
+            } elseif ($data['product_type'] === 'variable') {
+                // If switching from simple to variable, delete the old default variant
+                if ($product->variants()->count() === 1 && $product->variants()->first()->attributeValues->isEmpty()) {
+                    $product->variants()->delete();
+                }
+
+                // Update existing variants
+                if (!empty($data['variants'])) {
+                    foreach ($data['variants'] as $id => $variantData) {
+                        $variant = $product->variants()->find($id);
+                        if ($variant) {
+                            $variant->update($variantData);
+                        }
+                    }
+                }
+
+                // Delete variants marked for deletion from the form
+                if (!empty($data['deleted_variants'])) {
+                    foreach ($data['deleted_variants'] as $variantId) {
+                        $variantToDelete = ProductVariant::find($variantId);
+                        if ($variantToDelete) {
+                            if ($variantToDelete->orderItems()->exists()) {
+                                throw new Exception(
+                                    "Cannot delete variant (ID: {$variantId}) because it is part of an existing order."
+                                );
+                            }
+                            $variantToDelete->delete();
+                        }
+                    }
+                }
+
+                // Create new variants
+                if (!empty($data['new_variants'])) {
+                    foreach ($data['new_variants'] as $variantData) {
+                        $newVariant = $product->variants()->create($variantData);
+                        if (!empty($variantData['attribute_value_ids'])) {
+                            $valueIds = explode(',', $variantData['attribute_value_ids']);
+                            $newVariant->attributeValues()->sync($valueIds);
+                        }
+                    }
+                }
+            }
+
+            return $product->fresh(['variants', 'variants.attributeValues']);
         });
     }
 
     /**
-     * Soft delete a product after checking data integrity.
-     *
-     * @param  Product  $product  The product to delete.
-     *
-     * @return bool
-     * @throws \Exception
+     * Parse attribute value IDs from various formats
      */
-    public function deleteProduct(Product $product): bool
+    private function parseAttributeValueIds($attributeValueIds): array
     {
-        // DATA INTEGRITY CHECK: Check if the product is part of any existing order items.
-        // The orderItems() relationship must be defined in the Product model.
-        if ($product->orderItems()->exists()) {
-            // If it exists in orders, throw an exception with the specific error message.
-            throw new \RuntimeException('Cannot delete product because it is linked to existing orders.');
+        if (empty($attributeValueIds)) {
+            return [];
         }
 
-        // If the check passes, perform the soft delete.
-        return $product->delete();
-    }
-
-    /**
-     * Selectively update variants when some are in orders
-     */
-    public function updateVariantsSelectively(Product $product, array $data): void
-    {
-        $existingVariants = $product->variants;
-        $variantsInOrders = $existingVariants->filter(function ($variant) {
-            return $variant->orderItems()->exists();
-        });
-
-        if ($data['product_type'] === 'simple') {
-            // For simple products, just update the existing variant
-            $variant = $existingVariants->first();
-            if ($variant) {
-                // Allow updating price, stock, discount_price for existing variants
-                $variant->update([
-                    'price'          => $data['price'],
-                    'discount_price' => $data['discount_price'] ?? null,
-                    'stock'          => $data['stock'],
-                ]);
-            }
-        } elseif ($data['product_type'] === 'variable') {
-            $allVariantsData = array_merge($data['variants'] ?? [], $data['new_variants'] ?? []);
-
-            // Delete only variants that are NOT in any orders
-            $variantsNotInOrders = $existingVariants->reject(function ($variant) {
-                return $variant->orderItems()->exists();
-            });
-
-            foreach ($variantsNotInOrders as $variant) {
-                $variant->delete();
-            }
-
-            // Update existing variants that are in orders (only safe fields)
-            foreach ($variantsInOrders as $existingVariant) {
-                // Find matching variant data by ID if provided
-                $matchingData = collect($allVariantsData)->first(function ($variantData) use ($existingVariant) {
-                    return isset($variantData['id']) && $variantData['id'] === $existingVariant->id;
-                });
-
-                if ($matchingData) {
-                    // Only update safe fields that don't affect order integrity
-                    $safeFields = ['stock', 'price', 'discount_price'];
-                    $safeData = array_intersect_key($matchingData, array_flip($safeFields));
-                    $existingVariant->update($safeData);
-                }
-            }
-
-            // Create new variants that don't have IDs
-            $newVariantsData = collect($allVariantsData)->filter(function ($variantData) {
-                return !isset($variantData['id']);
-            });
-
-            foreach ($newVariantsData as $variantData) {
-                $variant = $product->variants()->create($variantData);
-                if (!empty($variantData['attribute_value_ids'])) {
-                    $valueIds = explode(',', $variantData['attribute_value_ids']);
-                    $variant->attributeValues()->sync($valueIds);
-                }
-            }
+        if (is_string($attributeValueIds)) {
+            return array_filter(explode(',', $attributeValueIds));
         }
+
+        if (is_array($attributeValueIds)) {
+            return array_filter($attributeValueIds);
+        }
+
+        return [];
     }
 
     /**
      * Create variants for a product based on type
      */
-    public function createVariants(Product $product, array $data): void
+    private function createVariants(Product $product, array $data): void
     {
         if ($data['product_type'] === 'simple') {
             $product->variants()->create([
-                'price'          => $data['price'],
+                'price'          => $data['price'] ?? 0,
                 'discount_price' => $data['discount_price'] ?? null,
-                'stock'          => $data['stock'],
+                'stock'          => $data['stock'] ?? 0,
             ]);
         } elseif ($data['product_type'] === 'variable') {
-            $allVariantsData = array_merge($data['variants'] ?? [], $data['new_variants'] ?? []);
+            $allVariantsData = array_merge(
+                $data['variants'] ?? [],
+                $data['new_variants'] ?? []
+            );
+
             if (empty($allVariantsData)) {
                 throw new \RuntimeException('A variable product must have at least one variant.');
             }
 
             foreach ($allVariantsData as $variantData) {
-                $variant = $product->variants()->create($variantData);
-                if (!empty($variantData['attribute_value_ids'])) {
-                    $valueIds = explode(',', $variantData['attribute_value_ids']);
-                    $variant->attributeValues()->sync($valueIds);
+                if (!empty($variantData['price'])) { // Ensure price exists
+                    $variant = $product->variants()->create([
+                        'price'          => $variantData['price'],
+                        'discount_price' => $variantData['discount_price'] ?? null,
+                        'stock'          => $variantData['stock'] ?? 0,
+                    ]);
+
+                    if (!empty($variantData['attribute_value_ids'])) {
+                        $valueIds = $this->parseAttributeValueIds($variantData['attribute_value_ids']);
+                        if (!empty($valueIds)) {
+                            $variant->attributeValues()->sync($valueIds);
+                        }
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Soft delete a product after checking data integrity.
+     */
+    public function deleteProduct(Product $product): bool
+    {
+        if ($product->orderItems()->exists()) {
+            throw new \RuntimeException('Cannot delete product because it is linked to existing orders.');
+        }
+
+        return $product->delete();
     }
 
 }
