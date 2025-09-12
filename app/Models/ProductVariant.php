@@ -35,6 +35,13 @@ class ProductVariant extends Model
     ];
 
     /**
+     * The relationships that should be "touched" on update.
+     *
+     * @var array
+     */
+    protected $touches = ['product'];
+
+    /**
      * A variation belongs to an original product.
      */
     public function product(): BelongsTo
