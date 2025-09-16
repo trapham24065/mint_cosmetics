@@ -1,9 +1,12 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Storefront\AboutUsController;
+use App\Http\Controllers\Storefront\BlogController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\ChatbotController;
 use App\Http\Controllers\Storefront\CheckoutController;
+use App\Http\Controllers\Storefront\ContactController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\PaymentController;
 use App\Http\Controllers\Storefront\ProductController;
@@ -31,12 +34,6 @@ Route::get('/order/{order}/status', [PaymentController::class, 'checkOrderStatus
 
 Route::get('/products/{product}/quick-view', [ShopController::class, 'quickView'])->name('products.quickView');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
 Route::get('/order/{order}/thank-you', [PaymentController::class, 'thankYou'])->name('order.thankyou');
 
 Route::get('/reviews/create', [ReviewController::class, 'create'])->name('reviews.create');
@@ -51,5 +48,12 @@ Route::get('/chatbot/suggestions', [ChatbotController::class, 'getSuggestions'])
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
 Route::get('/wishlist/ids', [WishlistController::class, 'getIds'])->name('wishlist.ids');
+
+Route::get('/about-us', [AboutUsController::class, 'index'])->name('about-us.index');
+Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+
+Route::get('api/products/search', [ProductController::class, 'searchApi'])->name('api.products.search');
+
 require __DIR__.'/auth.php';
 

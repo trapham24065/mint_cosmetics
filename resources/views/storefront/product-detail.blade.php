@@ -67,10 +67,11 @@
                             </div>
 
                             <div class="product-details-action">
-                                <h6 class="price" id="product-price">Select options to see price</h6>
+                                <h2 id="product-price">Select options</h2>
                                 <div class="product-details-cart-wishlist">
-                                    <button type="button" class="btn-wishlist" data-product-id="{{ $product->id }}"><i
-                                            class="fa fa-heart-o"></i>
+                                    <button type="button" class="btn-wishlist action-btn-wishlist"
+                                            data-product-id="{{ $product->id }}">
+                                        <i class="fa fa-heart-o"></i>
                                     </button>
                                     <button type="button" class="btn action-btn-cart" id="add-to-cart-btn"
                                             data-context="product-detail" disabled>Add to cart
@@ -240,11 +241,11 @@
                             null;
 
                         if (discountPrice && discountPrice < price) {
-                            priceHtml = `<p class="price">${discountPrice.toLocaleString(
-                                'vi-VN')}Đ</p> <p class="price-old">${price.toLocaleString(
+                            priceHtml = `<h2>${discountPrice.toLocaleString(
+                                'vi-VN')}Đ</h2> <p style="text-decoration-line: line-through;" class="price-old">${price.toLocaleString(
                                 'vi-VN')}Đ</p>`;
                         } else {
-                            priceHtml = `<span class="price">${price.toLocaleString('vi-VN')}Đ</span>`;
+                            priceHtml = `<h2 >${price.toLocaleString('vi-VN')}Đ</h2>`;
                         }
                         priceEl.innerHTML = priceHtml;
                         addToCartBtn.dataset.variantId = matchedVariant.id;
@@ -266,10 +267,11 @@
                         null;
 
                     if (discountPrice && discountPrice < price) {
-                        priceHtml = `<p class="price">${discountPrice.toLocaleString(
-                            'vi-VN')}Đ</p> <p class="price-old">${price.toLocaleString('vi-VN')}Đ</p>`;
+                        priceHtml = `<h2 >${discountPrice.toLocaleString(
+                            'vi-VN')}Đ</h2> <p style="text-decoration-line: line-through;" class="price-old">${price.toLocaleString(
+                            'vi-VN')}Đ</p>`;
                     } else {
-                        priceHtml = `<p class="price">${price.toLocaleString('vi-VN')}Đ</p>`;
+                        priceHtml = `<h2 >${price.toLocaleString('vi-VN')}Đ</h2>`;
                     }
                     priceEl.innerHTML = priceHtml;
                     addToCartBtn.dataset.variantId = variants[0].id;

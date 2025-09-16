@@ -14,10 +14,10 @@
                 <div class="header-navigation">
                     <ul class="main-nav justify-content-start">
                         <li><a href="{{route('home')}}">home</a></li>
-                        <li><a href="#">about</a></li>
+                        <li><a href="{{route('about-us.index')}}">about</a></li>
                         <li><a href="{{route('shop')}}">shop</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Contact</a></li>
+                        <li><a href="{{route('blog.index')}}">Blog</a></li>
+                        <li><a href="{{route('contact.index')}}">Contact</a></li>
                     </ul>
                 </div>
             </div>
@@ -61,8 +61,8 @@
                             </span>
                         </span>
                     </button>
-                    <a class="header-action-btn" href="{{ route('wishlist.index') }}">
-        <span class="icon position-relative">
+                    <a class=" header-action-btn" href="{{ route('wishlist.index') }}">
+                            <span class="icon position-relative">
             <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M14.9999 27.2375C14.5874 27.0375 1.2499 15.6 1.2499 8.75C1.2499 5.375 4.1249 2.5 7.4999 2.5C9.8374 2.5 12.0499 3.8625 13.4374 5.75C14.1624 4.8125 15.1499 3.325 16.5624 2.5C18.4249 1.4875 21.0374 2.0125 22.4999 3.475C25.3249 6.3 23.9124 10.975 22.4999 12.3875L14.9999 20.225L13.5249 18.75"
