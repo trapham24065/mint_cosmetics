@@ -74,13 +74,18 @@
         <!--== Start Product Category Area Wrapper ==-->
         <section class="section-space pb-0">
             <div class="container">
+                @php
+                    // Define an array of background colors for the categories
+                    $colors = ['#FFF3DA', '#FFEDB4', '#DFE4FF', '#E5F5E6', '#FFE7F9', '#E4F2FF'];
+                @endphp
                 <div class="row g-3 g-sm-6">
                     {{-- DYNAMIC CATEGORY LIST --}}
                     @foreach($categories->take(6) as $category)
                         {{-- Show up to 6 categories --}}
                         <div class="col-6 col-lg-4 col-lg-2 col-xl-2">
                             <a href="{{route('shop', ['category' => $category->slug]) }}"
-                               class="product-category-item">
+                               class="product-category-item"
+                               data-bg-color="{{ $colors[$loop->index % count($colors)] }}">
                                 {{-- You would need to add an icon field to your category table for this image --}}
 
                                 <img

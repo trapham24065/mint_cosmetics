@@ -11,6 +11,8 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -39,6 +41,23 @@ class ProductController extends Controller
             ->get();
 
         return view('storefront.product-detail', compact('product', 'relatedProducts'));
+    }
+
+    public function searchApi(Request $request): JsonResponse
+    {
+        $query = $request->input('query', '');
+
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+
+        $products = Product::where('active', true)
+            ->where('name', 'like', '%'.$query.'%')
+            ->with('variants')
+            ->limit(5)
+            ->get();
+
+        return response()->json($products);
     }
 
 }

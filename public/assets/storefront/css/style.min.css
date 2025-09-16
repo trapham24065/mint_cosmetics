@@ -581,11 +581,11 @@ hr {
   }
 }
 .aside-search-box-wrapper.offcanvas-top {
-  height: 239px;
+  height: 300px;
 }
 @media only screen and (max-width: 767px) {
   .aside-search-box-wrapper.offcanvas-top {
-    height: 170px;
+    height: 220px;
   }
 }
 .aside-search-box-wrapper .offcanvas-header {

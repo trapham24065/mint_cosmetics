@@ -72,6 +72,11 @@ class ShopController extends Controller
         } else {
             $query->latest(); // Default sort by newest
         }
+        
+        if ($request->filled('search')) {
+            $searchTerm = '%'.$request->input('search').'%';
+            $query->where('name', 'like', $searchTerm);
+        }
 
         $products = $query->latest()->paginate(9); // Show 9 products per page
 
