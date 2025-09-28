@@ -29,7 +29,6 @@ class ScraperController extends Controller
             'urls' => 'required|string',
         ]);
 
-        // Tách các URL ra thành một mảng, lọc bỏ các dòng trống
         $urls = array_filter(preg_split('/\r\n|\r|\n/', $validated['urls']));
 
         if (empty($urls)) {

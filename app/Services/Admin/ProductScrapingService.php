@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace App\Services\Admin;
 
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Panther\Client;
@@ -24,7 +25,7 @@ class ProductScrapingService
     public function scrapeMultiple(array $urls): array
     {
         $scrapedData = [];
-        $chromeDriverPath = base_path(env('PANTHER_CHROME_DRIVER', 'vendor/bin/chromedriver'));
+        $chromeDriverPath = base_path(config('services.panther.chrome_driver'));
         $client = Client::createChromeClient($chromeDriverPath);
 
         foreach ($urls as $url) {
@@ -44,22 +45,18 @@ class ProductScrapingService
                 $priceText = $this->getText($crawler, $selectors['price']);
                 $shortDescription = $this->getText($crawler, $selectors['short_description']);
 
-                // full description (HTML)
                 $description = 'Not Found';
                 if ($crawler->filter('a[href="#tab-description"]')->count() > 0) {
                     try {
-                        // click vào tab mô tả
                         $client->click($crawler->filter('a[href="#tab-description"]')->link());
 
-                        // đợi phần tử xuất hiện sau khi click
                         $client->waitForVisibility('#tab-description', 5);
 
-                        // lấy lại crawler mới vì DOM thay đổi
                         $crawler = $client->getCrawler();
 
-                        $description = $this->getHtml($crawler, '#tab-description');
-                    } catch (\Exception $ex) {
-                        Log::warning("Description not found after clicking tab for URL: {$url}", [
+                        $description = $this->getHtml($crawler);
+                    } catch (Exception $ex) {
+                        Log::warning("Description not found after clicking tab for URL: $url", [
                             'error' => $ex->getMessage(),
                         ]);
                     }
@@ -83,8 +80,8 @@ class ProductScrapingService
                     'short_description' => trim($shortDescription),
                     'description'       => trim($description),
                 ];
-            } catch (\Exception $e) {
-                Log::error("Failed to scrape URL: {$url}", ['error' => $e->getMessage()]);
+            } catch (Exception $e) {
+                Log::error("Failed to scrape URL: $url", ['error' => $e->getMessage()]);
                 $scrapedData[] = [
                     'url'               => $url,
                     'images'            => [],
@@ -148,10 +145,10 @@ class ProductScrapingService
             : 'Not Found';
     }
 
-    private function getHtml(Crawler $crawler, string $selector): string
+    private function getHtml(Crawler $crawler): string
     {
-        return $crawler->filter($selector)->count() > 0
-            ? $crawler->filter($selector)->html('')
+        return $crawler->filter('#tab-description')->count() > 0
+            ? $crawler->filter('#tab-description')->html('')
             : 'Not Found';
     }
 
