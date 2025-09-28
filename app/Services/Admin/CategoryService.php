@@ -13,6 +13,7 @@ namespace App\Services\Admin;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryService
 {
@@ -23,6 +24,9 @@ class CategoryService
     public function createCategory(array $data): Category
     {
         return DB::transaction(function () use ($data) {
+            if (!empty($data['image'])) {
+                $data['image'] = $data['image']->store('categories', 'public');
+            }
             $category = Category::create($data);
 
             if (isset($data['attribute_ids'])) {
@@ -57,6 +61,12 @@ class CategoryService
                 );
             }
         }
+        if (!empty($data['image'])) {
+            if ($category->image) {
+                Storage::disk('public')->delete($category->image);
+            }
+            $data['image'] = $data['image']->store('categories', 'public');
+        }
 
         $category->update($data);
         $category->productAttributes()->sync($newAttributeIds);
@@ -74,7 +84,9 @@ class CategoryService
         if ($category->products()->exists()) {
             throw new \RuntimeException("Cannot delete '{$category->name}'. It is assigned to products.");
         }
-
+        if ($category->image) {
+            Storage::disk('public')->delete($category->image);
+        }
         return $category->delete();
     }
 

@@ -89,6 +89,18 @@ class CategoryController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(Category $category): View
+    {
+        $category->load('productAttributes');
+
+        $products = $category->products()->latest()->paginate(10);
+
+        return view('admin.management.categories.show', compact('category', 'products'));
+    }
+
+    /**
      * Show the form for editing the specified category.
      * (No business logic here, so it remains unchanged)
      */
@@ -152,6 +164,30 @@ class CategoryController extends Controller
         $attributes = $category->productAttributes()->with('values')->get();
 
         return response()->json($attributes);
+    }
+
+    /**
+     * Provide data for the Grid.js table via AJAX.
+     */
+    public function getDataForGrid(): JsonResponse
+    {
+        $orders = Category::latest()->get();
+
+        // Format data for Grid.js
+        $data = $orders->map(function ($order) {
+            return [
+                'id'         => $order->id,
+                'image'      => $order->image,
+                'name'       => $order->name,
+                'slug'       => $order->slug,
+                'is_active'  => $order->active,
+                'created_at' => $order->created_at->format('d M, Y'),
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+        ]);
     }
 
 }

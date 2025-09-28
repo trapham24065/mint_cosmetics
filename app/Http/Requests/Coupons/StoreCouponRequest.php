@@ -31,16 +31,26 @@ class StoreCouponRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'code'                => ['required', 'string', 'max:255', 'unique:coupons,code'],
             'type'                => ['required', Rule::enum(CouponType::class)],
-            'value'               => ['required', 'numeric', 'min:0'],
             'min_purchase_amount' => ['nullable', 'numeric', 'min:0'],
             'max_uses'            => ['nullable', 'integer', 'min:1'],
             'starts_at'           => ['required', 'date'],
-            'expires_at'          => ['required', 'date', 'after:starts_at'], // end_date > start_date
+            'expires_at'          => ['required', 'date', 'after:starts_at'],
             'is_active'           => ['sometimes', 'boolean'],
         ];
+
+        // --- ADD CONDITIONAL VALIDATION LOGIC ---
+        if ($this->input('type') === CouponType::PERCENTAGE->value) {
+            //If 'percentage', the value must be between 0 and 100
+            $rules['value'] = ['required', 'numeric', 'between:0,100'];
+        } else {
+            //  If it's 'fixed_amount', the value just needs to be greater than 0
+            $rules['value'] = ['required', 'numeric', 'min:0'];
+        }
+
+        return $rules;
     }
 
 }

@@ -15,6 +15,7 @@ use App\Http\Requests\Brands\StoreBrandRequest;
 use App\Http\Requests\Brands\UpdateBrandRequest;
 use App\Models\Brand;
 use App\Services\Admin\BrandService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
@@ -31,8 +32,7 @@ class BrandController extends Controller
 
     public function index(): View
     {
-        $brands = Brand::latest()->paginate(10);
-        return view('admin.management.brands.index', compact('brands'));
+        return view('admin.management.brands.index');
     }
 
     public function create(): View
@@ -91,6 +91,29 @@ class BrandController extends Controller
         $products = $brand->products()->latest()->paginate(10);
 
         return view('admin.management.brands.show', compact('brand', 'products'));
+    }
+
+    /**
+     * Provide data for the Grid.js table via AJAX.
+     */
+    public function getDataForGrid(): JsonResponse
+    {
+        $brands = Brand::latest()->get();
+
+        // Format data for Grid.js
+        $data = $brands->map(function ($brand) {
+            return [
+                'id'        => $brand->id,
+                'logo'      => $brand->logo,
+                'name'      => $brand->name,
+                'slug'      => $brand->slug,
+                'is_active' => $brand->is_active,
+            ];
+        });
+
+        return response()->json([
+            'data' => $data,
+        ]);
     }
 
 }

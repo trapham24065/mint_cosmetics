@@ -7,7 +7,7 @@
                 <div class="col-md-6 col-lg-4">
                     <div class="widget-item">
                         <div class="widget-about">
-                            <a class="widget-logo" href="index.html">
+                            <a class="widget-logo" href="{{route('home')}}">
                                 <img src="{{asset('assets/storefront/images/logo.webp')}}" width="95" height="68"
                                      alt="Logo">
                             </a>

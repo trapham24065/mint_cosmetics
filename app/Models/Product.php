@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -80,9 +81,9 @@ class Product extends Model
         return $this->belongsToMany(Attribute::class, 'attribute_product');
     }
 
-    public function orderItems(): HasMany
+    public function orderItems(): HasManyThrough|Product
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasManyThrough(OrderItem::class, ProductVariant::class);
     }
 
     /**
@@ -93,6 +94,34 @@ class Product extends Model
         static::creating(static function (Product $product) {
             $product->slug = Str::slug($product->name);
         });
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
+
+    /**
+     * Calculate the average rating from approved reviews.
+     * Returns an integer from 0 to 5.
+     */
+    public function averageRating(): int
+    {
+        // avg() will return null if there are no reviews, so we default to 0
+        return (int)round($this->approvedReviews()->avg('rating') ?? 0);
+    }
+
+    /**
+     * Get the total count of approved reviews.
+     */
+    public function reviewsCount(): int
+    {
+        return $this->approvedReviews()->count();
     }
 
 }

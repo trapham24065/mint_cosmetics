@@ -131,6 +131,67 @@
                     </ul>
                 </div>
             </li>
+            <li class="nav-item">
+                <a class="nav-link menu-arrow" href="#sidebarOrders" data-bs-toggle="collapse" role="button"
+                   aria-expanded="false" aria-controls="sidebarOrders">
+                                   <span class="nav-icon">
+                                        <iconify-icon icon="solar:bag-smile-bold-duotone"></iconify-icon>
+                                   </span>
+                    <span class="nav-text"> Orders </span>
+                </a>
+                <div class="collapse" id="sidebarOrders">
+                    <ul class="nav sub-navbar-nav">
+
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{route('admin.orders.index')}}">List</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link menu-arrow" href="#sidebarChatbot" data-bs-toggle="collapse"
+                   role="button" aria-expanded="false" aria-controls="sidebarChatbot">
+                       <span class="nav-icon">
+                            <iconify-icon icon="solar:chat-round-bold-duotone"></iconify-icon>
+                       </span>
+                    <span class="nav-text"> Chat bot </span>
+                </a>
+                <div class="collapse" id="sidebarChatbot">
+                    <ul class="nav sub-navbar-nav">
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{ route('admin.chatbot.index') }}">Quick Hints</a>
+                        </li>
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{ route('admin.chatbot-replies.index') }}">Training
+                                Center</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item ">
+                <a class="nav-link " href="{{route('admin.reviews.index')}}">
+                                   <span class="nav-icon">
+                                        <iconify-icon icon="solar:chat-square-like-bold-duotone"></iconify-icon>
+                                   </span>
+                    <span class="nav-text"> Reviews </span>
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a class="nav-link " href="{{route('admin.settings.index')}}">
+                                   <span class="nav-icon">
+                                        <iconify-icon icon="solar:settings-bold-duotone"></iconify-icon>
+                                   </span>
+                    <span class="nav-text"> Settings </span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.scraper.index') }}">
+       <span class="nav-icon">
+            <iconify-icon icon="solar:cloud-download-bold-duotone"></iconify-icon>
+       </span>
+                    <span class="nav-text"> Product Scraper </span>
+                </a>
+            </li>
         </ul>
     </div>
 </div>

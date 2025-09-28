@@ -11,8 +11,11 @@
                             <div
                                 class="rounded bg-secondary-subtle d-flex align-items-center justify-content-center mx-auto"
                                 style="height: 80px; width: 80px;">
+                                <img
+                                    src="{{ $category->image ? asset('storage/' . $category->image) : asset('assets/admin/images/default-category.png') }}"
+                                    alt="{{ $category->name }}" style="height: 80px; width: 80px;">
                                 {{-- Placeholder Icon, you can add dynamic images later if available --}}
-                                <i class="fas fa-tag fa-2x text-secondary"></i>
+
                             </div>
                             <h5 class="mt-3 mb-0">{{ $category->name }}</h5>
                             <small class="text-muted">{{ $category->created_at->format('Y-m-d') }}</small>
@@ -33,73 +36,101 @@
                         </a>
                     </div>
                     <div>
-                        <div class="table-responsive">
-                            <table class="table align-middle mb-0 table-hover table-centered">
-                                <thead class="bg-light-subtle">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Slug</th>
-                                    <th>Status</th>
-                                    <th>Created At</th>
-                                    <th>Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @forelse ($categories as $category)
-                                    <tr>
-                                        <td>{{ $category->id }}</td>
-                                        <td>
-                                            <p class="text-dark fw-medium fs-15 mb-0">{{ $category->name }}</p>
-                                        </td>
-                                        <td>{{ $category->slug }}</td>
-                                        <td>
-                                            @if ($category->active)
-                                                <span class="badge bg-success">Active</span>
-                                            @else
-                                                <span class="badge bg-secondary">Inactive</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $category->created_at->format('Y-m-d H:i') }}</td>
-                                        <td>
-                                            <div class="d-flex gap-2">
-                                                <a href="{{ route('admin.categories.edit', $category) }}"
-                                                   class="btn btn-soft-primary btn-sm">
-                                                    <iconify-icon icon="solar:pen-2-broken"
-                                                                  class="align-middle fs-18"></iconify-icon>
-                                                </a>
-                                                <form action="{{ route('admin.categories.destroy', $category) }}"
-                                                      method="POST" class="d-inline"
-                                                      onsubmit="return confirm('Are you sure you want to delete this category?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-soft-danger btn-sm">
-                                                        <iconify-icon icon="solar:trash-bin-minimalistic-2-broken"
-                                                                      class="align-middle fs-18"></iconify-icon>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center">No categories found.</td>
-                                    </tr>
-                                @endforelse
-                                </tbody>
-                            </table>
+                        <div class="card-body">
+                            <div id="table-data-categoies"></div>
                         </div>
                     </div>
-                    @if ($categories->hasPages())
-                        <div class="card-footer border-top">
-                            <nav aria-label="Page navigation example">
-                                {{-- Dynamic Pagination Links --}}
-                                {{ $categories->links() }}
-                            </nav>
-                        </div>
-                    @endif
+
                 </div>
             </div>
         </div>
     </div>
 @endsection
+@push('scripts')
+    <!-- @formatter:off -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (document.getElementById("table-data-categoies")) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                new gridjs.Grid({
+                    columns: [
+                        { id: 'id', name: 'ID', width: '80px' },
+                        {
+                            id: 'image',
+                            name: 'Image',
+                            width: '100px',
+                            formatter: (cell) => {
+                                const imageUrl = cell ? `{{ asset('storage') }}/${cell}` : `{{ asset('assets/admin/images/default-category.png') }}`;
+                                return gridjs.html(`<img src="${imageUrl}" alt="Category" class="avatar-sm">`);
+                            }
+                        },
+                        { id: 'name', name: 'Name' },
+                        { id: 'slug', name: 'Slug' },
+                        {
+                            id: 'is_active',
+                            name: 'Status',
+                            formatter: (cell) => {
+                                return cell
+                                    ? gridjs.html('<span class="badge bg-success">Active</span>')
+                                    : gridjs.html('<span class="badge bg-secondary">Inactive</span>');
+                            }
+                        },
+                        { id: 'created_at', name: 'Created At' },
+                        {
+                            name: 'Actions',
+                            width: '150px',
+                            formatter: (cell, row) => {
+                                const categoryId = row.cells[0].data;
+                                const showUrl = `{{ route('admin.categories.index') }}/${categoryId}`;
+                                const editUrl = `{{ route('admin.categories.index') }}/${categoryId}/edit`;
+                                const deleteUrl = `{{ route('admin.categories.index') }}/${categoryId}`;
+
+                                return gridjs.html(`
+                                    <div class="d-flex gap-2">
+                                        <a href="${showUrl}" class="btn btn-sm btn-soft-info" aria-label="View category ${categoryId}">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="${editUrl}" class="btn btn-sm btn-primary"aria-label="Edit category ${categoryId}">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                            <input type="hidden" name="_token" value="${csrfToken}">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="submit" class="btn btn-sm btn-danger" aria-label="Delete category ${categoryId}">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>`
+                                );
+                            }
+                        }
+                    ],
+                    server: {
+                        url: '{{ route('admin.api.categories.data') }}',
+                        then: results => results.data,
+                    },
+                    sort: true,
+                    search: {
+                        enabled: true,
+                        selector: (cell, rowIndex, cellIndex) => {
+                            if (cellIndex === 1 || cellIndex === 6) {
+                                return '';
+                            }
+                            if (cellIndex === 4) {
+                                return cell ? 'active' : 'inactive';
+                            }
+                            return cell ? cell.toString() : '';
+                        }
+                    },
+                    pagination: {
+                        limit: 10
+                    },
+                }).render(document.getElementById("table-data-categoies"));
+            }
+        });
+    </script>
+    <!-- @formatter:on -->
+
+@endpush

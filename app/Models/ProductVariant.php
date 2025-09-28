@@ -35,6 +35,13 @@ class ProductVariant extends Model
     ];
 
     /**
+     * The relationships that should be "touched" on update.
+     *
+     * @var array
+     */
+    protected $touches = ['product'];
+
+    /**
      * A variation belongs to an original product.
      */
     public function product(): BelongsTo
@@ -45,10 +52,28 @@ class ProductVariant extends Model
     /**
      * A variant has multiple attribute values (e.g. Color Black, Size L).
      */
+    /**
+     * The attribute values that belong to the product variant.
+     */
     public function attributeValues(): BelongsToMany
     {
-        return $this->belongsToMany(AttributeValue::class, 'attribute_value_product_variant');
+        return $this->belongsToMany(
+            AttributeValue::class,
+            'attribute_value_product_variant',
+            'product_variant_id',
+            'attribute_value_id'
+        );
     }
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'price'          => 'decimal:2',
+        'discount_price' => 'decimal:2',
+    ];
 
     /**
      * Get the order items for the product variant.

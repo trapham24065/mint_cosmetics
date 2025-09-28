@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container-xxl">
-        <form method="POST" action="{{ route('admin.categories.store') }}">
+        <form method="POST" action="{{ route('admin.categories.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="row">
                 <div class="col-xl-3 col-lg-4">
@@ -49,7 +49,15 @@
                                         @enderror
                                     </div>
                                 </div>
-
+                                {{-- Category Image --}}
+                                <div class="col-12 mb-3">
+                                    <label for="category-image" class="form-label">Category Image</label>
+                                    <input class="form-control @error('image') is-invalid @enderror" type="file"
+                                           id="category-image" name="image">
+                                    @error('image')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                                 {{-- Active Status --}}
                                 <div class="col-lg-12">
                                     <div class="mb-3">
