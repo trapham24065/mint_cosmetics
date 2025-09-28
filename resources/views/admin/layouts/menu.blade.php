@@ -184,6 +184,14 @@
                     <span class="nav-text"> Settings </span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.scraper.index') }}">
+       <span class="nav-icon">
+            <iconify-icon icon="solar:cloud-download-bold-duotone"></iconify-icon>
+       </span>
+                    <span class="nav-text"> Product Scraper </span>
+                </a>
+            </li>
         </ul>
     </div>
 </div>

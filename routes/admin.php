@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\ScraperController;
 use App\Http\Controllers\Admin\SettingsController;
 use Illuminate\Support\Facades\Route;
 
@@ -68,3 +69,6 @@ Route::post('chatbot-replies/{reply}/keywords', [ChatbotReplyController::class, 
 Route::delete('chatbot-keywords/{keyword}', [ChatbotReplyController::class, 'destroyKeyword'])->name(
     'chatbot-keywords.destroy'
 );
+
+Route::get('/scraper', [ScraperController::class, 'index'])->name('scraper.index');
+Route::post('/scraper/run', [ScraperController::class, 'run'])->name('scraper.run');
