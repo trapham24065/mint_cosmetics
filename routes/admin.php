@@ -35,6 +35,8 @@ Route::resource('attributes', AttributeController::class);
 Route::resource('coupons', CouponController::class);
 // Product Management
 Route::resource('products', ProductController::class);
+Route::post('/products/bulk-update', [ProductController::class, 'bulkUpdate'])->name('products.bulkUpdate');
+
 //Category Attribute Management
 Route::get('/categories/{category}/attributes', [CategoryController::class, 'getAttributes'])
     ->name('categories.attributes');

@@ -25,11 +25,34 @@
             <div class="container">
                 <div class="row product-details">
                     <div class="col-lg-6">
-                        <div class="product-details-thumb">
+                        <div class="product-details-thumb product-image-container">
                             <img id="product-main-image"
                                  src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/storefront/images/shop/product-details/1.webp') }}"
                                  width="570" height="693" alt="{{ $product->name }}">
                         </div>
+                        {{-- START A NEW ADDITION TO THE GALLERY --}}
+                        @if(!empty($product->list_image) && is_array($product->list_image))
+                            <div id="product-thumbnails-gallery"
+                                 class="product-details-nav-wrap d-flex flex-wrap gap-2 mt-3">
+                                @if($product->image)
+                                    <div class="nav-item">
+                                        <img class="product-thumbnail-item"
+                                             src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
+                                             width="100" height="120" style="cursor: pointer;">
+                                    </div>
+                                @endif
+                                {{-- Loop through images in gallery --}}
+                                @foreach($product->list_image as $galleryImage)
+                                    <div class="nav-item">
+                                        <img class="product-thumbnail-item"
+                                             src="{{ asset('storage/' . $galleryImage) }}"
+                                             alt="{{ $product->name }} gallery image" width="100" height="120"
+                                             style="cursor: pointer;">
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                        {{-- END OF NEW ADDITIONAL SECTION --}}
                     </div>
                     <div class="col-lg-6">
                         <div class="product-details-content">
@@ -173,6 +196,14 @@
     </main>
 
     @push('scripts')
+        <style>
+            .product-image-container #product-main-image {
+                transition: opacity 0.4s ease-in-out;
+            }
+            .product-image-container #product-main-image.fade-out {
+                opacity: 0;
+            }
+        </style>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const productData = @json($product);
@@ -277,7 +308,63 @@
                     addToCartBtn.dataset.variantId = variants[0].id;
                     addToCartBtn.disabled = false;
                 }
+                // --- START NEW LOGIC FOR AUTOMATIC PHOTO GALLERY ---
+                const mainImage = document.getElementById('product-main-image');
+                const thumbnailsContainer = document.getElementById('product-thumbnails-gallery');
 
+                if (mainImage && thumbnailsContainer) {
+                    const thumbnails = thumbnailsContainer.querySelectorAll('.product-thumbnail-item');
+                    let currentIndex = 0;
+                    let slideshowInterval;
+
+                    /**
+                     * Function to change main image with fade effect.
+                     * @param {string} newSrc - Path of new image.
+                     */
+                    function changeMainImage (newSrc) {
+                        mainImage.classList.add('fade-out');
+
+                        setTimeout(() => {
+                            mainImage.setAttribute('src', newSrc);
+                            mainImage.classList.remove('fade-out');
+                        }, 400);
+                    }
+
+                    function startSlideshow () {
+                        if (!slideshowInterval && thumbnails.length > 1) {
+                            slideshowInterval = setInterval(() => {
+                                currentIndex = (currentIndex + 1) % thumbnails.length;
+                                const nextThumbnailSrc = thumbnails[currentIndex].getAttribute('src');
+                                changeMainImage(nextThumbnailSrc);
+                            }, 3000);
+                        }
+                    }
+
+                    function stopSlideshow () {
+                        clearInterval(slideshowInterval);
+                        slideshowInterval = null;
+                    }
+
+                    thumbnailsContainer.addEventListener('click', function(event) {
+                        if (event.target.classList.contains('product-thumbnail-item')) {
+                            stopSlideshow();
+                            const newImageSrc = event.target.getAttribute('src');
+                            changeMainImage(newImageSrc);
+
+                            thumbnails.forEach((thumb, index) => {
+                                if (thumb.getAttribute('src') === newImageSrc) {
+                                    currentIndex = index;
+                                }
+                            });
+                        }
+                    });
+
+                    thumbnailsContainer.addEventListener('mouseenter', stopSlideshow);
+                    thumbnailsContainer.addEventListener('mouseleave', startSlideshow);
+
+                    startSlideshow();
+                }
+                // --- NEW LOGIC ENDING ---
             });
         </script>
     @endpush

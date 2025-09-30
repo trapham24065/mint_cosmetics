@@ -181,4 +181,29 @@ class ProductController
         ]);
     }
 
+    /**
+     * Handle bulk actions for products.
+     */
+    public function bulkUpdate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'action'        => ['required', 'string', 'in:change_status'],
+            'product_ids'   => ['required', 'array'],
+            'product_ids.*' => ['integer', 'exists:products,id'],
+            'value'         => ['required'],
+        ]);
+
+        try {
+            $count = $this->productService->bulkUpdate(
+                $validated['action'],
+                $validated['product_ids'],
+                $validated['value']
+            );
+            return response()->json(['success' => true, 'message' => "Successfully updated {$count} products."]);
+        } catch (\Exception $e) {
+            Log::error('Bulk Product Update Failed: '.$e->getMessage());
+            return response()->json(['success' => false, 'message' => 'An error occurred.'], 500);
+        }
+    }
+
 }

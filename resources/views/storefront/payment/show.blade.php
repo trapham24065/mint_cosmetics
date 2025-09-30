@@ -5,7 +5,7 @@
         <h2>Scan QR to Pay</h2>
         <p>Please scan the QR code below to complete your payment for order #{{ $order->id }}.</p>
 
-        <div class="my-4 d-flex justify-content-center">
+        <div id="qr-code-container" class="my-4 d-flex justify-content-center">
             <canvas id="qr-canvas"></canvas>
         </div>
 
@@ -43,7 +43,6 @@
                 const statusElement = document.getElementById('payment-status');
                 const orderId = {{ $order->id }};
 
-                // Polling thanh toán
                 const pollInterval = setInterval(function() {
                     fetch(`/order/${orderId}/status`).then(response => response.json()).then(data => {
                         if (data.status !== 'pending') {
@@ -51,6 +50,9 @@
                             clearInterval(countdownInterval);
                             statusElement.innerHTML = `<h3><span class="badge bg-success">Payment Confirmed!</span></h3><p>You will be redirected shortly...</p>`;
                             setTimeout(() => window.location.href = `/order/${orderId}/thank-you`, 3000);
+                            setTimeout(() => {
+                                window.location.href = '{{ URL::signedRoute('order.thankyou', ['order' => $order->id]) }}';
+                            }, 3000);
                         }
                     }).catch(error => {
                         console.error('Polling error:', error);
@@ -66,19 +68,29 @@
                 const countdownElement = document.getElementById('countdown');
                 const qrContainer = document.getElementById('qr-code-container');
 
+                function stopAllIntervals () {
+                    clearInterval(pollInterval);
+                    clearInterval(countdownInterval);
+                }
+
                 const countdownInterval = setInterval(() => {
                     const now = new Date().getTime();
                     const distance = expirationTime - now;
 
                     if (distance < 0) {
                         // If time is up
-                        clearInterval(countdownInterval);
-                        clearInterval(pollInterval);
-                        alert('QR code has expired. You will be redirected to the home page.');
+                        stopAllIntervals();
                         countdownElement.textContent = 'Expired';
                         qrContainer.innerHTML = '<h3><span class="badge bg-danger">QR Code Expired</span></h3>';
                         statusElement.innerHTML = '<a href="{{ route('cart.index') }}" class="btn btn-primary mt-2">Create a new order</a>';
-                        window.location.href = "{{ url('/') }}";
+                        Swal.fire({
+                            title: 'QR Code Expired',
+                            text: 'You will be redirected to the home page.',
+                            icon: 'warning',
+                            confirmButtonText: 'OK',
+                        }).then(() => {
+                            window.location.href = "{{ url('/') }}";
+                        });
                         return;
                     }
                     // Calculate and display remaining time
