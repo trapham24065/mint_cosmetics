@@ -43,4 +43,25 @@ class UpdateCategoryRequest extends FormRequest
         ];
     }
 
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required'          => 'Please enter the category name.',
+            'name.string'            => 'The category name must be text.',
+            'name.max'               => 'The category name cannot be longer than 255 characters.',
+            'name.unique'            => 'This category name is already taken.',
+            'image.image'            => 'The uploaded file must be an image.',
+            'image.mimes'            => 'The image must be a file of type: jpg, png, jpeg, webp.',
+            'image.max'              => 'The image size cannot exceed 1MB.',
+            'active.boolean'         => 'The active status must be true or false.',
+            'attribute_ids.array'    => 'The linked attributes data is invalid.',
+            'attribute_ids.*.exists' => 'One of the selected attributes is invalid.',
+        ];
+    }
+
 }

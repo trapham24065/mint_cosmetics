@@ -7,7 +7,7 @@
                 <h4 class="card-title">Create New Brand</h4>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('admin.brands.store') }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('admin.brands.store') }}" enctype="multipart/form-data" novalidate>
                     @csrf
 
                     {{-- Include the shared form partial --}}

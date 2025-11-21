@@ -2,19 +2,8 @@
 
 @section('content')
     <div class="container-xxl">
-        {{-- Display All Validation Errors --}}
-        @if ($errors->any())
-            <div class="alert alert-danger mb-3">
-                <h5 class="alert-title">Please fix the following errors:</h5>
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
 
-        <form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" novalidate>
             @csrf
             <div class="row">
                 <div class="col-xl-3 col-lg-4">
@@ -88,10 +77,10 @@
                                 <div class="col-12 mb-3">
                                     <label for="description" class="form-label">Description</label>
                                     <textarea name="description" id="description"
-                                              class="form-control @error('description') is-invalid @enderror"
-                                              rows="5">{{ old('description') }}</textarea>
+                                              class="tinymce-editor @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
                                     @error('description')
-                                    <div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="col-12">
                                     <div class="form-check form-switch">
@@ -188,7 +177,7 @@
 
     @push('scripts')
         <!-- @formatter:off -->
-
+        <script src="{{ asset('assets/admin/js/tinymce-config.js') }}"></script>
         <script>
 
             document.addEventListener('DOMContentLoaded', function () {

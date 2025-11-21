@@ -55,22 +55,37 @@
                         },
                         {
                             name: 'Actions',
-                            width: '150px',
+                            width: '80px',
+                            sort: false,
                             formatter: (cell, row) => {
-                                const chat_bot_repliesID = row.cells[0].data;
-                                const editUrl = `{{ route('admin.chatbot-replies.index') }}/${chat_bot_repliesID}/edit`;
-                                const deleteUrl = `{{ route('admin.chatbot-replies.index') }}/${chat_bot_repliesID}`;
+                                const chat_bot_repliesName=row.cells[1].data;
+
+                                const chat_bot_repliesId = row.cells[0].data;
+                                const editUrl = `{{ route('admin.chatbot-replies.index') }}/${chat_bot_repliesId}/edit`;
+                                const deleteUrl = `{{ route('admin.chatbot-replies.index') }}/${chat_bot_repliesId}`;
 
                                 return gridjs.html(`
-                                <div class="d-flex gap-2">
-                                    <a href="${editUrl}" class="btn btn-sm btn-primary" aria-label="Edit chat bot replies ${chat_bot_repliesID}"> <i class="bi bi-pencil-square"></i></iconify-icon></a>
-
-                                    <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
-                                        <input type="hidden" name="_token" value="${csrfToken}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-sm btn-danger" aria-label="Delete chat bot replies ${chat_bot_repliesID}"><i class="bi bi-trash"></i></button>
-                                    </form>
-                                </div>`
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="bi bi-three-dots-vertical"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                            <li>
+                                                                <a class="dropdown-item" href="${editUrl}">
+                                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Edit
+                                                                </a>
+                                                            </li>
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            <li>
+                                                                <a class="dropdown-item text-danger delete-item" href="#"
+                                                                       data-id="${chat_bot_repliesId}"
+                                                                       data-name="${chat_bot_repliesName}"
+                                                                       data-url="${deleteUrl}">
+                                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>`
                                 );
                             }
                         }
@@ -85,6 +100,16 @@
                         limit: 10
                     },
                 }).render(document.getElementById("table-data-replies"));
+            }
+        });
+
+        AdminCRUD.initDeleteHandler('.delete-item', {
+            confirmTitle: 'Delete Replies?',
+            confirmText: 'You are about to delete replies:',
+            successText: 'replies deleted successfully.',
+            onSuccess: () => {
+                console.log('replies deleted!');
+                location.reload();
             }
         });
     </script>

@@ -7,7 +7,7 @@
                 <h4 class="card-title">Create New Coupon</h4>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('admin.coupons.store') }}">
+                <form method="POST" action="{{ route('admin.coupons.store') }}" novalidate>
                     @csrf
                     @include('admin.management.coupons._form')
 

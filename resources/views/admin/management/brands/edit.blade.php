@@ -7,10 +7,11 @@
                 <h4 class="card-title">Edit Brand: {{ $brand->name }}</h4>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('admin.brands.update', $brand) }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('admin.brands.update', $brand) }}" enctype="multipart/form-data"
+                      novalidate>
                     @csrf
                     @method('PUT')
-                    
+
                     @include('admin.management.brands._form')
 
                     <div class="text-end mt-4">
