@@ -119,14 +119,30 @@ class CouponController extends Controller
     /**
      * Remove the specified coupon from storage.
      */
-    public function destroy(Coupon $coupon): RedirectResponse
+
+    public function destroy(Coupon $coupon): RedirectResponse|JsonResponse
     {
         try {
             $this->couponService->deleteCoupon($coupon);
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Coupon deleted successfully.',
+                ]);
+            }
+
             return redirect()->route('admin.coupons.index')
                 ->with('success', 'Coupon deleted successfully.');
         } catch (\Exception $e) {
             Log::error('Coupon Deletion Failed: '.$e->getMessage());
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete coupon: '.$e->getMessage(),
+                ], 500);
+            }
+
             return redirect()->route('admin.coupons.index')
                 ->with('error', $e->getMessage());
         }

@@ -37,24 +37,42 @@
                         {id: 'created_at', name: 'Created At'},
                         {
                             name: 'Actions',
-                            width: '150px',
+                            width: '80px',
+                            sort: false,
                             formatter: (cell, row) => {
                                 const attributeId = row.cells[0].data;
+                                const attributeName=row.cells[2].data;
+
                                 const showUrl = `{{ route('admin.attributes.index') }}/${attributeId}`;
                                 const editUrl = `{{ route('admin.attributes.index') }}/${attributeId}/edit`;
                                 const deleteUrl = `{{ route('admin.attributes.index') }}/${attributeId}`;
-
                                 return gridjs.html(`
-                                <div class="d-flex gap-2">
-                                    <a href="${showUrl}" class="btn btn-sm btn-soft-info" aria-label="View attribute ${attributeId}"><i class="bi bi-eye"></i></a>
-                                    <a href="${editUrl}" class="btn btn-sm btn-primary" aria-label="Edit attribute ${attributeId}"><i class="bi bi-pencil-square"></i></a>
-
-                                    <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
-                                        <input type="hidden" name="_token" value="${csrfToken}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-sm btn-danger" aria-label="Delete attribute ${attributeId}"><i class="bi bi-trash"></i></button>
-                                    </form>
-                                </div>`
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="bi bi-three-dots-vertical"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                            <li>
+                                                                <a class="dropdown-item" href="${showUrl}">
+                                                                    <i class="bi bi-eye me-2 text-info"></i>View
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="${editUrl}">
+                                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Edit
+                                                                </a>
+                                                            </li>
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            <li>
+                                                                <a class="dropdown-item text-danger delete-item" href="#"
+                                                                       data-id="${attributeId}"
+                                                                       data-name="${attributeName}"
+                                                                       data-url="${deleteUrl}">
+                                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>`
                                 );
                             }
                         }
@@ -71,6 +89,17 @@
                 }).render(document.getElementById("table-data-attributes"));
             }
         });
+        AdminCRUD.initDeleteHandler('.delete-item', {
+            confirmTitle: 'Delete Attribute?',
+            confirmText: 'You are about to delete attribute:',
+            successText: 'Attribute deleted successfully.',
+            onSuccess: () => {
+                // Custom callback nếu cần
+                console.log('Attribute deleted!');
+                location.reload();
+            }
+        });
+
     </script>
     <!-- @formatter:on -->
 

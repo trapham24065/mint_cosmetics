@@ -53,4 +53,35 @@ class StoreCouponRequest extends FormRequest
         return $rules;
     }
 
+    /**
+     * Get custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'code.required'               => 'Please enter the coupon code.',
+            'code.string'                 => 'The coupon code must be text.',
+            'code.max'                    => 'The coupon code cannot be longer than 255 characters.',
+            'code.unique'                 => 'This coupon code is already taken.',
+            'type.required'               => 'Please select the coupon type.',
+            'type.enum'                   => 'The selected coupon type is invalid.',
+            'value.required'              => 'Please enter the coupon value.',
+            'value.numeric'               => 'The coupon value must be a number.',
+            'value.min'                   => 'The coupon value cannot be negative.',
+            'value.between'               => 'The percentage value must be between 0 and 100.',
+            'min_purchase_amount.numeric' => 'The minimum purchase amount must be a number.',
+            'min_purchase_amount.min'     => 'The minimum purchase amount cannot be negative.',
+            'max_uses.integer'            => 'The maximum uses must be a whole number.',
+            'max_uses.min'                => 'The maximum uses must be at least 1.',
+            'starts_at.required'          => 'Please select the start date.',
+            'starts_at.date'              => 'The start date is not a valid date.',
+            'expires_at.required'         => 'Please select the expiry date.',
+            'expires_at.date'             => 'The expiry date is not a valid date.',
+            'expires_at.after'            => 'The expiry date must be after the start date.',
+            'is_active.boolean'           => 'The active status must be true or false.',
+        ];
+    }
+
 }

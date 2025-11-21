@@ -29,13 +29,16 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.in
 Route::post('/checkout/place-order', [PaymentController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::post('/hooks/sepay-payment', [WebhookController::class, 'handlePaymentWebhook']);
 
-Route::get('/order/{order}/payment', [PaymentController::class, 'showPaymentPage'])->name('payment.show');
+Route::get('/order/{order}/payment', [PaymentController::class, 'showPaymentPage'])->name('payment.show')->middleware(
+    'signed'
+);
 Route::get('/order/{order}/status', [PaymentController::class, 'checkOrderStatus'])->name('payment.status');
 
 Route::get('/products/{product}/quick-view', [ShopController::class, 'quickView'])->name('products.quickView');
 
-Route::get('/order/{order}/thank-you', [PaymentController::class, 'thankYou'])->name('order.thankyou');
-
+Route::get('/order/{order}/thank-you', [PaymentController::class, 'thankYou'])->name('order.thankyou')->middleware(
+    'signed'
+);
 Route::get('/reviews/create', [ReviewController::class, 'create'])->name('reviews.create');
 Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 

@@ -252,4 +252,34 @@ class ProductService
         return $product->delete();
     }
 
+    /**
+     * Perform a bulk action on multiple products.
+     *
+     * @param  string  $action  The action to perform (e.g., 'change_status').
+     * @param  array  $productIds  The IDs of the products to update.
+     * @param  mixed  $value  The value for the action (e.g., true/false for status).
+     *
+     * @return int The number of affected rows.
+     */
+    public function bulkUpdate(string $action, array $productIds, mixed $value): int
+    {
+        if (empty($productIds)) {
+            return 0;
+        }
+
+        switch ($action) {
+            case 'change_status':
+                // The update method should return an integer. The error indicates it might be returning a boolean.
+                // We will explicitly cast the result to an integer to fix the type error.
+                $affectedRows = Product::whereIn('id', $productIds)->update(['active' => (bool)$value]);
+                return (int)$affectedRows;
+
+            // Bạn có thể thêm các case khác ở đây trong tương lai, ví dụ: 'bulk_delete'
+            // case 'bulk_delete':
+            //     return Product::destroy($productIds);
+        }
+
+        return 0;
+    }
+
 }

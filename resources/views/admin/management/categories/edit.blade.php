@@ -2,7 +2,8 @@
 
 @section('content')
     <div class="container-xxl">
-        <form method="POST" action="{{ route('admin.categories.update', $category) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.categories.update', $category) }}" enctype="multipart/form-data"
+              novalidate>
             @csrf
             @method('PUT')
             <div class="row">

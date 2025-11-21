@@ -19,6 +19,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\URL;
 
 class PaymentController extends Controller
 {
@@ -68,7 +69,9 @@ class PaymentController extends Controller
         session()->forget('cart');
 
         // 5. Redirect the user to the payment page with the new order ID
-        return redirect()->route('payment.show', $order);
+        $signedUrl = URL::signedRoute('payment.show', ['order' => $order->id]);
+
+        return redirect($signedUrl);
     }
 
     /**

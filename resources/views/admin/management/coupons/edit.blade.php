@@ -7,7 +7,7 @@
                 <h4 class="card-title">Edit Coupon: {{ $coupon->code }}</h4>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('admin.coupons.update', $coupon) }}">
+                <form method="POST" action="{{ route('admin.coupons.update', $coupon) }}" novalidate>
                     @csrf
                     @method('PUT')
 

@@ -67,7 +67,6 @@ class OrderController extends Controller
 
         try {
             $newStatus = OrderStatus::from($request->input('status'));
-            // CHỈ GỬI EMAIL KHI TRẠNG THÁI LÀ COMPLETED
             if ($newStatus === OrderStatus::Completed && $order->status !== OrderStatus::Completed) {
                 $order->load('items');
                 foreach ($order->items as $item) {
@@ -75,7 +74,6 @@ class OrderController extends Controller
                         $item->review_token = Str::random(32);
                         $item->save();
 
-                        // Gửi email
                         Mail::to($order->email)->send(new RequestReview($item));
                     }
                 }

@@ -148,6 +148,31 @@
                     </ul>
                 </div>
             </li>
+            <!-- ========== Blog Posts Menu Start ========== -->
+            <li class="nav-item">
+                <a class="nav-link menu-arrow" href="#sidebarBlog" data-bs-toggle="collapse"
+                   role="button" aria-expanded="false" aria-controls="sidebarBlog">
+                   <span class="nav-icon">
+                        <iconify-icon icon="solar:document-text-bold-duotone"></iconify-icon>
+                   </span>
+                    <span class="nav-text"> Blog Posts </span>
+                </a>
+                <div class="collapse" id="sidebarBlog">
+                    <ul class="nav sub-navbar-nav">
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{ route('admin.blog-posts.index') }}">List</a>
+                        </li>
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{ route('admin.blog-posts.create') }}">Create</a>
+                        </li>
+                        {{-- Optional: Add Categories later --}}
+                        {{-- <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="#">Categories</a>
+                        </li> --}}
+                    </ul>
+                </div>
+            </li>
+            <!-- ========== Blog Posts Menu End ========== -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarChatbot" data-bs-toggle="collapse"
                    role="button" aria-expanded="false" aria-controls="sidebarChatbot">
