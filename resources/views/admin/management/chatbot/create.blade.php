@@ -7,7 +7,7 @@
                 <h4 class="card-title">Add New Chatbot Rule</h4>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('admin.chatbot.store') }}">
+                <form method="POST" action="{{ route('admin.chatbot.store') }}" novalidate>
                     @csrf
 
                     {{-- Includes shared form file --}}

@@ -78,9 +78,6 @@
                             <strong>{{ $product->brand->name ?? 'N/A' }}</strong>
                         </p>
 
-                        <h4 class="text-dark fw-medium mt-3">Description :</h4>
-                        <p class="text-muted">{!! nl2br(e($product->description)) !!}</p>
-
                         <h4 class="text-dark fw-medium mt-4">Variants :</h4>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered">
@@ -110,7 +107,10 @@
                                 </tbody>
                             </table>
                         </div>
-
+                        <h4 class="text-dark fw-medium mt-3">Description :</h4>
+                        <p class="text-muted">
+                            {!! $product->description !!}
+                        </p>
                         <div class="mt-3">
                             <ul class="list-unstyled">
                                 <li><strong>Created At:</strong> {{ $product->created_at->format('H:i, d-m-Y') }}</li>

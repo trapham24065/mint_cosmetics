@@ -9,68 +9,91 @@
  */
 declare(strict_types=1);
 
-use App\Http\Controllers\Admin\AttributeController;
-use App\Http\Controllers\Admin\BrandController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ChatbotController;
-use App\Http\Controllers\Admin\ChatbotReplyController;
-use App\Http\Controllers\Admin\CouponController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\ReviewController;
-use App\Http\Controllers\Admin\ScraperController;
-use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\{
+    AttributeController,
+    BlogPostController,
+    BrandController,
+    CategoryController,
+    ChatbotController,
+    ChatbotReplyController,
+    CouponController,
+    DashboardController,
+    OrderController,
+    ProductController,
+    ReviewController,
+    ScraperController,
+    SettingsController
+};
 use Illuminate\Support\Facades\Route;
 
-// The prefix 'admin' and middleware 'auth' are already applied from bootstrap/app.php
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+| Prefix: 'admin', Middleware: 'auth' (Applied globally)
+*/
+
 require __DIR__.'/api.php';
-//Dashboard
+
+// --- Dashboard ---
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-// Category Management
+
+// --- Core Management Resources (CRUD) ---
+Route::resources([
+    'attributes' => AttributeController::class,
+    'brands'     => BrandController::class,
+    'coupons'    => CouponController::class,
+    'blog-posts' => BlogPostController::class, // Note: name prefix is admin.blog-posts.*
+]);
+
+// --- Category Management ---
+Route::get('categories/{category}/attributes', [CategoryController::class, 'getAttributes'])->name(
+    'categories.attributes'
+);
 Route::resource('categories', CategoryController::class);
-// Attribute Management
-Route::resource('attributes', AttributeController::class);
-// Coupon Management
-Route::resource('coupons', CouponController::class);
-// Product Management
-Route::resource('products', ProductController::class);
-Route::post('/products/bulk-update', [ProductController::class, 'bulkUpdate'])->name('products.bulkUpdate');
 
-//Category Attribute Management
-Route::get('/categories/{category}/attributes', [CategoryController::class, 'getAttributes'])
-    ->name('categories.attributes');
-// Brand Management
-Route::resource('brands', BrandController::class);
-// Order Management
-Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-Route::put('/orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
-Route::get('/orders/{order}/invoice', [OrderController::class, 'downloadInvoice'])->name('orders.invoice.download');
-
-Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
-Route::put('/reviews/{review}/approve', [ReviewController::class, 'approve'])->name('reviews.approve');
-Route::put('/reviews/{review}/reject', [ReviewController::class, 'reject'])->name('reviews.reject');
-Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
-
-Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
-Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
-
-Route::prefix('chatbot')->name('chatbot.')->group(function () {
-    Route::get('/', [ChatbotController::class, 'index'])->name('index');
-    Route::get('/create', [ChatbotController::class, 'create'])->name('create');
-    Route::post('/', [ChatbotController::class, 'store'])->name('store');
-    Route::get('/{rule}/edit', [ChatbotController::class, 'edit'])->name('edit');
-    Route::put('/{rule}', [ChatbotController::class, 'update'])->name('update');
-    Route::delete('/{rule}', [ChatbotController::class, 'destroy'])->name('destroy');
+// --- Product Management ---
+Route::controller(ProductController::class)->prefix('products')->name('products.')->group(function () {
+    Route::post('bulk-update', 'bulkUpdate')->name('bulkUpdate');
+    Route::post('upload-tinymce-image', 'uploadTinyMCEImage')->name('upload.tinymce');
 });
-Route::resource('chatbot-replies', ChatbotReplyController::class);
-Route::post('chatbot-replies/{reply}/keywords', [ChatbotReplyController::class, 'storeKeyword'])->name(
-    'chatbot-replies.keywords.store'
-);
-Route::delete('chatbot-keywords/{keyword}', [ChatbotReplyController::class, 'destroyKeyword'])->name(
-    'chatbot-keywords.destroy'
-);
+Route::resource('products', ProductController::class);
 
-Route::get('/scraper', [ScraperController::class, 'index'])->name('scraper.index');
-Route::post('/scraper/run', [ScraperController::class, 'run'])->name('scraper.run');
+// --- Order Management ---
+Route::controller(OrderController::class)->prefix('orders')->name('orders.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/{order}', 'show')->name('show');
+    Route::put('/{order}/update-status', 'updateStatus')->name('updateStatus');
+    Route::get('/{order}/invoice', 'downloadInvoice')->name('invoice.download');
+});
+
+// --- Review Management ---
+Route::controller(ReviewController::class)->prefix('reviews')->name('reviews.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::put('/{review}/approve', 'approve')->name('approve');
+    Route::put('/{review}/reject', 'reject')->name('reject');
+    Route::delete('/{review}', 'destroy')->name('destroy');
+});
+
+// --- Settings ---
+Route::controller(SettingsController::class)->prefix('settings')->name('settings.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/', 'update')->name('update');
+});
+
+// --- Chatbot System ---
+// Chatbot Rules (Converted manual routes to Resource)
+Route::resource('chatbot', ChatbotController::class)->except(['show']);
+
+// Chatbot Replies & Keywords
+Route::resource('chatbot-replies', ChatbotReplyController::class);
+Route::controller(ChatbotReplyController::class)->group(function () {
+    Route::post('chatbot-replies/{reply}/keywords', 'storeKeyword')->name('chatbot-replies.keywords.store');
+    Route::delete('chatbot-keywords/{keyword}', 'destroyKeyword')->name('chatbot-keywords.destroy');
+});
+
+// --- Scraper ---
+Route::controller(ScraperController::class)->prefix('scraper')->name('scraper.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/run', 'run')->name('run');
+});

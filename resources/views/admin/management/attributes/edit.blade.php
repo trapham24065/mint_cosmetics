@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container-xxl">
-        <form method="POST" action="{{ route('admin.attributes.update', $attribute) }}">
+        <form method="POST" action="{{ route('admin.attributes.update', $attribute) }} " novalidate>
             @csrf
             @method('PUT')
             <div class="row">

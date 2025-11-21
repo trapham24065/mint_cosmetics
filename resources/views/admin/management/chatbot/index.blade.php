@@ -36,23 +36,36 @@
                         },
                         {
                             name: 'Actions',
-                            width: '150px',
+                            width: '80px',
+                            sort: false,
                             formatter: (cell, row) => {
-                                const chatbotID = row.cells[0].data;
-                                const editUrl = `{{ route('admin.chatbot.index') }}/${chatbotID}/edit`;
-                                const deleteUrl = `{{ route('admin.chatbot.index') }}/${chatbotID}`;
+                                const chatbotId = row.cells[0].data;
+                                const chatbotName=row.cells[1].data;
 
+                                const editUrl = `{{ route('admin.chatbot.index') }}/${chatbotId}/edit`;
+                                const deleteUrl = `{{ route('admin.chatbot.index') }}/${chatbotId}`;
                                 return gridjs.html(`
-                                <div class="d-flex gap-2">
-
-                                    <a href="${editUrl}" class="btn btn-sm btn-primary" aria-label="Edit chat box rule ${chatbotID}"> <i class="bi bi-pencil-square"></i></iconify-icon></a>
-
-                                    <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
-                                        <input type="hidden" name="_token" value="${csrfToken}">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-sm btn-danger" aria-label="Delete chat box rule ${chatbotID}"><i class="bi bi-trash"></i></button>
-                                    </form>
-                                </div>`
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                            <i class="bi bi-three-dots-vertical"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                            <li>
+                                                                <a class="dropdown-item" href="${editUrl}">
+                                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Edit
+                                                                </a>
+                                                            </li>
+                                                            <li><hr class="dropdown-divider"></li>
+                                                            <li>
+                                                                <a class="dropdown-item text-danger delete-item" href="#"
+                                                                       data-id="${chatbotId}"
+                                                                       data-name="${chatbotName}"
+                                                                       data-url="${deleteUrl}">
+                                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>`
                                 );
                             }
                         }
@@ -67,6 +80,17 @@
                         limit: 10
                     },
                 }).render(document.getElementById("table-data-chatbot"));
+            }
+        });
+
+        AdminCRUD.initDeleteHandler('.delete-item', {
+            confirmTitle: 'Delete Chatbot?',
+            confirmText: 'You are about to delete chatbot:',
+            successText: 'Chatbot deleted successfully.',
+            onSuccess: () => {
+                // Custom callback nếu cần
+                console.log('Chatbot deleted!');
+                location.reload();
             }
         });
     </script>

@@ -139,15 +139,29 @@ class ProductController
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product): RedirectResponse
+    public function destroy(Product $product): RedirectResponse|JsonResponse
     {
         try {
             $this->productService->deleteProduct($product);
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Product deleted successfully.',
+                ]);
+            }
 
             return redirect()->route('admin.products.index')
                 ->with('success', 'Product deleted successfully.');
         } catch (\Exception $e) {
             Log::error('Product Deletion Failed: '.$e->getMessage());
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete product: '.$e->getMessage(),
+                ], 500);
+            }
 
             return redirect()->route('admin.products.index')
                 ->with('error', $e->getMessage());
@@ -204,6 +218,25 @@ class ProductController
             Log::error('Bulk Product Update Failed: '.$e->getMessage());
             return response()->json(['success' => false, 'message' => 'An error occurred.'], 500);
         }
+    }
+
+    public function uploadTinyMCEImage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|image|max:2048',
+        ]);
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $path = $file->storeAs('products/descriptions', $filename, 'public');
+
+            return response()->json([
+                'location' => asset('storage/'.$path),
+            ]);
+        }
+
+        return response()->json(['error' => 'Upload failed'], 400);
     }
 
 }

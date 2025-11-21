@@ -48,7 +48,10 @@
 
 
 </div>
-
+<script src="https://cdn.tiny.cloud/1/456eizv25xorupt47tepkzopmaeapg49dxyklm5u5yarht9b/tinymce/8/tinymce.min.js"
+        referrerpolicy="origin" crossorigin="anonymous"></script>
+<!-- Admin CRUD Utilities -->
+<script src="{{ asset('assets/admin/js/admin-crud.js') }}"></script>
 <!-- Vendor Javascript (Require in all Page) -->
 <script src="{{asset('assets/admin/js/vendor.js')}}"></script>
 

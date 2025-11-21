@@ -71,14 +71,31 @@ class BrandController extends Controller
         }
     }
 
-    public function destroy(Brand $brand): RedirectResponse
+    public function destroy(Brand $brand): RedirectResponse|JsonResponse
     {
         try {
             $this->brandService->deleteBrand($brand);
-            return redirect()->route('admin.brands.index')->with('success', 'Brand deleted successfully.');
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Brand deleted successfully.',
+                ]);
+            }
+
+            return redirect()->route('admin.brands.index')
+                ->with('success', 'Brand deleted successfully.');
         } catch (\Exception $e) {
             Log::error('Brand Deletion Failed: '.$e->getMessage());
-            return redirect()->route('admin.brands.index')->with('error', $e->getMessage());
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete brand: '.$e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->route('admin.brands.index')
+                ->with('error', $e->getMessage());
         }
     }
 

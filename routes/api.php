@@ -8,6 +8,7 @@
  */
 
 use App\Http\Controllers\Admin\AttributeController;
+use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ChatbotController;
 use App\Http\Controllers\Admin\ChatbotReplyController;
@@ -36,4 +37,6 @@ Route::name('api.')->group(function () {
     Route::get('/chatbots/api', [ChatbotController::class, 'getDataForGrid'])->name('chatbot.data');
 
     Route::get('/chatbot-replies/api', [ChatbotReplyController::class, 'getDataForGrid'])->name('chatbot-replies.data');
+
+    Route::get('/blogs/api', [BlogPostController::class, 'getDataForGrid'])->name('blogs.data');
 });

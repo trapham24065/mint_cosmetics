@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container-xxl">
-        <form method="POST" action="{{ route('admin.categories.store') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.categories.store') }}" enctype="multipart/form-data" novalidate>
             @csrf
             <div class="row">
                 <div class="col-xl-3 col-lg-4">

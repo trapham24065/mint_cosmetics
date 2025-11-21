@@ -14,32 +14,32 @@ use App\Models\ChatbotRule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
+use App\Http\Requests\Chatbot\StoreChatbotRuleRequest;
+use App\Http\Requests\Chatbot\UpdateChatbotRuleRequest;
+use Illuminate\View\View;
 
 class ChatbotController extends Controller
 {
 
-    public function index()
+    public function index(): View
     {
         $rules = ChatbotRule::orderBy('id', 'desc')->paginate(15);
         return view('admin.management.chatbot.index', compact('rules'));
     }
 
-    public function create()
+    public function create(): View
     {
         return view('admin.management.chatbot.create');
     }
 
-    public function store(Request $request)
+    public function store(StoreChatbotRuleRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'keyword'   => 'required|string|max:255|unique:chatbot_rules',
-            'reply'     => 'required|string',
-            'is_active' => 'sometimes|boolean',
-        ]);
-        $validated['is_active'] = $request->has('is_active');
+        ChatbotRule::create($request->validated());
 
-        ChatbotRule::create($validated);
-        return redirect()->route('admin.chatbot.index')->with('success', 'Rule created successfully.');
+        return redirect()->route('admin.chatbot.index')
+            ->with('success', 'Rule created successfully.');
     }
 
     public function edit(ChatbotRule $rule)
@@ -47,23 +47,38 @@ class ChatbotController extends Controller
         return view('admin.management.chatbot.edit', compact('rule'));
     }
 
-    public function update(Request $request, ChatbotRule $rule)
+    public function update(UpdateChatbotRuleRequest $request, ChatbotRule $rule): RedirectResponse
     {
-        $validated = $request->validate([
-            'keyword'   => ['required', 'string', 'max:255', Rule::unique('chatbot_rules')->ignore($rule->id)],
-            'reply'     => 'required|string',
-            'is_active' => 'sometimes|boolean',
-        ]);
-        $validated['is_active'] = $request->has('is_active');
-
-        $rule->update($validated);
+        $rule->update($request->validated());
         return redirect()->route('admin.chatbot.index')->with('success', 'Rule updated successfully.');
     }
 
-    public function destroy(ChatbotRule $rule)
+    public function destroy(ChatbotRule $rule): RedirectResponse|JsonResponse
     {
-        $rule->delete();
-        return redirect()->route('admin.chatbot.index')->with('success', 'Rule deleted successfully.');
+        try {
+            $rule->delete();
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Chatbot rule deleted successfully.',
+                ]);
+            }
+
+            return redirect()->route('admin.chatbot.index')
+                ->with('success', 'Rule deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Chatbot Rule Deletion Failed: '.$e->getMessage());
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete category: '.$e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->route('admin.chatbot.index')
+                ->with('error', $e->getMessage());
+        }
     }
 
     /**

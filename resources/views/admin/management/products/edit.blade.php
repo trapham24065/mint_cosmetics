@@ -2,17 +2,8 @@
 
 @section('content')
     <div class="container-xxl">
-        {{-- Display All Validation Errors --}}
-        @if ($errors->any())
-            <div class="alert alert-danger mb-3">
-                <h5 class="alert-title">Please fix the following errors:</h5>
-                <ul>@foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach</ul>
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data"
+              novalidate>
             @csrf
             @method('PUT')
             <div class="row">
@@ -256,6 +247,8 @@
 
     @push('scripts')
         <!-- @formatter:off -->
+        <script src="{{ asset('assets/admin/js/tinymce-config.js') }}"></script>
+
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 // --- 1. Pass data from PHP to JavaScript ---

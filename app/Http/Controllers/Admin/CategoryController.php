@@ -141,14 +141,30 @@ class CategoryController extends Controller
     /**
      * Remove the specified category from storage.
      */
-    public function destroy(Category $category): RedirectResponse
+
+    public function destroy(Category $category): RedirectResponse|JsonResponse
     {
         try {
             $this->categoryService->deleteCategory($category);
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Category deleted successfully.',
+                ]);
+            }
+
             return redirect()->route('admin.categories.index')
                 ->with('success', 'Category deleted successfully.');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             Log::error('Category Deletion Failed: '.$e->getMessage());
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete category: '.$e->getMessage(),
+                ], 500);
+            }
+
             return redirect()->route('admin.categories.index')
                 ->with('error', $e->getMessage());
         }

@@ -13,7 +13,13 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use App\Http\Requests\Chatbot\StoreChatbotKeywordRequest;
 
+use App\Http\Requests\Chatbot\StoreChatbotReplyRequest;
+
+use App\Http\Requests\Chatbot\UpdateChatbotReplyRequest;
+
+// Import Update Reply Request
 class ChatbotReplyController extends Controller
 {
 
@@ -37,16 +43,9 @@ class ChatbotReplyController extends Controller
     /**
      * Store a newly created chatbot reply in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreChatbotReplyRequest $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'topic'     => ['required', 'string', 'max:255', 'unique:chatbot_replies'],
-            'reply'     => ['required', 'string'],
-            'is_active' => ['sometimes', 'boolean'],
-        ]);
-        $validated['is_active'] = $request->has('is_active');
-
-        ChatbotReply::create($validated);
+        ChatbotReply::create($request->validated());
         return redirect()->route('admin.chatbot-replies.index')->with('success', 'Reply created successfully.');
     }
 
@@ -62,21 +61,10 @@ class ChatbotReplyController extends Controller
     /**
      * Update the specified chatbot reply in storage.
      */
-    public function update(Request $request, ChatbotReply $chatbotReply): RedirectResponse
+    public function update(UpdateChatbotReplyRequest $request, ChatbotReply $chatbotReply): RedirectResponse
     {
-        $validated = $request->validate([
-            'topic'     => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('chatbot_replies')->ignore($chatbotReply->id),
-            ],
-            'reply'     => ['required', 'string'],
-            'is_active' => ['sometimes', 'boolean'],
-        ]);
-        $validated['is_active'] = $request->has('is_active');
+        $chatbotReply->update($request->validated());
 
-        $chatbotReply->update($validated);
         return redirect()->route('admin.chatbot-replies.edit', $chatbotReply)->with(
             'success',
             'Reply updated successfully.'
@@ -95,18 +83,9 @@ class ChatbotReplyController extends Controller
     /**
      * Store a new keyword for a reply.
      */
-    public function storeKeyword(Request $request, ChatbotReply $reply): RedirectResponse
+    public function storeKeyword(StoreChatbotKeywordRequest $request, ChatbotReply $reply): RedirectResponse
     {
-        $validated = $request->validate([
-            'keyword' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('chatbot_keywords')->where('chatbot_reply_id', $reply->id),
-            ],
-        ]);
-
-        $reply->keywords()->create($validated);
+        $reply->keywords()->create($request->validated());
         return back()->with('success', 'Keyword added successfully.');
     }
 

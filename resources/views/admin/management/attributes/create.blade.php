@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container-xxl">
-        <form method="POST" action="{{ route('admin.attributes.store') }}">
+        <form method="POST" action="{{ route('admin.attributes.store') }} " novalidate>
             @csrf
             <div class="row">
                 <div class="col-xl-3 col-lg-4">

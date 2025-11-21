@@ -111,14 +111,30 @@ class AttributeController extends Controller
     /**
      * Remove the specified attribute from storage.
      */
-    public function destroy(Attribute $attribute): RedirectResponse
+
+    public function destroy(Attribute $attribute): RedirectResponse|JsonResponse
     {
         try {
             $this->attributeService->deleteAttribute($attribute);
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Attribute deleted successfully.',
+                ]);
+            }
+
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute deleted successfully.');
         } catch (\Exception $e) {
             Log::error('Attribute Deletion Failed: '.$e->getMessage());
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete attribute: '.$e->getMessage(),
+                ], 500);
+            }
+
             return redirect()->route('admin.attributes.index')
                 ->with('error', $e->getMessage());
         }

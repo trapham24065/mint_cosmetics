@@ -116,8 +116,9 @@
                             </button>
                         </div>
                         <div class="tab-content" id="product-details-nav-tabContent">
-                            <div class="tab-pane fade show active" id="description-tab" role="tabpanel">
-                                {!! nl2br(e($product->description)) !!}
+                            <div class="tab-pane fade show active product-description" id="description-tab"
+                                 role="tabpanel">
+                                {!! $product->description !!}
                             </div>
 
                             {{-- NEW ADD: Tab for Reviews --}}
