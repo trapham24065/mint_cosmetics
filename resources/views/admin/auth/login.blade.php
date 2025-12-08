@@ -2,7 +2,7 @@
 @section('content')
     <x-auth-session-status class="mb-3" :status="session('status')" />
 
-    <form class="my-4" method="POST" action="{{ route('login') }}">
+    <form class="my-4" method="POST" action="{{ route('admin.login') }}">
         @csrf
 
         <div class="form-group mb-2">

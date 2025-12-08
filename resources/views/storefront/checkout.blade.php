@@ -2,7 +2,7 @@
 @section('content')
     <section class="shopping-checkout-wrap section-space">
         <div class="container">
-            <form action="{{ route('checkout.placeOrder') }}" method="post">
+            <form action="{{ route('customer.checkout.placeOrder') }}" method="post">
                 @csrf
                 <div class="row">
                     <div class="col-lg-6">

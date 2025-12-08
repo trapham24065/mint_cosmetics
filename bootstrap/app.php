@@ -12,15 +12,24 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             // Define the route group for the admin panel
-            Route::middleware(['web', 'auth'])
+            Route::middleware(['web', 'auth.admin'])
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/admin.php'));
+            Route::middleware(['web', 'auth.customer'])
+                ->prefix('customer')
+                ->name('customer.')
+                ->group(base_path('routes/customer.php'));
         }
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->validateCsrfTokens(except: [
             'hooks/*',
+        ]);
+        $middleware->alias([
+            'guest.customer' => \App\Http\Middleware\RedirectIfCustomerAuthenticated::class,
+            'auth.customer'  => \App\Http\Middleware\AuthenticateCustomer::class,
+            'auth.admin'     => \App\Http\Middleware\AuthenticateAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

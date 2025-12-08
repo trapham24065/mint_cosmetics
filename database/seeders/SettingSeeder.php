@@ -21,8 +21,8 @@ class SettingSeeder extends Seeder
                 'value'       => 'Mint Cosmetics',
                 'type'        => 'text',
                 'group'       => 'general',
-                'label'       => 'Tên Website',
-                'description' => 'Tên hiển thị của website.',
+                'label'       => 'Website name',
+                'description' => 'Website display name.',
                 'sort_order'  => 1,
             ],
             [
@@ -30,7 +30,7 @@ class SettingSeeder extends Seeder
                 'value'      => 'contact@mintcosmetics.com',
                 'type'       => 'email',
                 'group'      => 'general',
-                'label'      => 'Email liên hệ',
+                'label'      => 'Contact email',
                 'sort_order' => 2,
             ],
             [
@@ -38,7 +38,7 @@ class SettingSeeder extends Seeder
                 'value'      => '0123456789',
                 'type'       => 'text',
                 'group'      => 'general',
-                'label'      => 'Số điện thoại',
+                'label'      => 'Phone number',
                 'sort_order' => 3,
             ],
 
@@ -48,8 +48,9 @@ class SettingSeeder extends Seeder
                 'value'      => '970436',
                 'type'       => 'select',
                 'group'      => 'payment',
-                'label'      => 'Ngân hàng VietQR',
-                'options'    => json_encode(['970436' => 'Vietcombank', '970422' => 'MB Bank', '970423' => 'TPBank']),
+                'label'      => 'VietQR Bank',
+                'options'    => json_encode(['970436' => 'Vietcombank', '970422' => 'MB Bank', '970423' => 'TPBank'],
+                    JSON_THROW_ON_ERROR),
                 'sort_order' => 1,
             ],
             [
@@ -57,7 +58,7 @@ class SettingSeeder extends Seeder
                 'value'      => '1032850005',
                 'type'       => 'text',
                 'group'      => 'payment',
-                'label'      => 'Số tài khoản VietQR',
+                'label'      => 'Account number VietQR',
                 'sort_order' => 2,
             ],
             [
@@ -65,7 +66,7 @@ class SettingSeeder extends Seeder
                 'value'      => 'DH',
                 'type'       => 'text',
                 'group'      => 'payment',
-                'label'      => 'Tiền tố đơn hàng',
+                'label'      => 'Order prefix',
                 'sort_order' => 3,
             ],
 
@@ -75,7 +76,7 @@ class SettingSeeder extends Seeder
                 'value'      => 'Mint Cosmetics',
                 'type'       => 'text',
                 'group'      => 'email',
-                'label'      => 'Tên người gửi Email',
+                'label'      => 'Email sender name',
                 'sort_order' => 1,
             ],
             [
@@ -83,7 +84,7 @@ class SettingSeeder extends Seeder
                 'value'      => 'no-reply@mintcosmetics.com',
                 'type'       => 'email',
                 'group'      => 'email',
-                'label'      => 'Địa chỉ Email gửi đi',
+                'label'      => 'Email address',
                 'sort_order' => 2,
             ],
         ];

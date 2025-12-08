@@ -1,17 +1,15 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\Storefront\AboutUsController;
 use App\Http\Controllers\Storefront\BlogController;
 use App\Http\Controllers\Storefront\CartController;
 use App\Http\Controllers\Storefront\ChatbotController;
-use App\Http\Controllers\Storefront\CheckoutController;
 use App\Http\Controllers\Storefront\ContactController;
 use App\Http\Controllers\Storefront\HomeController;
 use App\Http\Controllers\Storefront\PaymentController;
 use App\Http\Controllers\Storefront\ProductController;
 use App\Http\Controllers\Storefront\ShopController;
-use App\Http\Controllers\Storefront\WebhookController;
 use App\Http\Controllers\Storefront\WishlistController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Storefront\ReviewController;
@@ -24,10 +22,6 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::patch('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/remove/{variantId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart/contents', [CartController::class, 'getContents'])->name('cart.contents');
-
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/checkout/place-order', [PaymentController::class, 'placeOrder'])->name('checkout.placeOrder');
-Route::post('/hooks/sepay-payment', [WebhookController::class, 'handlePaymentWebhook']);
 
 Route::get('/order/{order}/payment', [PaymentController::class, 'showPaymentPage'])->name('payment.show')->middleware(
     'signed'
@@ -57,6 +51,10 @@ Route::get('/contact', [ContactController::class, 'index'])->name('contact.index
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 
 Route::get('api/products/search', [ProductController::class, 'searchApi'])->name('api.products.search');
+
+Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+Route::get('/chat/fetch', [ChatController::class, 'fetchMessages'])->name('chat.fetch');
 
 require __DIR__.'/auth.php';
 

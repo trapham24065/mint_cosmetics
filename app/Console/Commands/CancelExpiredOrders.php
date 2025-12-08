@@ -29,7 +29,7 @@ class CancelExpiredOrders extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $isEnabled = config('app.clean_pending_orders_enabled', env('CLEAN_PENDING_ORDERS_ENABLED', false));
 
@@ -79,11 +79,8 @@ class CancelExpiredOrders extends Command
                 }
             }
             $this->info("Cleanup completed.");
-        } else {
-            // Only show this message if running manually to avoid confusion
-            if ($isForced || app()->isLocal()) {
-                $this->info("There are no overdue orders..");
-            }
+        } elseif ($isForced || app()->isLocal()) {
+            $this->info("There are no overdue orders..");
         }
     }
 

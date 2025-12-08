@@ -28,6 +28,7 @@ class Order extends Model
     use HasOrderStatus;
 
     protected $fillable = [
+        'customer_id',
         'total_price',
         'status',
         'payment_method',

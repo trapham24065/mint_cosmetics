@@ -190,9 +190,9 @@
 
                         <div class="dropdown-divider my-1"></div>
 
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form method="POST" action="{{ route('admin.logout') }}">
                             @csrf
-                            <a class="dropdown-item text-danger" href="{{ route('logout') }}"
+                            <a class="dropdown-item text-danger" href="{{ route('admin.logout') }}"
                                onclick="event.preventDefault(); this.closest('form').submit();">
                                 <i class="las la-power-off fs-18 me-1 align-text-bottom"></i> Logout
                             </a>

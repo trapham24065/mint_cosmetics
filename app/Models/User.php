@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Musonza\Chat\Traits\Messageable;
+use Musonza\Chat\Models\Conversation;
 
 class User extends Authenticatable
 {
+
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+    use Messageable;
 
     /**
      * The attributes that are mass assignable.
@@ -47,7 +51,22 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
     }
+
+    public function conversations(): MorphToMany
+    {
+        return $this->morphToMany(Conversation::class, 'messageable', 'chat_participation')
+            ->withPivot('created_at', 'updated_at');
+    }
+
+    public function getParticipantDetails(): array
+    {
+        return [
+            'name'   => $this->name,
+            'avatar' => asset('assets/admin/images/users/avatar-1.jpg'),
+        ];
+    }
+
 }

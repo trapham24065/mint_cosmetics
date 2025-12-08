@@ -20,6 +20,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
@@ -62,6 +63,9 @@ class PaymentController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
+        $customerId = Auth::guard('customer')->id();
+        $validatedData['customer_id'] = $customerId;
+
         // 3. Call the OrderService to create a new order in the database
         $order = $this->orderService->createOrder($validatedData, $cartData);
 
@@ -83,6 +87,10 @@ class PaymentController extends Controller
      */
     public function showPaymentPage(Order $order): View
     {
+        if ($order->customer_id !== Auth::guard('customer')->id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $qrString = $this->paymentService->generateVietQrString($order);
 
         return view('storefront.payment.show', compact('order', 'qrString'));
@@ -103,6 +111,10 @@ class PaymentController extends Controller
 
     public function thankYou(Order $order): View
     {
+        if ($order->customer_id !== Auth::guard('customer')->id()) {
+            abort(403);
+        }
+
         $order->load('items');
         return view('storefront.payment.thank-you', compact('order'));
     }
