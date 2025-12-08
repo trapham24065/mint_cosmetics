@@ -28,11 +28,11 @@ class BlogPost extends Model
     ];
 
     // Optional: Automatically generate slug when title is set
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
-        static::creating(function ($post) {
+        static::creating(static function ($post) {
             if (empty($post->slug)) {
                 $post->slug = Str::slug($post->title);
                 // Ensure slug uniqueness (simple version)

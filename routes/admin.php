@@ -9,14 +9,14 @@
  */
 declare(strict_types=1);
 
-use App\Http\Controllers\Admin\{
-    AttributeController,
+use App\Http\Controllers\Admin\{AttributeController,
     BlogPostController,
     BrandController,
     CategoryController,
     ChatbotController,
     ChatbotReplyController,
     CouponController,
+    CustomerController,
     DashboardController,
     OrderController,
     ProductController,
@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\{
     SettingsController
 };
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\ChatController as AdminChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,7 +38,6 @@ require __DIR__.'/api.php';
 
 // --- Dashboard ---
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
 // --- Core Management Resources (CRUD) ---
 Route::resources([
     'attributes' => AttributeController::class,
@@ -96,4 +96,20 @@ Route::controller(ChatbotReplyController::class)->group(function () {
 Route::controller(ScraperController::class)->prefix('scraper')->name('scraper.')->group(function () {
     Route::get('/', 'index')->name('index');
     Route::post('/run', 'run')->name('run');
+});
+
+// Customer Management
+Route::controller(CustomerController::class)->prefix('customers')->name(
+    'customers.'
+)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/{customer}', 'show')->name('show');
+    Route::delete('/{customer}', 'destroy')->name('destroy');
+    Route::put('/{customer}/toggle-status', 'toggleStatus')->name('toggle-status');
+});
+
+Route::controller(AdminChatController::class)->prefix('chat')->name('chat.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::post('/{conversation}/reply', 'reply')->name('reply');
+    Route::get('/{conversation}/fetch', 'fetchMessages')->name('fetch');
 });

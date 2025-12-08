@@ -11,7 +11,7 @@
         </ul>
         <p class="cart-total"><span>Subtotal:</span><span class="amount" id="aside-cart-subtotal">0 VNĐ</span></p>
         <a class="btn-total" href="{{route('cart.index')}}">View cart</a>
-        <a class="btn-total" href="{{route('checkout.index')}}">Checkout</a>
+        <a class="btn-total" href="{{route('customer.checkout.index')}}">Checkout</a>
     </div>
 </aside>
 <!--== End Aside Cart ==-->

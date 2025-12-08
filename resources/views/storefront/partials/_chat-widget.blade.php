@@ -1,11 +1,13 @@
 <div id="chat-widget" class="chat-widget"
-     data-send-url="{{ route('chatbot.send') }}"
+     data-send-url="{{ route('chat.send') }}"
+     data-fetch-url="{{ route('chat.fetch') }}"
      data-suggestions-url="{{ route('chatbot.suggestions') }}"
-     data-csrf-token="{{ csrf_token() }}">
+     data-csrf-token="{{ csrf_token() }}"
+     style="display: none;">
 
     <div id="chat-toggle" class="chat-toggle">
         <i class="fa fa-comments" aria-hidden="true"></i>
-        <span class="chat-notification-badge">1</span>
+        <span class="chat-notification-badge" style="display: none;">0</span>
     </div>
 
     <div id="chat-window" class="chat-window">
@@ -15,7 +17,7 @@
                     <i class="fa fa-android" aria-hidden="true"></i>
                 </div>
                 <div class="header-text">
-                    <h5>Mint AI Assistant</h5>
+                    <h5>Mint Support</h5>
                     <span class="status">● Online</span>
                 </div>
             </div>
@@ -25,30 +27,23 @@
         </div>
 
         <div id="chat-messages" class="chat-messages">
-            <div class="welcome-message">
-                <div class="bot-message">
-                    <div class="message-bubble">
-                        <div class="typing-indicator">
-                            <span></span><span></span><span></span>
-                        </div>
-                    </div>
-                </div>
+            <div class="message-bubble bot-message welcome-message">
+                Hello! How can I help you today?
             </div>
         </div>
 
-        <div id="chat-suggestions" class="chat-suggestions">
-            <div class="suggestions-header">
+        <div id="chat-suggestions" class="chat-suggestions" style="padding: 10px 15px; display: none;">
+            <div class="suggestions-header" style="font-size: 12px; color: #666; margin-bottom: 5px;">
                 <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
                 <span>Quick hint</span>
             </div>
-            <div class="suggestions-list">
-                <!-- Suggestions will be loaded here -->
+            <div class="suggestions-list" style="display: flex; flex-wrap: wrap; gap: 5px;">
             </div>
         </div>
 
         <div class="chat-input-area">
             <div class="input-wrapper">
-                <input type="text" id="chat-input" placeholder="Enter your message...">
+                <input type="text" id="chat-input" placeholder="Enter message..." autocomplete="off">
                 <button id="chat-send-btn">
                     <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
                 </button>

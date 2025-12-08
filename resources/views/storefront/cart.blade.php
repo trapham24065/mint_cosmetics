@@ -116,7 +116,8 @@
                                 </tbody>
                             </table>
                             <div class="text-end">
-                                <a href="{{route('checkout.index')}}" class="checkout-button">Proceed to checkout</a>
+                                <a href="{{route('customer.checkout.index')}}" class="checkout-button">Proceed to
+                                    checkout</a>
                             </div>
                         </div>
                     </div>

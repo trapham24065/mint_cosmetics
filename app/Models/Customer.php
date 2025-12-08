@@ -14,19 +14,29 @@
 
 namespace App\Models;
 
+use App\Notifications\CustomerResetPasswordNotification;
 use App\Traits\HasCustomerStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Musonza\Chat\Traits\Messageable;
+use Illuminate\Contracts\Auth\CanResetPassword;
+use Illuminate\Auth\Notifications\ResetPassword as ResetPasswordNotification;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Musonza\Chat\Models\Conversation;
 
 class Customer extends Authenticatable
 {
+
     use HasCustomerStatus;
     use HasFactory;
     use Notifiable;
     use SoftDeletes;
+    use Messageable;
+
+    use \Illuminate\Auth\Passwords\CanResetPassword;
 
     protected $guard = 'customer';
 
@@ -35,10 +45,9 @@ class Customer extends Authenticatable
         'last_name',
         'email',
         'phone',
+        'password',
         'address',
         'city',
-        'country',
-        'password',
         'status',
     ];
 
@@ -51,6 +60,8 @@ class Customer extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password'          => 'hashed',
+        'status'            => 'boolean',
     ];
 
     public function orders(): Customer|HasMany
@@ -67,4 +78,29 @@ class Customer extends Authenticatable
     {
         return "bg-{$this->status_color} bg-opacity-10 text-{$this->status_color}";
     }
+
+    public function getParticipantDetails(): array
+    {
+        return [
+            'name'   => $this->full_name,
+            'avatar' => asset('assets/storefront/images/blog/default-avatar.png'),
+        ];
+    }
+
+    public function cartItems(): Customer|HasMany
+    {
+        return $this->hasMany(Cart::class);
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new CustomerResetPasswordNotification($token));
+    }
+
+    public function conversations(): MorphToMany
+    {
+        return $this->morphToMany(Conversation::class, 'messageable', 'chat_participation')
+            ->withPivot('created_at', 'updated_at');
+    }
+
 }

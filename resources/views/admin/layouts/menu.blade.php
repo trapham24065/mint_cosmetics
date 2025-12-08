@@ -148,6 +148,22 @@
                     </ul>
                 </div>
             </li>
+            <li class="nav-item">
+                <a class="nav-link menu-arrow" href="#sidebarCustomers" data-bs-toggle="collapse"
+                   role="button" aria-expanded="false" aria-controls="sidebarCustomers">
+       <span class="nav-icon">
+            <iconify-icon icon="solar:users-group-two-rounded-bold-duotone"></iconify-icon>
+       </span>
+                    <span class="nav-text"> Customers </span>
+                </a>
+                <div class="collapse" id="sidebarCustomers">
+                    <ul class="nav sub-navbar-nav">
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{ route('admin.customers.index') }}">List</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
             <!-- ========== Blog Posts Menu Start ========== -->
             <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarBlog" data-bs-toggle="collapse"
@@ -192,6 +208,12 @@
                         </li>
                     </ul>
                 </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.chat.index') }}">
+                    <span class="nav-icon"><iconify-icon icon="solar:chat-line-bold-duotone"></iconify-icon></span>
+                    <span class="nav-text"> Support Chat </span>
+                </a>
             </li>
             <li class="nav-item ">
                 <a class="nav-link " href="{{route('admin.reviews.index')}}">

@@ -48,6 +48,8 @@
 
 
 </div>
+<script src="{{asset('assets/storefront/js/vendor/jquery-3.6.0.min.js')}}"></script>
+
 <script src="https://cdn.tiny.cloud/1/456eizv25xorupt47tepkzopmaeapg49dxyklm5u5yarht9b/tinymce/8/tinymce.min.js"
         referrerpolicy="origin" crossorigin="anonymous"></script>
 <!-- Admin CRUD Utilities -->

@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ChatbotController;
 use App\Http\Controllers\Admin\ChatbotReplyController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReviewController;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,8 @@ Route::name('api.')->group(function () {
     Route::get('/chatbots/api', [ChatbotController::class, 'getDataForGrid'])->name('chatbot.data');
 
     Route::get('/chatbot-replies/api', [ChatbotReplyController::class, 'getDataForGrid'])->name('chatbot-replies.data');
+
+    Route::get('customers/api', [CustomerController::class, 'getDataForGrid'])->name('customers.data');
 
     Route::get('/blogs/api', [BlogPostController::class, 'getDataForGrid'])->name('blogs.data');
 });

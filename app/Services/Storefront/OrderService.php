@@ -22,6 +22,7 @@ class OrderService
 
             // 1. Create a single row main
             $order = Order::create([
+                'customer_id'     => $customerData['customer_id'],
                 'total_price'     => $cartData['total'],
                 'status'          => 'pending',
                 'first_name'      => $customerData['first_name'],

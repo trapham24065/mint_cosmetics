@@ -15,6 +15,7 @@
     "laravel/framework": "^12.0",
     "laravel/tinker": "^2.10.1",
     "maatwebsite/excel": "^3.1",
+    "musonza/chat": "^6.5",
     "symfony/browser-kit": "^7.3",
     "symfony/http-client": "^7.3"
   },

@@ -45,3 +45,6 @@ php artisan schedule:work
 This command will keep the terminal open and automatically trigger scheduled tasks every minute, allowing you to test
 whether the order deletion
 function is working as expected (orders older than 15 minutes will be deleted every minute).
+
+Package:
+composer require musonza/chat
