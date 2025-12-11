@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ChatbotRule;
 use App\Models\Guest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -9,40 +10,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Musonza\Chat\Facades\ChatFacade;
 use Illuminate\Http\JsonResponse;
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Services\Storefront\ChatbotService;
 
 class ChatController extends Controller
 {
-
-    /**
-     *
-     * Show chat interface.
-     */
-    public function index(): View|RedirectResponse
-    {
-        $participant = $this->getParticipant();
-
-        $admin = User::first();
-
-        if (!$admin) {
-            return redirect()->route('home')->with('error', 'The system is not ready.');
-        }
-
-        $conversation = $participant->conversations->sortByDesc('updated_at')->first();
-
-        $messages = [];
-        if ($conversation) {
-            $messages = $conversation->messages()
-                ->with('participation.messageable')
-                ->orderBy('created_at', 'desc')
-                ->limit(50)
-                ->get()
-                ->reverse();
-        }
-        return view('storefront.chat.index', compact('conversation', 'messages', 'participant'));
-    }
 
     public function sendMessage(Request $request, ChatbotService $chatbotService): JsonResponse
     {
@@ -163,6 +134,12 @@ class ChatController extends Controller
             ['session_id' => $sessionId],
             ['name' => 'Visitors', 'ip_address' => request()->ip()]
         );
+    }
+
+    public function getSuggestions(): JsonResponse
+    {
+        $suggestions = ChatbotRule::where('is_active', true)->pluck('keyword');
+        return response()->json($suggestions);
     }
 
 }

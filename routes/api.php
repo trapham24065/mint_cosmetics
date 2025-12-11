@@ -15,7 +15,9 @@ use App\Http\Controllers\Admin\ChatbotReplyController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\SupplierController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\OrderController;
@@ -42,4 +44,8 @@ Route::name('api.')->group(function () {
     Route::get('customers/api', [CustomerController::class, 'getDataForGrid'])->name('customers.data');
 
     Route::get('/blogs/api', [BlogPostController::class, 'getDataForGrid'])->name('blogs.data');
+
+    Route::get('/suppliers/api', [SupplierController::class, 'getDataForGrid'])->name('suppliers.data');
+
+    Route::get('/inventories/api', [PurchaseOrderController::class, 'getDataForGrid'])->name('inventories.data');
 });

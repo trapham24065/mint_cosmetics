@@ -20,12 +20,14 @@ use App\Http\Controllers\Admin\{AttributeController,
     DashboardController,
     OrderController,
     ProductController,
+    PurchaseOrderController,
     ReviewController,
     ScraperController,
-    SettingsController
+    SettingsController,
+    ChatController as AdminChatController,
+    SupplierController
 };
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\ChatController as AdminChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -113,3 +115,21 @@ Route::controller(AdminChatController::class)->prefix('chat')->name('chat.')->gr
     Route::post('/{conversation}/reply', 'reply')->name('reply');
     Route::get('/{conversation}/fetch', 'fetchMessages')->name('fetch');
 });
+
+Route::resource('suppliers', SupplierController::class);
+Route::post('suppliers/bulk-update', [SupplierController::class, 'bulkUpdate'])->name('suppliers.bulkUpdate');
+
+Route::controller(PurchaseOrderController::class)
+    ->prefix('inventory')
+    ->name('inventory.')
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/create', 'create')->name('create');
+        Route::post('/', 'store')->name('store');
+
+        Route::get('/{purchaseOrder}', 'show')->name('show');
+
+        // Actions
+        Route::put('/{purchaseOrder}/approve', 'approve')->name('approve');
+        Route::put('/{purchaseOrder}/cancel', 'cancel')->name('cancel');
+    });

@@ -13,8 +13,6 @@ use Illuminate\View\View;
 use App\Models\Product;
 use App\Models\BlogPost;
 
-// Import Product model
-
 class HomeController
 {
 

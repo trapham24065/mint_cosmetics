@@ -62,7 +62,7 @@
 <!-- Plugins JS -->
 <script src="{{asset('assets/storefront/js/plugins/swiper-bundle.min.js')}}"></script>
 <script src="{{asset('assets/storefront/js/plugins/fancybox.min.js')}}"></script>
-<script src="{{asset('assets/storefront/js/plugins/range-slider.js')}}"></script>
+{{--<script src="{{asset('assets/storefront/js/plugins/range-slider.js')}}"></script>--}}
 <script src="{{asset('assets/storefront/js/plugins/jquery.nice-select.min.js')}}"></script>
 <!-- Custom Main JS -->
 <script src="{{asset('assets/storefront/js/main.js')}}"></script>

@@ -132,6 +132,44 @@
                 </div>
             </li>
             <li class="nav-item">
+                <a class="nav-link menu-arrow" href="#sidebarSuppliers" data-bs-toggle="collapse"
+                   role="button" aria-expanded="false" aria-controls="sidebarSuppliers">
+                   <span class="nav-icon">
+                        <iconify-icon icon="solar:box-minimalistic-bold-duotone"></iconify-icon>
+                   </span>
+                    <span class="nav-text"> Suppliers </span>
+                </a>
+                <div class="collapse" id="sidebarSuppliers">
+                    <ul class="nav sub-navbar-nav">
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{route('admin.suppliers.index')}}">List</a>
+                        </li>
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{route('admin.suppliers.create')}}">Add</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link menu-arrow" href="#sidebarInventory" data-bs-toggle="collapse"
+                   role="button" aria-expanded="false" aria-controls="sidebarInventory">
+                   <span class="nav-icon">
+                        <iconify-icon icon="solar:warehouse-bold-duotone"></iconify-icon>
+                   </span>
+                    <span class="nav-text"> Inventory </span>
+                </a>
+                <div class="collapse" id="sidebarInventory">
+                    <ul class="nav sub-navbar-nav">
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{route('admin.inventory.index')}}">Purchase Orders</a>
+                        </li>
+                        <li class="sub-nav-item">
+                            <a class="sub-nav-link" href="{{route('admin.inventory.create')}}">Import Stock</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link menu-arrow" href="#sidebarOrders" data-bs-toggle="collapse" role="button"
                    aria-expanded="false" aria-controls="sidebarOrders">
                                    <span class="nav-icon">
