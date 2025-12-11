@@ -13,7 +13,7 @@
                             <h2 class="page-header-title">We, are Brancy</h2>
                             <h4 class="page-header-sub-title">Best cosmetics provider</h4>
                             <p class="page-header-desc">Lorem ipsum dolor sit amet, consectetur adipiscing elit ut
-                                aliquam, purus sit amet luctus venenatis.</p>
+                                aliquot, purus sit amet quits venation.</p>
                         </div>
                     </div>
                     <div class="col-md-5 col-lg-5 col-xl-7">

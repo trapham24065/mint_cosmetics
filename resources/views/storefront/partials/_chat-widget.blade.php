@@ -1,7 +1,7 @@
 <div id="chat-widget" class="chat-widget"
      data-send-url="{{ route('chat.send') }}"
      data-fetch-url="{{ route('chat.fetch') }}"
-     data-suggestions-url="{{ route('chatbot.suggestions') }}"
+     data-suggestions-url="{{ route('chat.suggestions') }}"
      data-csrf-token="{{ csrf_token() }}"
      style="display: none;">
 
@@ -56,7 +56,7 @@
     /* ===== MAIN CONTAINER ===== */
     .chat-widget {
         position: fixed;
-        bottom: 20px;
+        bottom: 80px;
         right: 20px;
         z-index: 1000;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
