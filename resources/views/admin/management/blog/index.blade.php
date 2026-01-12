@@ -5,7 +5,7 @@
         <div class="card">
             <div class="d-flex card-header justify-content-between align-items-center">
                 <h4 class="card-title">Blog Management</h4>
-                <a href="{{ route('admin.blog.create') }}" class="btn btn-sm btn-primary">
+                <a href="{{ route('admin.blog-posts.create') }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-plus me-1"></i> Add Blog
                 </a>
             </div>
