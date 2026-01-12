@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckLockScreen;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             // Define the route group for the admin panel
-            Route::middleware(['web', 'auth.admin'])
+            Route::middleware(['web', 'auth.admin', CheckLockScreen::class])
                 ->prefix('admin')
                 ->name('admin.')
                 ->group(base_path('routes/admin.php'));
@@ -30,6 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'guest.customer' => \App\Http\Middleware\RedirectIfCustomerAuthenticated::class,
             'auth.customer'  => \App\Http\Middleware\AuthenticateCustomer::class,
             'auth.admin'     => \App\Http\Middleware\AuthenticateAdmin::class,
+            'locked'         => \App\Http\Middleware\CheckLockScreen::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

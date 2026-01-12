@@ -159,32 +159,25 @@
                 <div class="dropdown topbar-item">
                     <a type="button" class="topbar-button" id="page-header-user-dropdown" data-bs-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                                        <span class="d-flex align-items-center">
-                                             <img class="rounded-circle" width="32"
-                                                  src="{{asset('assets/admin/images/users/avatar-1.jpg')}}"
-                                                  alt="avatar-3">
-                                        </span>
+                            <span class="d-flex align-items-center">
+                                 <img class="rounded-circle" width="32"
+                                      src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('assets/admin/images/users/avatar-1.jpg') }}"
+                                      alt="{{ auth()->user()->name ?? 'Admin Avatar' }}"
+                                      style="object-fit: cover; height: 32px;">
+                            </span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
                         <h6 class="dropdown-header">Welcome Gaston!</h6>
-                        <a class="dropdown-item" href="pages-profile.html">
+                        <a class="dropdown-item" href="{{ route('admin.profile.index') }}">
                             <i class="bx bx-user-circle text-muted fs-18 align-middle me-1"></i><span
                                 class="align-middle">Profile</span>
                         </a>
-                        <a class="dropdown-item" href="apps-chat.html">
+                        <a class="dropdown-item" href="{{ route('admin.chat.index') }}">
                             <i class="bx bx-message-dots text-muted fs-18 align-middle me-1"></i><span
                                 class="align-middle">Messages</span>
                         </a>
-
-                        <a class="dropdown-item" href="pages-pricing.html">
-                            <i class="bx bx-wallet text-muted fs-18 align-middle me-1"></i><span class="align-middle">Pricing</span>
-                        </a>
-                        <a class="dropdown-item" href="pages-faqs.html">
-                            <i class="bx bx-help-circle text-muted fs-18 align-middle me-1"></i><span
-                                class="align-middle">Help</span>
-                        </a>
-                        <a class="dropdown-item" href="auth-lock-screen.html">
+                        <a class="dropdown-item" href="{{ route('admin.lock') }}">
                             <i class="bx bx-lock text-muted fs-18 align-middle me-1"></i><span class="align-middle">Lock screen</span>
                         </a>
 

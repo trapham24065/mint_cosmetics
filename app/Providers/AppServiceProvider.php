@@ -24,10 +24,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //hàm để chạy được js , css trên ngrok
-        if (app()->environment('production') || str_contains(request()->getHost(), 'ngrok-free.app')) {
-            URL::forceScheme('https');
-        }
     }
 
 }

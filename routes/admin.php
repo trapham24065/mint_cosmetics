@@ -18,8 +18,10 @@ use App\Http\Controllers\Admin\{AttributeController,
     CouponController,
     CustomerController,
     DashboardController,
+    LockScreenController,
     OrderController,
     ProductController,
+    ProfileController,
     PurchaseOrderController,
     ReviewController,
     ScraperController,
@@ -45,7 +47,7 @@ Route::resources([
     'attributes' => AttributeController::class,
     'brands'     => BrandController::class,
     'coupons'    => CouponController::class,
-    'blog-posts' => BlogPostController::class, // Note: name prefix is admin.blog-posts.*
+    'blog-posts' => BlogPostController::class,
 ]);
 
 // --- Category Management ---
@@ -133,3 +135,12 @@ Route::controller(PurchaseOrderController::class)
         Route::put('/{purchaseOrder}/approve', 'approve')->name('approve');
         Route::put('/{purchaseOrder}/cancel', 'cancel')->name('cancel');
     });
+//Admin profile
+Route::controller(ProfileController::class)->prefix('profile')->name('profile.')->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::put('/update', 'update')->name('update');
+    Route::put('/password', 'updatePassword')->name('password');
+});
+// --- LOCK SCREEN ROUTES ---
+Route::get('/lock-screen', [LockScreenController::class, 'lock'])->name('lock');
+Route::post('/unlock', [LockScreenController::class, 'unlock'])->name('unlock');
