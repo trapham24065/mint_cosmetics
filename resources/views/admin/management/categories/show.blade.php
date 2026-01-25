@@ -7,7 +7,7 @@
                 <div class="card">
                     <div class="card-body text-center">
                         <img
-                            src="{{ $category->image ? asset('storage/' . $category->image) : asset('assets/admin/images/default-category.png') }}"
+                            src="{{ $category->image ? asset('storage/' . $category->image) : asset('assets/admin/images/default.webp') }}"
                             alt="{{ $category->name }}" class="img-thumbnail rounded-circle avatar-lg mb-3">
                         <h4 class="card-title">{{ $category->name }}</h4>
                         <p class="text-muted">ID: {{ $category->id }}</p>

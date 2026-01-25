@@ -52,7 +52,7 @@
                             id: 'image',
                             name: 'Image',
                             formatter: (cell) => {
-                                const imageUrl = cell ? `/storage/${cell}` : `{{ asset('assets/admin/images/default-product.png') }}`;
+                                const imageUrl = cell ? `/storage/${cell}` : `{{ asset('assets/admin/images/default.webp') }}`;
                                 return gridjs.html(`<img src="${imageUrl}" alt="Product" class="avatar-sm">`);
                             }
                         },

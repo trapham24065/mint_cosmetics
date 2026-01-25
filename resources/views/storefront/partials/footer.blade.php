@@ -7,10 +7,18 @@
                 <div class="col-md-6 col-lg-4">
                     <div class="widget-item">
                         <div class="widget-about">
-                            <a class="widget-logo" href="{{route('home')}}">
-                                <img src="{{asset('assets/storefront/images/logo.webp')}}" width="95" height="68"
-                                     alt="Logo">
-                            </a>
+                            @if(setting('site_logo'))
+                                <img class="logo-main"
+                                     src="{{ asset('storage/' . setting('site_logo')) }}"
+                                     width="95" height="68"
+                                     alt="{{ setting('site_name', 'Logo') }}"
+                                     style="object-fit: contain;">
+                            @else
+                                <img class="logo-main"
+                                     src="{{ asset('assets/storefront/images/logo.webp') }}"
+                                     width="95" height="68"
+                                     alt="Logo" />
+                            @endif
                             <p class="desc">Lorem Ipsum is simply dummy text of the printing and typesetting industry.
                                 Lorem Ipsum has been.</p>
                         </div>
@@ -20,14 +28,12 @@
                     <div class="widget-item">
                         <h4 class="widget-title">Information</h4>
                         <ul class="widget-nav">
-                            <li><a href="blog.html">Blog</a></li>
-                            <li><a href="about-us.html">About us</a></li>
-                            <li><a href="contact.html">Contact</a></li>
-                            <li><a href="faq.html">Privacy</a></li>
-                            <li><a href="account-login.html">Login</a></li>
-                            <li><a href="product.html">Shop</a></li>
-                            <li><a href="my-account.html">My Account</a></li>
-                            <li><a href="faq.html">FAQs</a></li>
+                            {{--                            <li><a href="{{route('blog.index')}}">Blog</a></li>--}}
+                            <li><a href="{{route('about-us.index')}}">About us</a></li>
+                            <li><a href="{{route('contact.index')}}">Contact</a></li>
+                            <li><a href="{{route('customer.login')}}">Login</a></li>
+                            <li><a href="{{route('shop')}}">Shop</a></li>
+                            <li><a href="{{route('customer.dashboard')}}">My Account</a></li>
                         </ul>
                     </div>
                 </div>
@@ -52,8 +58,8 @@
     <div class="footer-bottom">
         <div class="container pt-0 pb-0">
             <div class="footer-bottom-content">
-                <p class="copyright">© 2022 Brancy. Made with <i class="fa fa-heart"></i> by <a target="_blank"
-                                                                                                href="https://themeforest.net/user/codecarnival">Codecarnival.</a>
+                <p class="copyright">© 2026 Mint Cosmetics. Made with <i class="fa fa-heart"></i> by <a target="_blank"
+                                                                                                        href="https://www.facebook.com/phamtra.1212">PhamTra</a>
                 </p>
             </div>
         </div>

@@ -1,8 +1,3 @@
-/**
- * Theme: Larkon - Responsive Bootstrap 5 Admin Dashboard
- * Author: Techzaa
- * Module/App: Dashboard
- */
 
 //
 // Conversions
@@ -224,7 +219,11 @@ chart.render();
 
 class VectorMap {
   initWorldMapMarker() {
-    const map = new jsVectorMap({
+    const mapEl = document.querySelector('#world-map-markers');
+
+    if (!mapEl) return;
+
+    new jsVectorMap({
       map: 'world',
       selector: '#world-map-markers',
       zoomOnScroll: true,

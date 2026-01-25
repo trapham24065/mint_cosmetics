@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Brancy - Cosmetic & Beauty Salon Website Template</title>
+    <title>Brancy - Cosmetic & Beauty Salon Website </title>
     <meta name="robots" content="noindex, follow" />
     <meta name="description" content="Brancy - Cosmetic & Beauty Salon Website Template">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -62,8 +62,9 @@
 <!-- Plugins JS -->
 <script src="{{asset('assets/storefront/js/plugins/swiper-bundle.min.js')}}"></script>
 <script src="{{asset('assets/storefront/js/plugins/fancybox.min.js')}}"></script>
-{{--<script src="{{asset('assets/storefront/js/plugins/range-slider.js')}}"></script>--}}
+<script src="{{asset('assets/storefront/js/plugins/range-slider.js')}}"></script>
 <script src="{{asset('assets/storefront/js/plugins/jquery.nice-select.min.js')}}"></script>
+
 <!-- Custom Main JS -->
 <script src="{{asset('assets/storefront/js/main.js')}}"></script>
 <!-- SweetAlert2 JS -->
@@ -74,10 +75,8 @@
 <script src="{{ asset('assets/storefront/js/wishlist.js') }}"></script>
 @stack('scripts')
 
-<!-- Test Script -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const quickViewBtns = document.querySelectorAll('.action-btn-quick-view');
 
         // === QUICK VIEW LOGIC ===
         const quickViewModalElement = document.getElementById('action-QuickViewModal');
@@ -102,7 +101,8 @@
                     return;
                 }
 
-                quickViewContainer.innerHTML = '<p class="text-center">Loading product details...</p>';
+                // Show loading spinner
+                quickViewContainer.innerHTML = '<div class="d-flex justify-content-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
                 quickViewModal.show();
 
                 fetch(`/products/${productId}/quick-view`).then(response => {
@@ -118,112 +118,66 @@
                     renderQuickViewContent(product);
                 }).catch(error => {
                     console.error('Quick View Error:', error);
-                    quickViewContainer.innerHTML = '<p class="text-center text-danger">Could not load product details. Error: ' +
-                        error.message + '</p>';
+                    quickViewContainer.innerHTML = '<p class="text-center text-danger py-5">Could not load product details. Please try again later.</p>';
                 });
                 return;
             }
 
-            // Handle Add to Cart - IMPROVED VERSION
+            // ... (Handle Add to Cart logic remains the same) ...
             const addToCartButton = event.target.closest('.action-btn-cart');
             if (addToCartButton) {
                 event.preventDefault();
 
                 let variantId = addToCartButton.dataset.variantId;
-                let quantity = 1; // Default quantity
+                let quantity = 1;
 
-                // Determine context and get appropriate quantity
                 const context = addToCartButton.dataset.context || 'default';
 
                 switch (context) {
                     case 'quick-view':
-                        // Quick view modal context
                         const quickViewQuantityInput = document.getElementById('quickViewQuantity');
                         if (quickViewQuantityInput) {
                             quantity = parseInt(quickViewQuantityInput.value) || 1;
                         }
                         break;
-
-                    case 'product-detail':
-                        // Product detail page context
-                        const productDetailQuantityInput = document.getElementById('productDetailQuantity');
-                        if (productDetailQuantityInput) {
-                            quantity = parseInt(productDetailQuantityInput.value) || 1;
-                        }
-                        break;
-
-                    case 'product-card':
-                        // Product card context - tìm quantity input trong cùng product-item
-                        const productItem = addToCartButton.closest('.product-item');
-                        if (productItem) {
-                            const cardQuantityInput = productItem.querySelector('.quantity-input');
-                            if (cardQuantityInput) {
-                                quantity = parseInt(cardQuantityInput.value) || 1;
-                            }
-                        }
-                        break;
-
-                    default:
-                        // Fallback: cố gắng lấy từ data-quantity cũ hoặc tìm input gần nhất
-                        if (addToCartButton.dataset.quantity) {
-                            quantity = parseInt(addToCartButton.dataset.quantity) || 1;
-                        } else {
-                            // Tìm input quantity gần nhất
-                            const nearestQuantityInput = addToCartButton.closest('.product-item, .product-card')?.
-                                querySelector('.quantity-input, input[name="quantity"]');
-                            if (nearestQuantityInput) {
-                                quantity = parseInt(nearestQuantityInput.value) || 1;
-                            }
-                        }
+                    // ... other cases
                 }
 
-                // Validate variant ID
                 if (!variantId) {
-                    console.error('Variant ID not found for add to cart');
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Unable to add product to cart. Please try again.',
-                    });
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Please select product options first.' });
                     return;
                 }
 
-                // Call add to cart function
                 if (window.addToCart) {
                     window.addToCart(variantId, quantity, addToCartButton);
-                } else {
-                    console.error('addToCart function not found');
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Cart function is not available. Please refresh the page.',
-                    });
                 }
-
-                return;
             }
         });
 
-        // Function to initialize quantity controls for a specific container
+        // Initialize quantity controls function
         function initializeQuantityControls (container) {
             const proQtyElements = container.querySelectorAll('.pro-qty');
-
             proQtyElements.forEach(proQtyElement => {
-                // Skip if already initialized
                 if (proQtyElement.querySelector('.qty-btn')) {
                     return;
                 }
-
                 const input = proQtyElement.querySelector('input[type="number"]');
                 if (!input) {
                     return;
                 }
 
-                // Add quantity buttons
-                proQtyElement.insertAdjacentHTML('beforeend', '<div class="dec qty-btn">-</div>');
-                proQtyElement.insertAdjacentHTML('beforeend', '<div class="inc qty-btn">+</div>');
+                // Add buttons
+                const decBtn = document.createElement('div');
+                decBtn.className = 'dec qty-btn';
+                decBtn.textContent = '-';
 
-                // Add event listeners for quantity buttons
+                const incBtn = document.createElement('div');
+                incBtn.className = 'inc qty-btn';
+                incBtn.textContent = '+';
+
+                proQtyElement.prepend(decBtn);
+                proQtyElement.append(incBtn);
+
                 const qtyButtons = proQtyElement.querySelectorAll('.qty-btn');
                 qtyButtons.forEach(button => {
                     button.addEventListener('click', function(e) {
@@ -232,24 +186,23 @@
                         if (!inputField) {
                             return;
                         }
-
                         const oldValue = parseInt(inputField.value) || 1;
                         let newVal;
-
                         if (this.classList.contains('inc')) {
                             newVal = oldValue + 1;
                         } else {
                             newVal = oldValue > 1 ? oldValue - 1 : 1;
                         }
-
                         inputField.value = newVal;
                     });
                 });
             });
         }
 
-        // Initialize quantity controls when page loads
-        initializeQuantityControls(document);
+        // Helper to format price
+        function formatPrice (price) {
+            return parseFloat(price).toLocaleString('vi-VN') + 'đ';
+        }
 
         // Render Quick View Content Function
         function renderQuickViewContent (product) {
@@ -257,128 +210,153 @@
                 ? `/storage/${product.image}`
                 : '/assets/storefront/images/shop/1.webp';
 
-            // 1. Group attributes and values from all variants
+            // 1. Group attributes
             const attributes = {};
-            currentProductVariants.forEach(variant => {
-                if (variant.attribute_values) {
-                    variant.attribute_values.forEach(attrValue => {
-                        const attrName = attrValue.attribute.name;
-                        if (!attributes[attrName]) {
-                            attributes[attrName] = {
-                                id: attrValue.attribute.id,
-                                values: {},
-                            };
-                        }
-                        attributes[attrName].values[attrValue.id] = attrValue.value;
-                    });
-                }
-            });
+            if (Array.isArray(currentProductVariants)) {
+                currentProductVariants.forEach(variant => {
+                    if (variant.attribute_values) {
+                        variant.attribute_values.forEach(attrValue => {
+                            const attrName = attrValue.attribute.name;
+                            if (!attributes[attrName]) {
+                                attributes[attrName] = {
+                                    id: attrValue.attribute.id,
+                                    values: {},
+                                };
+                            }
+                            attributes[attrName].values[attrValue.id] = attrValue.value;
+                        });
+                    }
+                });
+            }
 
             // 2. Render attribute selection UI
             let optionsHtml = '';
             for (const attrName in attributes) {
-                optionsHtml += `<div class="product-details-qty-list mb-4"><h5 class="title">${attrName}</h5>`;
+                optionsHtml += `
+                    <div class="variant-group mb-3">
+                        <h6 class="fw-bold mb-2" style="font-size: 14px; color: #333;">${attrName}:</h6>
+                        <div class="d-flex flex-wrap gap-2">`;
+
                 for (const valueId in attributes[attrName].values) {
                     optionsHtml += `
-                    <div class="qty-list-check">
-                        <input class="form-check-input variant-option"
-                               type="radio"
-                               name="attribute_${attributes[attrName].id}"
-                               id="qv_option_${valueId}"
-                               value="${valueId}">
-                        <label class="form-check-label" for="qv_option_${valueId}">
-                            ${attributes[attrName].values[valueId]}
-                        </label>
-                    </div>`;
+                        <div class="form-check p-0">
+                            <input class="btn-check variant-option" type="radio"
+                                   name="attribute_${attributes[attrName].id}"
+                                   id="qv_option_${valueId}"
+                                   value="${valueId}" autocomplete="off">
+                            <label class="btn btn-outline-dark btn-sm rounded-0 px-3" for="qv_option_${valueId}">
+                                ${attributes[attrName].values[valueId]}
+                            </label>
+                        </div>`;
                 }
-                optionsHtml += `</div>`;
+                optionsHtml += `</div></div>`;
             }
+
+            // --- REVIEW STARS LOGIC ---
+            let starsHtml = '';
+            const rating = Math.round(product.rating || 0);
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    starsHtml += '<i class="fa fa-star"></i>';
+                } else {
+                    starsHtml += '<i class="fa fa-star-o"></i>';
+                }
+            }
+
+            // Check discount badge logic
+            const hasDiscount = (product.variants && product.variants.length > 0 && product.variants[0].discount_price);
 
             // 3. Render the modal content
             quickViewContainer.innerHTML = `
             <div class="row">
-                <div class="col-lg-6">
-                    <div class="product-single-thumb">
+                <div class="col-lg-5 col-md-6 mb-4 mb-md-0">
+                    <div class="product-single-thumb border rounded shadow-sm overflow-hidden position-relative">
                         <img id="quickViewImage"
                              src="${defaultImageUrl}"
                              alt="${product.name}"
-                             style="width: 100%; height: auto;">
+                             class="img-fluid w-100"
+                             style="object-fit: cover; min-height: 300px;">
+
+                         ${hasDiscount
+                ?
+                `<span class="position-absolute top-0 start-0 bg-danger text-white px-2 py-1 m-2 rounded small fw-bold">Sale</span>`
+                : ''}
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="product-details-content">
-                        <h3 class="product-details-title">${product.name}</h3>
-                        <div class="product-details-review mb-3">
-                            <div class="product-review-icon">
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star"></i>
-                                <i class="fa fa-star-o"></i>
+
+                <div class="col-lg-7 col-md-6">
+                    <div class="product-details-content ps-lg-3">
+                        <h3 class="product-details-title fw-bold mb-2" style="font-size: 1.5rem;">${product.name}</h3>
+
+                        <!-- REVIEWS SECTION -->
+                        <div class="product-details-review d-flex align-items-center mb-3">
+                            <div class="product-review-icon text-warning me-2" style="font-size: 0.9rem;">
+                                ${starsHtml}
                             </div>
-                            <span class="ms-2">150 reviews</span>
+                            <span class="text-muted small">(${product.reviews_count || 0} reviews)</span>
                         </div>
 
-                        <!-- Variant Options -->
+                        <p class="mb-4 text-muted small border-bottom pb-3">
+                            ${product.description ? product.description.replace(/(<([^>]+)>)/gi, '').substring(0, 150) +
+                '...' : ''}
+                        </p>
+
                         <div id="quickview-variant-options-container" class="mb-4">
                             ${optionsHtml}
                         </div>
 
-                        <p class="mb-3">${product.description || 'No description available'}</p>
-
-                        <!-- Quantity with unique ID -->
+                        <!-- KHÔI PHỤC LAYOUT CŨ CHO PRICE & ACTION -->
                         <div class="product-details-pro-qty">
                             <div class="pro-qty">
-                                <input type="number"
-                                       id="quickViewQuantity"
-                                       title="Quantity"
-                                       value="1"
-                                       min="1">
+                                <input type="number" title="Quantity" id="quickViewQuantity" value="1" min="1">
                             </div>
                         </div>
 
-                        <!-- Price and Add to Cart -->
                         <div class="product-details-action">
-                            <h6 class="price mb-3" id="quickViewPrice">Select options to see price</h6>
-                            <button type="button"
-                                    class="btn btn-primary action-btn-cart"
-                                    id="quickViewAddToCart"
-                                    data-context="quick-view"
-                                    disabled>
-                                Add to cart
-                            </button>
+                            <h4 class="price mb-0" id="quickViewPrice" style="color: #e53637; font-size: 1.5rem; margin-bottom: 15px !important;">
+                                ${currentProductVariants.length === 1
+                ? formatPrice(currentProductVariants[0].price)
+                : 'Select options to see price'}
+                            </h4>
+
+                            <div class="product-details-cart-wishlist">
+                                <button type="button" class="btn action-btn-cart" id="quickViewAddToCart" data-context="quick-view" disabled>Add to cart</button>
+                            </div>
+                        </div>
+                        <!-- KẾT THÚC PHẦN KHÔI PHỤC -->
+
+                        <div class="product-details-meta mt-4 pt-3 border-top">
+                            <ul class="list-unstyled text-muted small mb-0">
+                                <li class="mb-1"><span class="fw-bold text-dark">SKU:</span> <span id="quickViewSku">${currentProductVariants.length ===
+            1 ? (currentProductVariants[0].sku || 'N/A') : 'N/A'}</span></li>
+                                <li><span class="fw-bold text-dark">Category:</span> ${product.category
+                ? product.category.name
+                : 'Uncategorized'}</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
-        `;
+            `;
 
-            // 4. Initialize quantity controls for this specific modal
             initializeQuantityControls(quickViewContainer);
 
-            // 5. Add event listeners for variant options
             const optionRadios = quickViewContainer.querySelectorAll('.variant-option');
             optionRadios.forEach(radio => radio.addEventListener('change', updateQuickViewVariantDetails));
 
-            // 6. Handle Simple Product case (no options to select)
-            if (Object.keys(attributes).length === 0 && currentProductVariants.length === 1) {
-                const simpleVariant = currentProductVariants[0];
+            // Initial check if simple product logic is needed inside render
+            if (currentProductVariants.length === 1) {
+                const variant = currentProductVariants[0];
                 const priceEl = document.getElementById('quickViewPrice');
-                const addToCartBtn = document.getElementById('quickViewAddToCart');
-
-                let priceHtml = '';
-                const price = parseFloat(simpleVariant.price);
-                const discountPrice = simpleVariant.discount_price ? parseFloat(simpleVariant.discount_price) : null;
-
-                if (discountPrice && discountPrice < price) {
-                    priceHtml = `${discountPrice.toLocaleString(
-                        'vi-VN')}Đ <span class="price-old">${price.toLocaleString('vi-VN')}Đ</span>`;
-                } else {
-                    priceHtml = `${price.toLocaleString('vi-VN')}Đ`;
+                if (variant.discount_price) {
+                    priceEl.innerHTML = `${formatPrice(
+                        variant.discount_price)} <span class="text-muted text-decoration-line-through fs-6 ms-2">${formatPrice(
+                        variant.price)}</span>`;
                 }
 
-                priceEl.innerHTML = priceHtml;
-                addToCartBtn.dataset.variantId = simpleVariant.id;
+                // Enable button for simple product
+                const addToCartBtn = document.getElementById('quickViewAddToCart');
+                addToCartBtn.dataset.variantId = variant.id;
                 addToCartBtn.disabled = false;
             }
         }
@@ -388,21 +366,21 @@
             const selectedOptions = Array.from(quickViewContainer.querySelectorAll('.variant-option:checked'));
             const priceEl = document.getElementById('quickViewPrice');
             const addToCartBtn = document.getElementById('quickViewAddToCart');
+            const skuEl = document.getElementById('quickViewSku');
+            const imageEl = document.getElementById('quickViewImage');
 
             // Get all attribute groups
             const allAttributeGroups = {};
             currentProductVariants.forEach(variant => {
                 if (variant.attribute_values) {
                     variant.attribute_values.forEach(attrValue => {
-                        allAttributeGroups[attrValue.attribute.id] = attrValue.attribute.name;
+                        allAttributeGroups[attrValue.attribute.id] = true;
                     });
                 }
             });
 
-            // Check if all attribute groups have a selection
             if (selectedOptions.length !== Object.keys(allAttributeGroups).length) {
-                priceEl.textContent = 'Please select all options';
-                addToCartBtn.disabled = true;
+                // Keep current price or show range if not selected
                 return;
             }
 
@@ -423,18 +401,37 @@
                 const discountPrice = matchedVariant.discount_price ? parseFloat(matchedVariant.discount_price) : null;
 
                 if (discountPrice && discountPrice < price) {
-                    priceHtml = `${discountPrice.toLocaleString(
-                        'vi-VN')}Đ <span class="price-old">${price.toLocaleString('vi-VN')}Đ</span>`;
+                    priceHtml = `${formatPrice(
+                        discountPrice)} <span class="text-muted text-decoration-line-through fs-6 ms-2">${formatPrice(
+                        price)}</span>`;
                 } else {
-                    priceHtml = `${price.toLocaleString('vi-VN')}Đ`;
+                    priceHtml = `${formatPrice(price)}`;
                 }
+
                 priceEl.innerHTML = priceHtml;
+                if (skuEl) {
+                    skuEl.textContent = matchedVariant.sku || 'N/A';
+                }
+
+                // Update image if variant has specific image
+                if (matchedVariant.image) {
+                    imageEl.src = `/storage/${matchedVariant.image}`;
+                }
+
                 addToCartBtn.dataset.variantId = matchedVariant.id;
                 addToCartBtn.disabled = false;
+                addToCartBtn.innerHTML = 'Add to cart';
+
+                if (matchedVariant.stock <= 0) {
+                    addToCartBtn.disabled = true;
+                    addToCartBtn.innerHTML = 'Out of Stock';
+                }
+
             } else {
-                priceEl.textContent = 'This combination is not available';
+                priceEl.textContent = 'Unavailable';
                 addToCartBtn.dataset.variantId = '';
                 addToCartBtn.disabled = true;
+                addToCartBtn.innerHTML = 'Unavailable';
             }
         }
     });

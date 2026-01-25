@@ -7,6 +7,7 @@
  * @date 8/27/2025
  * @time 12:54 AM
  */
+
 declare(strict_types=1);
 
 namespace App\Services\Admin;
@@ -18,6 +19,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ProductService
 {
@@ -121,6 +123,15 @@ class ProductService
                 $variant->price = $data['price'];
                 $variant->stock = $data['stock'];
                 $variant->discount_price = $data['discount_price'] ?? null;
+
+                // ✅ FIX: Lưu SKU cho simple product
+                if (!empty($data['sku'])) {
+                    $variant->sku = $data['sku'];
+                } elseif (!$variant->sku) {
+                    // Nếu không có SKU và variant chưa có SKU, tự sinh
+                    $variant->sku = $this->generateSku($product->name);
+                }
+
                 $variant->save();
 
                 // Delete all other variants except this one (handles switching from variable to simple)
@@ -141,10 +152,36 @@ class ProductService
 
                 // Update existing variants
                 if (!empty($data['variants'])) {
-                    foreach ($data['variants'] as $id => $variantData) {
-                        $variant = $product->variants()->find($id);
-                        if ($variant) {
-                            $variant->update($variantData);
+                    // ✅ FIX: Sử dụng đúng cấu trúc dữ liệu
+                    foreach ($data['variants'] as $variantData) {
+                        // Lấy ID từ trong $variantData, không phải từ key
+                        $variantId = $variantData['id'] ?? null;
+                        if ($variantId) {
+                            $variant = $product->variants()->find($variantId);
+                            if ($variant) {
+                                // Cập nhật các trường
+                                $variant->price = $variantData['price'];
+                                $variant->stock = $variantData['stock'];
+                                $variant->discount_price = $variantData['discount_price'] ?? null;
+
+                                // ✅ FIX: Lưu SKU cho variant
+                                if (!empty($variantData['sku'])) {
+                                    $variant->sku = $variantData['sku'];
+                                } elseif (!$variant->sku) {
+                                    // Nếu không có SKU và variant chưa có SKU, tự sinh
+                                    $variant->sku = $this->generateSku($product->name);
+                                }
+
+                                $variant->save();
+
+                                // Sync attribute values nếu có
+                                if (!empty($variantData['attribute_value_ids'])) {
+                                    $valueIds = $this->parseAttributeValueIds($variantData['attribute_value_ids']);
+                                    if (!empty($valueIds)) {
+                                        $variant->attributeValues()->sync($valueIds);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -167,10 +204,23 @@ class ProductService
                 // Create new variants
                 if (!empty($data['new_variants'])) {
                     foreach ($data['new_variants'] as $variantData) {
-                        $newVariant = $product->variants()->create($variantData);
+                        // ✅ FIX: Tự sinh SKU nếu không có
+                        if (empty($variantData['sku'])) {
+                            $variantData['sku'] = $this->generateSku($product->name);
+                        }
+
+                        $newVariant = $product->variants()->create([
+                            'price' => $variantData['price'],
+                            'stock' => $variantData['stock'],
+                            'discount_price' => $variantData['discount_price'] ?? null,
+                            'sku' => $variantData['sku'],
+                        ]);
+
                         if (!empty($variantData['attribute_value_ids'])) {
-                            $valueIds = explode(',', $variantData['attribute_value_ids']);
-                            $newVariant->attributeValues()->sync($valueIds);
+                            $valueIds = $this->parseAttributeValueIds($variantData['attribute_value_ids']);
+                            if (!empty($valueIds)) {
+                                $newVariant->attributeValues()->sync($valueIds);
+                            }
                         }
                     }
                 }
@@ -206,10 +256,12 @@ class ProductService
     private function createVariants(Product $product, array $data): void
     {
         if ($data['product_type'] === 'simple') {
+            $sku = !empty($data['sku']) ? $data['sku'] : $this->generateSku($product->name);
             $product->variants()->create([
                 'price'          => $data['price'] ?? 0,
                 'discount_price' => $data['discount_price'] ?? null,
                 'stock'          => $data['stock'] ?? 0,
+                'sku'            => $sku,
             ]);
         } elseif ($data['product_type'] === 'variable') {
             $allVariantsData = array_merge(
@@ -223,10 +275,12 @@ class ProductService
 
             foreach ($allVariantsData as $variantData) {
                 if (!empty($variantData['price'])) { // Ensure price exists
+                    $sku = !empty($variantData['sku']) ? $variantData['sku'] : $this->generateSku($product->name);
                     $variant = $product->variants()->create([
                         'price'          => $variantData['price'],
                         'discount_price' => $variantData['discount_price'] ?? null,
                         'stock'          => $variantData['stock'] ?? 0,
+                        'sku'            => $sku,
                     ]);
 
                     if (!empty($variantData['attribute_value_ids'])) {
@@ -274,12 +328,32 @@ class ProductService
                 $affectedRows = Product::whereIn('id', $productIds)->update(['active' => (bool)$value]);
                 return (int)$affectedRows;
 
-            // Bạn có thể thêm các case khác ở đây trong tương lai, ví dụ: 'bulk_delete'
-            // case 'bulk_delete':
-            //     return Product::destroy($productIds);
+                // Bạn có thể thêm các case khác ở đây trong tương lai, ví dụ: 'bulk_delete'
+                // case 'bulk_delete':
+                //     return Product::destroy($productIds);
         }
 
         return 0;
     }
 
+    /**
+     * Helper: Sinh mã SKU duy nhất
+     */
+    private function generateSku(string $productName): string
+    {
+        // Lấy 3 ký tự đầu của tên sản phẩm, chuyển thành chữ hoa
+        $slug = Str::slug($productName);
+        $prefix = strtoupper(substr($slug, 0, 3));
+
+        if (strlen($prefix) < 3) {
+            $prefix = 'PRO'; // Mặc định nếu tên quá ngắn
+        }
+
+        // Vòng lặp để đảm bảo duy nhất
+        do {
+            $sku = $prefix . '-' . strtoupper(Str::random(6));
+        } while (ProductVariant::where('sku', $sku)->exists());
+
+        return $sku;
+    }
 }

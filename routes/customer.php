@@ -12,6 +12,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Storefront\Auth\CustomerAuthController;
 use App\Http\Controllers\Storefront\CheckoutController;
 use App\Http\Controllers\Storefront\CustomerDashboardController;
+use App\Http\Controllers\Storefront\CustomerOrderController;
 use App\Http\Controllers\Storefront\PaymentController;
 use App\Http\Controllers\Storefront\WebhookController;
 use Illuminate\Support\Facades\Route;
@@ -24,3 +25,5 @@ Route::put('address', [CustomerDashboardController::class, 'updateAddress'])->na
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/place-order', [PaymentController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::post('/hooks/sepay-payment', [WebhookController::class, 'handlePaymentWebhook']);
+Route::get('orders/{order}', [CustomerOrderController::class, 'show'])
+    ->name('orders.show');

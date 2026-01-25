@@ -97,7 +97,7 @@ class CustomerAuthController extends Controller
      */
     protected function mergeCartOnLogin(): void
     {
-        $sessionCart = Session::get('cart', []);
+        $sessionCart = Session::get('cart.items', []);
 
         if (!empty($sessionCart)) {
             $customerId = Auth::guard('customer')->id();
@@ -108,9 +108,11 @@ class CustomerAuthController extends Controller
                     ->first();
 
                 if ($cartItem) {
+                    // Merge quantities: add session quantity to existing DB quantity
                     $cartItem->quantity += $details['quantity'];
                     $cartItem->save();
                 } else {
+                    // Create new cart item in database
                     Cart::create([
                         'customer_id'        => $customerId,
                         'product_variant_id' => $variantId,
@@ -119,8 +121,8 @@ class CustomerAuthController extends Controller
                 }
             }
 
-            Session::forget('cart');
+            // Clear session cart after merging
+            Session::forget('cart.items');
         }
     }
-
 }

@@ -7,6 +7,8 @@ $(document).ready(function () {
     $(this).width(50);
   });
   var rangeSlider = document.getElementById('slider-range');
+  if (!rangeSlider) return;
+  if (rangeSlider.noUiSlider) return;
   var moneyFormat = wNumb({
     decimals: 0,
     thousand: ',',

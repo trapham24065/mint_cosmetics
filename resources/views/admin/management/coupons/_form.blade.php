@@ -21,7 +21,7 @@
             <select id="coupon-type" name="type" class="form-select @error('type') is-invalid @enderror"
                     {{ $isUsed ? 'disabled' : '' }} required>
                 @foreach($types as $type)
-                    <option value="{{ $type->value }}" @selected(old('type', $coupon->type ?? '') == $type)>
+                    <option value="{{ $type->value }}" @selected(old('type', $coupon->type ?? '') === $type)>
                         {{ $type->name }}
                     </option>
                 @endforeach

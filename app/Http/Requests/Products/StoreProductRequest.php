@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Requests\Products;
 
 use Illuminate\Validation\Rule;
@@ -43,12 +44,18 @@ class StoreProductRequest extends FormRequest
                 'numeric',
                 'min:0',
             ],
-            'stock'                          => [
-                Rule::requiredIf($this->input('product_type') === 'simple'),
-                'nullable',
-                'integer',
-                'min:0',
+            'sku'                            => [
+                'nullable', // Cho phép để trống (để tự sinh)
+                'string',
+                'max:255',
+                'unique:product_variants,sku', // Phải là duy nhất trong bảng product_variants
             ],
+            //            'stock'                          => [
+            //                Rule::requiredIf($this->input('product_type') === 'simple'),
+            //                'nullable',
+            //                'integer',
+            //                'min:0',
+            //            ],
             'discount_price'                 => ['nullable', 'numeric', 'min:0', 'lte:price'],
 
             // --- Rules for Variable Product ---
@@ -62,6 +69,14 @@ class StoreProductRequest extends FormRequest
             'variants.*.stock'               => ['required', 'integer', 'min:0'],
             'variants.*.discount_price'      => ['nullable', 'numeric', 'min:0'],
             'variants.*.attribute_value_ids' => ['required', 'string'],
+            // ✅ FIX: Thêm validation cho SKU của variable product
+            'variants.*.sku'                 => [
+                'nullable',
+                'string',
+                'max:255',
+                'distinct', // Không được trùng nhau trong cùng 1 request
+                Rule::unique('product_variants', 'sku'),
+            ],
         ];
     }
 
@@ -118,6 +133,8 @@ class StoreProductRequest extends FormRequest
             'variants.*.attribute_value_ids.*.required' => 'Attribute value cannot be empty.',
             'variants.*.attribute_value_ids.*.integer'  => 'Invalid attribute value.',
             'variants.*.attribute_value_ids.*.exists'   => 'One of the selected attribute values does not exist.',
+            'variants.*.sku.unique'                     => 'One of the variant SKUs has already been taken.',
+            'variants.*.sku.distinct'                   => 'Duplicate SKUs found in the variants list.',
         ];
     }
 
@@ -143,5 +160,4 @@ class StoreProductRequest extends FormRequest
         // Example: 'variants.0.discount_price' -> keys[1] would be '0'
         return isset($keys[1]) && is_numeric($keys[1]) ? (int)$keys[1] : null;
     }
-
 }

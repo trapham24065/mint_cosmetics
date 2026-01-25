@@ -4,7 +4,7 @@
     <div class="product-thumb">
         <a class="d-block" href="{{ route('products.show', $product->slug) }}">
             <img
-                src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/storefront/images/shop/1.webp') }}"
+                src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/storefront/images/shop/default.webp') }}"
                 width="370" height="450" alt="{{ $product->name }}">
         </a>
         {{-- You can add logic for flags like 'new' or 'sale' here --}}

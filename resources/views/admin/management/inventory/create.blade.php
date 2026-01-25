@@ -4,17 +4,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fs-18 mb-0">Create New Purchase Order</h2>
     </div>
-
-    @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
+    
     <form action="{{ route('admin.inventory.store') }}" method="POST" id="po-form">
         @csrf
         <div class="row">

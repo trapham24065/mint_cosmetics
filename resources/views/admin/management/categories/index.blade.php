@@ -12,7 +12,7 @@
                                 class="rounded bg-secondary-subtle d-flex align-items-center justify-content-center mx-auto"
                                 style="height: 80px; width: 80px;">
                                 <img
-                                    src="{{ $category->image ? asset('storage/' . $category->image) : asset('assets/admin/images/default-category.png') }}"
+                                    src="{{ $category->image ? asset('storage/' . $category->image) : asset('assets/admin/images/default.webp') }}"
                                     alt="{{ $category->name }}" style="height: 80px; width: 80px;">
                                 {{-- Placeholder Icon, you can add dynamic images later if available --}}
 
@@ -62,7 +62,7 @@
                             name: 'Image',
                             width: '100px',
                             formatter: (cell) => {
-                                const imageUrl = cell ? `{{ asset('storage') }}/${cell}` : `{{ asset('assets/admin/images/default-category.png') }}`;
+                                const imageUrl = cell ? `{{ asset('storage') }}/${cell}` : `{{ asset('assets/admin/images/default.webp') }}`;
                                 return gridjs.html(`<img src="${imageUrl}" alt="Category" class="avatar-sm">`);
                             }
                         },

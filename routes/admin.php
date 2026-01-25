@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\{AttributeController,
     CouponController,
     CustomerController,
     DashboardController,
+    GlobalSearchController,
     LockScreenController,
     OrderController,
     ProductController,
@@ -144,3 +145,11 @@ Route::controller(ProfileController::class)->prefix('profile')->name('profile.')
 // --- LOCK SCREEN ROUTES ---
 Route::get('/lock-screen', [LockScreenController::class, 'lock'])->name('lock');
 Route::post('/unlock', [LockScreenController::class, 'unlock'])->name('unlock');
+
+// Global Search
+Route::get('/global-search', [GlobalSearchController::class, 'search'])->name('global.search');
+
+Route::get('/notifications/read-all', static function () {
+    auth()->user()->unreadNotifications->markAsRead();
+    return back();
+})->name('notifications.readAll');
