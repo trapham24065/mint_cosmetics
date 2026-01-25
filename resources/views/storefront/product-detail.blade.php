@@ -27,7 +27,7 @@
                     <div class="col-lg-6">
                         <div class="product-details-thumb product-image-container">
                             <img id="product-main-image"
-                                 src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/storefront/images/shop/product-details/1.webp') }}"
+                                 src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/storefront/images/shop/default.webp') }}"
                                  width="570" height="693" alt="{{ $product->name }}">
                         </div>
                         {{-- START A NEW ADDITION TO THE GALLERY --}}
@@ -80,6 +80,12 @@
                                     @endif
                                 </div>
                                 <a href="#review-tab" class="product-review-show">{{ $reviewsCount }} reviews</a></div>
+
+                            {{-- SKU Display --}}
+                            <div class="product-details-sku mb-3">
+                                <span class="fw-bold">SKU:</span> <span id="product-sku" class="text-muted">N/A</span>
+                            </div>
+
                             <div id="variant-options-container" class="mb-4"></div>
 
                             <div class="product-details-pro-qty">
@@ -205,6 +211,7 @@
                 opacity: 0;
             }
         </style>
+        <!-- @formatter:off -->
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const productData = @json($product);
@@ -212,6 +219,7 @@
                 const optionsContainer = document.getElementById('variant-options-container');
                 const priceEl = document.getElementById('product-price');
                 const addToCartBtn = document.getElementById('add-to-cart-btn');
+                const skuEl = document.getElementById('product-sku'); // Get SKU element
 
                 // 1. Group attributes and values from all variants
                 const attributes = {};
@@ -231,15 +239,24 @@
                 // 2. Render attribute selection UI
                 let optionsHtml = '';
                 for (const attrName in attributes) {
-                    optionsHtml += `<div class="product-details-qty-list mb-4"><h5 class="title">${attrName}</h5>`;
+                    optionsHtml += `
+                    <div class="variant-group mb-3">
+                        <h6 class="fw-bold mb-2" style="font-size: 14px; color: #333;">${attrName}:</h6>
+                        <div class="d-flex flex-wrap gap-2">`;
+
                     for (const valueId in attributes[attrName].values) {
                         optionsHtml += `
-                <div class="qty-list-check">
-                    <input class="form-check-input variant-option" type="radio" name="attribute_${attributes[attrName].id}" id="option_${valueId}" value="${valueId}">
-                    <label class="form-check-label" for="option_${valueId}">${attributes[attrName].values[valueId]}</label>
-                </div>`;
+                        <div class="form-check p-0">
+                            <input class="btn-check variant-option" type="radio"
+                                   name="attribute_${attributes[attrName].id}"
+                                   id="qv_option_${valueId}"
+                                   value="${valueId}" autocomplete="off">
+                            <label class="btn btn-outline-dark btn-sm rounded-0 px-3" for="qv_option_${valueId}">
+                                ${attributes[attrName].values[valueId]}
+                            </label>
+                        </div>`;
                     }
-                    optionsHtml += `</div>`;
+                    optionsHtml += `</div></div>`;
                 }
                 optionsContainer.innerHTML = optionsHtml;
 
@@ -254,6 +271,7 @@
                     if (selectedOptions.length !== Object.keys(attributes).length) {
                         priceEl.textContent = 'Please select all options';
                         addToCartBtn.disabled = true;
+                        if(skuEl) skuEl.textContent = 'N/A'; // Reset SKU
                         return;
                     }
 
@@ -282,10 +300,17 @@
                         priceEl.innerHTML = priceHtml;
                         addToCartBtn.dataset.variantId = matchedVariant.id;
                         addToCartBtn.disabled = false;
+
+                        // Update SKU
+                        if(skuEl) {
+                            skuEl.textContent = matchedVariant.sku || 'N/A';
+                        }
+
                     } else {
                         priceEl.textContent = 'This combination is not available';
                         addToCartBtn.dataset.variantId = '';
                         addToCartBtn.disabled = true;
+                        if(skuEl) skuEl.textContent = 'N/A';
                     }
                 }
 
@@ -308,6 +333,11 @@
                     priceEl.innerHTML = priceHtml;
                     addToCartBtn.dataset.variantId = variants[0].id;
                     addToCartBtn.disabled = false;
+
+                    // Update SKU for simple product
+                    if(skuEl) {
+                        skuEl.textContent = simpleVariant.sku || 'N/A';
+                    }
                 }
                 // --- START NEW LOGIC FOR AUTOMATIC PHOTO GALLERY ---
                 const mainImage = document.getElementById('product-main-image');
@@ -368,5 +398,7 @@
                 // --- NEW LOGIC ENDING ---
             });
         </script>
+        <!-- @formatter:on -->
+
     @endpush
 @endsection

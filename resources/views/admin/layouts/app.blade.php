@@ -35,7 +35,7 @@
 <!-- START Wrapper -->
 <div class="wrapper">
     @include('admin.partials.header')
-    @include('admin.layouts.timeline')
+    {{--    @include('admin.layouts.timeline')--}}
     @include('admin.partials.sidebar')
     @include('admin.layouts.menu')
     <div class="page-content">

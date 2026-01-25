@@ -68,19 +68,28 @@
                     <div class="contact-info-item">
                         <img class="icon" src="{{asset('assets/storefront/images/icons/1.webp')}}" width="30"
                              height="30" alt="Icon">
-                        <a href="tel://+11020303023">+11 0203 03023</a>
-                        <a href="tel://+11020303023">+11 0203 03023</a>
+                        @if(setting('contact_phone'))
+                            <a href="tel://{{ setting('contact_phone') }}">{{ setting('contact_phone') }}</a>
+                        @else
+                            <a href="tel://+11020303023">+11 0203 03023</a>
+                        @endif
                     </div>
                     <div class="contact-info-item">
                         <img class="icon" src="{{asset('assets/storefront/images/icons/2.webp')}}" width="30"
                              height="30" alt="Icon">
-                        <a href="mailto://example@demo.com">example@demo.com</a>
-                        <a href="mailto://demo@example.com">demo@example.com</a>
+                        {{-- Hiển thị email từ Setting --}}
+                        @if(setting('contact_email'))
+                            <a href="mailto://{{ setting('contact_email') }}">{{ setting('contact_email') }}</a>
+                        @else
+                            <a href="mailto://example@demo.com">example@demo.com</a>
+                        @endif
                     </div>
                     <div class="contact-info-item mb-0">
                         <img class="icon" src="{{asset('assets/storefront/images/icons/3.webp')}}" width="30"
                              height="30" alt="Icon">
-                        <p>Khoa Cong Nghe Thong Tin Dai Hoc Mo</p>
+                        {{-- Hiển thị địa chỉ từ Setting (cần thêm key contact_address vào Admin nếu chưa có) --}}
+                        {{-- Hoặc dùng site_name tạm thời như ví dụ dưới --}}
+                        <p>{{ setting('contact_address') ?? 'Khoa Cong Nghe Thong Tin Dai Hoc Mo' }}</p>
                     </div>
                 </div>
             </div>

@@ -72,7 +72,7 @@ class ShopController extends Controller
         } else {
             $query->latest(); // Default sort by newest
         }
-        
+
         if ($request->filled('search')) {
             $searchTerm = '%'.$request->input('search').'%';
             $query->where('name', 'like', $searchTerm);
@@ -99,15 +99,13 @@ class ShopController extends Controller
         try {
             // Eager-load the first variant to get price info
             $product->load(['variants.attributeValues.attribute', 'category', 'brand']);
+            $product->loadCount('reviews');
+            $product->loadAvg('reviews', 'rating');
+            $data = $product->toArray();
 
-            // Log for debugging
-            Log::info('Quick view product found:', [
-                'id'             => $product->id,
-                'name'           => $product->name,
-                'variants_count' => $product->variants->count(),
-            ]);
+            $data['rating'] = $product->reviews_avg_rating ?? 0;
 
-            return response()->json($product);
+            return response()->json($data);
         } catch (Exception $e) {
             Log::error('Quick view error:', [
                 'product' => $product->id ?? 'unknown',
@@ -116,7 +114,7 @@ class ShopController extends Controller
 
             return response()->json([
                 'error'   => 'Product not found',
-                'message' => $e->getMessage(),
+                'message' => 'Unable to load product details.',
             ], 500);
         }
     }

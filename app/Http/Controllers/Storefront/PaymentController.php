@@ -7,7 +7,9 @@
  * @date 9/1/2025
  * @time 3:07 PM
  */
+
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
@@ -18,9 +20,13 @@ use App\Services\Storefront\PaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\NewOrderNotification;
+use App\Models\User;
+use Illuminate\Support\Facades\Notification;
 
 class PaymentController extends Controller
 {
@@ -47,6 +53,9 @@ class PaymentController extends Controller
      */
     public function placeOrder(Request $request): RedirectResponse
     {
+        if (!Auth::guard('customer')->check()) {
+            return redirect()->route('customer.login')->with('error', 'Please login to place an order.');
+        }
         // 1. Validate customer information from the checkout form
         $validatedData = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
@@ -69,8 +78,23 @@ class PaymentController extends Controller
         // 3. Call the OrderService to create a new order in the database
         $order = $this->orderService->createOrder($validatedData, $cartData);
 
-        // 4. Clear the cart from the session after the order is created
-        session()->forget('cart');
+        try {
+            // Lấy tất cả user trong bảng users (giả định là admin)
+            $admins = User::all();
+
+            // Nếu bạn có logic phân quyền, hãy lọc ra admin, ví dụ:
+            // $admins = User::where('role', 'admin')->get();
+
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, new NewOrderNotification($order));
+            }
+        } catch (\Exception $e) {
+            // Ghi log lỗi nếu gửi thông báo thất bại để không làm gián đoạn quy trình mua hàng
+            Log::error('Failed to send new order notification: ' . $e->getMessage());
+        }
+
+        // 4. Clear the cart after the order is created (both session and database)
+        $this->cartService->clear();
 
         // 5. Redirect the user to the payment page with the new order ID
         $signedUrl = URL::signedRoute('payment.show', ['order' => $order->id]);
@@ -118,5 +142,4 @@ class PaymentController extends Controller
         $order->load('items');
         return view('storefront.payment.thank-you', compact('order'));
     }
-
 }

@@ -112,6 +112,18 @@
                             <div class="card-header"><h4 class="card-title">Pricing & Stock</h4></div>
                             <div class="card-body">
                                 <div class="row">
+                                    {{-- SKU Field (Moved here) --}}
+                                    <div class="col-md-12 mb-3">
+                                        <label for="sku" class="form-label">SKU <small class="text-muted">(Auto-generated,
+                                                editable)</small></label>
+                                        <input type="text" id="sku" name="sku"
+                                               class="form-control @error('sku') is-invalid @enderror"
+                                               value="{{ old('sku', $firstVariant->sku ?? '') }}"
+                                               placeholder="e.g. LAPTOP-DELL-XPS">
+                                        @error('sku')
+                                        <div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label">Price</label>
                                         <input type="number" step="any" name="price" class="form-control"
@@ -122,10 +134,12 @@
                                         <input type="number" step="any" name="discount_price" class="form-control"
                                                value="{{ old('discount_price', $firstVariant->discount_price ?? '') }}">
                                     </div>
+                                    {{-- STOCK FIELD (Readonly) --}}
                                     <div class="col-md-4 mb-3">
-                                        <label class="form-label">Stock</label>
-                                        <input type="number" name="stock" class="form-control"
-                                               value="{{ old('stock', $firstVariant->stock ?? '') }}">
+                                        <label for="stock" class="form-label">Stock Quantity</label>
+                                        <input type="number" id="stock" name="stock"
+                                               class="form-control bg-light"
+                                               value="{{ old('stock', $firstVariant->stock ?? 0) }}" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -144,7 +158,6 @@
                                 <label class="form-label fw-bold">Existing Variants:</label>
                                 <div id="variants-container">
                                     @foreach($product->variants as $variant)
-                                        {{-- CHỈ HIỂN THỊ NẾU BIẾN THỂ NÀY CÓ GẮN THUỘC TÍNH --}}
                                         @if($variant->attributeValues->isNotEmpty())
                                             @php
                                                 $combinationIds = $variant->attributeValues->pluck('id')->sort()->join(',');
@@ -161,6 +174,15 @@
                                                                 aria-label="Close"></button>
                                                     </div>
                                                     <div class="row">
+                                                        {{-- Variant SKU --}}
+                                                        <div class="col-md-12 mb-2">
+                                                            <label class="form-label">SKU</label>
+                                                            <input type="text" name="variants[{{ $variant->id }}][sku]"
+                                                                   class="form-control form-control-sm"
+                                                                   value="{{ old('variants.'.$variant->id.'.sku', $variant->sku) }}"
+                                                                   placeholder="Variant SKU">
+                                                        </div>
+
                                                         <div class="col-md-4">
                                                             <label class="form-label">Price</label>
                                                             <input type="number" step="any"
@@ -176,13 +198,14 @@
                                                                    class="form-control"
                                                                    value="{{ old('variants.'.$variant->id.'.discount_price', $variant->discount_price) }}">
                                                         </div>
+                                                        {{-- Variant STOCK (Readonly) --}}
                                                         <div class="col-md-4">
                                                             <label class="form-label">Stock</label>
                                                             <input type="number"
                                                                    name="variants[{{ $variant->id }}][stock]"
-                                                                   class="form-control"
+                                                                   class="form-control bg-light"
                                                                    value="{{ old('variants.'.$variant->id.'.stock', $variant->stock) }}"
-                                                                   required>
+                                                                   readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -251,9 +274,44 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+                // --- 0. AUTO SKU LOGIC ---
+                function generateSkuFromName(text) {
+                    return text.toString().toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/[^\w\-]+/g, '')
+                    .replace(/\-\-+/g, '-')
+                    .replace(/^-+/, '')
+                    .replace(/-+$/, '')
+                    .toUpperCase();
+                }
+
+                // Logic cho SKU của Simple Product
+                const nameInput = document.getElementById('product-name');
+                const skuInput = document.getElementById('sku');
+                // Kiểm tra xem đã có SKU chưa (khi edit thì thường đã có)
+                // Chỉ tự động điền nếu SKU đang trống
+                let isSimpleSkuManuallyEdited = (skuInput && skuInput.value.trim() !== '');
+
+                if (nameInput && skuInput) {
+                    skuInput.addEventListener('input', function() {
+                        isSimpleSkuManuallyEdited = this.value.trim() !== '';
+                    });
+
+                    nameInput.addEventListener('input', function() {
+                        // Chỉ tự động sinh nếu SKU đang trống (hoặc chưa được edit tay từ lúc load trang)
+                        if (!isSimpleSkuManuallyEdited || skuInput.value.trim() === '') {
+                            const name = this.value;
+                            const sku = generateSkuFromName(name);
+                            skuInput.value = sku;
+                        }
+                    });
+                }
+
                 // --- 1. Pass data from PHP to JavaScript ---
-                const allAttributesForCategory = @json($allAttributesForCategory);
-                const selectedAttributeValueIds = @json($selectedAttributeValueIds);
+                const allAttributesForCategory = @json($allAttributesForCategory, JSON_THROW_ON_ERROR);
+                const selectedAttributeValueIds = @json($selectedAttributeValueIds, JSON_THROW_ON_ERROR);
 
                 // --- 2. Get All Necessary DOM Elements ---
                 const simpleFields = document.getElementById('simple-product-fields');
@@ -262,8 +320,8 @@
                 const categorySelect = document.getElementById('product-category');
                 const attributesContainer = document.getElementById('attributes-container');
                 const generateBtn = document.getElementById('generate-variants-btn');
-                const variantsContainer = document.getElementById('variants-container'); // For existing variants
-                const newVariantsContainer = document.getElementById('new-variants-container'); // For newly generated variants
+                const variantsContainer = document.getElementById('variants-container');
+                const newVariantsContainer = document.getElementById('new-variants-container');
                 const mainForm = document.querySelector('form');
 
                 // --- 3. UI Toggle Logic ---
@@ -280,7 +338,6 @@
                     radio.addEventListener('change', function () {
                         toggleProductTypeFields();
                         if (this.value === 'variable') {
-                            // Clear out generated variants when switching, but keep existing ones
                             newVariantsContainer.innerHTML = '';
                             categorySelect.dispatchEvent(new Event('change'));
                         }
@@ -359,7 +416,7 @@
                     const cartesian = (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
                     const allPossibleCombinations = cartesian(...attributesWithOptions);
 
-                    newVariantsContainer.innerHTML = ''; // Clear previously generated new variants
+                    newVariantsContainer.innerHTML = '';
 
                     allPossibleCombinations.forEach((combo, index) => {
                         const comboArray = Array.isArray(combo) ? combo : [combo];
@@ -369,6 +426,13 @@
                         if (existingCombinations.has(combinationKey)) return;
 
                         const variantName = comboArray.map(v => v.text).join(' / ');
+
+                        // TẠO SKU TỰ ĐỘNG CHO BIẾN THỂ MỚI
+                        const productName = document.getElementById('product-name').value;
+                        const variantSlug = generateSkuFromName(variantName);
+                        const productSlug = generateSkuFromName(productName);
+                        const variantSku = productSlug + '-' + variantSlug;
+
                         const formHtml = `
             <div class="card mb-3 bg-success-subtle new-variant-form-row">
                 <div class="card-body">
@@ -378,9 +442,13 @@
                     </div>
                     <input type="hidden" name="new_variants[${index}][attribute_value_ids]" value="${valueIds.join(',')}">
                     <div class="row">
+                        <div class="col-md-12 mb-2">
+                             <label class="form-label">SKU</label>
+                             <input type="text" name="new_variants[${index}][sku]" class="form-control form-control-sm" value="${variantSku}" placeholder="Variant SKU">
+                        </div>
                         <div class="col-md-4"><label class="form-label">Price</label><input type="number" step="any" name="new_variants[${index}][price]" class="form-control" placeholder="Price" required></div>
                         <div class="col-md-4"><label class="form-label">Discount Price</label><input type="number" step="any" name="new_variants[${index}][discount_price]" class="form-control" placeholder="Discount Price"></div>
-                        <div class="col-md-4"><label class="form-label">Stock</label><input type="number" name="new_variants[${index}][stock]" class="form-control" placeholder="Stock" required></div>
+                        <div class="col-md-4"><label class="form-label">Stock</label><input type="number" name="new_variants[${index}][stock]" class="form-control bg-light" value="0" readonly></div>
                     </div>
                 </div>
             </div>`;
@@ -406,8 +474,7 @@
 
                 // --- 7. INITIALIZATION ---
                 toggleProductTypeFields();
-                if (document.getElementById('type_variable').checked) {
-                    renderAttributes(allAttributesForCategory);
+                if (document.getElementById('type_variable').checked && attributesContainer.children.length === 0) {
                 }
             });
         </script>

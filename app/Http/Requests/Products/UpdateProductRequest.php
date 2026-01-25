@@ -25,6 +25,7 @@ class UpdateProductRequest extends FormRequest
      */
     public function rules(): array
     {
+        $product = $this->route('product');
         $productId = $this->route('product')->id; // Ensure route model binding is used
         $isSimple = $this->input('product_type') === 'simple';
 
@@ -53,6 +54,16 @@ class UpdateProductRequest extends FormRequest
                 'min:0',
                 Rule::when($this->filled('price') && is_numeric($this->input('price')), ['lte:price']),
             ];
+            $currentVariant = $product->variants->first();
+            $variantId = $currentVariant ? $currentVariant->id : null;
+
+            $rules['sku'] = [
+                'nullable',
+                'string',
+                'max:255',
+                // SKU phải duy nhất trong bảng product_variants, ngoại trừ chính nó
+                Rule::unique('product_variants', 'sku')->ignore($variantId),
+            ];
             // Forbid variable fields if the type is simple
             $rules['variants'] = ['prohibited'];
             $rules['new_variants'] = ['prohibited'];
@@ -61,6 +72,27 @@ class UpdateProductRequest extends FormRequest
             // Forbid simple fields if the type is variable
             $rules['price'] = ['prohibited'];
             $rules['stock'] = ['prohibited'];
+
+            if ($this->has('variants') && is_array($this->input('variants'))) {
+                foreach ($this->input('variants') as $index => $variantData) {
+                    $rules["variants.{$index}.id"] = ['required', 'integer', 'exists:product_variants,id'];
+                    $rules["variants.{$index}.price"] = ['required', 'numeric', 'min:0'];
+                    $rules["variants.{$index}.discount_price"] = ['nullable', 'numeric', 'min:0'];
+                    $rules["variants.{$index}.attribute_value_ids"] = ['required'];
+
+                    // Lấy ID của variant đang xét để ignore chính nó
+                    $currentVariantId = $variantData['id'] ?? null;
+
+                    // Validate SKU cho biến thể cũ
+                    $rules["variants.{$index}.sku"] = [
+                        'nullable',
+                        'string',
+                        'max:255',
+                        'distinct', // Không được trùng nhau trong cùng 1 request
+                        Rule::unique('product_variants', 'sku')->ignore($currentVariantId),
+                    ];
+                }
+            }
 
             // Existing Variants
             $rules['variants'] = ['nullable', 'array']; // Existing variants might be empty if all are deleted
@@ -202,6 +234,8 @@ class UpdateProductRequest extends FormRequest
             'new_variants.*.attribute_value_ids.*.integer'  => 'Invalid attribute value ID for new variant.',
             'new_variants.*.attribute_value_ids.*.exists'   => 'One of the selected attribute values for new variant does not exist.',
             'new_variants.*.sku.unique'                     => 'The SKU for one of the new variants is already in use.',
+            'sku.unique'                                    => 'The SKU has already been taken.',
+            'variants.*.sku.distinct'                       => 'Duplicate SKUs found in the variants list.',
         ];
     }
 

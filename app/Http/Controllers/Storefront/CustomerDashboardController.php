@@ -30,7 +30,7 @@ class CustomerDashboardController extends Controller
         // Get orders history with relationship
         $orders = $customer->orders()->with('items')->latest()->get();
 
-        return view('storefront.dashboard', compact('customer', 'orders'));
+        return view('storefront.customer.dashboard', compact('customer', 'orders'));
     }
 
     /**

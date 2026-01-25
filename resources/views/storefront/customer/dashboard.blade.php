@@ -112,8 +112,8 @@
                                                         </span>
                                                     </td>
                                                     <td>{{ number_format($order->total_price) }} VND</td>
-                                                    <td><a href="{{ route('payment.show', $order->id) }}"
-                                                           class="check-btn sqr-btn ">View</a></td>
+                                                    <td><a href="{{ route('customer.orders.show', $order->id) }}"
+                                                           class="check-btn sqr-btn">View</a></td>
                                                 </tr>
                                             @empty
                                                 <tr>

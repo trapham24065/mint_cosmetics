@@ -90,7 +90,7 @@
 
                                 <img
                                     class="icon"
-                                    src="{{ $category->image ? asset('storage/' . $category->image) : asset('assets/admin/images/default-category.png') }}"
+                                    src="{{ $category->image ? asset('storage/' . $category->image) : asset('assets/admin/images/default.webp') }}"
                                     alt="{{ $category->name }}" width="70" height="80">
                                 <h3 class="title">{{ $category->name }}</h3>
                             </a>
