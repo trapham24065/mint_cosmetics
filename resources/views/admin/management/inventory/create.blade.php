@@ -4,7 +4,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="fs-18 mb-0">Create New Purchase Order</h2>
     </div>
-    
+
     <form action="{{ route('admin.inventory.store') }}" method="POST" id="po-form">
         @csrf
         <div class="row">
@@ -115,7 +115,7 @@
             <td class="text-end subtotal-display">0.00</td>
             <td class="text-center">
                 <button type="button" class="btn btn-sm btn-danger remove-row-btn">
-                    <i data-feather="trash-2" style="width: 16px; height: 16px;"></i>
+                    <iconify-icon icon="solar:trash-bin-trash-bold-duotone" width="16"></iconify-icon>
                 </button>
             </td>
         </tr>

@@ -15,11 +15,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const sendUrl = chatWidget.dataset.sendUrl;
   const fetchUrl = chatWidget.dataset.fetchUrl;
   const suggestionsUrl = chatWidget.dataset.suggestionsUrl;
+  const defaultMessageUrl = chatWidget.dataset.defaultMessageUrl || '/chat/default-message';
   const csrfToken = chatWidget.dataset.csrfToken;
 
   let isChatOpen = false;
   let lastMessageId = 0;
   let isFirstLoad = true;
+  let waitingForAdminTimeout = null;
 
   chatWidget.style.display = 'block';
 
@@ -77,9 +79,10 @@ document.addEventListener('DOMContentLoaded', function () {
           const btn = document.createElement('button');
           btn.className = 'suggestion-btn';
           btn.textContent = text;
-          btn.style.cssText = "padding: 6px 12px; border: 1px solid #007bff; background: #f0f8ff; color: #007bff; border-radius: 15px; cursor: pointer; font-size: 12px; transition: all 0.2s; margin-bottom: 5px; margin-right: 5px;";
+          btn.style.cssText = "padding: 6px 12px; background: #f0f8ff; border-radius: 15px; cursor: pointer; font-size: 12px; transition: all 0.2s; margin-bottom: 5px; margin-right: 5px;";
           btn.addEventListener('click', function() {
-            sendMessage(text);
+            // Đánh dấu tin nhắn này là từ Quick Hint
+            sendMessage(text, true);
           });
           suggestionsList.appendChild(btn);
         });
@@ -92,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // --- SEND MESSAGE ---
 
-  function sendMessage(text = null) {
+  function sendMessage(text = null, isFromQuickHint = false) {
     const messageText = text || chatInput.value.trim();
     if (!messageText) return;
 
@@ -105,10 +108,10 @@ document.addEventListener('DOMContentLoaded', function () {
     appendMessage('user', messageText, tempId, timeString);
 
     chatInput.value = '';
-    sendMessageToServer(messageText, tempId);
+    sendMessageToServer(messageText, tempId, isFromQuickHint);
   }
 
-  function sendMessageToServer(messageText, tempId) {
+  function sendMessageToServer(messageText, tempId, isFromQuickHint = false) {
     fetch(sendUrl, {
       method: 'POST',
       headers: {
@@ -116,7 +119,10 @@ document.addEventListener('DOMContentLoaded', function () {
         'X-CSRF-TOKEN': csrfToken,
         'Accept': 'application/json'
       },
-      body: JSON.stringify({ message: messageText }),
+      body: JSON.stringify({
+        message: messageText,
+        is_quick_hint: isFromQuickHint  // Gửi flag lên server
+      }),
     })
     .then(response => response.json())
     .then(data => {
@@ -131,6 +137,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (data.bot_reply) {
+          // Có bot reply ngay → Hủy timeout (nếu có)
+          if (waitingForAdminTimeout) {
+            clearTimeout(waitingForAdminTimeout);
+            waitingForAdminTimeout = null;
+          }
+
           setTimeout(() => {
             if (!document.querySelector(`.message-bubble[data-id="${data.bot_reply.id}"]`)) {
               appendMessage('bot', data.bot_reply.body, data.bot_reply.id, data.bot_reply.created_at);
@@ -139,11 +151,42 @@ document.addEventListener('DOMContentLoaded', function () {
               lastMessageId = data.bot_reply.id;
             }
           }, 500);
+        } else if (!isFromQuickHint) {
+          // Nếu KHÔNG phải Quick Hint và KHÔNG có bot reply
+          // → Đặt timeout 30 giây để gửi tin nhắn mặc định
+          waitingForAdminTimeout = setTimeout(() => {
+            sendDefaultMessageIfNoReply();
+          }, 30000); // 30 giây
         }
       }
     })
     .catch(error => {
       console.error('Chat error:', error);
+    });
+  }
+
+  function sendDefaultMessageIfNoReply() {
+    fetch(defaultMessageUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json'
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success && data.bot_reply) {
+        if (!document.querySelector(`.message-bubble[data-id="${data.bot_reply.id}"]`)) {
+          appendMessage('bot', data.bot_reply.body, data.bot_reply.id, data.bot_reply.created_at);
+        }
+        if (data.bot_reply.id > lastMessageId) {
+          lastMessageId = data.bot_reply.id;
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Default message error:', error);
     });
   }
 
@@ -188,7 +231,14 @@ document.addEventListener('DOMContentLoaded', function () {
             // Chỉ append nếu không phải là bản sao của tin nhắn tạm
             if (!isDuplicateOfTemp) {
               appendMessage(senderType, msg.body, msg.id, msg.created_at);
-              if (!msg.is_me) hasNewMessage = true;
+              if (!msg.is_me) {
+                hasNewMessage = true;
+                // Nếu nhận được tin nhắn từ admin/bot → Hủy timeout
+                if (waitingForAdminTimeout) {
+                  clearTimeout(waitingForAdminTimeout);
+                  waitingForAdminTimeout = null;
+                }
+              }
             }
           }
 
@@ -296,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function () {
 const style = document.createElement('style');
 style.textContent = `
     .suggestion-btn:hover {
-        background: #007bff !important;
+        background: #ff6565 !important;
         color: white !important;
     }
     .message-bubble {
@@ -309,7 +359,7 @@ style.textContent = `
         word-wrap: break-word;
     }
     .user-message {
-        background-color: #007bff !important;
+        background-color: #ff6565 !important;
         color: white !important;
         border-bottom-right-radius: 2px;
     }
