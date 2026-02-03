@@ -64,8 +64,8 @@ Route::controller(ChatController::class)->prefix('chat')->name('chat.')->group(f
     Route::post('/send', 'sendMessage')->name('send');
     Route::get('/fetch', 'fetchMessages')->name('fetch');
     Route::get('/suggestions', 'getSuggestions')->name('suggestions');
+    Route::post('/default-message', 'sendDefaultMessage')->name('default-message');
 });
 
 // --- Admin & Other Auth Routes ---
-require __DIR__.'/auth.php';
-
+require __DIR__ . '/auth.php';

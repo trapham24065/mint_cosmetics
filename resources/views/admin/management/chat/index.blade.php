@@ -43,11 +43,11 @@
             {{-- Main: Khung Chat --}}
             <div class="col-md-8 d-flex flex-column" style="height: calc(100vh - 100px);">
                 @if(isset($currentConversation))
-                    <div class="p-3 border-bottom bg-white">
+                    <div class="p-3 border-bottom">
                         <h6 class="mb-0">Chatting with Customer</h6>
                     </div>
 
-                    <div id="chat-box" class="flex-grow-1 p-3" style="overflow-y: auto; background-color: #f8f9fa;">
+                    <div id="chat-box" class="flex-grow-1 p-3" style="overflow-y: auto; ">
                         @foreach($messages as $message)
                             @php
 
@@ -64,8 +64,8 @@
                             @endphp
                             <div class="d-flex mb-3 {{ $isMe ? 'justify-content-end' : 'justify-content-start' }}"
                                  data-id="{{ data_get($message, 'id') }}">
-                                <div class="p-3 rounded {{ $isMe ? 'bg-primary text-white' : 'bg-white border' }}"
-                                     style="max-width: 70%;">
+                                <div class="p-3 rounded {{ $isMe ? 'bg-primary text-white' : ' border' }}"
+                                >
                                     <div>{{ $body }}</div>
                                     <div class="small {{ $isMe ? 'text-white-50' : 'text-muted' }} mt-1 text-end"
                                          style="font-size: 0.7rem;">
@@ -76,7 +76,7 @@
                         @endforeach
                     </div>
 
-                    <div class="p-3 bg-white border-top">
+                    <div class="p-3 border-top">
                         <form id="admin-chat-form" class="d-flex gap-2">
                             <input type="text" id="message-input" class="form-control" placeholder="Type your reply..."
                                    autocomplete="off" required>
@@ -109,7 +109,7 @@
 
                     function appendMessage(text, isMe, time, id) {
                         const justify = isMe ? 'justify-content-end' : 'justify-content-start';
-                        const bgClass = isMe ? 'bg-primary text-white' : 'bg-white border';
+                        const bgClass = isMe ? 'bg-primary text-white' : ' border';
                         const timeClass = isMe ? 'text-white-50' : 'text-muted';
 
                         const html = `
