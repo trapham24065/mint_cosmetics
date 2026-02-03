@@ -33,6 +33,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.admin'     => \App\Http\Middleware\AuthenticateAdmin::class,
             'locked'         => \App\Http\Middleware\CheckLockScreen::class,
         ]);
+        $middleware->web(append: [
+            \App\Http\Middleware\TrackVisits::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
