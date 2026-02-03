@@ -1,42 +1,56 @@
 <?php
 
-/**
- * @project mint_cosmetics
- * @author PhamTra
- * @email trapham24065@gmail.com
- * @date 8/23/2025
- * @time 4:56 PM
- */
-declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\View\View;
 use App\Enums\OrderStatus;
+use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\User;
+use App\Models\Visit;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
 
-    /**
-     * Display the admin dashboard.
-     */
     public function index(): View
     {
-        $title = "Dashboard";
-        // --- Data for Summary Cards ---
+        $title = "Admin Dashboard";
+
+        // --- 1. THỐNG KÊ TỔNG QUAN ---
         $totalOrders = Order::count();
         $totalRevenue = Order::where('status', OrderStatus::Completed)->sum('total_price');
-        $totalCustomers = Order::distinct('email')->count('email'); // Assuming all users are customers
+        $totalCustomers = Customer::count();
         $totalProducts = Product::count();
+        $pendingOrders = Order::where('status', OrderStatus::Pending)->count();
 
-        // --- Data for Recent Orders Table ---
-        $recentOrders = Order::with('items')->latest()->take(5)->get();
+        // --- 2. NGƯỜI DÙNG ONLINE (REAL-TIME) ---
+        // Đếm số session hoạt động trong 5 phút gần đây
+        $onlineUsers = 0;
+        try {
+            $onlineUsers = DB::table('sessions')
+                ->where('last_activity', '>=', now()->subMinutes(5)->getTimestamp())
+                ->count();
+        } catch (\Exception $e) {
+            // Bỏ qua lỗi nếu bảng sessions chưa tồn tại
+        }
 
-        // --- Data for Performance Chart (Revenue per month for the last year) ---
+        // --- 3. LƯỢT TRUY CẬP HÔM NAY & TĂNG TRƯỞNG ---
+        $todayVisits = Visit::whereDate('visited_at', Carbon::today())->count();
+        $yesterdayVisits = Visit::whereDate('visited_at', Carbon::yesterday())->count();
+
+        $growth = 0;
+        if ($yesterdayVisits > 0) {
+            $growth = (($todayVisits - $yesterdayVisits) / $yesterdayVisits) * 100;
+        } elseif ($todayVisits > 0) {
+            $growth = 100;
+        }
+
+        // --- 4. DỮ LIỆU BIỂU ĐỒ DOANH THU (12 THÁNG QUA) ---
+        // Sử dụng DATE_FORMAT cho MySQL. Nếu dùng PostgreSQL đổi thành TO_CHAR(created_at, 'YYYY-MM')
         $revenueData = Order::query()
             ->select(
                 DB::raw('SUM(total_price) as revenue'),
@@ -48,8 +62,30 @@ class DashboardController extends Controller
             ->orderBy('month', 'asc')
             ->get();
 
-        $chartLabels = $revenueData->pluck('month');
-        $chartData = $revenueData->pluck('revenue');
+        $revenueLabels = $revenueData->pluck('month')->toArray();
+        $revenueValues = $revenueData->pluck('revenue')->toArray();
+
+        // --- 5. DỮ LIỆU BIỂU ĐỒ LƯỢT TRUY CẬP (7 NGÀY GẦN NHẤT) ---
+        $endDate = Carbon::now();
+        $startDate = Carbon::now()->subDays(6);
+        $period = CarbonPeriod::create($startDate, $endDate);
+
+        $visitLabels = [];
+        $visitValues = [];
+
+        foreach ($period as $date) {
+            $formattedDate = $date->format('Y-m-d');
+            // Nhãn hiển thị ngày/tháng (VD: 05/08)
+            $visitLabels[] = $date->format('d/m');
+            // Đếm số lượt trong ngày đó
+            $visitValues[] = Visit::whereDate('visited_at', $formattedDate)->count();
+        }
+
+        // --- 6. ĐƠN HÀNG GẦN ĐÂY ---
+        $recentOrders = Order::with('customer')
+            ->latest()
+            ->take(5)
+            ->get();
 
         return view(
             'admin.dashboard',
@@ -59,9 +95,15 @@ class DashboardController extends Controller
                 'totalRevenue',
                 'totalCustomers',
                 'totalProducts',
-                'recentOrders',
-                'chartLabels',
-                'chartData'
+                'pendingOrders',
+                'onlineUsers',
+                'todayVisits',
+                'growth',
+                'revenueLabels',
+                'revenueValues',
+                'visitLabels',
+                'visitValues',
+                'recentOrders'
             )
         );
     }
