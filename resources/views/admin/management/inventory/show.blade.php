@@ -25,14 +25,14 @@
                           onsubmit="return confirm('Approve this order? Stock will be updated immediately.');">
                         @csrf
                         @method('PUT')
-                        <button type="submit" class="btn btn-success">
+                        <button type="submit" class="btn btn-primary">
                             <i class="ri-check-line me-1"></i> Approve & Add Stock
                         </button>
                     </form>
                 @endif
             </div>
         </div>
-        
+
         <div class="row">
             <div class="col-lg-8">
                 <div class="card bg-white border-0 rounded-10 mb-4">

@@ -34,7 +34,7 @@
                             @csrf
                             <input type="text" name="keyword" class="form-control form-control-sm"
                                    placeholder="Add a new keyword..." required>
-                            <button type="submit" class="btn btn-sm btn-success">Add</button>
+                            <button type="submit" class="btn btn-sm btn-primary">Add</button>
                         </form>
 
                         {{-- List of existing keywords --}}

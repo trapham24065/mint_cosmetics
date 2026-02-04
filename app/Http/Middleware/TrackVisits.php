@@ -6,6 +6,8 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Models\Visit;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class TrackVisits
 {
@@ -17,13 +19,25 @@ class TrackVisits
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Chỉ đếm các request GET (xem trang), bỏ qua API hoặc AJAX nếu muốn
         if ($request->isMethod('get') && !$request->ajax()) {
-            Visit::create([
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'visited_at' => now(),
-            ]);
+            $ipAddress = $request->ip();
+            $today = Carbon::today();
+
+            $hasVisitedToday = Visit::where('ip_address', $ipAddress)
+                ->whereDate('visited_at', $today)
+                ->exists();
+
+            if (!$hasVisitedToday) {
+                try {
+                    Visit::create([
+                        'ip_address' => $ipAddress,
+                        'user_agent' => $request->userAgent(),
+                        'visited_at' => now(),
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error("Failed to track visit: ".$e->getMessage());
+                }
+            }
         }
 
         return $next($request);

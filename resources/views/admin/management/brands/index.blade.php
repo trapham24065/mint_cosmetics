@@ -6,7 +6,7 @@
                 <div class="card">
                     <div class="d-flex card-header justify-content-between align-items-center">
                         <h4 class="card-title">All Brands List</h4>
-                        <a href="{{ route('admin.brands.create') }}" class="btn btn-sm btn-success">
+                        <a href="{{ route('admin.brands.create') }}" class="btn btn-sm btn-primary">
                             <i class="bx bx-plus"></i> New Brand
                         </a>
                     </div>
