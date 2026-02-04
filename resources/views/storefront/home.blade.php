@@ -203,132 +203,132 @@
 
         <!--== End Product Area Wrapper ==-->
 
-        <!--== Start Blog Area Wrapper ==-->
-        <section class="section-space">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="section-title text-center">
-                            <h2 class="title">Blog posts</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus
-                                venenatis</p>
-                        </div>
-                    </div>
-                </div>
-                {{-- NOTE: This section should ideally fetch blog posts dynamically --}}
-                <div class="row mb-n9">
-                    <div class="col-sm-6 col-lg-4 mb-8">
-                        <!--== Start Blog Item ==-->
-                        <div class="post-item">
-                            <a href="#" class="thumb"> {{-- Link to blog post --}}
-                                <img src="{{asset('assets/storefront/images/blog/1.webp')}}" width="370" height="320"
-                                     alt="Image-HasTech">
-                            </a>
-                            <div class="content">
-                                <a class="post-category" href="#">beauty</a> {{-- Link to category --}}
-                                <h4 class="title"><a href="#">Lorem ipsum dolor sit amet consectetur
-                                        adipiscing.</a></h4> {{-- Link to blog post --}}
-                                <ul class="meta">
-                                    <li class="author-info"><span>By:</span> <a href="#">Tomas De Momen</a>
-                                    </li> {{-- Link to author --}}
-                                    <li class="post-date">February 13, 2022</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <!--== End Blog Item ==-->
-                    </div>
-                    {{-- Add other static blog posts or loop through dynamic ones --}}
-                    <div class="col-sm-6 col-lg-4 mb-8">
-                        <!--== Start Blog Item ==-->
-                        <div class="post-item">
-                            <a href="#" class="thumb">
-                                <img src="{{asset('assets/storefront/images/blog/2.webp')}}" width="370" height="320"
-                                     alt="Image-HasTech">
-                            </a>
-                            <div class="content">
-                                <a class="post-category post-category-two" data-bg-color="#A49CFF" href="#">beauty</a>
-                                <h4 class="title"><a href="#">Facial Scrub is natural treatment for
-                                        face.</a></h4>
-                                <ul class="meta">
-                                    <li class="author-info"><span>By:</span> <a href="#">Tomas De Momen</a></li>
-                                    <li class="post-date">February 13, 2022</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <!--== End Blog Item ==-->
-                    </div>
-                    <div class="col-sm-6 col-lg-4 mb-8">
-                        <!--== Start Blog Item ==-->
-                        <div class="post-item">
-                            <a href="#" class="thumb">
-                                <img src="{{asset('assets/storefront/images/blog/3.webp')}}" width="370" height="320"
-                                     alt="Image-HasTech">
-                            </a>
-                            <div class="content">
-                                <a class="post-category post-category-three" data-bg-color="#9CDBFF" href="#">beauty</a>
-                                <h4 class="title"><a href="#">Benefit of Hot Ston Spa for your health &
-                                        life.</a></h4>
-                                <ul class="meta">
-                                    <li class="author-info"><span>By:</span> <a href="#">Tomas De Momen</a></li>
-                                    <li class="post-date">February 13, 2022</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <!--== End Blog Item ==-->
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!--== End Blog Area Wrapper ==-->
+        {{--        <!--== Start Blog Area Wrapper ==-->--}}
+        {{--        <section class="section-space">--}}
+        {{--            <div class="container">--}}
+        {{--                <div class="row">--}}
+        {{--                    <div class="col-12">--}}
+        {{--                        <div class="section-title text-center">--}}
+        {{--                            <h2 class="title">Blog posts</h2>--}}
+        {{--                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus--}}
+        {{--                                venenatis</p>--}}
+        {{--                        </div>--}}
+        {{--                    </div>--}}
+        {{--                </div>--}}
+        {{--                --}}{{-- NOTE: This section should ideally fetch blog posts dynamically --}}
+        {{--                <div class="row mb-n9">--}}
+        {{--                    <div class="col-sm-6 col-lg-4 mb-8">--}}
+        {{--                        <!--== Start Blog Item ==-->--}}
+        {{--                        <div class="post-item">--}}
+        {{--                            <a href="#" class="thumb"> --}}{{-- Link to blog post --}}
+        {{--                                <img src="{{asset('assets/storefront/images/blog/1.webp')}}" width="370" height="320"--}}
+        {{--                                     alt="Image-HasTech">--}}
+        {{--                            </a>--}}
+        {{--                            <div class="content">--}}
+        {{--                                <a class="post-category" href="#">beauty</a> --}}{{-- Link to category --}}
+        {{--                                <h4 class="title"><a href="#">Lorem ipsum dolor sit amet consectetur--}}
+        {{--                                        adipiscing.</a></h4> --}}{{-- Link to blog post --}}
+        {{--                                <ul class="meta">--}}
+        {{--                                    <li class="author-info"><span>By:</span> <a href="#">Tomas De Momen</a>--}}
+        {{--                                    </li> --}}{{-- Link to author --}}
+        {{--                                    <li class="post-date">February 13, 2022</li>--}}
+        {{--                                </ul>--}}
+        {{--                            </div>--}}
+        {{--                        </div>--}}
+        {{--                        <!--== End Blog Item ==-->--}}
+        {{--                    </div>--}}
+        {{--                    --}}{{-- Add other static blog posts or loop through dynamic ones --}}
+        {{--                    <div class="col-sm-6 col-lg-4 mb-8">--}}
+        {{--                        <!--== Start Blog Item ==-->--}}
+        {{--                        <div class="post-item">--}}
+        {{--                            <a href="#" class="thumb">--}}
+        {{--                                <img src="{{asset('assets/storefront/images/blog/2.webp')}}" width="370" height="320"--}}
+        {{--                                     alt="Image-HasTech">--}}
+        {{--                            </a>--}}
+        {{--                            <div class="content">--}}
+        {{--                                <a class="post-category post-category-two" data-bg-color="#A49CFF" href="#">beauty</a>--}}
+        {{--                                <h4 class="title"><a href="#">Facial Scrub is natural treatment for--}}
+        {{--                                        face.</a></h4>--}}
+        {{--                                <ul class="meta">--}}
+        {{--                                    <li class="author-info"><span>By:</span> <a href="#">Tomas De Momen</a></li>--}}
+        {{--                                    <li class="post-date">February 13, 2022</li>--}}
+        {{--                                </ul>--}}
+        {{--                            </div>--}}
+        {{--                        </div>--}}
+        {{--                        <!--== End Blog Item ==-->--}}
+        {{--                    </div>--}}
+        {{--                    <div class="col-sm-6 col-lg-4 mb-8">--}}
+        {{--                        <!--== Start Blog Item ==-->--}}
+        {{--                        <div class="post-item">--}}
+        {{--                            <a href="#" class="thumb">--}}
+        {{--                                <img src="{{asset('assets/storefront/images/blog/3.webp')}}" width="370" height="320"--}}
+        {{--                                     alt="Image-HasTech">--}}
+        {{--                            </a>--}}
+        {{--                            <div class="content">--}}
+        {{--                                <a class="post-category post-category-three" data-bg-color="#9CDBFF" href="#">beauty</a>--}}
+        {{--                                <h4 class="title"><a href="#">Benefit of Hot Ston Spa for your health &--}}
+        {{--                                        life.</a></h4>--}}
+        {{--                                <ul class="meta">--}}
+        {{--                                    <li class="author-info"><span>By:</span> <a href="#">Tomas De Momen</a></li>--}}
+        {{--                                    <li class="post-date">February 13, 2022</li>--}}
+        {{--                                </ul>--}}
+        {{--                            </div>--}}
+        {{--                        </div>--}}
+        {{--                        <!--== End Blog Item ==-->--}}
+        {{--                    </div>--}}
+        {{--                </div>--}}
+        {{--            </div>--}}
+        {{--        </section>--}}
+        {{--        <!--== End Blog Area Wrapper ==-->--}}
 
-        {{-- Find the Blog Area Wrapper section --}}
-        <section class="section-space">
-            <div class="container">
-                <div class="row">
-                    <div class="col-12">
-                        <div class="section-title text-center">
-                            <h2 class="title">Blog posts</h2>
-                            <p>Latest news and articles from our blog.</p> {{-- Updated description --}}
-                        </div>
-                    </div>
-                </div>
-                <div class="row mb-n9">
-                    {{-- === START DYNAMIC BLOG LOOP === --}}
-                    @forelse ($latestPosts as $post)
-                        <div class="col-sm-6 col-lg-4 mb-8">
-                            <!--== Start Blog Item ==-->
-                            <div class="post-item">
-                                <a href="#" class="thumb"> {{-- TODO: Link to blog post details page --}}
-                                    <img
-                                        src="{{ $post->image ? asset('storage/' . $post->image) : asset('assets/storefront/images/blog/default.webp') }}"
-                                        width="370" height="320" alt="{{ $post->title }}">
-                                </a>
-                                <div class="content">
-                                    {{-- TODO: Add category link if using categories --}}
-                                    {{-- <a class="post-category" href="#">{{ $post->category->name ?? 'Uncategorized' }}</a> --}}
-                                    <h4 class="title"><a href="#">{{ Str::limit($post->title, 50) }}</a>
-                                    </h4> {{-- TODO: Link to blog post details page --}}
-                                    <ul class="meta">
-                                        {{-- TODO: Add author link if using authors --}}
-                                        {{-- <li class="author-info"><span>By:</span> <a href="#">{{ $post->author->name ?? 'Admin' }}</a></li> --}}
-                                        @if($post->published_at)
-                                            <li class="post-date">{{ $post->published_at->format('F d, Y') }}</li>
-                                        @endif
-                                    </ul>
-                                </div>
-                            </div>
-                            <!--== End Blog Item ==-->
-                        </div>
-                    @empty
-                        <div class="col-12">
-                            <p class="text-center">No recent blog posts found.</p>
-                        </div>
-                    @endforelse
-                    {{-- === END DYNAMIC BLOG LOOP === --}}
-                </div>
-            </div>
-        </section>
-        <!--== End Blog Area Wrapper ==-->
+        {{--        --}}{{-- Find the Blog Area Wrapper section --}}
+        {{--        <section class="section-space">--}}
+        {{--            <div class="container">--}}
+        {{--                <div class="row">--}}
+        {{--                    <div class="col-12">--}}
+        {{--                        <div class="section-title text-center">--}}
+        {{--                            <h2 class="title">Blog posts</h2>--}}
+        {{--                            <p>Latest news and articles from our blog.</p> --}}{{-- Updated description --}}
+        {{--                        </div>--}}
+        {{--                    </div>--}}
+        {{--                </div>--}}
+        {{--                <div class="row mb-n9">--}}
+        {{--                    --}}{{-- === START DYNAMIC BLOG LOOP === --}}
+        {{--                    @forelse ($latestPosts as $post)--}}
+        {{--                        <div class="col-sm-6 col-lg-4 mb-8">--}}
+        {{--                            <!--== Start Blog Item ==-->--}}
+        {{--                            <div class="post-item">--}}
+        {{--                                <a href="#" class="thumb"> --}}{{-- TODO: Link to blog post details page --}}
+        {{--                                    <img--}}
+        {{--                                        src="{{ $post->image ? asset('storage/' . $post->image) : asset('assets/storefront/images/blog/default.webp') }}"--}}
+        {{--                                        width="370" height="320" alt="{{ $post->title }}">--}}
+        {{--                                </a>--}}
+        {{--                                <div class="content">--}}
+        {{--                                    --}}{{-- TODO: Add category link if using categories --}}
+        {{--                                    --}}{{-- <a class="post-category" href="#">{{ $post->category->name ?? 'Uncategorized' }}</a> --}}
+        {{--                                    <h4 class="title"><a href="#">{{ Str::limit($post->title, 50) }}</a>--}}
+        {{--                                    </h4> --}}{{-- TODO: Link to blog post details page --}}
+        {{--                                    <ul class="meta">--}}
+        {{--                                        --}}{{-- TODO: Add author link if using authors --}}
+        {{--                                        --}}{{-- <li class="author-info"><span>By:</span> <a href="#">{{ $post->author->name ?? 'Admin' }}</a></li> --}}
+        {{--                                        @if($post->published_at)--}}
+        {{--                                            <li class="post-date">{{ $post->published_at->format('F d, Y') }}</li>--}}
+        {{--                                        @endif--}}
+        {{--                                    </ul>--}}
+        {{--                                </div>--}}
+        {{--                            </div>--}}
+        {{--                            <!--== End Blog Item ==-->--}}
+        {{--                        </div>--}}
+        {{--                    @empty--}}
+        {{--                        <div class="col-12">--}}
+        {{--                            <p class="text-center">No recent blog posts found.</p>--}}
+        {{--                        </div>--}}
+        {{--                    @endforelse--}}
+        {{--                    --}}{{-- === END DYNAMIC BLOG LOOP === --}}
+        {{--                </div>--}}
+        {{--            </div>--}}
+        {{--        </section>--}}
+        {{--        <!--== End Blog Area Wrapper ==-->--}}
 
         <!--== Start News Letter Area Wrapper ==-->
         <section class="section-space pt-0">
