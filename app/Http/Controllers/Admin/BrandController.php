@@ -7,7 +7,9 @@
  * @date 8/28/2025
  * @time 5:05 PM
  */
+
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -15,6 +17,7 @@ use App\Http\Requests\Brands\StoreBrandRequest;
 use App\Http\Requests\Brands\UpdateBrandRequest;
 use App\Models\Brand;
 use App\Services\Admin\BrandService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -47,9 +50,13 @@ class BrandController extends Controller
             $data['is_active'] = $request->has('is_active');
             $this->brandService->createBrand($data);
             return redirect()->route('admin.brands.index')->with('success', 'Brand created successfully.');
+        } catch (QueryException $e) {
+            Log::error('Brand Creation Failed: ' . $e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
+            return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Brand Creation Failed: '.$e->getMessage());
-            return back()->withInput()->with('error', 'Failed to create brand.');
+            Log::error('Brand Creation Failed: ' . $e->getMessage());
+            return back()->withInput()->with('error', $e->getMessage());
         }
     }
 
@@ -65,8 +72,12 @@ class BrandController extends Controller
             $data['is_active'] = $request->has('is_active');
             $this->brandService->updateBrand($brand, $data);
             return redirect()->route('admin.brands.index')->with('success', 'Brand updated successfully.');
+        } catch (QueryException $e) {
+            Log::error('Brand Update Failed: ' . $e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
+            return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Brand Update Failed: '.$e->getMessage());
+            Log::error('Brand Update Failed: ' . $e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -85,12 +96,12 @@ class BrandController extends Controller
             return redirect()->route('admin.brands.index')
                 ->with('success', 'Brand deleted successfully.');
         } catch (\Exception $e) {
-            Log::error('Brand Deletion Failed: '.$e->getMessage());
+            Log::error('Brand Deletion Failed: ' . $e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to delete brand: '.$e->getMessage(),
+                    'message' => 'Failed to delete brand: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -132,5 +143,4 @@ class BrandController extends Controller
             'data' => $data,
         ]);
     }
-
 }

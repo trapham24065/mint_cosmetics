@@ -9,19 +9,6 @@
                         <h4 class="card-title">System Settings</h4>
                     </div>
                     <div class="card-body">
-                        @if(session('success'))
-                            <div class="alert alert-success">{{ session('success') }}</div>
-                        @endif
-
-                        @if($errors->any())
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
 
                         <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
                             @csrf
@@ -53,10 +40,10 @@
                                             <div class="mb-3">
                                                 <label class="form-label fw-bold">{{ $setting->label }}</label>
 
-                                                @if($setting->type === 'text' || $setting->type === 'email')
+                                                @if(in_array($setting->type, ['text', 'email', 'number', 'password']))
                                                     <input type="{{ $setting->type }}" class="form-control"
                                                            name="{{ $setting->key }}"
-                                                           value="{{ $setting->value }}">
+                                                           value="{{ $setting->type === 'password' ? '' : $setting->value }}">
 
                                                 @elseif($setting->type === 'textarea')
                                                     <textarea class="form-control" name="{{ $setting->key }}"

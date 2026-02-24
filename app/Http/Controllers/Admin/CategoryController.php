@@ -7,6 +7,7 @@
  * @date 8/25/2025
  * @time 4:56 PM
  */
+
 declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
@@ -18,6 +19,7 @@ use App\Models\Attribute;
 use App\Models\Category;
 use App\Services\Admin\CategoryService;
 use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
@@ -82,9 +84,13 @@ class CategoryController extends Controller
 
             return redirect()->route('admin.categories.index')
                 ->with('success', 'Category created successfully.');
+        } catch (QueryException $e) {
+            Log::error('Category Creation Failed: ' . $e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
+            return back()->withInput()->with('error', $message);
         } catch (Exception $e) {
-            Log::error('Category Creation Failed: '.$e->getMessage());
-            return back()->withInput()->with('error', 'Failed to create category.');
+            Log::error('Category Creation Failed: ' . $e->getMessage());
+            return back()->withInput()->with('error', $e->getMessage());
         }
     }
 
@@ -132,8 +138,12 @@ class CategoryController extends Controller
 
             return redirect()->route('admin.categories.index')
                 ->with('success', 'Category updated successfully.');
+        } catch (QueryException $e) {
+            Log::error('Category Update Failed: ' . $e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
+            return back()->withInput()->with('error', $message);
         } catch (Exception $e) {
-            Log::error('Category Update Failed: '.$e->getMessage());
+            Log::error('Category Update Failed: ' . $e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -156,12 +166,12 @@ class CategoryController extends Controller
             return redirect()->route('admin.categories.index')
                 ->with('success', 'Category deleted successfully.');
         } catch (\Exception $e) {
-            Log::error('Category Deletion Failed: '.$e->getMessage());
+            Log::error('Category Deletion Failed: ' . $e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to delete category: '.$e->getMessage(),
+                    'message' => 'Failed to delete category: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -205,5 +215,4 @@ class CategoryController extends Controller
             'data' => $data,
         ]);
     }
-
 }

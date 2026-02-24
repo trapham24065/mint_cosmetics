@@ -7,7 +7,9 @@
  * @date 8/24/2025
  * @time 5:05 PM
  */
+
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -73,10 +75,13 @@ class AttributeController extends Controller
 
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute and its values created successfully.');
+        } catch (QueryException $e) {
+            Log::error('Attribute Creation Failed: ' . $e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
+            return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Attribute Creation Failed: '.$e->getMessage());
-
-            return back()->withInput()->with('error', 'Failed to create attribute. Please try again.');
+            Log::error('Attribute Creation Failed: ' . $e->getMessage());
+            return back()->withInput()->with('error', $e->getMessage());
         }
     }
 
@@ -101,9 +106,12 @@ class AttributeController extends Controller
 
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute updated successfully.');
+        } catch (QueryException $e) {
+            Log::error('Attribute Update Failed: ' . $e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
+            return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Attribute Update Failed: '.$e->getMessage());
-            // The service throws the specific error message
+            Log::error('Attribute Update Failed: ' . $e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -125,14 +133,21 @@ class AttributeController extends Controller
 
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute deleted successfully.');
-        } catch (\Exception $e) {
-            Log::error('Attribute Deletion Failed: '.$e->getMessage());
+        } catch (QueryException $e) {
+            Log::error('Attribute Deletion Failed: ' . $e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
 
             if (request()->expectsJson() || request()->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to delete attribute: '.$e->getMessage(),
-                ], 500);
+                return response()->json(['success' => false, 'message' => $message], 500);
+            }
+
+            return redirect()->route('admin.attributes.index')
+                ->with('error', $message);
+        } catch (\Exception $e) {
+            Log::error('Attribute Deletion Failed: ' . $e->getMessage());
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
             }
 
             return redirect()->route('admin.attributes.index')
@@ -161,5 +176,4 @@ class AttributeController extends Controller
             'data' => $data,
         ]);
     }
-
 }

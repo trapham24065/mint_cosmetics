@@ -7,7 +7,9 @@
  * @date 8/25/2025
  * @time 10:01 PM
  */
+
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
@@ -67,8 +69,8 @@ class CartController extends Controller
                 'message' => 'Item removed from cart.',
                 'cart'    => $cartData,
             ]);
-        } catch (Exception) {
-            return response()->json(['success' => false, 'message' => 'Could not remove item.'], 500);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
     }
 
@@ -115,5 +117,4 @@ class CartController extends Controller
         $cartData = $this->cartService->removeCoupon();
         return response()->json(['success' => true, 'cart' => $cartData]);
     }
-
 }

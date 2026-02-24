@@ -7,7 +7,7 @@
                 <div class="card">
                     <div class="card-body text-center">
                         <img
-                            src="{{ $brand->logo ? asset('storage/' . $brand->logo) : asset('assets/admin/images/default-brand.png') }}"
+                            src="{{ $brand->logo ? asset('storage/' . $brand->logo) : asset('assets/admin/images/default.webp') }}"
                             alt="{{ $brand->name }}" class="img-thumbnail rounded-circle avatar-lg mb-3">
                         <h4 class="card-title">{{ $brand->name }}</h4>
                         <p class="text-muted">ID: {{ $brand->id }}</p>

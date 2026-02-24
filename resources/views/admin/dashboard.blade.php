@@ -19,7 +19,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-white-50 text-uppercase mb-2">Đang Online</h6>
+                                <h6 class="text-white-50 text-uppercase mb-2">Online</h6>
                                 <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($onlineUsers) }}</h2>
                             </div>
                             <div class="avatar-sm">
@@ -29,7 +29,7 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <span class="text-white-50 fs-13">Hoạt động trong 5 phút</span>
+                            <span class="text-white-50 fs-13">Operates for 5 minutes</span>
                         </div>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-white-50 text-uppercase mb-2">Lượt xem hôm nay</h6>
+                                <h6 class="text-white-50 text-uppercase mb-2">Views today</h6>
                                 <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($todayVisits) }}</h2>
                             </div>
                             <div class="avatar-sm">
@@ -56,7 +56,7 @@
                             @else
                                 <span class="badge bg-danger text-white"><i class="bx bx-down-arrow-alt"></i> {{ number_format(abs($growth), 1) }}%</span>
                             @endif
-                            <span class="text-white-50 fs-13 ms-1">So với hôm qua</span>
+                            <span class="text-white-50 fs-13 ms-1">Compared to yesterday</span>
                         </div>
                     </div>
                 </div>
@@ -68,7 +68,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-white-50 text-uppercase mb-2">Đơn chờ xử lý</h6>
+                                <h6 class="text-white-50 text-uppercase mb-2">Application pending</h6>
                                 <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($pendingOrders) }}</h2>
                             </div>
                             <div class="avatar-sm">
@@ -78,7 +78,7 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <span class="text-white-50 fs-13">Cần duyệt ngay</span>
+                            <span class="text-white-50 fs-13">Need approval immediately</span>
                         </div>
                     </div>
                 </div>
@@ -90,7 +90,8 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-white-50 text-uppercase mb-2">Tổng doanh thu</h6>
+                                <h6 class="text-white-50 text-uppercase mb-2">
+                                    Total revenue</h6>
                                 <h4 class="mb-0 fw-bold text-white">{{ number_format($totalRevenue) }} đ</h4>
                             </div>
                             <div class="avatar-sm">
@@ -100,7 +101,7 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <span class="text-white-50 fs-13">Đơn hàng hoàn tất</span>
+                            <span class="text-white-50 fs-13">Order completed</span>
                         </div>
                     </div>
                 </div>
@@ -170,7 +171,8 @@
             <div class="col-xl-6">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title mb-4">Biểu Đồ Doanh Thu (12 Tháng)</h4>
+                        <h4 class="card-title mb-4">
+                            Revenue Chart (12 Months)</h4>
                         <div dir="ltr">
                             <div id="revenue-chart" class="apex-charts" style="height: 320px;"></div>
                         </div>
@@ -182,7 +184,8 @@
             <div class="col-xl-6">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title mb-4">Lượt Truy Cập (7 Ngày Gần Nhất)</h4>
+                        <h4 class="card-title mb-4">
+                            Website Visits (Last 7 Days)</h4>
                         <div dir="ltr">
                             <div id="visits-chart" class="apex-charts" style="height: 320px;"></div>
                         </div>
@@ -196,18 +199,24 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h4 class="card-title">Đơn Hàng Gần Đây</h4>
-                        <a href="{{ route('admin.orders.index') }}" class="btn btn-sm btn-soft-primary">Xem Tất Cả</a>
+                        <h4 class="card-title">
+                            Recent Orders</h4>
+                        <a href="{{ route('admin.orders.index') }}" class="btn btn-sm btn-soft-primary">See All
+                        </a>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover table-nowrap table-centered m-0">
                             <thead class="bg-light bg-opacity-50">
                             <tr>
                                 <th>Order ID</th>
-                                <th>Khách Hàng</th>
-                                <th>Tổng Tiền</th>
-                                <th>Trạng Thái</th>
-                                <th>Ngày Đặt</th>
+                                <th>
+                                    Client
+                                </th>
+                                <th>Total Money</th>
+                                <th>Status</th>
+                                <th>
+                                    Booking Date
+                                </th>
                             </tr>
                             </thead>
                             <tbody>
@@ -233,7 +242,9 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4">Chưa có đơn hàng nào.</td>
+                                    <td colspan="5" class="text-center py-4">
+                                        No orders have been received yet.
+                                    </td>
                                 </tr>
                             @endforelse
                             </tbody>
@@ -246,7 +257,6 @@
 @endsection
 
 @push('scripts')
-    {{--    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>--}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
@@ -275,12 +285,12 @@
             const visitsEl = document.getElementById('visits-chart');
             if (visitsEl) {
                 const options2 = {
-                    series: [{ name: 'Lượt xem', data: @json($visitValues) }],
+                    series: [{ name: 'view', data: @json($visitValues) }],
                     chart: { height: 320, type: 'bar', toolbar: { show: false } },
                     xaxis: { categories: @json($visitLabels) },
                     colors: ['#3b82f6'], // Blue
                     plotOptions: { bar: { borderRadius: 4, columnWidth: '45%' } },
-                    tooltip: { y: { formatter: (val) => val + ' lượt' } },
+                    tooltip: { y: { formatter: (val) => val + ' view' } },
                 };
                 new ApexCharts(visitsEl, options2).render();
             }

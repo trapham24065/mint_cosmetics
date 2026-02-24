@@ -7,9 +7,12 @@
  * @date 8/26/2025
  * @time 11:54 PM
  */
+
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Products\StoreProductRequest;
 use App\Http\Requests\Products\UpdateProductRequest;
 use App\Models\Product;
@@ -21,8 +24,9 @@ use App\Models\Brand;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Database\QueryException;
 
-class ProductController
+class ProductController extends Controller
 {
 
     protected ProductService $productService;
@@ -65,10 +69,14 @@ class ProductController
 
             return redirect()->route('admin.products.index')
                 ->with('success', ' Product created successfully.');
+        } catch (QueryException $e) {
+            Log::error('Product Creation Failed: ' . $e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
+            return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Product Creation Failed: '.$e->getMessage());
+            Log::error('Product Creation Failed: ' . $e->getMessage());
             return back()->withInput()
-                ->with('error', ' Failed to create product. Please try again.');
+                ->with('error', $e->getMessage());
         }
     }
 
@@ -130,9 +138,13 @@ class ProductController
 
             return redirect()->route('admin.products.index')
                 ->with('success', ' Product updated successfully.');
+        } catch (QueryException $e) {
+            Log::error('Product Update Failed: ' . $e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
+            return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Product Update Failed: '.$e->getMessage());
-            return back()->withInput()->with('error', 'Failed to update product.');
+            Log::error('Product Update Failed: ' . $e->getMessage());
+            return back()->withInput()->with('error', $e->getMessage());
         }
     }
 
@@ -154,12 +166,12 @@ class ProductController
             return redirect()->route('admin.products.index')
                 ->with('success', 'Product deleted successfully.');
         } catch (\Exception $e) {
-            Log::error('Product Deletion Failed: '.$e->getMessage());
+            Log::error('Product Deletion Failed: ' . $e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to delete product: '.$e->getMessage(),
+                    'message' => 'Failed to delete product: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -215,7 +227,7 @@ class ProductController
             );
             return response()->json(['success' => true, 'message' => "Successfully updated {$count} products."]);
         } catch (\Exception $e) {
-            Log::error('Bulk Product Update Failed: '.$e->getMessage());
+            Log::error('Bulk Product Update Failed: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'An error occurred.'], 500);
         }
     }
@@ -228,15 +240,14 @@ class ProductController
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $filename = time().'_'.$file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('products/descriptions', $filename, 'public');
 
             return response()->json([
-                'location' => asset('storage/'.$path),
+                'location' => asset('storage/' . $path),
             ]);
         }
 
         return response()->json(['error' => 'Upload failed'], 400);
     }
-
 }
