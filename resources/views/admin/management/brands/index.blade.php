@@ -36,7 +36,7 @@
                             name: 'Logo',
                             width: '100px',
                             formatter: (cell) => {
-                                const imageUrl = cell ? `{{ asset('storage') }}/${cell}` : `{{ asset('assets/admin/images/default-brand.png') }}`;
+                                const imageUrl = cell ? `{{ asset('storage') }}/${cell}` : `{{ asset('assets/admin/images/default.webp') }}`;
                                 return gridjs.html(`<img src="${imageUrl}" alt="Logo" class="avatar-sm">`);
                             }
                         },

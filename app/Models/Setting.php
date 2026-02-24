@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author PhamTra
@@ -46,4 +47,32 @@ class Setting extends Model
         'is_active' => 'boolean',
     ];
 
+    /**
+     * Automatically decrypt the value when retrieving a mail password setting.
+     */
+    public function getValueAttribute($value)
+    {
+        if ($this->key === 'mail_password' && $value !== null && $value !== '') {
+            try {
+                return decrypt($value);
+            } catch (\Exception $e) {
+                // in case the value wasn't encrypted already
+                return $value;
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Encrypt the mail password when saving to database.
+     */
+    public function setValueAttribute($value)
+    {
+        if ($this->key === 'mail_password' && $value !== null && $value !== '') {
+            $this->attributes['value'] = encrypt($value);
+        } else {
+            $this->attributes['value'] = $value;
+        }
+    }
 }

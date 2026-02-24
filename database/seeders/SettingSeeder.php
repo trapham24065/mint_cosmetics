@@ -49,8 +49,10 @@ class SettingSeeder extends Seeder
                 'type'       => 'select',
                 'group'      => 'payment',
                 'label'      => 'VietQR Bank',
-                'options'    => json_encode(['970436' => 'Vietcombank', '970422' => 'MB Bank', '970423' => 'TPBank'],
-                    JSON_THROW_ON_ERROR),
+                'options'    => json_encode(
+                    ['970436' => 'Vietcombank', '970422' => 'MB Bank', '970423' => 'TPBank'],
+                    JSON_THROW_ON_ERROR
+                ),
                 'sort_order' => 1,
             ],
             [
@@ -87,11 +89,70 @@ class SettingSeeder extends Seeder
                 'label'      => 'Email address',
                 'sort_order' => 2,
             ],
+            // SMTP configuration (overridable via settings)
+            [
+                'key'        => 'mail_driver',
+                'value'      => 'smtp',
+                'type'       => 'select',
+                'group'      => 'email',
+                'label'      => 'Mail driver',
+                'options'    => json_encode([
+                    'smtp'      => 'SMTP',
+                    'sendmail'  => 'Sendmail',
+                    'mailgun'   => 'Mailgun',
+                    'ses'       => 'SES',
+                    'postmark'  => 'Postmark',
+                    'resend'    => 'Resend',
+                    'log'       => 'Log',
+                    'array'     => 'Array',
+                ], JSON_THROW_ON_ERROR),
+                'sort_order' => 3,
+            ],
+            [
+                'key'        => 'mail_host',
+                'value'      => '127.0.0.1',
+                'type'       => 'text',
+                'group'      => 'email',
+                'label'      => 'SMTP host',
+                'sort_order' => 4,
+            ],
+            [
+                'key'        => 'mail_port',
+                'value'      => '2525',
+                'type'       => 'text',
+                'group'      => 'email',
+                'label'      => 'SMTP port',
+                'sort_order' => 5,
+            ],
+            [
+                'key'        => 'mail_username',
+                'value'      => null,
+                'type'       => 'text',
+                'group'      => 'email',
+                'label'      => 'SMTP username',
+                'sort_order' => 6,
+            ],
+            [
+                'key'        => 'mail_password',
+                'value'      => null,
+                'type'       => 'password',
+                'group'      => 'email',
+                'label'      => 'SMTP password',
+                'sort_order' => 7,
+            ],
+            [
+                'key'        => 'mail_encryption',
+                'value'      => 'tls',
+                'type'       => 'select',
+                'group'      => 'email',
+                'label'      => 'Encryption',
+                'options'    => json_encode(['tls' => 'TLS', 'ssl' => 'SSL', '' => 'None'], JSON_THROW_ON_ERROR),
+                'sort_order' => 8,
+            ],
         ];
 
         foreach ($settings as $setting) {
             Setting::updateOrCreate(['key' => $setting['key']], $setting);
         }
     }
-
 }

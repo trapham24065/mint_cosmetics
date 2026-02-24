@@ -92,8 +92,36 @@ class Product extends Model
     protected static function booted(): void
     {
         static::creating(static function (Product $product) {
-            $product->slug = Str::slug($product->name);
+            $product->slug = self::generateUniqueSlug($product->name);
         });
+
+        static::updating(static function (Product $product) {
+            // Only regenerate slug if name changed
+            if ($product->isDirty('name')) {
+                $product->slug = self::generateUniqueSlug($product->name, $product->id);
+            }
+        });
+    }
+
+    /**
+     * Generate a unique slug for the product.
+     * If slug already exists, append a suffix like -1, -2, etc.
+     */
+    protected static function generateUniqueSlug(string $name, ?int $exceptId = null): string
+    {
+        $baseSlug = Str::slug($name);
+        $slug = $baseSlug;
+        $counter = 1;
+
+        // Keep appending counter until we find a unique slug
+        while (self::where('slug', $slug)->when($exceptId, function ($query) use ($exceptId) {
+            return $query->where('id', '!=', $exceptId);
+        })->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 
     public function reviews(): HasMany
@@ -123,5 +151,4 @@ class Product extends Model
     {
         return $this->approvedReviews()->count();
     }
-
 }

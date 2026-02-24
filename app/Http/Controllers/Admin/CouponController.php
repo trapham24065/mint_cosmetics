@@ -16,6 +16,7 @@ use App\Http\Requests\Coupons\StoreCouponRequest;
 use App\Http\Requests\Coupons\UpdateCouponRequest;
 use App\Models\Coupon;
 use App\Services\Admin\CouponService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
@@ -82,9 +83,13 @@ class CouponController extends Controller
 
             return redirect()->route('admin.coupons.index')
                 ->with('success', 'Coupon created successfully.');
+        } catch (QueryException $e) {
+            Log::error('Coupon Creation Failed: '.$e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
+            return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
             Log::error('Coupon Creation Failed: '.$e->getMessage());
-            return back()->withInput()->with('error', 'Failed to create coupon.');
+            return back()->withInput()->with('error', $e->getMessage());
         }
     }
 
@@ -110,6 +115,10 @@ class CouponController extends Controller
 
             return redirect()->route('admin.coupons.index')
                 ->with('success', 'Coupon updated successfully.');
+        } catch (QueryException $e) {
+            Log::error('Coupon Update Failed: '.$e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
+            return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
             Log::error('Coupon Update Failed: '.$e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
@@ -133,18 +142,19 @@ class CouponController extends Controller
 
             return redirect()->route('admin.coupons.index')
                 ->with('success', 'Coupon deleted successfully.');
+        } catch (QueryException $e) {
+            Log::error('Coupon Deletion Failed: '.$e->getMessage());
+            $message = $this->getQueryExceptionMessage($e);
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json(['success' => false, 'message' => $message], 500);
+            }
+            return back()->with('error', $message);
         } catch (\Exception $e) {
             Log::error('Coupon Deletion Failed: '.$e->getMessage());
-
             if (request()->expectsJson() || request()->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to delete coupon: '.$e->getMessage(),
-                ], 500);
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
             }
-
-            return redirect()->route('admin.coupons.index')
-                ->with('error', $e->getMessage());
+            return back()->with('error', $e->getMessage());
         }
     }
 
@@ -172,5 +182,5 @@ class CouponController extends Controller
             'data' => $data,
         ]);
     }
-
+    
 }
