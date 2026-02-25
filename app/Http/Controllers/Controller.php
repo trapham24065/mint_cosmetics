@@ -8,6 +8,7 @@ use Illuminate\Database\QueryException;
 
 abstract class Controller
 {
+
     /**
      * Convert database query exceptions to user-friendly messages
      */
@@ -26,13 +27,13 @@ abstract class Controller
 
         // Handle foreign key constraint violations (1452 = foreign key fails)
         if ($sqlState === '23000' && $errorCode === 1452) {
-            if (strpos($e->getMessage(), 'category_id') !== false || strpos($e->getMessage(), 'categories') !== false) {
+            if (str_contains($e->getMessage(), 'category_id') || str_contains($e->getMessage(), 'categories')) {
                 return 'The selected category is invalid or has been deleted.';
             }
-            if (strpos($e->getMessage(), 'brand_id') !== false || strpos($e->getMessage(), 'brands') !== false) {
+            if (str_contains($e->getMessage(), 'brand_id') || str_contains($e->getMessage(), 'brands')) {
                 return 'The selected brand is invalid or has been deleted.';
             }
-            if (strpos($e->getMessage(), 'attribute') !== false) {
+            if (str_contains($e->getMessage(), 'attribute')) {
                 return 'The selected attribute is invalid or has been deleted.';
             }
             return 'One or more related records are invalid.';
@@ -46,4 +47,5 @@ abstract class Controller
         // Default database error
         return 'A database error occurred. Please try again.';
     }
+
 }

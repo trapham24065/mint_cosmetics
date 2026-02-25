@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Requests\Products;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -14,7 +15,6 @@ class UpdateProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Assuming any authenticated admin can update products
         return true;
     }
 
@@ -26,34 +26,35 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         $product = $this->route('product');
-        $productId = $this->route('product')->id; // Ensure route model binding is used
+        $productId = $product->id;
         $isSimple = $this->input('product_type') === 'simple';
 
-        // Base rules that apply to all types
         $rules = [
-            'name'               => ['required', 'string', 'max:255', Rule::unique('products')->ignore($productId)],
-            'category_id'        => ['required', 'exists:categories,id'],
-            'brand_id'           => ['nullable', 'exists:brands,id'],
-            'description'        => ['nullable', 'string', 'max:65535'], // Max length for TEXT
-            'image'              => ['nullable', 'image', 'mimes:jpg,png,jpeg,webp', 'max:2048'],
-            'list_image'         => ['nullable', 'array'],
-            'list_image.*'       => ['sometimes', 'image', 'mimes:jpg,png,jpeg,webp', 'max:2048'],
-            'active'             => ['sometimes', 'boolean'],
-            'product_type'       => ['required', Rule::in(['simple', 'variable'])],
-            'deleted_variants'   => ['nullable', 'array'],
-            'deleted_variants.*' => ['integer', 'exists:product_variants,id'],
+            'name'                  => ['required', 'string', 'max:255', Rule::unique('products')->ignore($productId)],
+            'category_id'           => ['required', 'exists:categories,id'],
+            'brand_id'              => ['nullable', 'exists:brands,id'],
+            'description'           => ['nullable', 'string', 'max:65535'],
+            'image'                 => ['nullable', 'image', 'mimes:jpg,png,jpeg,webp', 'max:2048'],
+            'list_image'            => ['nullable', 'array'],
+            'list_image.*'          => ['sometimes', 'image', 'mimes:jpg,png,jpeg,webp', 'max:2048'],
+            'active'                => ['sometimes', 'boolean'],
+            'product_type'          => ['required', Rule::in(['simple', 'variable'])],
+            'deleted_variants'      => ['nullable', 'array'],
+            'deleted_variants.*'    => ['integer', 'exists:product_variants,id'],
+            'selected_attributes'   => ['nullable', 'array'],
+            'selected_attributes.*' => ['exists:attributes,id'],
         ];
 
         if ($isSimple) {
-            // Rules specific to a simple product
+            // Rules cho Simple Product
             $rules['price'] = ['required', 'numeric', 'min:0'];
-            $rules['stock'] = ['required', 'integer', 'min:0'];
             $rules['discount_price'] = [
                 'nullable',
                 'numeric',
                 'min:0',
-                Rule::when($this->filled('price') && is_numeric($this->input('price')), ['lte:price']),
+                Rule::when($this->filled('price'), ['lte:price']),
             ];
+
             $currentVariant = $product->variants->first();
             $variantId = $currentVariant ? $currentVariant->id : null;
 
@@ -61,97 +62,51 @@ class UpdateProductRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:255',
-                // SKU phải duy nhất trong bảng product_variants, ngoại trừ chính nó
                 Rule::unique('product_variants', 'sku')->ignore($variantId),
             ];
-            // Forbid variable fields if the type is simple
+
             $rules['variants'] = ['prohibited'];
             $rules['new_variants'] = ['prohibited'];
         } else {
-            // Rules specific to a variable product
-            // Forbid simple fields if the type is variable
+            // Rules cho Variable Product
             $rules['price'] = ['prohibited'];
-            $rules['stock'] = ['prohibited'];
+            $rules['sku'] = ['prohibited'];
 
+            // 1. Validate các biến thể CŨ (đang update)
             if ($this->has('variants') && is_array($this->input('variants'))) {
                 foreach ($this->input('variants') as $index => $variantData) {
                     $rules["variants.{$index}.id"] = ['required', 'integer', 'exists:product_variants,id'];
                     $rules["variants.{$index}.price"] = ['required', 'numeric', 'min:0'];
                     $rules["variants.{$index}.discount_price"] = ['nullable', 'numeric', 'min:0'];
-                    $rules["variants.{$index}.attribute_value_ids"] = ['required'];
+                    $rules["variants.{$index}.attributes"] = ['nullable', 'array'];
 
-                    // Lấy ID của variant đang xét để ignore chính nó
                     $currentVariantId = $variantData['id'] ?? null;
 
-                    // Validate SKU cho biến thể cũ
                     $rules["variants.{$index}.sku"] = [
                         'nullable',
                         'string',
                         'max:255',
-                        'distinct', // Không được trùng nhau trong cùng 1 request
+                        'distinct',
                         Rule::unique('product_variants', 'sku')->ignore($currentVariantId),
                     ];
                 }
             }
 
-            // Existing Variants
-            $rules['variants'] = ['nullable', 'array']; // Existing variants might be empty if all are deleted
-            $rules['variants.*.id'] = [
-                'required',
-                'integer',
-                'exists:product_variants,id',
-            ]; // ID must exist for existing
-            $rules['variants.*.price'] = ['required', 'numeric', 'min:0'];
-            $rules['variants.*.stock'] = ['required', 'integer', 'min:0'];
-            $rules['variants.*.discount_price'] = [
-                'nullable',
-                'numeric',
-                'min:0',
-                Rule::when(
-                    fn(array $input) => isset(
-                            $input['variants'][$this->getVariantIndex(
-                                'variants'
-                            )]['price']
-                        ) && is_numeric($input['variants'][$this->getVariantIndex('variants')]['price']),
-                    ['lte:variants.*.price']
-                ),
-            ];
-            $rules['variants.*.attribute_value_ids'] = ['required', 'array', 'min:1'];
-            $rules['variants.*.attribute_value_ids.*'] = ['required', 'integer', 'exists:attribute_values,id'];
-            // Optional SKU validation for existing variants (unique ignoring self)
-            $rules['variants.*.sku'] = [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('product_variants', 'sku')->ignore($this->getVariantIdBeingValidated('variants'), 'id'),
-            ];
+            if ($this->has('new_variants') && is_array($this->input('new_variants'))) {
+                foreach ($this->input('new_variants') as $index => $variantData) {
+                    $rules["new_variants.{$index}.price"] = ['required', 'numeric', 'min:0'];
+                    $rules["new_variants.{$index}.discount_price"] = ['nullable', 'numeric', 'min:0'];
+                    $rules["new_variants.{$index}.attribute_value_ids"] = ['required', 'string'];
 
-            // New Variants
-            $rules['new_variants'] = ['nullable', 'array']; // New variants might be empty
-            $rules['new_variants.*.price'] = ['required', 'numeric', 'min:0'];
-            $rules['new_variants.*.stock'] = ['required', 'integer', 'min:0'];
-            $rules['new_variants.*.discount_price'] = [
-                'nullable',
-                'numeric',
-                'min:0',
-                Rule::when(
-                    fn(array $input) => isset(
-                            $input['new_variants'][$this->getVariantIndex(
-                                'new_variants'
-                            )]['price']
-                        ) && is_numeric($input['new_variants'][$this->getVariantIndex('new_variants')]['price']),
-                    ['lte:new_variants.*.price']
-                ),
-            ];
-            $rules['new_variants.*.attribute_value_ids'] = ['required', 'array', 'min:1'];
-            $rules['new_variants.*.attribute_value_ids.*'] = ['required', 'integer', 'exists:attribute_values,id'];
-            // Optional SKU validation for new variants (must be unique overall)
-            $rules['new_variants.*.sku'] = [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('product_variants', 'sku'),
-            ];
+                    $rules["new_variants.{$index}.sku"] = [
+                        'nullable',
+                        'string',
+                        'max:255',
+                        'distinct',
+                        Rule::unique('product_variants', 'sku'),
+                    ];
+                }
+            }
         }
 
         return $rules;
@@ -234,8 +189,10 @@ class UpdateProductRequest extends FormRequest
             'new_variants.*.attribute_value_ids.*.integer'  => 'Invalid attribute value ID for new variant.',
             'new_variants.*.attribute_value_ids.*.exists'   => 'One of the selected attribute values for new variant does not exist.',
             'new_variants.*.sku.unique'                     => 'The SKU for one of the new variants is already in use.',
-            'sku.unique'                                    => 'The SKU has already been taken.',
             'variants.*.sku.distinct'                       => 'Duplicate SKUs found in the variants list.',
+            'sku.unique'                                    => 'The SKU has already been taken.',
+            'new_variants.*.sku.distinct'                   => 'Duplicate SKUs found in the new variants list.',
+         
         ];
     }
 

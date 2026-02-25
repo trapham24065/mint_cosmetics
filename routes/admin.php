@@ -7,9 +7,11 @@
  * @date 8/22/2025
  * @time 3:11 PM
  */
+
 declare(strict_types=1);
 
-use App\Http\Controllers\Admin\{AttributeController,
+use App\Http\Controllers\Admin\{
+    AttributeController,
     BlogPostController,
     BrandController,
     CategoryController,
@@ -39,7 +41,7 @@ use Illuminate\Support\Facades\Route;
 | Prefix: 'admin', Middleware: 'auth' (Applied globally)
 */
 
-require __DIR__.'/api.php';
+require __DIR__ . '/api.php';
 
 // --- Dashboard ---
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -61,6 +63,7 @@ Route::resource('categories', CategoryController::class);
 Route::controller(ProductController::class)->prefix('products')->name('products.')->group(function () {
     Route::post('bulk-update', 'bulkUpdate')->name('bulkUpdate');
     Route::post('upload-tinymce-image', 'uploadTinyMCEImage')->name('upload.tinymce');
+    Route::get('variants/search', 'searchVariants')->name('variants.search'); // Search variants by query
 });
 Route::resource('products', ProductController::class);
 

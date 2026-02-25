@@ -19,6 +19,10 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
+        // If user is already authenticated (including via remember token), redirect to dashboard
+        if (Auth::guard('web')->check()) {
+            return redirect(route('admin.dashboard', absolute: false));
+        }
         return view('admin.auth.login');
     }
 
@@ -48,5 +52,4 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/admin/login')->with('success', 'Signed out successfully.');
     }
-
 }
