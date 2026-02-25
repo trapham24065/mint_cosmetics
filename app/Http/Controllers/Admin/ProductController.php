@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Products\StoreProductRequest;
 use App\Http\Requests\Products\UpdateProductRequest;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Services\Admin\ProductService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -70,11 +71,11 @@ class ProductController extends Controller
             return redirect()->route('admin.products.index')
                 ->with('success', ' Product created successfully.');
         } catch (QueryException $e) {
-            Log::error('Product Creation Failed: ' . $e->getMessage());
+            Log::error('Product Creation Failed', ['exception' => $e]);
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Product Creation Failed: ' . $e->getMessage());
+            Log::error('Product Creation Failed', ['exception' => $e]);
             return back()->withInput()
                 ->with('error', $e->getMessage());
         }
@@ -132,18 +133,28 @@ class ProductController extends Controller
     {
         try {
             $data = $request->validated();
+
+            // Normalize active flag and log a safe subset of incoming payload for debugging
             $data['active'] = $request->has('active');
+
+            $logKeys = ['name', 'category_id', 'brand_id', 'product_type', 'variants', 'new_variants', 'deleted_variants', 'sku', 'price', 'stock', 'discount_price', 'active'];
+            $logData = array_intersect_key($data, array_flip($logKeys));
+            // Ensure we don't accidentally serialize UploadedFile objects; keep only scalars/arrays
+            Log::info('Admin Product Update Request', ['product_id' => $product->id, 'payload' => $logData]);
 
             $this->productService->updateProduct($product, $data);
 
             return redirect()->route('admin.products.index')
                 ->with('success', ' Product updated successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Let Laravel handle validation exceptions so they are returned as validation errors
+            throw $e;
         } catch (QueryException $e) {
-            Log::error('Product Update Failed: ' . $e->getMessage());
+            Log::error('Product Update Failed', ['exception' => $e]);
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Product Update Failed: ' . $e->getMessage());
+            Log::error('Product Update Failed', ['exception' => $e]);
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -166,7 +177,7 @@ class ProductController extends Controller
             return redirect()->route('admin.products.index')
                 ->with('success', 'Product deleted successfully.');
         } catch (\Exception $e) {
-            Log::error('Product Deletion Failed: ' . $e->getMessage());
+            Log::error('Product Deletion Failed', ['exception' => $e]);
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
@@ -249,5 +260,35 @@ class ProductController extends Controller
         }
 
         return response()->json(['error' => 'Upload failed'], 400);
+    }
+
+    /**
+     * Search product variants by SKU (for AJAX autocomplete).
+     * Returns JSON array suitable for Select2.
+     */
+    public function searchVariants(Request $request): JsonResponse
+    {
+        $query = $request->query('q', '');
+        $limit = (int)$request->query('limit', 50);
+
+        $variants = ProductVariant::query()
+            ->with(['product', 'attributeValues.attribute'])
+            ->where('sku', 'like', "%{$query}%")
+            ->limit($limit)
+            ->get()
+            ->map(function ($variant) {
+                $attrText = $variant->attributeValues
+                    ->map(fn($val) => $val->value)
+                    ->implode(' / ') ?: 'Default';
+
+                return [
+                    'id'   => $variant->id,
+                    'text' => "{$variant->sku} - {$attrText}",
+                ];
+            });
+
+        return response()->json([
+            'results' => $variants->values(),
+        ]);
     }
 }

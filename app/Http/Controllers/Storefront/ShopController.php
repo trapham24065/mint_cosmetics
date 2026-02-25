@@ -13,6 +13,7 @@ namespace App\Http\Controllers\Storefront;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Brand;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,7 @@ class ShopController extends Controller
         // Base query for active products only
         $query = Product::query()
             ->where('active', true)
-            ->with(['variants'])
+            ->with(['variants', 'brand'])            // eager‑load brand for display/filter
             ->withCount('approvedReviews');
 
         if ($request->filled('category')) {
@@ -37,25 +38,37 @@ class ShopController extends Controller
                 $q->where('slug', $categorySlug);
             });
         }
+
+        // brand filter if provided
+        if ($request->filled('brand')) {
+            $brandSlug = $request->input('brand');
+            $query->whereHas('brand', fn($q) => $q->where('slug', $brandSlug));
+        }
         // Filter by price range
         $priceRange = \DB::table('product_variants')
-            ->selectRaw('MIN(discount_price) as min_price, MAX(discount_price) as max_price')
+            ->selectRaw('MIN(COALESCE(discount_price, price)) as min_price, MAX(COALESCE(discount_price, price)) as max_price')
             ->first();
 
         $minPriceFromDB = $priceRange->min_price ?? 0;
         $maxPriceFromDB = $priceRange->max_price ?? 0;
         if ($request->filled('min_price') && $request->filled('max_price')) {
-            $minPrice = $request->input('min_price');
-            $maxPrice = $request->input('max_price');
+            $minPrice = (int) $request->input('min_price');
+            $maxPrice = (int) $request->input('max_price');
 
             $query->whereHas('variants', function ($q) use ($minPrice, $maxPrice) {
-                $q->whereBetween('discount_price', [$minPrice, $maxPrice]);
+                $q->where(function ($subQ) use ($minPrice, $maxPrice) {
+                    $subQ->whereBetween('discount_price', [$minPrice, $maxPrice])
+                        ->orWhere(function ($subQ2) use ($minPrice, $maxPrice) {
+                            $subQ2->whereNull('discount_price')
+                                ->whereBetween('price', [$minPrice, $maxPrice]);
+                        });
+                });
             });
         }
 
         // Filter by 'on sale'
         if ($request->input('on_sale') === 'yes') {
-            $query->whereHas('variants', fn($q) => $q->whereNotNull('discount_price'));
+            $query->whereHas('variants', fn($q) => $q->whereNotNull('discount_price')->where('discount_price', '<', \DB::raw('price')));
         }
 
         // Sort products
@@ -74,7 +87,7 @@ class ShopController extends Controller
         }
 
         if ($request->filled('search')) {
-            $searchTerm = '%'.$request->input('search').'%';
+            $searchTerm = '%' . $request->input('search') . '%';
             $query->where('name', 'like', $searchTerm);
         }
 
@@ -82,10 +95,12 @@ class ShopController extends Controller
 
         // Get categories to display
         $categories = Category::where('active', true)->get();
+        $brands     = Brand::where('is_active', true)->get();
 
         return view('storefront.shop', [
             'products'   => $products,
             'categories' => $categories,
+            'brands'     => $brands,
             'minPrice'   => $minPriceFromDB,
             'maxPrice'   => $maxPriceFromDB,
         ]);
@@ -118,5 +133,4 @@ class ShopController extends Controller
             ], 500);
         }
     }
-
 }

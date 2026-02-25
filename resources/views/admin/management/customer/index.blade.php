@@ -5,9 +5,6 @@
         <div class="card">
             <div class="d-flex card-header justify-content-between align-items-center">
                 <h4 class="card-title">Customer Management</h4>
-                <a href="#" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus me-1"></i> Add Customer
-                </a>
             </div>
             <div class="card-body">
                 <div id="bulk-actions-container" class="mb-3" style="display: none;">

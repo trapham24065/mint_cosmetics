@@ -12,7 +12,7 @@ use App\Http\Controllers\Storefront\Auth\CustomerAuthController;
 use App\Http\Controllers\Storefront\Auth\ForgotPasswordController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest:web')->middleware(['web'])->group(function () {
+Route::middleware(['web', 'guest:web'])->group(function () {
     Route::get('admin/login', [AuthenticatedSessionController::class, 'create'])
         ->name('admin.login');
 

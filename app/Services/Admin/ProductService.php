@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class ProductService
 {
@@ -60,8 +62,7 @@ class ProductService
     public function updateProduct(Product $product, array $data): Product
     {
         return DB::transaction(function () use ($product, $data) {
-            // Log incoming data for debugging
-            Log::info('Updating product', ['product_id' => $product->id, 'data_keys' => array_keys($data)]);
+            Log::info('Updating product', ['product_id' => $product->id]);
 
             // 1. Handle main image update
             if (!empty($data['image']) && $data['image'] instanceof UploadedFile) {
@@ -73,13 +74,11 @@ class ProductService
 
             // 2. Handle gallery images update
             if (!empty($data['list_image'])) {
-                // First, delete all old gallery images
                 if (is_array($product->list_image)) {
                     foreach ($product->list_image as $oldImage) {
                         Storage::disk('public')->delete($oldImage);
                     }
                 }
-                // Then, store the new gallery images
                 $galleryPaths = [];
                 foreach ($data['list_image'] as $file) {
                     if ($file instanceof UploadedFile) {
@@ -88,11 +87,10 @@ class ProductService
                 }
                 $data['list_image'] = $galleryPaths;
             } else {
-                // Remove list_image from data to avoid overwriting with null
                 unset($data['list_image']);
             }
 
-            // 3. Update basic product information (always allowed)
+            // 3. Update basic product information
             $basicFields = [
                 'name',
                 'slug',
@@ -111,82 +109,74 @@ class ProductService
 
             $basicData = array_intersect_key($data, array_flip($basicFields));
 
-            // Only update if there's actual data
             if (!empty($basicData)) {
                 $product->update($basicData);
             }
 
-            // 3. Handle Variants based on the submitted product type
+            // 4. Handle Variants
             if ($data['product_type'] === 'simple') {
-                // For simple products, we ensure there is only one variant.
                 $variant = $product->variants()->firstOrNew([]);
+
                 $variant->price = $data['price'];
-                $variant->stock = $data['stock'];
                 $variant->discount_price = $data['discount_price'] ?? null;
 
-                // ✅ FIX: Lưu SKU cho simple product
-                if (!empty($data['sku'])) {
-                    $variant->sku = $data['sku'];
-                } elseif (!$variant->sku) {
-                    // Nếu không có SKU và variant chưa có SKU, tự sinh
-                    $variant->sku = $this->generateSku($product->name);
+                // Nếu là variant mới hoàn toàn, gán stock = 0
+                if (!$variant->exists) {
+                    $variant->stock = 0;
                 }
 
+                // Xử lý SKU
+                $sku = (!empty($data['sku']) && trim($data['sku']) !== '')
+                    ? trim($data['sku'])
+                    : (empty($variant->sku) ? $this->generateSku($product->name) : $variant->sku);
+
+                $variant->sku = $sku;
                 $variant->save();
 
-                // Delete all other variants except this one (handles switching from variable to simple)
+                // Xóa các variant thừa nếu chuyển từ variable -> simple
                 $variantsToDelete = $product->variants()->where('id', '!=', $variant->id)->get();
                 foreach ($variantsToDelete as $v) {
                     if ($v->orderItems()->exists()) {
-                        throw new \RuntimeException(
+                        throw new Exception(
                             "Cannot switch to simple product because a variant is part of an existing order."
                         );
                     }
                     $v->delete();
                 }
             } elseif ($data['product_type'] === 'variable') {
-                // If switching from simple to variable, delete the old default variant
-                if ($product->variants()->count() === 1 && $product->variants()->first()->attributeValues->isEmpty()) {
-                    $product->variants()->delete();
-                }
+                $incomingVariantIds = [];
 
-                // Update existing variants
+                // 5.1. Update existing variants
                 if (!empty($data['variants'])) {
-                    // ✅ FIX: Sử dụng đúng cấu trúc dữ liệu
-                    foreach ($data['variants'] as $variantData) {
-                        // Lấy ID từ trong $variantData, không phải từ key
+                    foreach ($data['variants'] as $index => $variantData) {
                         $variantId = $variantData['id'] ?? null;
                         if ($variantId) {
                             $variant = $product->variants()->find($variantId);
                             if ($variant) {
-                                // Cập nhật các trường
-                                $variant->price = $variantData['price'];
-                                $variant->stock = $variantData['stock'];
-                                $variant->discount_price = $variantData['discount_price'] ?? null;
+                                // Xử lý cập nhật SKU (đã được validate bên FormRequest)
+                                $sku = (!empty($variantData['sku']) && trim($variantData['sku']) !== '')
+                                    ? trim($variantData['sku'])
+                                    : (empty($variant->sku) ? $this->generateSku($product->name) : $variant->sku);
 
-                                // ✅ FIX: Lưu SKU cho variant
-                                if (!empty($variantData['sku'])) {
-                                    $variant->sku = $variantData['sku'];
-                                } elseif (!$variant->sku) {
-                                    // Nếu không có SKU và variant chưa có SKU, tự sinh
-                                    $variant->sku = $this->generateSku($product->name);
+                                $variant->update([
+                                    'sku'            => $sku,
+                                    'price'          => $variantData['price'],
+                                    'discount_price' => $variantData['discount_price'] ?? null,
+                                    // Không update cột 'stock'
+                                ]);
+
+                                // Sync attribute values
+                                if (!empty($variantData['attributes'])) {
+                                    $variant->attributeValues()->sync($variantData['attributes']);
                                 }
 
-                                $variant->save();
-
-                                // Sync attribute values nếu có
-                                if (!empty($variantData['attribute_value_ids'])) {
-                                    $valueIds = $this->parseAttributeValueIds($variantData['attribute_value_ids']);
-                                    if (!empty($valueIds)) {
-                                        $variant->attributeValues()->sync($valueIds);
-                                    }
-                                }
+                                $incomingVariantIds[] = $variant->id;
                             }
                         }
                     }
                 }
 
-                // Delete variants marked for deletion from the form
+                // 5.2. Delete variants marked for deletion
                 if (!empty($data['deleted_variants'])) {
                     foreach ($data['deleted_variants'] as $variantId) {
                         $variantToDelete = ProductVariant::find($variantId);
@@ -201,19 +191,19 @@ class ProductService
                     }
                 }
 
-                // Create new variants
+                // 5.3. Create new variants
                 if (!empty($data['new_variants'])) {
                     foreach ($data['new_variants'] as $variantData) {
-                        // ✅ FIX: Tự sinh SKU nếu không có
-                        if (empty($variantData['sku'])) {
-                            $variantData['sku'] = $this->generateSku($product->name);
-                        }
+                        // SKU cho biến thể mới
+                        $sku = (!empty($variantData['sku']) && trim($variantData['sku']) !== '')
+                            ? trim($variantData['sku'])
+                            : $this->generateSku($product->name);
 
                         $newVariant = $product->variants()->create([
-                            'price' => $variantData['price'],
-                            'stock' => $variantData['stock'],
+                            'price'          => $variantData['price'],
                             'discount_price' => $variantData['discount_price'] ?? null,
-                            'sku' => $variantData['sku'],
+                            'stock'          => 0, // Biến thể mới luôn có stock = 0
+                            'sku'            => $sku,
                         ]);
 
                         if (!empty($variantData['attribute_value_ids'])) {
@@ -222,6 +212,16 @@ class ProductService
                                 $newVariant->attributeValues()->sync($valueIds);
                             }
                         }
+
+                        $incomingVariantIds[] = $newVariant->id;
+                    }
+                }
+
+                // 5.4 Xóa các biến thể không còn nằm trong danh sách truyền lên (chỉ xóa nếu không có order)
+                $variantsToDelete = $product->variants()->whereNotIn('id', $incomingVariantIds)->get();
+                foreach ($variantsToDelete as $vToDelete) {
+                    if (!$vToDelete->orderItems()->exists()) {
+                        $vToDelete->delete();
                     }
                 }
             }

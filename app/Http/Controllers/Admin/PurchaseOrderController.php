@@ -45,7 +45,8 @@ class PurchaseOrderController extends Controller
                 $attributes = $variant->attributeValues->map(fn($v) => "{$v->attribute->name}: {$v->value}")->join(
                     ', '
                 );
-                $variant->full_name = $variant->product->name . ($attributes ? " ({$attributes})" : "") . " - " . ($variant->sku ?? 'No SKU');
+//                $variant->full_name = $variant->product->name . ($attributes ? " ({$attributes})" : "") . " - " . ($variant->sku ?? 'No SKU');
+                $variant->full_name = $variant->sku;
                 return $variant;
             });
 
@@ -99,11 +100,11 @@ class PurchaseOrderController extends Controller
             return redirect()->route('admin.inventory.index')
                 ->with('success', 'Purchase order created successfully. Please review and approve to update stock.');
         } catch (QueryException $e) {
-            Log::error('PO Creation Error: ' . $e->getMessage());
+            Log::error('PO Creation Error: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->with('error', $message)->withInput();
         } catch (\Exception $e) {
-            Log::error('PO Creation Error: ' . $e->getMessage());
+            Log::error('PO Creation Error: '.$e->getMessage());
             return back()->with('error', $e->getMessage())->withInput();
         }
     }
@@ -113,7 +114,7 @@ class PurchaseOrderController extends Controller
      */
     public function show(PurchaseOrder $purchaseOrder): View
     {
-        $title = 'Purchase Order Details: ' . $purchaseOrder->code;
+        $title = 'Purchase Order Details: '.$purchaseOrder->code;
         $purchaseOrder->load(['supplier', 'items.productVariant.product', 'items.productVariant.attributeValues']);
 
         return view('admin.management.inventory.show', compact('purchaseOrder', 'title'));
@@ -148,11 +149,11 @@ class PurchaseOrderController extends Controller
 
             return back()->with('success', 'Purchase order approved. Stock has been updated.');
         } catch (QueryException $e) {
-            Log::error('PO Approve Error: ' . $e->getMessage());
+            Log::error('PO Approve Error: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('PO Approve Error: ' . $e->getMessage());
+            Log::error('PO Approve Error: '.$e->getMessage());
             return back()->with('error', $e->getMessage());
         }
     }
@@ -188,4 +189,5 @@ class PurchaseOrderController extends Controller
 
         return response()->json(['data' => $data]);
     }
+
 }
