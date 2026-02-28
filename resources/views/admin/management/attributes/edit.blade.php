@@ -64,7 +64,8 @@
                                                value="{{ old('values.'.$value->id, $value->value) }}" required>
                                         <button type="button" class="btn btn-outline-danger"
                                                 onclick="this.parentElement.remove()">
-                                            <i class="fas fa-times"></i>
+                                            <iconify-icon icon="solar:close-circle-bold-duotone"
+                                                          width="18"></iconify-icon>
                                         </button>
                                     </div>
                                 @endforeach

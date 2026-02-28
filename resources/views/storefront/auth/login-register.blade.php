@@ -51,7 +51,6 @@
 
                                     <div class="form-group d-flex align-items-center mb-14">
                                         <button type="submit" class="btn">Login</button>
-
                                         <div class="form-check ms-3">
                                             <input type="checkbox" class="form-check-input" id="remember_pwsd"
                                                    name="remember">

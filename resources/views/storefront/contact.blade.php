@@ -57,7 +57,7 @@
                     </div>
                 </div>
             </div>
-            <div class="contact-left-img" data-bg-img="assets/images/photos/contact.webp"></div>
+            <div class="contact-left-img" data-bg-img="{{asset('assets/storefront/images/photos/contact.jpg')}}"></div>
         </section>
         <!--== End Contact Area Wrapper ==-->
 
