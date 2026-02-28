@@ -90,7 +90,7 @@
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.className = 'btn btn-outline-danger';
-                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.innerHTML = '<iconify-icon icon="solar:close-circle-bold-duotone" width="18"></iconify-icon>';
                     removeBtn.addEventListener('click', function() {
                         newRow.remove();
                     });

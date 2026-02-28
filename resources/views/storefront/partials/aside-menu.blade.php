@@ -13,8 +13,8 @@
                 <li class="offcanvas-nav-parent"><a class="offcanvas-nav-item"
                                                     href="{{route('about-us.index')}}">about</a></li>
                 <li class="offcanvas-nav-parent"><a class="offcanvas-nav-item" href="{{route('shop')}}">shop</a></li>
-                <li class="offcanvas-nav-parent"><a class="offcanvas-nav-item" href="{{route('blog.index')}}">Blog</a>
-                </li>
+                {{--                <li class="offcanvas-nav-parent"><a class="offcanvas-nav-item" href="{{route('blog.index')}}">Blog</a>--}}
+                {{--                </li>--}}
                 <li class="offcanvas-nav-parent"><a class="offcanvas-nav-item"
                                                     href="{{route('contact.index')}}">Contact</a></li>
             </ul>
