@@ -12,7 +12,7 @@
 
                 <!-- Menu Toggle Button -->
                 <div class="topbar-item">
-                    <h4 class="fw-bold topbar-button pe-none text-uppercase mb-0">Welcome!</h4>
+                    <h4 class="fw-bold topbar-button pe-none text-uppercase mb-0">Chào mừng!</h4>
                 </div>
             </div>
 
@@ -37,7 +37,7 @@
                             <span
                                 class="position-absolute topbar-badge fs-10 translate-middle badge bg-danger rounded-pill">
                                 {{ auth()->user()->unreadNotifications->count() }}
-                                <span class="visually-hidden">unread messages</span>
+                                <span class="visually-hidden">tin nhắn chưa đọc</span>
                             </span>
                         @endif
                     </button>
@@ -47,7 +47,7 @@
                         <div class="p-3 border-top-0 border-start-0 border-end-0 border-dashed border">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <h6 class="m-0 fs-16 fw-semibold"> Notifications</h6>
+                                    <h6 class="m-0 fs-16 fw-semibold"> Thông báo</h6>
                                 </div>
                                 <div class="col-auto">
                                     {{-- Link xóa/đọc tất cả thông báo --}}
@@ -81,7 +81,7 @@
                                             </p>
                                             <p class="mb-0 text-wrap text-muted small">
                                                 {{-- Nội dung chi tiết --}}
-                                                {{ $notification->data['message'] ?? 'You have a new notification.' }}
+                                                {{ $notification->data['message'] ?? 'Bạn có thông báo mới.' }}
                                             </p>
                                             <small
                                                 class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
@@ -90,13 +90,13 @@
                                 </a>
                             @empty
                                 <div class="text-center py-4">
-                                    <p class="text-muted mb-0">No new notifications.</p>
+                                    <p class="text-muted mb-0">Không có thông báo mới.</p>
                                 </div>
                             @endforelse
                         </div>
 
                         <div class="text-center py-3">
-                            <a href="javascript:void(0);" class="btn btn-primary btn-sm">View All Notification <i
+                            <a href="javascript:void(0);" class="btn btn-primary btn-sm">Xem tất cả thông báo<i
                                     class="bx bx-right-arrow-alt ms-1"></i></a>
                         </div>
                     </div>
@@ -109,7 +109,7 @@
                         <iconify-icon icon="solar:settings-bold-duotone" class="fs-24 align-middle"></iconify-icon>
                     </button>
                 </div>
-                
+
                 <!-- User -->
                 <div class="dropdown topbar-item">
                     <a type="button" class="topbar-button" id="page-header-user-dropdown" data-bs-toggle="dropdown"
@@ -123,17 +123,17 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
-                        <h6 class="dropdown-header">Welcome Gaston!</h6>
+                        <h6 class="dropdown-header">Chào mừng {{ auth()->user()->name ?? 'Admin Avatar' }}</h6>
                         <a class="dropdown-item" href="{{ route('admin.profile.index') }}">
                             <i class="bx bx-user-circle text-muted fs-18 align-middle me-1"></i><span
-                                class="align-middle">Profile</span>
+                                class="align-middle">Hồ sơ</span>
                         </a>
                         <a class="dropdown-item" href="{{ route('admin.chat.index') }}">
                             <i class="bx bx-message-dots text-muted fs-18 align-middle me-1"></i><span
-                                class="align-middle">Messages</span>
+                                class="align-middle">Tin nhắn</span>
                         </a>
                         <a class="dropdown-item" href="{{ route('admin.lock') }}">
-                            <i class="bx bx-lock text-muted fs-18 align-middle me-1"></i><span class="align-middle">Lock screen</span>
+                            <i class="bx bx-lock text-muted fs-18 align-middle me-1"></i><span class="align-middle">Màn hình khóa</span>
                         </a>
 
                         <div class="dropdown-divider my-1"></div>
@@ -142,7 +142,7 @@
                             @csrf
                             <a class="dropdown-item text-danger" href="{{ route('admin.logout') }}"
                                onclick="event.preventDefault(); this.closest('form').submit();">
-                                <i class="las la-power-off fs-18 me-1 align-text-bottom"></i> Logout
+                                <i class="las la-power-off fs-18 me-1 align-text-bottom"></i> Đăng xuất
                             </a>
                         </form>
                     </div>
@@ -155,7 +155,7 @@
                         <input type="search"
                                name="query"
                                class="form-control"
-                               placeholder="Search products, orders, customers..."
+                               placeholder="Tìm kiếm sản phẩm, đơn đặt hàng, khách hàng..."
                                autocomplete="off"
                                value="{{ request('query') }}">
                         <iconify-icon icon="solar:magnifer-linear" class="search-widget-icon"></iconify-icon>

@@ -42,7 +42,7 @@ class CustomerAuthController extends Controller
             $this->mergeCartOnLogin();
 
             return redirect()->intended(route('customer.dashboard'))
-                ->with('success', 'Welcome back!');
+                ->with('success', 'Chào mừng trở lại!');
         }
 
         throw ValidationException::withMessages([
@@ -125,4 +125,5 @@ class CustomerAuthController extends Controller
             Session::forget('cart.items');
         }
     }
+
 }

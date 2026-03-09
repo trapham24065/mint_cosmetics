@@ -48,16 +48,16 @@ class StoreCategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required'          => 'Please enter the category name.',
-            'name.string'            => 'The category name must be text.',
-            'name.max'               => 'The category name cannot be longer than 255 characters.',
-            'name.unique'            => 'This category name is already taken.',
-            'image.image'            => 'The uploaded file must be an image.',
-            'image.mimes'            => 'The image must be a file of type: jpg, png, jpeg, webp.',
-            'image.max'              => 'The image size cannot exceed 1MB.',
-            'active.boolean'         => 'The active status must be true or false.',
-            'attribute_ids.array'    => 'The linked attributes data is invalid.',
-            'attribute_ids.*.exists' => 'One of the selected attributes is invalid.',
+            'name.required'          => 'Vui lòng nhập tên danh mục.',
+            'name.string'            => 'Tên danh mục phải là văn bản.',
+            'name.max'               => 'Tên danh mục không được vượt quá 255 ký tự.',
+            'name.unique'            => 'Tên danh mục đã tồn tại.',
+            'image.image'            => 'Tệp tải lên phải là hình ảnh.',
+            'image.mimes'            => 'Hình ảnh phải có định dạng: jpg, png, jpeg, webp.',
+            'image.max'              => 'Kích thước hình ảnh không được vượt quá 1MB.',
+            'active.boolean'         => 'Trạng thái hoạt động không hợp lệ.',
+            'attribute_ids.array'    => 'Danh sách thuộc tính không hợp lệ.',
+            'attribute_ids.*.exists' => 'Một trong các thuộc tính đã chọn không tồn tại.',
         ];
     }
 

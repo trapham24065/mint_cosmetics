@@ -43,13 +43,13 @@ class UpdateBlogPostRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.required'   => 'Please enter the post title.',
-            'title.unique'     => 'This title has already been used by another post.',
-            'content.required' => 'Please enter the post content.',
-            'image.image'      => 'The uploaded file must be an image.',
-            'image.mimes'      => 'The image must be a file of type: jpg, png, jpeg, webp.',
-            'image.max'        => 'The image size cannot exceed 2MB.',
-            'slug.unique'      => 'This slug is already in use by another post.',
+            'title.required'   => 'Vui lòng nhập tiêu đề bài viết.',
+            'title.unique'     => 'Tiêu đề bài viết đã tồn tại.',
+            'content.required' => 'Vui lòng nhập nội dung bài viết.',
+            'image.image'      => 'Tệp tải lên phải là hình ảnh.',
+            'image.mimes'      => 'Hình ảnh phải có định dạng: jpg, png, jpeg, webp.',
+            'image.max'        => 'Kích thước hình ảnh không được vượt quá 2MB.',
+            'slug.unique'      => 'Đường dẫn (slug) này đã tồn tại.',
         ];
     }
 

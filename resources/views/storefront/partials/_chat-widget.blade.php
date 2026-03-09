@@ -19,7 +19,7 @@
                 </div>
                 <div class="header-text">
                     <h5>Mint Beauty Care</h5>
-                    <span class="status">Online</span>
+                    <span class="status">Trực tuyến</span>
                 </div>
             </div>
             <button id="chat-minimize" class="minimize-btn">
@@ -29,14 +29,14 @@
 
         <div id="chat-messages" class="chat-messages">
             <div class="message-bubble bot-message welcome-message">
-                💕 Hello! How can we help you today? ✨
+                💕 Chào bạn! Chúng tôi có thể giúp gì cho bạn hôm nay? ✨
             </div>
         </div>
 
         <div id="chat-suggestions" class="chat-suggestions" style="padding: 10px 15px; display: none;">
             <div class="suggestions-header" style="font-size: 12px; color: #666; margin-bottom: 5px;">
                 <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
-                <span>Quick hint</span>
+                <span>Gợi ý nhanh</span>
             </div>
             <div class="suggestions-list" style="display: flex; flex-wrap: wrap; gap: 5px;">
             </div>

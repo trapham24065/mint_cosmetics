@@ -6,7 +6,8 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0">Dashboard</h4>
+                    <h4 class="mb-sm-0">Trang tổng quan
+                    </h4>
                 </div>
             </div>
         </div>
@@ -19,7 +20,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-white-50 text-uppercase mb-2">Online</h6>
+                                <h6 class="text-white-50 text-uppercase mb-2">Trực tuyến</h6>
                                 <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($onlineUsers) }}</h2>
                             </div>
                             <div class="avatar-sm">
@@ -29,7 +30,7 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <span class="text-white-50 fs-13">Operates for 5 minutes</span>
+                            <span class="text-white-50 fs-13">Hoạt động trong 5 phút</span>
                         </div>
                     </div>
                 </div>
@@ -41,7 +42,8 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-white-50 text-uppercase mb-2">Views today</h6>
+                                <h6 class="text-white-50 text-uppercase mb-2">
+                                    Lượt xem hôm nay</h6>
                                 <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($todayVisits) }}</h2>
                             </div>
                             <div class="avatar-sm">
@@ -56,7 +58,7 @@
                             @else
                                 <span class="badge bg-danger text-white"><i class="bx bx-down-arrow-alt"></i> {{ number_format(abs($growth), 1) }}%</span>
                             @endif
-                            <span class="text-white-50 fs-13 ms-1">Compared to yesterday</span>
+                            <span class="text-white-50 fs-13 ms-1">So với ngày hôm qua</span>
                         </div>
                     </div>
                 </div>
@@ -68,7 +70,7 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-white-50 text-uppercase mb-2">Application pending</h6>
+                                <h6 class="text-white-50 text-uppercase mb-2">Đơn hàng đang chờ xử lý</h6>
                                 <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($pendingOrders) }}</h2>
                             </div>
                             <div class="avatar-sm">
@@ -78,7 +80,7 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <span class="text-white-50 fs-13">Need approval immediately</span>
+                            <span class="text-white-50 fs-13">Cần phê duyệt ngay</span>
                         </div>
                     </div>
                 </div>
@@ -91,7 +93,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="text-white-50 text-uppercase mb-2">
-                                    Total revenue</h6>
+                                    Tổng doanh thu</h6>
                                 <h4 class="mb-0 fw-bold text-white">{{ number_format($totalRevenue) }} đ</h4>
                             </div>
                             <div class="avatar-sm">
@@ -101,7 +103,7 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <span class="text-white-50 fs-13">Order completed</span>
+                            <span class="text-white-50 fs-13">Đơn hàng đã hoàn thành</span>
                         </div>
                     </div>
                 </div>
@@ -115,7 +117,7 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <p class="text-muted mb-0 text-truncate">Total Orders</p>
+                                <p class="text-muted mb-0 text-truncate">Tổng số đơn đặt hàng</p>
                                 <h3 class="text-dark mt-1 mb-0">{{ number_format($totalOrders) }}</h3>
                             </div>
                             <div class="avatar-md bg-soft-primary rounded">
@@ -132,7 +134,8 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <p class="text-muted mb-0 text-truncate">Total Customers</p>
+                                <p class="text-muted mb-0 text-truncate">
+                                    Tổng số khách hàng</p>
                                 <h3 class="text-dark mt-1 mb-0">{{ number_format($totalCustomers) }}</h3>
                             </div>
                             <div class="avatar-md bg-soft-primary rounded">
@@ -149,7 +152,7 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <p class="text-muted mb-0 text-truncate">Total Products</p>
+                                <p class="text-muted mb-0 text-truncate">Tổng số sản phẩm</p>
                                 <h3 class="text-dark mt-1 mb-0">{{ number_format($totalProducts) }}</h3>
                             </div>
                             <div class="avatar-md bg-soft-primary rounded">
@@ -172,7 +175,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title mb-4">
-                            Revenue Chart (12 Months)</h4>
+                            Biểu đồ doanh thu (12 tháng)</h4>
                         <div dir="ltr">
                             <div id="revenue-chart" class="apex-charts" style="height: 320px;"></div>
                         </div>
@@ -185,7 +188,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title mb-4">
-                            Website Visits (Last 7 Days)</h4>
+                            Lượt truy cập trang web (7 ngày gần đây)</h4>
                         <div dir="ltr">
                             <div id="visits-chart" class="apex-charts" style="height: 320px;"></div>
                         </div>
@@ -200,22 +203,25 @@
                 <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <h4 class="card-title">
-                            Recent Orders</h4>
-                        <a href="{{ route('admin.orders.index') }}" class="btn btn-sm btn-soft-primary">See All
+                            Đơn đặt hàng gần đây</h4>
+                        <a href="{{ route('admin.orders.index') }}" class="btn btn-sm btn-soft-primary">
+                            Xem Tất Cả
                         </a>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover table-nowrap table-centered m-0">
                             <thead class="bg-light bg-opacity-50">
                             <tr>
-                                <th>Order ID</th>
+                                <th>ID đơn hàng</th>
                                 <th>
-                                    Client
+
+                                    Khách hàng
                                 </th>
-                                <th>Total Money</th>
-                                <th>Status</th>
+                                <th>Tổng số tiền</th>
+                                <th>Trạng thái
+                                </th>
                                 <th>
-                                    Booking Date
+                                    Ngày đặt
                                 </th>
                             </tr>
                             </thead>
@@ -243,7 +249,7 @@
                             @empty
                                 <tr>
                                     <td colspan="5" class="text-center py-4">
-                                        No orders have been received yet.
+                                        Hiện chưa nhận được đơn đặt hàng nào.
                                     </td>
                                 </tr>
                             @endforelse

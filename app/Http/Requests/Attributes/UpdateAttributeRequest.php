@@ -50,19 +50,22 @@ class UpdateAttributeRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required'       => 'Please enter the attribute name.',
-            'name.string'         => 'The attribute name must be text.',
-            'name.max'            => 'The attribute name cannot be longer than 255 characters.',
-            'name.unique'         => 'This attribute name is already taken.',
-            'values.array'        => 'The existing attribute values must be submitted in the correct format.',
+            'name.required' => 'Vui lòng nhập tên thuộc tính.',
+            'name.string'   => 'Tên thuộc tính phải là dạng văn bản.',
+            'name.max'      => 'Tên thuộc tính không được vượt quá 255 ký tự.',
+            'name.unique'   => 'Tên thuộc tính này đã tồn tại.',
+
+            'values.array'        => 'Các giá trị thuộc tính hiện có phải được gửi đúng định dạng.',
+
             // Messages for rules applied to each item within the 'values' array (existing)
-            'values.*.required'   => 'The value for an existing attribute value cannot be empty.',
-            'values.*.string'     => 'Each existing attribute value must be text.',
-            'values.*.max'        => 'Each existing attribute value cannot be longer than 255 characters.',
+            'values.*.required'   => 'Giá trị của một thuộc tính hiện có không được để trống.',
+            'values.*.string'     => 'Mỗi giá trị thuộc tính hiện có phải là dạng văn bản.',
+            'values.*.max'        => 'Mỗi giá trị thuộc tính hiện có không được vượt quá 255 ký tự.',
+
             // Messages for rules applied to each item within the 'new_values' array
-            'new_values.array'    => 'The new attribute values must be submitted in the correct format.',
-            'new_values.*.string' => 'Each new attribute value must be text.',
-            'new_values.*.max'    => 'Each new attribute value cannot be longer than 255 characters.',
+            'new_values.array'    => 'Các giá trị thuộc tính mới phải được gửi đúng định dạng.',
+            'new_values.*.string' => 'Mỗi giá trị thuộc tính mới phải là dạng văn bản.',
+            'new_values.*.max'    => 'Mỗi giá trị thuộc tính mới không được vượt quá 255 ký tự.',
         ];
     }
 

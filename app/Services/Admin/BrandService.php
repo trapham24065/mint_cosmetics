@@ -43,7 +43,7 @@ class BrandService
     public function deleteBrand(Brand $brand): bool
     {
         if ($brand->products()->exists()) {
-            throw new \Exception("Cannot delete '{$brand->name}' because it is linked to products.");
+            throw new \RuntimeException("Không thể xóa '{$brand->name}' bởi vì nó có liên quan đến sản phẩm.");
         }
 
         return DB::transaction(function () use ($brand) {

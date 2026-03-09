@@ -4,9 +4,9 @@
     <div class="container-xxl">
         <div class="card">
             <div class="d-flex card-header justify-content-between align-items-center">
-                <h4 class="card-title">Suppliers Management</h4>
+                <h4 class="card-title">Quản lý nhà cung cấp</h4>
                 <a href="#" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus me-1"></i> Add Suppliers
+                    <i class="fas fa-plus me-1"></i> Thêm nhà cung cấp
                 </a>
             </div>
             <div class="card-body">
@@ -14,11 +14,11 @@
                     <div class="d-flex align-items-center gap-2">
                         <span id="selected-count" class="fw-bold"></span>
                         <select id="bulk-action-select" class="form-select form-select-sm" style="width: 200px;">
-                            <option value="">Choose action...</option>
-                            <option value="activate">Activate Selected</option>
-                            <option value="deactivate">Deactivate Selected</option>
+                            <option value="">Hãy chọn hành động...</option>
+                            <option value="activate">Kích hoạt mục đã chọn</option>
+                            <option value="deactivate">Vô hiệu hóa mục đã chọn</option>
                         </select>
-                        <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Apply</button>
+                        <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
                     </div>
                 </div>
                 {{-- Grid.js will render the table here --}}
@@ -48,19 +48,19 @@
                             width: '40px'
                         },
                         { id: 'id', name: 'ID'},
-                        { id: 'name', name: 'Full Name' },
+                        { id: 'name', name: 'Tên' },
                         { id: 'email', name: 'Email' },
-                        { id: 'phone', name: 'Phone Number' },
-                        { id: 'contact_person', name: 'Contact Person' },
+                        { id: 'phone', name: 'Số điện thoại' },
+                        { id: 'contact_person', name: 'Người liên hệ' },
                         {
-                            id: 'is_active', name: 'Status',
+                            id: 'is_active', name: 'Trạng thái',
                             formatter: (cell) => cell
-                                ? gridjs.html('<span class="badge bg-success">Active</span>')
-                                : gridjs.html('<span class="badge bg-secondary">Inactive</span>')
+                                ? gridjs.html('<span class="badge bg-success">Hoạt động</span>')
+                                : gridjs.html('<span class="badge bg-secondary">Không hoạt động</span>')
                         },
-                        { id: 'create_at', name: 'Create At' },
+                        { id: 'create_at', name: 'Thời gian tạo' },
                         {
-                            name: 'Actions',
+                            name: 'Hành động',
                             width: '100px',
                             sort: false,
                             formatter: (cell, row) => {
@@ -77,12 +77,12 @@
                                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
                                             <li>
                                                 <a class="dropdown-item" href="${showUrl}">
-                                                    <i class="bi bi-eye me-2 text-info"></i>View
+                                                    <i class="bi bi-eye me-2 text-info"></i>Xem chi tiết
                                                 </a>
                                             </li>
                                             <li>
                                                 <a class="dropdown-item" href="${editUrl}">
-                                                    <i class="bi bi-pencil me-2 text-primary"></i>Edit
+                                                    <i class="bi bi-pencil me-2 text-primary"></i>Chỉnh sửa
                                                 </a>
                                             </li>
                                             <li><hr class="dropdown-divider"></li>
@@ -90,7 +90,7 @@
                                                 <a class="dropdown-item text-danger delete-item" href="#"
                                                    data-id="${supplierId}"
                                                    data-url="${deleteUrl}">
-                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                    <i class="bi bi-trash me-2"></i>Xóa
                                                 </a>
                                             </li>
                                         </ul>
@@ -126,8 +126,8 @@
                         const url = btn.dataset.url;
 
                         Swal.fire({
-                            title: 'Are you sure?',
-                            text: "This supplier will be deleted permanently!",
+                            title: 'Bạn có chắc không??',
+                            text: "Nhà cung cấp này sẽ bị xóa vĩnh viễn.!",
                             icon: 'warning',
                             showCancelButton: true,
                             confirmButtonColor: '#d33',

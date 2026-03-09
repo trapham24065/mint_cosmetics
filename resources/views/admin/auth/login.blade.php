@@ -8,7 +8,7 @@
         <div class="form-group mb-2">
             <label class="form-label" for="email">Email</label>
             <input type="email" class="form-control @error('email') is-invalid @enderror"
-                   id="email" name="email" placeholder="Enter email"
+                   id="email" name="email" placeholder="Nhập email"
                    value="{{ old('email') }}" required autofocus>
             @error('email')
             <div class="invalid-feedback">{{ $message }}</div>
@@ -16,10 +16,10 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="password">Password</label>
+            <label class="form-label" for="password">Mật khẩu</label>
             <div class="input-group">
                 <input type="password" class="form-control @error('password') is-invalid @enderror"
-                       name="password" id="password" placeholder="Enter password" required>
+                       name="password" id="password" placeholder="Nhập mật khẩu" required>
                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                     <i class="fas fa-eye-slash"></i>
                 </button>
@@ -33,7 +33,7 @@
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="remember" name="remember">
                 <label class="form-check-label" for="remember">
-                    Remember me
+                    Ghi nhớ tôi
                 </label>
             </div>
         </div>
@@ -41,7 +41,8 @@
         <div class="form-group mb-0 row">
             <div class="col-12">
                 <div class="d-grid mt-3">
-                    <button class="btn btn-primary" type="submit">Login<i class="fas fa-sign-in-alt ms-1"></i>
+                    <button class="btn btn-primary" type="submit">Đăng nhập
+                        <i class="fas fa-sign-in-alt ms-1"></i>
                     </button>
                 </div>
             </div>

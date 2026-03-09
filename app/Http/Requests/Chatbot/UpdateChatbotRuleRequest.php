@@ -40,14 +40,14 @@ class UpdateChatbotRuleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'keyword.required'  => 'Please enter a keyword.',
-            'keyword.string'    => 'Keyword must be text.',
-            'keyword.max'       => 'Keyword cannot exceed 255 characters.',
-            'keyword.unique'    => 'This keyword already exists.',
-            'reply.required'    => 'Please enter a reply.',
-            'reply.string'      => 'Reply must be text.',
-            'reply.max'         => 'Reply is too long.',
-            'is_active.boolean' => 'Invalid active state.',
+            'keyword.required'  => 'Vui lòng nhập từ khóa.',
+            'keyword.string'    => 'Từ khóa phải là văn bản.',
+            'keyword.max'       => 'Từ khóa không được vượt quá 255 ký tự.',
+            'keyword.unique'    => 'Từ khóa này đã tồn tại.',
+            'reply.required'    => 'Vui lòng nhập nội dung phản hồi.',
+            'reply.string'      => 'Nội dung phản hồi phải là văn bản.',
+            'reply.max'         => 'Nội dung phản hồi quá dài.',
+            'is_active.boolean' => 'Trạng thái hoạt động không hợp lệ.',
         ];
     }
 

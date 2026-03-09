@@ -56,7 +56,7 @@ class ProductScrapingService
 
                         $description = $this->getHtml($crawler);
                     } catch (Exception $ex) {
-                        Log::warning("Description not found after clicking tab for URL: $url", [
+                        Log::warning("Không tìm thấy mô tả sau khi nhấp vào tab cho URL: $url", [
                             'error' => $ex->getMessage(),
                         ]);
                     }

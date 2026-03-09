@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Customer Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -10px;
+        }
+
+        .col-3 {
+            flex: 0 0 25%;
+            padding: 10px;
+        }
+
+        .col-9 {
+            flex: 0 0 75%;
+            padding: 10px;
+        }
+
+        .sidebar {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+            border-radius: 4px;
+        }
+
+        .sidebar a.active {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .sidebar a:hover {
+            background: #f0f0f0;
+        }
+
+        .content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
+        }
+
+        .tab-content {
+            display: block;
+            margin-bottom: 40px;
+            padding-bottom: 40px;
+            border-bottom: 3px solid #007bff;
+        }
+
+        .tab-content:last-child {
+            border-bottom: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            background: #007bff;
+            color: #fff;
+            padding: 15px 20px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .welcome {
+            margin-bottom: 20px;
+        }
+
+        .welcome p {
+            margin: 0;
+        }
+
+        .logout {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .logout:hover {
+            text-decoration: underline;
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #f9f9f9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: .875rem;
+        }
+
+        .badge.bg-success {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .badge.bg-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #0069d9;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .row-form {
+            display: flex;
+            flex-wrap: wrap;
+            margin: -5px;
+        }
+
+        .col-form {
+            flex: 1;
+            padding: 5px;
+        }
+
+        fieldset {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        legend {
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>My Account</h2>
+        <div class="row">
+            <div class="col-3">
+                <div class="sidebar">
+                    <ul>
+                        <li><a href="#" class="active">Dashboard</a></li>
+                        <li><a href="#">Orders</a></li>
+                        <li><a href="#">Address</a></li>
+                        <li><a href="#">Account Details</a></li>
+                        <li><a href="#" class="logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="content">
+                    <!-- DASHBOARD SECTION -->
+                    <div id="dashboard" class="tab-content active">
+                        <div class="section-title">📊 DASHBOARD</div>
+                        <h3>Dashboard</h3>
+                        <div class="welcome">
+                            <p>Hello, <strong>John Doe</strong> (If Not <strong>Doe</strong>! <a href="#"
+                                    class="logout">Logout</a>)</p>
+                        </div>
+                        <p>From your account dashboard. you can easily check & view your recent orders, manage your
+                            shipping and billing addresses and edit your password and account details.</p>
+                    </div>
+
+                    <!-- ORDERS SECTION -->
+                    <div id="orders" class="tab-content">
+                        <div class="section-title">📦 ORDERS</div>
+                        <h3>Orders</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>#12345</td>
+                                    <td>Mar 1, 2026</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td>500,000 VND</td>
+                                    <td><a href="#" class="btn">View</a></td>
+                                </tr>
+                                <tr>
+                                    <td>#12346</td>
+                                    <td>Feb 28, 2026</td>
+                                    <td><span class="badge bg-warning">Pending</span></td>
+                                    <td>300,000 VND</td>
+                                    <td><a href="#" class="btn">View</a></td>
+                                </tr>
+                                <tr>
+                                    <td>#12347</td>
+                                    <td>Feb 25, 2026</td>
+                                    <td><span class="badge bg-success">Completed</span></td>
+                                    <td>750,000 VND</td>
+                                    <td><a href="#" class="btn">View</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ADDRESS SECTION -->
+                    <div id="address" class="tab-content">
+                        <div class="section-title">📍 ADDRESS</div>
+                        <h3>Billing Address</h3>
+                        <address>
+                            <p><strong>John Doe</strong></p>
+                            <p>123 Main St<br>Hanoi, Vietnam</p>
+                            <p>Mobile: 0123456789</p>
+                            <p>Email: john@example.com</p>
+                        </address>
+                        <a href="#" class="btn">Edit Address</a>
+
+                        <h3 style="margin-top: 30px;">Shipping Address</h3>
+                        <address>
+                            <p><strong>John Doe</strong></p>
+                            <p>456 Secondary St<br>Ho Chi Minh City, Vietnam</p>
+                            <p>Mobile: 0987654321</p>
+                        </address>
+                        <a href="#" class="btn">Edit Address</a>
+                    </div>
+
+                    <!-- ACCOUNT DETAILS SECTION -->
+                    <div id="account-details" class="tab-content">
+                        <div class="section-title">👤 ACCOUNT DETAILS</div>
+                        <h3>Account Details</h3>
+                        <form>
+                            <div class="row-form">
+                                <div class="col-form">
+                                    <div class="form-group">
+                                        <label for="first_name">First Name *</label>
+                                        <input type="text" id="first_name" name="first_name" value="John" required>
+                                    </div>
+                                </div>
+                                <div class="col-form">
+                                    <div class="form-group">
+                                        <label for="last_name">Last Name *</label>
+                                        <input type="text" id="last_name" name="last_name" value="Doe" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="display_name">Display Name *</label>
+                                <input type="text" id="display_name" name="display_name" value="John Doe" required>
+                                <small style="color: #666; font-size: 0.875rem;">This will be how your name will be
+                                    displayed in the account section and in reviews</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address *</label>
+                                <input type="email" id="email" name="email" value="john@example.com" required>
+                            </div>
+                            <fieldset>
+                                <legend>Password change</legend>
+                                <div class="form-group">
+                                    <label for="current_password">Current Password (leave blank to leave
+                                        unchanged)</label>
+                                    <input type="password" id="current_password" name="current_password">
+                                </div>
+                                <div class="row-form">
+                                    <div class="col-form">
+                                        <div class="form-group">
+                                            <label for="new_password">New Password (leave blank to leave
+                                                unchanged)</label>
+                                            <input type="password" id="new_password" name="new_password">
+                                        </div>
+                                    </div>
+                                    <div class="col-form">
+                                        <div class="form-group">
+                                            <label for="confirm_password">Confirm New Password</label>
+                                            <input type="password" id="confirm_password" name="password_confirmation">
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <button type="submit" class="btn">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

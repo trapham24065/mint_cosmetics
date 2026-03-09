@@ -15,7 +15,8 @@
                                                 src="{{asset('assets/storefront/images/slider/text-theme.webp')}}"
                                                 width="427" height="232" alt="Image">
                                         </div>
-                                        <h2 class="hero-slide-title">CLEAN FRESH</h2>
+                                        <h2 class="hero-slide-title">
+                                            SẠCH SẼ, TƯƠI MÁT</h2>
                                         <p class="hero-slide-desc">Lorem ipsum dolor sit amet, consectetur adipiscing
                                             elit ut aliquam, purus sit amet luctus venenatis.</p>
                                         <a class="btn btn-border-dark" href="{{ route('shop') }}">SHOP

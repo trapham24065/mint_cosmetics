@@ -29,10 +29,10 @@
             <div class="col-xl-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center gap-1">
-                        <h4 class="card-title flex-grow-1">All Categories ({{ $totalCategories }})</h4>
+                        <h4 class="card-title flex-grow-1">Tất cả các danh mục ({{ $totalCategories }})</h4>
 
                         <a href="{{ route('admin.categories.create') }}" class="btn btn-sm btn-primary">
-                            <i class="fas fa-plus me-1"></i> Add Category
+                            <i class="fas fa-plus me-1"></i> Thêm danh mục
                         </a>
                     </div>
                     <div>
@@ -59,27 +59,27 @@
                         { id: 'id', name: 'ID', width: '80px' },
                         {
                             id: 'image',
-                            name: 'Image',
+                            name: 'Hình ảnh',
                             width: '100px',
                             formatter: (cell) => {
                                 const imageUrl = cell ? `{{ asset('storage') }}/${cell}` : `{{ asset('assets/admin/images/default.webp') }}`;
                                 return gridjs.html(`<img src="${imageUrl}" alt="Category" class="avatar-sm">`);
                             }
                         },
-                        { id: 'name', name: 'Name' },
+                        { id: 'name', name: 'Tên' },
                         { id: 'slug', name: 'Slug' },
                         {
                             id: 'is_active',
-                            name: 'Status',
+                            name: 'Trạng thái',
                             formatter: (cell) => {
                                 return cell
-                                    ? gridjs.html('<span class="badge bg-success">Active</span>')
-                                    : gridjs.html('<span class="badge bg-secondary">Inactive</span>');
+                                    ? gridjs.html('<span class="badge bg-success">Hoạt động</span>')
+                                    : gridjs.html('<span class="badge bg-secondary">Không hoạt động</span>');
                             }
                         },
-                        { id: 'created_at', name: 'Created At' },
+                        { id: 'created_at', name: 'Được tạo vào lúc' },
                         {
-                            name: 'Actions',
+                            name: 'Hành động',
                             width: '80px',
                             sort: false,
                             formatter: (cell, row) => {
@@ -97,12 +97,12 @@
                                                         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                                             <li>
                                                                 <a class="dropdown-item" href="${showUrl}">
-                                                                    <i class="bi bi-eye me-2 text-info"></i>View
+                                                                    <i class="bi bi-eye me-2 text-info"></i>Xem chi tiết
                                                                 </a>
                                                             </li>
                                                             <li>
                                                                 <a class="dropdown-item" href="${editUrl}">
-                                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Edit
+                                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Chỉnh sửa
                                                                 </a>
                                                             </li>
                                                             <li><hr class="dropdown-divider"></li>
@@ -111,7 +111,7 @@
                                                                        data-id="${categoryId}"
                                                                        data-name="${categoryName}"
                                                                        data-url="${deleteUrl}">
-                                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                                    <i class="bi bi-trash me-2"></i>Xóa
                                                                 </a>
                                                             </li>
                                                         </ul>
@@ -145,12 +145,10 @@
         });
 
         AdminCRUD.initDeleteHandler('.delete-item', {
-            confirmTitle: 'Delete Category?',
-            confirmText: 'You are about to delete category:',
-            successText: 'Category deleted successfully.',
+            confirmTitle: 'Xóa danh mục?',
+            confirmText: 'Bạn sắp xóa danh mục:',
+            successText: 'Danh mục đã được xóa thành công.',
             onSuccess: () => {
-                // Custom callback nếu cần
-                console.log('Category deleted!');
                 location.reload();
             }
         });

@@ -68,7 +68,9 @@ class AttributeService
 
             if ($inUseCount > 0) {
                 // Throw an exception that the controller can catch
-                throw new \RuntimeException("Cannot delete one or more values as they are in use by products.");
+                throw new \RuntimeException(
+                    "Không thể xóa một hoặc nhiều giá trị vì chúng đang được các sản phẩm sử dụng."
+                );
             }
         }
 
@@ -118,12 +120,14 @@ class AttributeService
     public function deleteAttribute(Attribute $attribute): bool
     {
         if ($attribute->categories()->exists()) {
-            throw new \RuntimeException("Cannot delete '{$attribute->name}'. It is linked to one or more categories.");
+            throw new \RuntimeException(
+                "Không thể xóa '{$attribute->name}'. Nó có liên quan đến một hoặc nhiều danh mục."
+            );
         }
 
         if ($attribute->values()->whereHas('productVariants')->exists()) {
             throw new \RuntimeException(
-                "Cannot delete '{$attribute->name}'. Its values are in use by one or more products."
+                "Không thể xóa '{$attribute->name}'. Các giá trị của nó đang được sử dụng bởi một hoặc nhiều sản phẩm."
             );
         }
 

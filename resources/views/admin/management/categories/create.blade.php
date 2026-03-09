@@ -9,9 +9,9 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="mt-3">
-                                <h4>New Category</h4>
+                                <h4>Danh mục mới</h4>
                                 <p class="text-muted">
-                                    Fill in the information on the right to create a new product category.
+                                    Hãy điền thông tin vào bên phải để tạo danh mục sản phẩm mới.
                                 </p>
                             </div>
                         </div>
@@ -19,11 +19,11 @@
                             <div class="row g-2">
                                 <div class="col-lg-6">
                                     {{-- The 'submit' button for the form --}}
-                                    <button type="submit" class="btn btn-primary w-100">Create Category</button>
+                                    <button type="submit" class="btn btn-primary w-100">Khởi tạo</button>
                                 </div>
                                 <div class="col-lg-6">
                                     <a href="{{ route('admin.categories.index') }}"
-                                       class="btn btn-outline-secondary w-100">Cancel</a>
+                                       class="btn btn-outline-secondary w-100">Hủy bỏ</a>
                                 </div>
                             </div>
                         </div>
@@ -33,17 +33,17 @@
                 <div class="col-xl-9 col-lg-8">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title">General Information</h4>
+                            <h4 class="card-title">Thông tin chung</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 {{-- Category Name --}}
                                 <div class="col-lg-12">
                                     <div class="mb-3">
-                                        <label for="category-name" class="form-label">Category Name</label>
+                                        <label for="category-name" class="form-label">Tên danh mục</label>
                                         <input type="text" id="category-name" name="name"
                                                class="form-control @error('name') is-invalid @enderror"
-                                               placeholder="Enter category name" value="{{ old('name') }}" required>
+                                               placeholder="Nhập tên danh mục" value="{{ old('name') }}" required>
                                         @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -51,7 +51,7 @@
                                 </div>
                                 {{-- Category Image --}}
                                 <div class="col-12 mb-3">
-                                    <label for="category-image" class="form-label">Category Image</label>
+                                    <label for="category-image" class="form-label">Hình ảnh theo danh mục</label>
                                     <input class="form-control @error('image') is-invalid @enderror" type="file"
                                            id="category-image" name="image">
                                     @error('image')
@@ -64,7 +64,7 @@
                                         <div class="form-check form-switch form-switch-success">
                                             <input class="form-check-input" type="checkbox" id="category-active"
                                                    name="active" value="1" checked>
-                                            <label class="form-check-label" for="category-active">Active</label>
+                                            <label class="form-check-label" for="category-active">Hoạt động</label>
                                         </div>
                                         @error('active')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -74,10 +74,10 @@
                                 {{-- Attributes Selection --}}
                                 <div class="col-lg-12">
                                     <div class="mb-3">
-                                        <label for="attribute-select" class="form-label">Link Attributes</label>
+                                        <label for="attribute-select" class="form-label">Thuộc tính liên kết</label>
                                         <select class="form-control" id="attribute-select" name="attribute_ids[]"
                                                 data-choices multiple>
-                                            <option value="">Select attributes...</option>
+                                            <option value="">Chọn các thuộc tính...</option>
                                             @foreach ($attributes as $attribute)
                                                 <option value="{{ $attribute->id }}">{{ $attribute->name }}</option>
                                             @endforeach

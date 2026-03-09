@@ -39,14 +39,14 @@ class UpdateBrandRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required'     => 'Please enter the brand name.',
-            'name.string'       => 'The brand name must be text.',
-            'name.max'          => 'The brand name cannot be longer than 255 characters.',
-            'name.unique'       => 'This brand name is already taken.',
-            'logo.image'        => 'The uploaded file must be an image.',
-            'logo.mimes'        => 'The logo must be a file of type: jpg, png, jpeg, webp.',
-            'logo.max'          => 'The logo size cannot exceed 1MB.',
-            'is_active.boolean' => 'The active status must be true or false.',
+            'name.required'     => 'Vui lòng nhập tên thương hiệu.',
+            'name.string'       => 'Tên thương hiệu phải là văn bản.',
+            'name.max'          => 'Tên thương hiệu không được vượt quá 255 ký tự.',
+            'name.unique'       => 'Tên thương hiệu này đã tồn tại.',
+            'logo.image'        => 'Tệp tải lên phải là hình ảnh.',
+            'logo.mimes'        => 'Logo phải có định dạng: jpg, png, jpeg, webp.',
+            'logo.max'          => 'Kích thước logo không được vượt quá 1MB.',
+            'is_active.boolean' => 'Trạng thái hoạt động không hợp lệ.',
         ];
     }
 

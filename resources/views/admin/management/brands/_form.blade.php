@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-12 mb-3">
-        <label for="brand-name" class="form-label">Brand Name</label>
+        <label for="brand-name" class="form-label">Tên thương hiệu</label>
         <input type="text" id="brand-name" name="name"
                class="form-control @error('name') is-invalid @enderror"
                value="{{ old('name', $brand->name ?? '') }}" required>
@@ -17,7 +17,7 @@
                 <img src="{{ asset('storage/' . $brand->logo) }}" alt="{{ $brand->name }}" class="img-thumbnail"
                      width="100">
             </div>
-            <label for="brand-logo" class="form-label fst-italic">Upload new logo to replace</label>
+            <label for="brand-logo" class="form-label fst-italic">Tải lên logo mới để thay thế</label>
         @endif
         <input class="form-control @error('logo') is-invalid @enderror" type="file" id="brand-logo" name="logo">
         @error('logo')
@@ -30,7 +30,7 @@
             <input class="form-check-input" type="checkbox" id="brand-active"
                    name="is_active" value="1"
                 @checked(old('is_active', $brand->is_active ?? true))>
-            <label class="form-check-label" for="brand-active">Active</label>
+            <label class="form-check-label" for="brand-active">Hoạt động</label>
         </div>
     </div>
 </div>

@@ -6,24 +6,24 @@
             <div class="col-md-6 col-xl-4">
                 <div class="card bg-primary-subtle">
                     <div class="card-body">
-                        <h4 class="mb-1">{{ $totalCoupons }} Total Coupons</h4>
-                        <p>All coupons created in the system.</p>
+                        <h4 class="mb-1">{{ $totalCoupons }} Tổng số phiếu giảm giá</h4>
+                        <p>Tất cả các phiếu giảm giá được tạo trong hệ thống.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-6 col-xl-4">
                 <div class="card bg-success-subtle">
                     <div class="card-body">
-                        <h4 class=" mb-1">{{ $activeCoupons }} Active Coupons</h4>
-                        <p class="">Coupons that are currently valid for use.</p>
+                        <h4 class=" mb-1">{{ $activeCoupons }} Mã giảm giá đang hoạt động</h4>
+                        <p class="">Các phiếu giảm giá hiện đang có hiệu lực.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-6 col-xl-4">
                 <div class="card bg-danger-subtle">
                     <div class="card-body">
-                        <h4 class=" mb-1">{{ $expiredCoupons }} Expired Coupons</h4>
-                        <p class="">Coupons that are no longer valid.</p>
+                        <h4 class=" mb-1">{{ $expiredCoupons }} Phiếu giảm giá đã hết hạn</h4>
+                        <p class="">Các phiếu giảm giá đã hết hạn.</p>
                     </div>
                 </div>
             </div>
@@ -33,9 +33,9 @@
             <div class="col-xl-12">
                 <div class="card">
                     <div class="d-flex card-header justify-content-between align-items-center">
-                        <h4 class="card-title">All Coupons List</h4>
+                        <h4 class="card-title">Danh sách tất cả phiếu giảm giá</h4>
                         <a href="{{ route('admin.coupons.create') }}" class="btn btn-sm btn-primary">
-                            <i class="bx bx-plus"></i> New Coupon
+                            <i class="bx bx-plus"></i> Mã giảm giá mới
                         </a>
                     </div>
                     <div class="card-body">
@@ -60,14 +60,14 @@
                 new gridjs.Grid({
                     columns: [
                         { id: 'id', name: 'ID' },
-                        { id: 'code', name: 'Code',
+                        { id: 'code', name: 'Mã',
                             attributes: () => ({
                                 style: ' min-width: 100px; max-width: 100px;'
                             }) },
                         { id: 'type', name: 'Type' },
                         {
                             id: 'value',
-                            name: 'Value',
+                            name: 'Giá trị',
                             formatter: (cell, row) => {
                                 const type = row.cells[2].data;
                                 if (type === 'percentage') {
@@ -76,21 +76,21 @@
                                 return `${parseFloat(cell).toLocaleString('vi-VN')} VNĐ`;
                             }
                         },
-                        { id: 'usage', name: 'Usage (Used/Max)',
+                        { id: 'usage', name: 'Mức sử dụng (Đã sử dụng/Tối đa)',
                             attributes: () => ({
                                 style: ' min-width: 40px; max-width: 40px;'
                             })
                         },
-                        { id: 'dates', name: 'Effective Dates' },
+                        { id: 'dates', name: 'Ngày có hiệu lực' },
                         {
                             id: 'is_active',
-                            name: 'Status',
+                            name: 'Trạng thái',
                             formatter: (cell) => cell
-                                ? gridjs.html('<span class="badge bg-success">Active</span>')
-                                : gridjs.html('<span class="badge bg-secondary">Inactive</span>')
+                                ? gridjs.html('<span class="badge bg-success">Hoạt động</span>')
+                                : gridjs.html('<span class="badge bg-secondary">Không hoạt động</span>')
                         },
                         {
-                            name: 'Actions',
+                            name: 'Hành động',
                             width: '80px',
                             sort: false,
                             formatter: (cell, row) => {
@@ -107,7 +107,7 @@
                                                         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                                             <li>
                                                                 <a class="dropdown-item" href="${editUrl}">
-                                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Edit
+                                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Chỉnh sửa
                                                                 </a>
                                                             </li>
                                                             <li><hr class="dropdown-divider"></li>
@@ -116,7 +116,7 @@
                                                                        data-id="${couponId}"
                                                                        data-name="${couponName}"
                                                                        data-url="${deleteUrl}">
-                                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                                    <i class="bi bi-trash me-2"></i>Xóa
                                                                 </a>
                                                             </li>
                                                         </ul>
@@ -139,12 +139,10 @@
         });
 
         AdminCRUD.initDeleteHandler('.delete-item', {
-            confirmTitle: 'Delete Coupon?',
-            confirmText: 'You are about to delete coupon:',
-            successText: 'Coupon deleted successfully.',
+            confirmTitle: 'Xóa mã giảm giá?',
+            confirmText: 'Bạn sắp xóa mã giảm giá:',
+            successText: 'Mã giảm giá đã được xóa thành công.',
             onSuccess: () => {
-                // Custom callback nếu cần
-                console.log('Coupon deleted!');
                 location.reload();
             }
         });
