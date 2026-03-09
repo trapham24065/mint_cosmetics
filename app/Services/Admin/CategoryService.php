@@ -57,7 +57,7 @@ class CategoryService
 
             if ($conflictCount > 0) {
                 throw new \RuntimeException(
-                    "Cannot remove some attributes because {$conflictCount} products in this category are currently using them."
+                    "Không thể xóa một số thuộc tính vì hiện tại có {$conflictCount} sản phẩm trong danh mục này đang sử dụng chúng."
                 );
             }
         }
@@ -82,7 +82,7 @@ class CategoryService
     public function deleteCategory(Category $category): bool
     {
         if ($category->products()->exists()) {
-            throw new \RuntimeException("Cannot delete '{$category->name}'. It is assigned to products.");
+            throw new \RuntimeException("Không thể xóa '{$category->name}' danh mục này đã được gán cho sản phẩm.");
         }
         if ($category->image) {
             Storage::disk('public')->delete($category->image);

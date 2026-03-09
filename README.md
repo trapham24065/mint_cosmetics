@@ -46,5 +46,13 @@ This command will keep the terminal open and automatically trigger scheduled tas
 whether the order deletion
 function is working as expected (orders older than 15 minutes will be deleted every minute).
 
+## Sitemap generation
+
+The application now supports both a dynamic sitemap endpoint and a static file for search engines.
+
+- **Route**: `GET /sitemap.xml` will return XML generated from active products and main pages.
+- **Static file**: run `php artisan sitemap:generate` to write `public/sitemap.xml`. Use `--force` to overwrite without prompt.
+- The job is scheduled in `routes/console.php` to run daily (requires scheduler to be running via cron or `php artisan schedule:work`).
+
 Package:
 composer require musonza/chat

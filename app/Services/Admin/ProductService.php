@@ -138,7 +138,7 @@ class ProductService
                 foreach ($variantsToDelete as $v) {
                     if ($v->orderItems()->exists()) {
                         throw new Exception(
-                            "Cannot switch to simple product because a variant is part of an existing order."
+                            "Không thể chuyển sang sản phẩm đơn giản vì biến thể đó đã nằm trong đơn hàng hiện có."
                         );
                     }
                     $v->delete();
@@ -182,8 +182,8 @@ class ProductService
                         $variantToDelete = ProductVariant::find($variantId);
                         if ($variantToDelete) {
                             if ($variantToDelete->orderItems()->exists()) {
-                                throw new Exception(
-                                    "Cannot delete variant (ID: {$variantId}) because it is part of an existing order."
+                                throw new \RuntimeException(
+                                    "Không thể xóa biến thể (ID:{$variantId}) bởi vì nó là một phần của trật tự hiện có."
                                 );
                             }
                             $variantToDelete->delete();
@@ -270,7 +270,7 @@ class ProductService
             );
 
             if (empty($allVariantsData)) {
-                throw new \RuntimeException('A variable product must have at least one variant.');
+                throw new \RuntimeException('Sản phẩm có nhiều biến thể phải có ít nhất một phiên bản khác nhau.');
             }
 
             foreach ($allVariantsData as $variantData) {
@@ -300,7 +300,9 @@ class ProductService
     public function deleteProduct(Product $product): bool
     {
         if ($product->orderItems()->exists()) {
-            throw new \RuntimeException('Cannot delete product because it is linked to existing orders.');
+            throw new \RuntimeException(
+                'Không thể xóa sản phẩm vì sản phẩm đó được liên kết với các đơn hàng hiện có.'
+            );
         }
 
         return $product->delete();
@@ -328,9 +330,9 @@ class ProductService
                 $affectedRows = Product::whereIn('id', $productIds)->update(['active' => (bool)$value]);
                 return (int)$affectedRows;
 
-                // Bạn có thể thêm các case khác ở đây trong tương lai, ví dụ: 'bulk_delete'
-                // case 'bulk_delete':
-                //     return Product::destroy($productIds);
+            // Bạn có thể thêm các case khác ở đây trong tương lai, ví dụ: 'bulk_delete'
+            // case 'bulk_delete':
+            //     return Product::destroy($productIds);
         }
 
         return 0;
@@ -351,9 +353,10 @@ class ProductService
 
         // Vòng lặp để đảm bảo duy nhất
         do {
-            $sku = $prefix . '-' . strtoupper(Str::random(6));
+            $sku = $prefix.'-'.strtoupper(Str::random(6));
         } while (ProductVariant::where('sku', $sku)->exists());
 
         return $sku;
     }
+
 }

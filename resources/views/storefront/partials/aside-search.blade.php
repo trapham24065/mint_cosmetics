@@ -2,7 +2,7 @@
 <aside class="aside-search-box-wrapper offcanvas offcanvas-top" tabindex="-1" id="AsideOffcanvasSearch"
        aria-labelledby="offcanvasTopLabel">
     <div class="offcanvas-header">
-        <h5 class="d-none" id="offcanvasTopLabel">Aside Search</h5>
+        <h5 class="d-none" id="offcanvasTopLabel">Tìm kiếm bên cạnh</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"><i
                 class="fa fa-close"></i></button>
     </div>
@@ -10,15 +10,16 @@
         <div class="container pt--0 pb--0">
             <div class="search-box-form-wrap">
                 <div class="search-note">
-                    <p>Start typing and press Enter to search</p>
+                    <p>Bắt đầu nhập và nhấn Enter để tìm kiếm</p>
                 </div>
                 <form action="{{ route('shop') }}" method="get"
                       onsubmit="return !!document.getElementById('SearchInput').value.trim();">
                     <div class="aside-search-form position-relative">
-                        <label for="SearchInput" class="visually-hidden">Search</label>
+                        <label for="SearchInput" class="visually-hidden">Tìm kiếm
+                        </label>
                         <input id="SearchInput" type="search" class="form-control"
                                name="search"
-                               placeholder="Search entire store…"
+                               placeholder="Tìm kiếm toàn bộ cửa hàng…"
                                value="{{ request('search') }}">
                         <button class="search-button" type="submit"><i class="fa fa-search"></i></button>
                     </div>
@@ -57,7 +58,7 @@
             }
 
             debounceTimer = setTimeout(() => {
-                resultsContainer.innerHTML = '<p class="text-center p-3">Searching...</p>';
+                resultsContainer.innerHTML = '<p class="text-center p-3">Đang tìm kiếm...</p>';
 
                 fetch(`/api/products/search?query=${query}`).then(response => response.json()).then(products => {
                     resultsContainer.innerHTML = '';
@@ -87,11 +88,11 @@
                             resultsContainer.insertAdjacentHTML('beforeend', resultHtml);
                         });
                     } else {
-                        resultsContainer.innerHTML = '<p class="text-center p-3">No products found.</p>';
+                        resultsContainer.innerHTML = '<p class="text-center p-3">Không tìm thấy sản phẩm nào</p>';
                     }
                 }).catch(error => {
                     console.error('Search error:', error);
-                    resultsContainer.innerHTML = '<p class="text-center p-3 text-danger">An error occurred.</p>';
+                    resultsContainer.innerHTML = '<p class="text-center p-3 text-danger">Đã xảy ra lỗi.</p>';
                 });
             }, 300);
         });

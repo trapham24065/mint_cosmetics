@@ -26,8 +26,8 @@
                                         <img src="{{ asset('assets/admin/images/logo-sm.png') }}" height="50" alt="logo"
                                              class="auth-logo">
                                     </a>
-                                    <h4 class="mt-3 mb-1 fw-semibold text-white fs-18">Welcome Back!</h4>
-                                    <p class="text-muted fw-medium mb-0">Sign in to continue .</p>
+                                    <h4 class="mt-3 mb-1 fw-semibold text-white fs-18">Chào mừng trở lại!</h4>
+                                    <p class="text-muted fw-medium mb-0">Đăng nhập để tiếp tục.</p>
                                 </div>
                             </div>
                             <div class="card-body pt-0">

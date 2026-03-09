@@ -36,7 +36,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         return redirect()->intended(route('admin.dashboard', absolute: false))
-            ->with('success', 'Signed in successfully!');
+            ->with('success', 'Đăng nhập thành công!');
     }
 
     /**
@@ -50,6 +50,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/admin/login')->with('success', 'Signed out successfully.');
+        return redirect('/admin/login')->with('success', 'Đăng xuất thành công.');
     }
+
 }

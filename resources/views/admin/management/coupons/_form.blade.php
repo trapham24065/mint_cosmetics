@@ -6,7 +6,7 @@
 <div class="row">
     <div class="col-md-6">
         <div class="mb-3">
-            <label for="coupon-code" class="form-label">Coupon Code</label>
+            <label for="coupon-code" class="form-label">Mã giảm giá</label>
             <input type="text" id="coupon-code" name="code" class="form-control @error('code') is-invalid @enderror"
                    value="{{ old('code', $coupon->code ?? '') }}" required>
             @error('code')
@@ -15,8 +15,8 @@
     </div>
     <div class="col-md-6">
         <div class="mb-3">
-            <label for="coupon-type" class="form-label">Discount Type @if($isUsed)
-                    <small class="text-danger">(Locked)</small>
+            <label for="coupon-type" class="form-label">Loại giảm giá @if($isUsed)
+                    <small class="text-danger">(Đã khóa)</small>
                 @endif</label>
             <select id="coupon-type" name="type" class="form-select @error('type') is-invalid @enderror"
                     {{ $isUsed ? 'disabled' : '' }} required>
@@ -36,8 +36,8 @@
     </div>
     <div class="col-md-6">
         <div class="mb-3">
-            <label for="coupon-value" class="form-label">Discount Value @if($isUsed)
-                    <small class="text-danger">(Locked)</small>
+            <label for="coupon-value" class="form-label">Giá trị chiết khấu @if($isUsed)
+                    <small class="text-danger">(Đã khóa)</small>
                 @endif</label>
             <input type="number" step="any" id="coupon-value" name="value"
                    class="form-control @error('value') is-invalid @enderror"
@@ -51,7 +51,7 @@
     </div>
     <div class="col-md-6">
         <div class="mb-3">
-            <label for="min-purchase" class="form-label">Minimum Purchase Amount (Optional)</label>
+            <label for="min-purchase" class="form-label">Số tiền mua tối thiểu (Tùy chọn)</label>
             <input type="number" step="any" id="min-purchase" name="min_purchase_amount"
                    class="form-control @error('min_purchase_amount') is-invalid @enderror"
                    value="{{ old('min_purchase_amount', $coupon->min_purchase_amount ?? '') }}">
@@ -61,7 +61,7 @@
     </div>
     <div class="col-md-6">
         <div class="mb-3">
-            <label for="max-uses" class="form-label">Max Uses (Optional)</label>
+            <label for="max-uses" class="form-label">Số lần sử dụng tối đa (Tùy chọn)</label>
             <input type="number" id="max-uses" name="max_uses"
                    class="form-control @error('max_uses') is-invalid @enderror"
                    value="{{ old('max_uses', $coupon->max_uses ?? '') }}">
@@ -71,7 +71,7 @@
     </div>
     <div class="col-md-6">
         <div class="mb-3">
-            <label for="starts-at" class="form-label">Start Date</label>
+            <label for="starts-at" class="form-label">Ngày bắt đầu</label>
             <input type="date" id="starts-at" name="starts_at"
                    class="form-control @error('starts_at') is-invalid @enderror"
                    value="{{ old('starts_at', isset($coupon->starts_at) ? $coupon->starts_at->format('Y-m-d') : '') }}"
@@ -82,7 +82,7 @@
     </div>
     <div class="col-md-6">
         <div class="mb-3">
-            <label for="expires-at" class="form-label">End Date</label>
+            <label for="expires-at" class="form-label">Ngày kết thúc</label>
             <input type="date" id="expires-at" name="expires_at"
                    class="form-control @error('expires_at') is-invalid @enderror"
                    value="{{ old('expires_at', isset($coupon->expires_at) ? $coupon->expires_at->format('Y-m-d') : '') }}"
@@ -96,7 +96,7 @@
             <div class="form-check form-switch form-switch-success">
                 <input class="form-check-input" type="checkbox" id="is-active" name="is_active" value="1"
                        @if(old('is_active', $coupon->is_active ?? true)) checked @endif>
-                <label class="form-check-label" for="is-active">Active</label>
+                <label class="form-check-label" for="is-active"> Hoạt động</label>
             </div>
         </div>
     </div>

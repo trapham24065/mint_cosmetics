@@ -6629,7 +6629,7 @@
   const CLASS_NAME_FADE = 'fade';
   const CLASS_NAME_HIDE = 'hide'; // @deprecated - kept here only for backwards compatibility
   const CLASS_NAME_SHOW = 'show';
-  const CLASS_NAME_SHOWING = 'showing';
+  const CLASS_NAME_SHOWING = 'Đang hiển thị';
   const DefaultType = {
     animation: 'boolean',
     autohide: 'boolean',
@@ -54410,10 +54410,10 @@ var Wizard = (function () {
       setCalendarWidth();
       var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
       /* TODO: investigate this further
-        
+
               Currently, there is weird positioning behavior in safari causing pages
               to scroll up. https://github.com/chmln/flatpickr/issues/563
-        
+
               However, most browsers are not Safari and positioning is expensive when used
               in scale. https://github.com/chmln/flatpickr/issues/1096
             */

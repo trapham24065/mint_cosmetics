@@ -13,20 +13,20 @@
                         <p class="text-muted">ID: {{ $brand->id }}</p>
 
                         @if ($brand->is_active)
-                            <span class="badge bg-success">Active</span>
+                            <span class="badge bg-success">Hoạt động</span>
                         @else
-                            <span class="badge bg-secondary">Inactive</span>
+                            <span class="badge bg-secondary">Không hoạt động</span>
                         @endif
                     </div>
                     <div class="card-footer bg-light border-top">
                         <div class="row text-center">
                             <div class="col-6">
                                 <a href="{{ route('admin.brands.edit', $brand) }}"
-                                   class="btn btn-primary w-100">Edit</a>
+                                   class="btn btn-primary w-100">Chỉnh sửa</a>
                             </div>
                             <div class="col-6">
                                 <a href="{{ route('admin.brands.index') }}"
-                                   class="btn btn-outline-secondary w-100">Back</a>
+                                   class="btn btn-outline-secondary w-100">Quay lại</a>
                             </div>
                         </div>
                     </div>
@@ -36,7 +36,7 @@
             <div class="col-lg-8">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Products using '{{ $brand->name }}' ({{ $products->total() }})</h4>
+                        <h4 class="card-title">Sản phẩm sử dụng '{{ $brand->name }}' ({{ $products->total() }})</h4>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -44,9 +44,9 @@
                                 <thead class="table-light">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Image</th>
-                                    <th>Product Name</th>
-                                    <th>Status</th>
+                                    <th>Hình ảnh</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Trạng thái</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -61,15 +61,17 @@
                                         <td>{{ $product->name }}</td>
                                         <td>
                                             @if ($product->active)
-                                                <span class="badge bg-success">Active</span>
+                                                <span class="badge bg-success">Hoạt động</span>
                                             @else
-                                                <span class="badge bg-secondary">Inactive</span>
+                                                <span class="badge bg-secondary">Không hoạt động</span>
                                             @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center">No products found for this brand.</td>
+                                        <td colspan="4" class="text-center">Không tìm thấy sản phẩm nào cho thương hiệu
+                                            này.
+                                        </td>
                                     </tr>
                                 @endforelse
                                 </tbody>

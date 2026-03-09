@@ -30,7 +30,7 @@ class RequestReview extends Mailable
      */
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Please review your recent purchase');
+        return new Envelope(subject: 'Vui lòng xem lại đơn hàng gần đây của bạn.');
     }
 
     /**

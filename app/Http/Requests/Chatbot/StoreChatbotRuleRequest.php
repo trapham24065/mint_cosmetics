@@ -38,14 +38,14 @@ class StoreChatbotRuleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'keyword.required'  => 'Please enter the keyword.',
-            'keyword.string'    => 'The keyword must be text.',
-            'keyword.max'       => 'The keyword cannot be longer than 255 characters.',
-            'keyword.unique'    => 'This keyword is already taken.',
-            'reply.required'    => 'Please enter the reply message.',
-            'reply.string'      => 'The reply message must be text.',
-            'reply.max'         => 'The reply message is too long.',
-            'is_active.boolean' => 'The active status must be true or false.',
+            'keyword.required'  => 'Vui lòng nhập từ khóa.',
+            'keyword.string'    => 'Từ khóa phải là văn bản.',
+            'keyword.max'       => 'Từ khóa không được vượt quá 255 ký tự.',
+            'keyword.unique'    => 'Từ khóa này đã tồn tại.',
+            'reply.required'    => 'Vui lòng nhập nội dung phản hồi.',
+            'reply.string'      => 'Nội dung phản hồi phải là văn bản.',
+            'reply.max'         => 'Nội dung phản hồi quá dài.',
+            'is_active.boolean' => 'Trạng thái hoạt động phải là đúng hoặc sai.',
         ];
     }
 

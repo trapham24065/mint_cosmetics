@@ -1,0 +1,508 @@
+// Mint Cosmetics Database Schema
+// Use this at https://dbdiagram.io/
+
+Project MintCosmetics {
+  database_type: 'MySQL'
+  Note: 'E-commerce platform for cosmetics products'
+}
+
+// ===== AUTHENTICATION & USERS =====
+Table users {
+  id bigint [pk, increment]
+  name varchar
+  email varchar [unique, not null]
+  avatar varchar [null]
+  email_verified_at timestamp [null]
+  password varchar [not null]
+  status int [default: 1]
+  remember_token varchar [null]
+  last_login_at timestamp [null]
+  last_login_ip varchar [null]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Admin users table'
+}
+
+Table customers {
+  id bigint [pk, increment]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  email varchar [unique, not null]
+  phone varchar [null]
+  password varchar [not null]
+  address varchar [null]
+  city varchar [null]
+  status boolean [default: true]
+  remember_token varchar [null]
+  last_login_at timestamp [null]
+  last_login_ip varchar [null]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [null]
+  
+  Note: 'Customer accounts for shopping'
+}
+
+Table password_reset_tokens {
+  email varchar [pk]
+  token varchar [not null]
+  created_at timestamp [null]
+}
+
+Table sessions {
+  id varchar [pk]
+  user_id bigint [null]
+  ip_address varchar(45) [null]
+  user_agent text [null]
+  payload longtext [not null]
+  last_activity int [not null]
+}
+
+// ===== PRODUCT CATALOG =====
+Table categories {
+  id bigint [pk, increment]
+  name varchar [unique, not null]
+  slug varchar [unique, not null]
+  image varchar [null]
+  active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Product categories (e.g., Skincare, Makeup)'
+}
+
+Table brands {
+  id bigint [pk, increment]
+  name varchar [unique, not null]
+  slug varchar [unique, not null]
+  logo varchar [null]
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Cosmetic brands'
+}
+
+Table products {
+  id bigint [pk, increment]
+  category_id bigint [not null, ref: > categories.id]
+  brand_id bigint [null, ref: > brands.id]
+  name varchar [not null]
+  slug varchar [unique, not null]
+  quantity_in_stock int [default: 0]
+  description text [null]
+  image varchar [null]
+  list_image json [null]
+  active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [null]
+  
+  Note: 'Main products table'
+}
+
+Table product_variants {
+  id bigint [pk, increment]
+  product_id bigint [not null, ref: > products.id]
+  sku varchar [unique, null]
+  price decimal(15,2) [not null]
+  discount_price decimal(15,2) [null]
+  stock int [default: 0]
+  image varchar [null]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Product variations (e.g., different sizes, colors)'
+}
+
+// ===== ATTRIBUTES SYSTEM =====
+Table attributes {
+  id bigint [pk, increment]
+  name varchar [not null]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Attribute types (e.g., Color, Size, Volume)'
+}
+
+Table attribute_values {
+  id bigint [pk, increment]
+  attribute_id bigint [not null, ref: > attributes.id]
+  value varchar [not null]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Attribute values (e.g., Red, Blue, 50ml)'
+}
+
+Table attribute_category {
+  attribute_id bigint [pk, ref: > attributes.id]
+  category_id bigint [pk, ref: > categories.id]
+  
+  Note: 'Links attributes to categories'
+}
+
+Table attribute_value_product_variant {
+  attribute_value_id bigint [pk, ref: > attribute_values.id]
+  product_variant_id bigint [pk, ref: > product_variants.id]
+
+  Note: 'Links attribute values to product variants'
+}
+
+// ===== SHOPPING CART =====
+Table carts {
+  id bigint [pk, increment]
+  customer_id bigint [not null, ref: > customers.id]
+  product_variant_id bigint [not null, ref: > product_variants.id]
+  quantity int [default: 1]
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (customer_id, product_variant_id) [unique]
+  }
+
+  Note: 'Shopping cart items for customers'
+}
+
+// ===== ORDERS & PAYMENTS =====
+Table orders {
+  id bigint [pk, increment]
+  customer_id bigint [not null, ref: > customers.id]
+  total_price decimal(15,2) [not null]
+  coupon_code varchar [null]
+  discount_amount decimal(15,2) [default: 0]
+  status varchar [default: 'pending']
+  payment_method varchar [null]
+  transaction_id varchar [null]
+  notes text [null]
+  first_name varchar [not null]
+  last_name varchar [not null]
+  address text [not null]
+  phone varchar [not null]
+  email varchar [not null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Customer orders with shipping details'
+}
+
+Table order_items {
+  id bigint [pk, increment]
+  order_id bigint [not null, ref: > orders.id]
+  product_id bigint [not null, ref: > products.id]
+  product_variant_id bigint [null, ref: > product_variants.id]
+  product_name varchar [not null]
+  quantity int [not null]
+  price decimal(15,2) [not null]
+  review_token varchar [unique, null]
+  reviewed_at timestamp [null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Individual items in an order'
+}
+
+// ===== COUPONS & DISCOUNTS =====
+Table coupons {
+  id bigint [pk, increment]
+  code varchar [unique, not null]
+  type varchar [not null]
+  value decimal(15,2) [not null]
+  min_purchase_amount decimal(15,2) [null]
+  max_uses int [null]
+  times_used int [default: 0]
+  starts_at timestamp [null]
+  expires_at timestamp [null]
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Discount coupons (fixed_amount or percentage)'
+}
+
+// ===== REVIEWS & RATINGS =====
+Table reviews {
+  id bigint [pk, increment]
+  order_item_id bigint [unique, not null, ref: > order_items.id]
+  product_id bigint [not null, ref: > products.id]
+  reviewer_name varchar [not null]
+  rating int [not null]
+  review text [not null]
+  is_approved boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Product reviews from customers'
+}
+
+// ===== BLOG SYSTEM =====
+Table blog_posts {
+  id bigint [pk, increment]
+  title varchar [not null]
+  slug varchar [unique, not null]
+  content text [not null]
+  image varchar [null]
+  is_published boolean [default: false]
+  published_at timestamp [null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Blog posts for content marketing'
+}
+
+// ===== SUPPLIERS & INVENTORY =====
+Table suppliers {
+  id bigint [pk, increment]
+  name varchar [not null]
+  email varchar [unique, null]
+  phone varchar [null]
+  address varchar [null]
+  contact_person varchar [null]
+  note text [null]
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Product suppliers'
+}
+
+Table purchase_orders {
+  id bigint [pk, increment]
+  code varchar [unique, not null]
+  supplier_id bigint [not null, ref: > suppliers.id]
+  total_amount decimal(15,2) [default: 0]
+  status varchar [default: 'pending']
+  note text [null]
+  received_at timestamp [null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Purchase orders from suppliers'
+}
+
+Table purchase_order_items {
+  id bigint [pk, increment]
+  purchase_order_id bigint [not null, ref: > purchase_orders.id]
+  product_variant_id bigint [not null, ref: > product_variants.id]
+  quantity int [not null]
+  import_price decimal(15,2) [not null]
+  subtotal decimal(15,2) [not null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Items in a purchase order'
+}
+
+// ===== CHATBOT SYSTEM =====
+Table chatbot_replies {
+  id bigint [pk, increment]
+  topic varchar [not null]
+  reply text [not null]
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Chatbot reply templates'
+}
+
+Table chatbot_keywords {
+  id bigint [pk, increment]
+  chatbot_reply_id bigint [not null, ref: > chatbot_replies.id]
+  keyword varchar [not null]
+
+  Note: 'Keywords that trigger chatbot replies'
+}
+
+Table chatbot_rules {
+  id bigint [pk, increment]
+  keyword varchar [unique, not null]
+  reply text [not null]
+  is_active boolean [default: true]
+
+  Note: 'Chatbot auto-reply rules based on keywords'
+}
+
+Table guests {
+  id bigint [pk, increment]
+  session_id varchar [unique, not null]
+  name varchar [default: 'Guest']
+  ip_address varchar [null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Guest users for chat system'
+}
+
+Table conversations {
+  id bigint [pk, increment]
+  session_id varchar [unique, not null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Old chatbot conversations (deprecated)'
+}
+
+Table messages {
+  id bigint [pk, increment]
+  conversation_id bigint [not null, ref: > conversations.id]
+  content text [not null]
+  sender varchar [not null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Old chatbot messages (deprecated)'
+}
+
+// ===== CHAT SYSTEM (Musonza Chat Package) =====
+Table mc_conversations {
+  id bigint [pk, increment]
+  private boolean [default: true]
+  direct_message boolean [default: false]
+  data text [null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Chat conversations between users/customers/admins'
+}
+
+Table mc_participants {
+  id bigint [pk, increment]
+  conversation_id bigint [not null, ref: > mc_conversations.id]
+  messageable_id bigint [not null]
+  messageable_type varchar [not null]
+  settings text [null]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [null]
+
+  indexes {
+    (conversation_id, messageable_id, messageable_type) [unique]
+  }
+
+  Note: 'Participants in conversations (polymorphic)'
+}
+
+Table mc_messages {
+  id bigint [pk, increment]
+  body text [not null]
+  conversation_id bigint [not null, ref: > mc_conversations.id]
+  participation_id bigint [null, ref: > mc_participants.id]
+  type varchar [default: 'text']
+  data text [null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Chat messages'
+}
+
+Table mc_message_notifications {
+  id bigint [pk, increment]
+  message_id bigint [not null, ref: > mc_messages.id]
+  messageable_id bigint [not null]
+  messageable_type varchar [not null]
+  conversation_id bigint [not null, ref: > mc_conversations.id]
+  participation_id bigint [not null, ref: > mc_participants.id]
+  is_seen boolean [default: false]
+  is_sender boolean [default: false]
+  flagged boolean [default: false]
+  created_at timestamp
+  updated_at timestamp
+  deleted_at timestamp [null]
+
+  indexes {
+    (participation_id, message_id)
+  }
+
+  Note: 'Message notifications and read status'
+}
+
+// ===== SYSTEM TABLES =====
+Table cache {
+  key varchar [pk]
+  value mediumtext [not null]
+  expiration int [not null]
+}
+
+Table cache_locks {
+  key varchar [pk]
+  owner varchar [not null]
+  expiration int [not null]
+}
+
+Table jobs {
+  id bigint [pk, increment]
+  queue varchar [not null]
+  payload longtext [not null]
+  attempts tinyint [not null]
+  reserved_at int [null]
+  available_at int [not null]
+  created_at int [not null]
+
+  indexes {
+    queue
+  }
+}
+
+Table job_batches {
+  id varchar [pk]
+  name varchar [not null]
+  total_jobs int [not null]
+  pending_jobs int [not null]
+  failed_jobs int [not null]
+  failed_job_ids longtext [not null]
+  options mediumtext [null]
+  cancelled_at int [null]
+  created_at int [not null]
+  finished_at int [null]
+}
+
+Table failed_jobs {
+  id bigint [pk, increment]
+  uuid varchar [unique, not null]
+  connection text [not null]
+  queue text [not null]
+  payload longtext [not null]
+  exception longtext [not null]
+  failed_at timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table notifications {
+  id char(36) [pk]
+  type varchar [not null]
+  notifiable_type varchar [not null]
+  notifiable_id bigint [not null]
+  data text [not null]
+  read_at timestamp [null]
+  created_at timestamp
+  updated_at timestamp
+
+  indexes {
+    (notifiable_type, notifiable_id)
+  }
+
+  Note: 'Laravel notifications (polymorphic)'
+}
+
+Table settings {
+  id bigint [pk, increment]
+  key varchar [unique, not null]
+  value text [null]
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Application settings'
+}
+
+Table visits {
+  id bigint [pk, increment]
+  ip_address varchar [null]
+  user_agent text [null]
+  visited_at timestamp
+  created_at timestamp
+  updated_at timestamp
+
+  Note: 'Website visit tracking'
+}
+

@@ -45,14 +45,15 @@ class StoreAttributeRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required'   => 'Please enter the attribute name.',
-            'name.string'     => 'The attribute name must be text.',
-            'name.max'        => 'The attribute name cannot be longer than 255 characters.',
-            'name.unique'     => 'This attribute name is already taken.',
-            'values.array'    => 'The attribute values must be submitted in the correct format.',
+            'name.required'   => 'Vui lòng nhập tên thuộc tính.',
+            'name.string'     => 'Tên thuộc tính phải là dạng văn bản.',
+            'name.max'        => 'Tên thuộc tính không được vượt quá 255 ký tự.',
+            'name.unique'     => 'Tên thuộc tính này đã tồn tại.',
+            'values.array'    => 'Các giá trị thuộc tính phải được gửi đúng định dạng.',
+
             // Messages for rules applied to each item within the 'values' array
-            'values.*.string' => 'Each attribute value must be text.',
-            'values.*.max'    => 'Each attribute value cannot be longer than 255 characters.',
+            'values.*.string' => 'Mỗi giá trị thuộc tính phải là dạng văn bản.',
+            'values.*.max'    => 'Mỗi giá trị thuộc tính không được vượt quá 255 ký tự.',
         ];
     }
 

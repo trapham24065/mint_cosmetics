@@ -4,13 +4,13 @@
     <div class="container-xxl">
         <div class="row">
             <div class="col-12">
-                <h4 class="mb-4">Search results for: "<span class="text-primary">{{ $query }}</span>"</h4>
+                <h4 class="mb-4">Kết quả tìm kiếm cho: "<span class="text-primary">{{ $query }}</span>"</h4>
             </div>
         </div>
 
         @if($products->isEmpty() && $orders->isEmpty() && $customers->isEmpty() && $categories->isEmpty() && $brands->isEmpty())
             <div class="alert alert-warning" role="alert">
-                No results were found matching your keywords.
+                Không tìm thấy kết quả nào phù hợp với từ khóa của bạn.
             </div>
         @else
             <div class="row">
@@ -20,7 +20,7 @@
                         <div class="card h-100">
                             <div class="card-header bg-light">
                                 <h5 class="card-title mb-0">
-                                    Product ({{ $products->count() }})</h5>
+                                    Sản phẩm ({{ $products->count() }})</h5>
                             </div>
                             <div class="list-group list-group-flush">
                                 @foreach($products as $product)
@@ -32,7 +32,7 @@
                                             style="object-fit: cover;">
                                         <div>
                                             <div class="fw-bold text-dark">{{ $product->name }}</div>
-                                            <small class="text-muted">{{ $product->variants->count() }} variant</small>
+                                            <small class="text-muted">{{ $product->variants->count() }} biến thể</small>
                                         </div>
                                     </a>
                                 @endforeach
@@ -46,7 +46,7 @@
                     <div class="col-md-6 mb-4">
                         <div class="card h-100">
                             <div class="card-header bg-light">
-                                <h5 class="card-title mb-0">Order ({{ $orders->count() }})</h5>
+                                <h5 class="card-title mb-0">Đặt hàng ({{ $orders->count() }})</h5>
                             </div>
                             <div class="list-group list-group-flush">
                                 @foreach($orders as $order)
@@ -56,7 +56,7 @@
                                             <h6 class="mb-1 fw-bold">#{{ $order->id }}</h6>
                                             <small class="text-muted">{{ $order->created_at->format('d/m/Y') }}</small>
                                         </div>
-                                        <p class="mb-1">Guest: {{ $order->first_name }} {{ $order->last_name }}</p>
+                                        <p class="mb-1">Khách: {{ $order->first_name }} {{ $order->last_name }}</p>
                                         <span
                                             class="badge bg-{{ $order->status->color() }}">{{ $order->status->label() }}</span>
                                     </a>
@@ -71,7 +71,7 @@
                     <div class="col-md-6 mb-4">
                         <div class="card h-100">
                             <div class="card-header bg-light">
-                                <h5 class="card-title mb-0">Client ({{ $customers->count() }})</h5>
+                                <h5 class="card-title mb-0">Khách hàng ({{ $customers->count() }})</h5>
                             </div>
                             <div class="list-group list-group-flush">
                                 @foreach($customers as $customer)
@@ -94,11 +94,11 @@
                     <div class="col-md-6 mb-4">
                         <div class="card h-100">
                             <div class="card-header bg-light">
-                                <h5 class="card-title mb-0">Categories & Brands</h5>
+                                <h5 class="card-title mb-0">Danh mục & Thương hiệus</h5>
                             </div>
                             <div class="card-body">
                                 @if($categories->isNotEmpty())
-                                    <h6>Category:</h6>
+                                    <h6>Loại:</h6>
                                     <div class="d-flex flex-wrap gap-2 mb-3">
                                         @foreach($categories as $category)
                                             <a href="{{ route('admin.categories.edit', $category->id) }}"
@@ -110,7 +110,7 @@
                                 @endif
 
                                 @if($brands->isNotEmpty())
-                                    <h6>Trademark:</h6>
+                                    <h6>Nhãn hiệu:</h6>
                                     <div class="d-flex flex-wrap gap-2">
                                         @foreach($brands as $brand)
                                             <a href="{{ route('admin.brands.edit', $brand->id) }}"

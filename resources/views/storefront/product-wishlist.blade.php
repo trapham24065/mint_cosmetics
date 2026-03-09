@@ -7,8 +7,8 @@
         <nav aria-label="breadcrumb" class="breadcrumb-style1">
             <div class="container">
                 <ol class="breadcrumb justify-content-center">
-                    <li class="breadcrumb-item"><a href="{{route('home')}}">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Wishlist</li>
+                    <li class="breadcrumb-item"><a href="{{route('home')}}">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Danh sách yêu thích</li>
                 </ol>
             </div>
         </nav>
@@ -23,9 +23,9 @@
                         <tr>
                             <th class="product-remove">&nbsp;</th>
                             <th class="product-thumbnail">&nbsp;</th>
-                            <th class="product-name">Product name</th>
-                            <th class="product-price">Unit price</th>
-                            <th class="product-stock-status">Stock status</th>
+                            <th class="product-name">Tên sản phẩm</th>
+                            <th class="product-price">Đơn giá</th>
+                            <th class="product-stock-status">Tình trạng hàng</th>
                             <th class="product-add-to-cart">&nbsp;</th>
                         </tr>
                         </thead>
@@ -69,7 +69,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6">Your wishlist is empty.</td>
+                                <td colspan="6">Danh sách yêu thích của bạn trống.</td>
                             </tr>
                         @endforelse
                         </tbody>

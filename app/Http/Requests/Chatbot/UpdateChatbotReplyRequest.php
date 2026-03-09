@@ -47,14 +47,14 @@ class UpdateChatbotReplyRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'topic.required'    => 'Please enter the topic.',
-            'topic.string'      => 'The topic must be text.',
-            'topic.max'         => 'The topic cannot be longer than 255 characters.',
-            'topic.unique'      => 'This topic already exists.',
-            'reply.required'    => 'Please enter the reply message.',
-            'reply.string'      => 'The reply message must be text.',
-            'reply.max'         => 'The reply message is too long.',
-            'is_active.boolean' => 'The active status must be true or false.',
+            'topic.required'    => 'Vui lòng nhập chủ đề.',
+            'topic.string'      => 'Chủ đề phải là văn bản.',
+            'topic.max'         => 'Chủ đề không được vượt quá 255 ký tự.',
+            'topic.unique'      => 'Chủ đề này đã tồn tại.',
+            'reply.required'    => 'Vui lòng nhập nội dung phản hồi.',
+            'reply.string'      => 'Nội dung phản hồi phải là văn bản.',
+            'reply.max'         => 'Nội dung phản hồi quá dài.',
+            'is_active.boolean' => 'Trạng thái hoạt động phải là đúng hoặc sai.',
         ];
     }
 

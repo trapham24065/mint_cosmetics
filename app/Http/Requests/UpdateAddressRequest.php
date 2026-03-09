@@ -47,12 +47,12 @@ class UpdateAddressRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'first_name.required' => 'Please enter your first name.',
-            'last_name.required'  => 'Please enter your last name.',
-            'address.required'    => 'Please enter your address.',
-            'city.required'       => 'Please enter your city.',
-            'phone.required'      => 'Please enter your phone number.',
-            'phone.regex'         => 'Phone number format is invalid (10-11 digits).',
+            'first_name.required' => 'Vui lòng nhập tên.',
+            'last_name.required'  => 'Vui lòng nhập họ.',
+            'address.required'    => 'Vui lòng nhập địa chỉ.',
+            'city.required'       => 'Vui lòng nhập thành phố.',
+            'phone.required'      => 'Vui lòng nhập số điện thoại.',
+            'phone.regex'         => 'Định dạng số điện thoại không hợp lệ (10-11 chữ số).',
         ];
     }
 

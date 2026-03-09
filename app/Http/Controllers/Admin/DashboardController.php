@@ -18,7 +18,7 @@ class DashboardController extends Controller
 
     public function index(): View
     {
-        $title = "Admin Dashboard";
+        $title = "Trang tổng quan dành cho quản trị viên";
 
         // --- 1. THỐNG KÊ TỔNG QUAN ---
         $totalOrders = Order::count();

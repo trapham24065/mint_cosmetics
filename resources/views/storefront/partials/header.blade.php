@@ -26,11 +26,11 @@
             <div class="col-lg-6 d-none d-lg-block">
                 <div class="header-navigation">
                     <ul class="main-nav justify-content-start">
-                        <li><a href="{{route('home')}}">home</a></li>
-                        <li><a href="{{route('about-us.index')}}">about</a></li>
-                        <li><a href="{{route('shop')}}">shop</a></li>
+                        <li><a href="{{route('home')}}">Trang chủ</a></li>
+                        <li><a href="{{route('about-us.index')}}">Về chúng tôi</a></li>
+                        <li><a href="{{route('shop')}}">Sản phẩm</a></li>
                         {{--                        <li><a href="{{route('blog.index')}}">Blog</a></li>--}}
-                        <li><a href="{{route('contact.index')}}">Contact</a></li>
+                        <li><a href="{{route('contact.index')}}">Liên hệ</a></li>
                     </ul>
                 </div>
             </div>

@@ -46,10 +46,10 @@ class StoreChatbotKeywordRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'keyword.required' => 'Please enter the keyword.',
-            'keyword.string'   => 'The keyword must be text.',
-            'keyword.max'      => 'The keyword cannot be longer than 255 characters.',
-            'keyword.unique'   => 'This keyword already exists for this reply.',
+            'keyword.required' => 'Vui lòng nhập từ khóa.',
+            'keyword.string'   => 'Từ khóa phải là văn bản.',
+            'keyword.max'      => 'Từ khóa không được vượt quá 255 ký tự.',
+            'keyword.unique'   => 'Từ khóa này đã tồn tại cho phản hồi này.',
         ];
     }
 

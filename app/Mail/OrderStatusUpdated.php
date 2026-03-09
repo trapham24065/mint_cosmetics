@@ -30,7 +30,7 @@ class OrderStatusUpdated extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Order Status Updated: '.ucfirst($this->order->status->value)
+            subject: 'Trạng thái đơn hàng đã được cập nhật: '.ucfirst($this->order->status->value)
         );
     }
 

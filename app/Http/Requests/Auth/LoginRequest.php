@@ -48,7 +48,7 @@ class LoginRequest extends FormRequest
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => __('Incorrect email or password'),
+                'email' => __('Email hoặc mật khẩu không chính xác'),
             ]);
         }
         // ADDED: Check for user status
@@ -57,7 +57,7 @@ class LoginRequest extends FormRequest
             Auth::logout();
 
             throw ValidationException::withMessages([
-                'email' => __('Your account is not active at the moment', ['email' => $userEmail]),
+                'email' => __('Tài khoản của bạn hiện không hoạt động.', ['email' => $userEmail]),
             ]);
         }
         RateLimiter::clear($this->throttleKey());

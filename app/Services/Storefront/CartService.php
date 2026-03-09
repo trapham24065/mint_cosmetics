@@ -45,7 +45,7 @@ class CartService
         $variant = ProductVariant::with('product')->findOrFail($variantId);
 
         if ($variant->stock < $quantity) {
-            throw new \RuntimeException('Product is out of stock.');
+            throw new \RuntimeException('Sản phẩm đã hết hàng.');
         }
 
         if ($this->isLoggedIn()) {
@@ -190,13 +190,13 @@ class CartService
 
         // Kiểm tra coupon
         if (!$coupon) {
-            throw new \RuntimeException('Coupon code is invalid.');
+            throw new \RuntimeException('Mã giảm giá không hợp lệ.');
         }
         if (!$coupon->isValid()) {
-            throw new \RuntimeException('This coupon is expired or no longer active.');
+            throw new \RuntimeException('Mã giảm giá này đã hết hạn hoặc không còn hiệu lực.');
         }
         if ($coupon->min_purchase_amount && $cart['subtotal'] < $coupon->min_purchase_amount) {
-            throw new \RuntimeException('Your cart does not meet the minimum purchase amount for this coupon.');
+            throw new \RuntimeException('Giỏ hàng của bạn chưa đạt mức mua tối thiểu để được hưởng mã giảm giá này.');
         }
 
         // Lưu coupon vào session
@@ -260,7 +260,7 @@ class CartService
             $newQuantity = max(1, (int)$quantity);
 
             if ($variant && $variant->stock < $newQuantity) {
-                throw new \RuntimeException("Not enough stock for one of the products.");
+                throw new \RuntimeException("Một trong các sản phẩm không đủ hàng tồn kho.");
             }
 
             $cartItem = Cart::where('customer_id', $customerId)
@@ -287,7 +287,7 @@ class CartService
                 $newQuantity = max(1, (int)$quantity);
 
                 if ($variant && $variant->stock < $newQuantity) {
-                    throw new \RuntimeException("Not enough stock for one of the products.");
+                    throw new \RuntimeException("Một trong các sản phẩm không đủ hàng tồn kho.");
                 }
 
                 $cart[$variantId]['quantity'] = $newQuantity;
@@ -358,4 +358,5 @@ class CartService
 
         session()->forget('cart.coupon');
     }
+
 }

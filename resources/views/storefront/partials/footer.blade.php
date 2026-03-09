@@ -26,20 +26,20 @@
                 </div>
                 <div class="col-md-6 col-lg-5 mt-md-0 mt-9">
                     <div class="widget-item">
-                        <h4 class="widget-title">Information</h4>
+                        <h4 class="widget-title">Thông tin</h4>
                         <ul class="widget-nav">
                             {{--                            <li><a href="{{route('blog.index')}}">Blog</a></li>--}}
-                            <li><a href="{{route('about-us.index')}}">About us</a></li>
-                            <li><a href="{{route('contact.index')}}">Contact</a></li>
-                            <li><a href="{{route('customer.login')}}">Login</a></li>
-                            <li><a href="{{route('shop')}}">Shop</a></li>
-                            <li><a href="{{route('customer.dashboard')}}">My Account</a></li>
+                            <li><a href="{{route('about-us.index')}}">Về chúng tôi</a></li>
+                            <li><a href="{{route('contact.index')}}">Liên hệ</a></li>
+                            <li><a href="{{route('customer.login')}}">Đăng nhập</a></li>
+                            <li><a href="{{route('shop')}}">Cửa hàng</a></li>
+                            <li><a href="{{route('customer.dashboard')}}">Tài khoản của tôi</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3 mt-lg-0 mt-6">
                     <div class="widget-item">
-                        <h4 class="widget-title">Social Info</h4>
+                        <h4 class="widget-title">Thông tin xã hội</h4>
                         <div class="widget-social">
                             <a href="https://twitter.com/" target="_blank" rel="noopener"><i class="fa fa-twitter"></i></a>
                             <a href="https://www.facebook.com/" target="_blank" rel="noopener"><i
@@ -58,7 +58,7 @@
     <div class="footer-bottom">
         <div class="container pt-0 pb-0">
             <div class="footer-bottom-content">
-                <p class="copyright">© 2026 Mint Cosmetics. Made with <i class="fa fa-heart"></i> by <a target="_blank"
+                <p class="copyright">© 2026 Mint Cosmetics. Được làm <i class="fa fa-heart"></i> bởi <a target="_blank"
                                                                                                         href="https://www.facebook.com/phamtra.1212">PhamTra</a>
                 </p>
             </div>

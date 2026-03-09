@@ -6,7 +6,7 @@
             <div class="col-xl-4">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Attribute Details</h4>
+                        <h4 class="card-title">Chi tiết thuộc tính</h4>
                     </div>
                     <div class="card-body">
                         <h5>{{ $attribute->name }}</h5>
@@ -18,22 +18,22 @@
                             @forelse($attribute->values as $value)
                                 <span class="badge bg-light text-dark">{{ $value->value }}</span>
                             @empty
-                                <span class="text-muted">No values defined.</span>
+                                <span class="text-muted">Chưa có giá trị nào được xác định.</span>
                             @endforelse
                         </p>
 
-                        <strong>Linked to {{ $attribute->categories->count() }} Categories:</strong>
+                        <strong>Liên kết với {{ $attribute->categories->count() }} danh mục:</strong>
                         <ul>
                             @forelse($attribute->categories as $category)
                                 <li>{{ $category->name }}</li>
                             @empty
-                                <li>Not linked to any category.</li>
+                                <li>Không liên kết với bất kỳ danh mục nào.</li>
                             @endforelse
                         </ul>
                     </div>
                     <div class="card-footer">
-                        <a href="{{ route('admin.attributes.index') }}" class="btn btn-outline-secondary w-100">Back to
-                            List</a>
+                        <a href="{{ route('admin.attributes.index') }}" class="btn btn-outline-secondary w-100">Trở lại
+                            danh sách</a>
                     </div>
                 </div>
             </div>
@@ -41,7 +41,7 @@
             <div class="col-xl-8">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Products Using '{{ $attribute->name }}'</h4>
+                        <h4 class="card-title">Sản phẩm sử dụng '{{ $attribute->name }}'</h4>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -49,9 +49,9 @@
                                 <thead class="bg-light-subtle">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Product Name</th>
-                                    <th>Category</th>
-                                    <th>Status</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Danh mục</th>
+                                    <th>Trạng thái</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -62,16 +62,16 @@
                                         <td>{{ $product->category->name ?? 'N/A' }}</td>
                                         <td>
                                             @if ($product->active)
-                                                <span class="badge bg-success">Active</span>
+                                                <span class="badge bg-success">Hoạt động</span>
                                             @else
-                                                <span class="badge bg-secondary">Inactive</span>
+                                                <span class="badge bg-secondary">Không hoạt động</span>
                                             @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center">No products are currently using this
-                                            attribute.
+                                        <td colspan="4" class="text-center">Hiện tại không có sản phẩm nào sử dụng thuộc
+                                            tính này.
                                         </td>
                                     </tr>
                                 @endforelse

@@ -31,13 +31,13 @@ class CouponService
     {
         if ($coupon->times_used > 0) {
             if ($coupon->type->value !== $data['type'] || (float)$coupon->value !== (float)$data['value']) {
-                throw new \RuntimeException('Cannot change Type or Value of a coupon that has already been used.');
+                throw new \RuntimeException('Không thể thay đổi Loại hoặc Giá trị của phiếu giảm giá đã được sử dụng.');
             }
         }
 
         if (isset($data['max_uses']) && $data['max_uses'] < $coupon->times_used) {
             throw new \RuntimeException(
-                "Max uses cannot be less than the current number of times used ({$coupon->times_used})."
+                "Số lần sử dụng tối đa không được ít hơn số lần sử dụng hiện tại ({$coupon->times_used})."
             );
         }
 

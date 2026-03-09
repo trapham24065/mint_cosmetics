@@ -1,2 +1,5 @@
 User-agent: *
 Disallow:
+
+# location of XML sitemap for search engines
+Sitemap: https://mint-cosmetics.id.vn/sitemap.xml

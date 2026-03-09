@@ -88,53 +88,53 @@ class StoreProductRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required'                             => 'Please enter the product name.',
-            'category_id.required'                      => 'Please select a category.',
-            'category_id.exists'                        => 'The selected category is invalid.',
-            'brand_id.exists'                           => 'The selected brand is invalid.',
-            'image.image'                               => 'The uploaded file must be an image.',
-            'image.mimes'                               => 'The image must be a file of type: jpg, png, jpeg, webp.',
-            'image.max'                                 => 'The image size cannot exceed 2MB.',
-            'list_image.*.image'                        => 'One of the gallery files is not a valid image.',
-            'list_image.*.mimes'                        => 'Gallery images must be of type: jpg, png, jpeg, webp.',
-            'list_image.*.max'                          => 'Each gallery image size cannot exceed 2MB.',
-            'product_type.required'                     => 'Please select the product type.',
-            'product_type.in'                           => 'Invalid product type selected.',
+            'name.required'                             => 'Vui lòng nhập tên sản phẩm.',
+            'category_id.required'                      => 'Vui lòng chọn danh mục.',
+            'category_id.exists'                        => 'Danh mục đã chọn không hợp lệ.',
+            'brand_id.exists'                           => 'Thương hiệu đã chọn không hợp lệ.',
+            'image.image'                               => 'Tệp tải lên phải là hình ảnh.',
+            'image.mimes'                               => 'Hình ảnh phải có định dạng: jpg, png, jpeg, webp.',
+            'image.max'                                 => 'Kích thước hình ảnh không được vượt quá 2MB.',
+            'list_image.*.image'                        => 'Một trong các tệp trong thư viện ảnh không phải là hình ảnh hợp lệ.',
+            'list_image.*.mimes'                        => 'Ảnh trong thư viện phải có định dạng: jpg, png, jpeg, webp.',
+            'list_image.*.max'                          => 'Mỗi ảnh trong thư viện không được vượt quá 2MB.',
+            'product_type.required'                     => 'Vui lòng chọn loại sản phẩm.',
+            'product_type.in'                           => 'Loại sản phẩm đã chọn không hợp lệ.',
 
             // Simple Product Messages
-            'price.required'                            => 'Please enter the product price.',
-            'price.numeric'                             => 'The product price must be a number.',
-            'price.min'                                 => 'The product price cannot be negative.',
-            'stock.required'                            => 'Please enter the stock quantity.',
-            'stock.integer'                             => 'The stock quantity must be an integer.',
-            'stock.min'                                 => 'The stock quantity cannot be negative.',
-            'discount_price.numeric'                    => 'The discount price must be a number.',
-            'discount_price.min'                        => 'The discount price cannot be negative.',
-            'discount_price.lte'                        => 'The discount price must be less than or equal to the original price.',
+            'price.required'                            => 'Vui lòng nhập giá sản phẩm.',
+            'price.numeric'                             => 'Giá sản phẩm phải là một số.',
+            'price.min'                                 => 'Giá sản phẩm không được nhỏ hơn 0.',
+            'stock.required'                            => 'Vui lòng nhập số lượng tồn kho.',
+            'stock.integer'                             => 'Số lượng tồn kho phải là số nguyên.',
+            'stock.min'                                 => 'Số lượng tồn kho không được nhỏ hơn 0.',
+            'discount_price.numeric'                    => 'Giá giảm phải là một số.',
+            'discount_price.min'                        => 'Giá giảm không được nhỏ hơn 0.',
+            'discount_price.lte'                        => 'Giá giảm phải nhỏ hơn hoặc bằng giá gốc.',
 
             // Variable Product Messages
-            'variants.required'                         => 'A variable product must have at least one variant.',
-            'variants.array'                            => 'Invalid variant data format.',
-            'variants.min'                              => 'A variable product must have at least one variant.',
+            'variants.required'                         => 'Sản phẩm biến thể phải có ít nhất một biến thể.',
+            'variants.array'                            => 'Định dạng dữ liệu biến thể không hợp lệ.',
+            'variants.min'                              => 'Sản phẩm biến thể phải có ít nhất một biến thể.',
 
-            // Messages for fields inside variants array (using *)
-            'variants.*.price.required'                 => 'The variant price is required.',
-            'variants.*.price.numeric'                  => 'The variant price must be a number.',
-            'variants.*.price.min'                      => 'The variant price cannot be negative.',
-            'variants.*.stock.required'                 => 'The variant stock quantity is required.',
-            'variants.*.stock.integer'                  => 'The variant stock quantity must be an integer.',
-            'variants.*.stock.min'                      => 'The variant stock quantity cannot be negative.',
-            'variants.*.discount_price.numeric'         => 'The variant discount price must be a number.',
-            'variants.*.discount_price.min'             => 'The variant discount price cannot be negative.',
-            'variants.*.discount_price.lte'             => 'The variant discount price must be less than or equal to its original price.',
-            'variants.*.attribute_value_ids.required'   => 'Each variant must have at least one attribute.',
-            'variants.*.attribute_value_ids.array'      => 'Invalid attribute data format for the variant.',
-            'variants.*.attribute_value_ids.min'        => 'Each variant must have at least one attribute.',
-            'variants.*.attribute_value_ids.*.required' => 'Attribute value cannot be empty.',
-            'variants.*.attribute_value_ids.*.integer'  => 'Invalid attribute value.',
-            'variants.*.attribute_value_ids.*.exists'   => 'One of the selected attribute values does not exist.',
-            'variants.*.sku.unique'                     => 'One of the variant SKUs has already been taken.',
-            'variants.*.sku.distinct'                   => 'Duplicate SKUs found in the variants list.',
+            // Messages for fields inside variants array
+            'variants.*.price.required'                 => 'Giá của biến thể là bắt buộc.',
+            'variants.*.price.numeric'                  => 'Giá của biến thể phải là một số.',
+            'variants.*.price.min'                      => 'Giá của biến thể không được nhỏ hơn 0.',
+            'variants.*.stock.required'                 => 'Số lượng tồn kho của biến thể là bắt buộc.',
+            'variants.*.stock.integer'                  => 'Số lượng tồn kho của biến thể phải là số nguyên.',
+            'variants.*.stock.min'                      => 'Số lượng tồn kho của biến thể không được nhỏ hơn 0.',
+            'variants.*.discount_price.numeric'         => 'Giá giảm của biến thể phải là một số.',
+            'variants.*.discount_price.min'             => 'Giá giảm của biến thể không được nhỏ hơn 0.',
+            'variants.*.discount_price.lte'             => 'Giá giảm của biến thể phải nhỏ hơn hoặc bằng giá gốc của nó.',
+            'variants.*.attribute_value_ids.required'   => 'Mỗi biến thể phải có ít nhất một thuộc tính.',
+            'variants.*.attribute_value_ids.array'      => 'Định dạng dữ liệu thuộc tính của biến thể không hợp lệ.',
+            'variants.*.attribute_value_ids.min'        => 'Mỗi biến thể phải có ít nhất một thuộc tính.',
+            'variants.*.attribute_value_ids.*.required' => 'Giá trị thuộc tính không được để trống.',
+            'variants.*.attribute_value_ids.*.integer'  => 'Giá trị thuộc tính không hợp lệ.',
+            'variants.*.attribute_value_ids.*.exists'   => 'Một trong các giá trị thuộc tính đã chọn không tồn tại.',
+            'variants.*.sku.unique'                     => 'Một trong các SKU của biến thể đã tồn tại.',
+            'variants.*.sku.distinct'                   => 'Phát hiện SKU bị trùng trong danh sách biến thể.',
         ];
     }
 
@@ -160,4 +160,5 @@ class StoreProductRequest extends FormRequest
         // Example: 'variants.0.discount_price' -> keys[1] would be '0'
         return isset($keys[1]) && is_numeric($keys[1]) ? (int)$keys[1] : null;
     }
+
 }

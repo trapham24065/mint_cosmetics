@@ -51,12 +51,13 @@
                             <div class="col-lg-6">
                                 <a href="{{ route('admin.products.edit', $product) }}"
                                    class="btn btn-primary d-flex align-items-center justify-content-center gap-2 w-100"><i
-                                        class="bx bx-pencil fs-18"></i> Edit Product</a>
+                                        class="bx bx-pencil fs-18"></i> Chỉnh sửa</a>
                             </div>
                             <div class="col-lg-6">
                                 <a href="{{ route('admin.products.index') }}"
-                                   class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 w-100">Back
-                                    to List</a>
+                                   class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 w-100">Trở
+                                    lại
+                                    danh sách</a>
                             </div>
                         </div>
                     </div>
@@ -67,29 +68,29 @@
                 <div class="card">
                     <div class="card-body">
                         @if($product->active)
-                            <span class="badge bg-success text-light fs-14 py-1 px-2">Active</span>
+                            <span class="badge bg-success text-light fs-14 py-1 px-2">Hoạt động</span>
                         @else
-                            <span class="badge bg-secondary text-light fs-14 py-1 px-2">Inactive</span>
+                            <span class="badge bg-secondary text-light fs-14 py-1 px-2">Không hoạt động</span>
                         @endif
 
                         <p class="mb-1 mt-2">
                             <a href="#" class="fs-24 text-dark fw-medium text-decoration-none">{{ $product->name }}</a>
                         </p>
                         <p class="text-muted">
-                            Category: <strong>{{ $product->category->name ?? 'N/A' }}</strong> | Brand:
+                            Loại: <strong>{{ $product->category->name ?? 'N/A' }}</strong> | Nhãn hiệu:
                             <strong>{{ $product->brand->name ?? 'N/A' }}</strong>
                         </p>
 
-                        <h4 class="text-dark fw-medium mt-4">Variants :</h4>
+                        <h4 class="text-dark fw-medium mt-4">Biến thể :</h4>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered align-middle">
                                 <thead class="table-light">
                                 <tr>
                                     <th>SKU</th> <!-- Thêm cột SKU -->
-                                    <th>Variant</th>
-                                    <th>Price</th>
-                                    <th>Discount Price</th>
-                                    <th>Stock</th>
+                                    <th>Biến thể</th>
+                                    <th>Giá</th>
+                                    <th>Giá khuyến mãi</th>
+                                    <th>Tồn kho</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -106,28 +107,30 @@
                                             @if($variant->stock > 0)
                                                 <span class="text-success fw-bold">{{ $variant->stock }}</span>
                                             @else
-                                                <span class="text-danger fw-bold">Out of stock</span>
+                                                <span class="text-danger fw-bold">Hết hàng</span>
                                             @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted">This product has no defined
-                                            variants.
+                                        <td colspan="5" class="text-center text-muted">Sản phẩm này không có biến thể
+                                            nào được xác định.
                                         </td>
                                     </tr>
                                 @endforelse
                                 </tbody>
                             </table>
                         </div>
-                        <h4 class="text-dark fw-medium mt-3">Description :</h4>
+                        <h4 class="text-dark fw-medium mt-3">Miêu tả :</h4>
                         <div class="text-muted border rounded p-3 bg-light">
                             {!! $product->description !!}
                         </div>
                         <div class="mt-3 text-muted small">
                             <ul class="list-unstyled mb-0">
-                                <li><strong>Created At:</strong> {{ $product->created_at->format('H:i, d-m-Y') }}</li>
-                                <li><strong>Last Updated:</strong> {{ $product->updated_at->format('H:i, d-m-Y') }}</li>
+                                <li><strong>Được tạo vào lúc:</strong> {{ $product->created_at->format('H:i, d-m-Y') }}
+                                </li>
+                                <li><strong>Cập nhật lần cuối:</strong> {{ $product->updated_at->format('H:i, d-m-Y') }}
+                                </li>
                             </ul>
                         </div>
                     </div>

@@ -37,7 +37,7 @@ class OrderConfirmed extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Order Has Been Confirmed!',
+            subject: 'Đơn hàng của bạn đã được xác nhận!',
         );
     }
 

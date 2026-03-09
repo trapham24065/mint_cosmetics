@@ -9,3 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('orders:cancel-expired')->everyMinute();
+
+// generate sitemap file once per day at midnight (use --force to avoid prompt)
+Schedule::command('sitemap:generate --force')->daily();

@@ -23,7 +23,7 @@ class PurchaseOrderController extends Controller
      */
     public function index(): View
     {
-        $title = 'Inventory / Purchase Orders';
+        $title = 'Hàng tồn kho / Đơn đặt hàng';
         return view('admin.management.inventory.index', compact('title'));
     }
 
@@ -32,7 +32,7 @@ class PurchaseOrderController extends Controller
      */
     public function create(): View
     {
-        $title = 'Create Purchase Order';
+        $title = 'Tạo đơn đặt hàng';
         $suppliers = Supplier::where('is_active', true)->get();
 
         // Fetch variants with product info for selection dropdown
@@ -98,7 +98,10 @@ class PurchaseOrderController extends Controller
             });
 
             return redirect()->route('admin.inventory.index')
-                ->with('success', 'Purchase order created successfully. Please review and approve to update stock.');
+                ->with(
+                    'success',
+                    'Đơn đặt hàng đã được tạo thành công. Vui lòng xem xét và phê duyệt để cập nhật tồn kho.'
+                );
         } catch (QueryException $e) {
             Log::error('PO Creation Error: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
@@ -114,7 +117,7 @@ class PurchaseOrderController extends Controller
      */
     public function show(PurchaseOrder $purchaseOrder): View
     {
-        $title = 'Purchase Order Details: '.$purchaseOrder->code;
+        $title = 'Chi tiết đơn đặt hàng: '.$purchaseOrder->code;
         $purchaseOrder->load(['supplier', 'items.productVariant.product', 'items.productVariant.attributeValues']);
 
         return view('admin.management.inventory.show', compact('purchaseOrder', 'title'));
@@ -127,7 +130,7 @@ class PurchaseOrderController extends Controller
     public function approve(PurchaseOrder $purchaseOrder): RedirectResponse
     {
         if ($purchaseOrder->status !== 'pending') {
-            return back()->with('error', 'This order has already been processed.');
+            return back()->with('error', 'Đơn hàng này đã được xử lý.');
         }
 
         try {
@@ -147,7 +150,7 @@ class PurchaseOrderController extends Controller
                 }
             });
 
-            return back()->with('success', 'Purchase order approved. Stock has been updated.');
+            return back()->with('success', 'Đơn đặt hàng đã được phê duyệt. Hàng tồn kho đã được cập nhật.');
         } catch (QueryException $e) {
             Log::error('PO Approve Error: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
@@ -164,12 +167,12 @@ class PurchaseOrderController extends Controller
     public function cancel(PurchaseOrder $purchaseOrder): RedirectResponse
     {
         if ($purchaseOrder->status !== 'pending') {
-            return back()->with('error', 'Cannot cancel a processed order.');
+            return back()->with('error', 'Không thể hủy đơn hàng đã được xử lý.');
         }
 
         $purchaseOrder->update(['status' => 'cancelled']);
 
-        return back()->with('success', 'Purchase order cancelled successfully.');
+        return back()->with('success', 'Đơn đặt hàng đã được hủy thành công.');
     }
 
     public function getDataForGrid(): JsonResponse
@@ -180,7 +183,7 @@ class PurchaseOrderController extends Controller
             return [
                 'id'            => $order->id,
                 'code'          => $order->code,
-                'supplier_name' => $order->supplier->name ?? 'Unknown',
+                'supplier_name' => $order->supplier->name ?? 'Không rõ',
                 'total_amount'  => number_format($order->total_amount, 2),
                 'status'        => $order->status,
                 'created_at'    => $order->created_at->format('d M, Y'),

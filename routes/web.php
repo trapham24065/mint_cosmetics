@@ -20,6 +20,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about-us', [AboutUsController::class, 'index'])->name('about-us.index');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/sitemap.xml', [\App\Http\Controllers\Storefront\SitemapController::class, 'index'])->name('sitemap');
 
 // --- Shop & Products ---
 Route::get('/shop', [ShopController::class, 'index'])->name('shop');

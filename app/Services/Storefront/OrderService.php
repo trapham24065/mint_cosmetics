@@ -31,14 +31,14 @@ class OrderService
                 $variant = ProductVariant::lockForUpdate()->find($item['variant_id']);
 
                 if (!$variant) {
-                    throw new \RuntimeException("The product does not exist.");
+                    throw new \RuntimeException("Sản phẩm đó không tồn tại.");
                 }
 
                 if ($variant->stock < $item['quantity']) {
                     // Lấy tên sản phẩm để thông báo lỗi rõ ràng
-                    $productName = $variant->product->name ?? 'Unknown Product';
+                    $productName = $variant->product->name ?? 'Sản phẩm không xác định';
                     throw new \RuntimeException(
-                        "Product '{$productName}' currently out of stock (Remaining stock): {$variant->stock})."
+                        "Sản phẩm '{$productName}' hiện đang hết hàng (Số lượng còn lại): {$variant->stock})."
                     );
                 }
             }

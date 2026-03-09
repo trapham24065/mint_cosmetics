@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Shopping Cart</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #ffffff;
+            color: #333;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .cart-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Cart Table */
+        .cart-table {
+            width: 100%;
+            border: 1px solid #e5e5e5;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+
+        .cart-table thead {
+            background: #f9f9f9;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .cart-table th {
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cart-table th:first-child {
+            width: 50px;
+            text-align: center;
+        }
+
+        .cart-table th:nth-child(2) {
+            width: 100px;
+        }
+
+        .cart-table th.text-center {
+            text-align: center;
+        }
+
+        .cart-table th.text-right {
+            text-align: right;
+        }
+
+        .cart-table td {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .cart-table td:first-child {
+            text-align: center;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-btn:hover {
+            color: #e74c3c;
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border: 1px solid #e5e5e5;
+        }
+
+        .product-name {
+            font-size: 14px;
+            color: #333;
+            font-weight: 400;
+        }
+
+        .product-price {
+            font-size: 14px;
+            color: #000;
+            font-weight: 500;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: #f5f5f5;
+            border-color: #999;
+        }
+
+        .qty-input {
+            width: 50px;
+            height: 30px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        .product-total {
+            font-size: 14px;
+            color: #000;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .update-cart-btn {
+            padding: 12px 24px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            float: right;
+            margin-bottom: 40px;
+            transition: all 0.2s;
+        }
+
+        .update-cart-btn:hover {
+            background: #e5e5e5;
+        }
+
+        /* Bottom Section */
+        .cart-bottom {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            clear: both;
+        }
+
+        /* Coupon Section */
+        .coupon-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .coupon-section p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .coupon-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .coupon-input::placeholder {
+            color: #999;
+        }
+
+        .apply-coupon-btn {
+            padding: 12px 24px;
+            background: #fff;
+            border: 1px solid #333;
+            border-radius: 3px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        .apply-coupon-btn:hover {
+            background: #333;
+            color: #fff;
+        }
+
+        /* Cart Totals Section */
+        .cart-totals {
+            background: #f9f9f9;
+            padding: 30px;
+            border: 1px solid #e5e5e5;
+        }
+
+        .cart-totals h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .totals-row span:first-child {
+            font-size: 14px;
+            color: #333;
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .totals-row span:last-child {
+            font-size: 14px;
+            color: #000;
+            font-weight: 600;
+        }
+
+        .totals-row.total {
+            border-bottom: none;
+            padding-top: 15px;
+            margin-top: 5px;
+        }
+
+        .totals-row.total span:first-child {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .totals-row.total span:last-child {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 15px 30px;
+            background: #ff6b6b;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 20px;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+        }
+
+        .checkout-btn:hover {
+            background: #ff5252;
+        }
+
+        @media (max-width: 768px) {
+            .cart-bottom {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cart-container">
+        <!-- Cart Table -->
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Product</th>
+                    <th class="text-center">Price</th>
+                    <th class="text-center">Quantity</th>
+                    <th class="text-right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <button class="remove-btn">×</button>
+                    </td>
+                    <td>
+                        <img src="https://via.placeholder.com/80" alt="Product" class="product-image">
+                    </td>
+                    <td>
+                        <div class="product-name">csacsc123</div>
+                    </td>
+                    <td class="text-center">
+                        <div class="product-price">10.755 VNĐ</div>
+                    </td>
+                    <td>
+                        <div class="quantity-control">
+                            <button class="qty-btn">−</button>
+                            <input type="number" value="1" min="1" class="qty-input">
+                            <button class="qty-btn">+</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="product-total">10.755 VNĐ</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button class="update-cart-btn">Update Cart</button>
+
+        <!-- Bottom Section -->
+        <div class="cart-bottom">
+            <!-- Coupon Section -->
+            <div class="coupon-section">
+                <h3>Coupon</h3>
+                <p>Enter your coupon code if you have one.</p>
+                <input type="text" placeholder="Coupon code" class="coupon-input">
+                <button class="apply-coupon-btn">Apply Coupon</button>
+            </div>
+
+            <!-- Cart Totals -->
+            <div class="cart-totals">
+                <h3>Cart Totals</h3>
+
+                <div class="totals-row">
+                    <span>Subtotal</span>
+                    <span>10.755 VNĐ</span>
+                </div>
+
+                <div class="totals-row total">
+                    <span>Total</span>
+                    <span>10.755 VNĐ</span>
+                </div>
+
+                <button class="checkout-btn">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

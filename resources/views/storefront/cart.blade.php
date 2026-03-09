@@ -4,8 +4,8 @@
         <nav aria-label="breadcrumb" class="breadcrumb-style1">
             <div class="container">
                 <ol class="breadcrumb justify-content-center">
-                    <li class="breadcrumb-item"><a href="{{route('home')}}">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Cart</li>
+                    <li class="breadcrumb-item"><a href="{{route('home')}}">Trang chủ</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Giỏ hàng</li>
                 </ol>
             </div>
         </nav>
@@ -18,10 +18,10 @@
                         <tr>
                             <th class="product-remove">&nbsp;</th>
                             <th class="product-thumbnail">&nbsp;</th>
-                            <th class="product-name">Product</th>
-                            <th class="product-price">Price</th>
-                            <th class="product-quantity">Quantity</th>
-                            <th class="product-subtotal">Total</th>
+                            <th class="product-name">Sản phẩm</th>
+                            <th class="product-price">Giá</th>
+                            <th class="product-quantity">Số lượng</th>
+                            <th class="product-subtotal">Tổng cộng</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -60,14 +60,16 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6">Your cart is empty.</td>
+                                <td colspan="6">
+                                    Giỏ hàng của bạn trống.
+                                </td>
                             </tr>
                         @endforelse
 
                         <tr class="tbody-item-actions">
                             <td colspan="6">
                                 <button type="button" id="update-cart-btn" class="btn-update-cart disabled" disabled>
-                                    Update cart
+                                    Cập nhật giỏ hàng
                                 </button>
                             </td>
                         </tr>
@@ -77,18 +79,23 @@
                 <div class="row">
                     <div class="col-12 col-lg-6">
                         <div class="coupon-wrap">
-                            <h4 class="title">Coupon</h4>
-                            <p class="desc">Enter your coupon code if you have one.</p>
+                            <h4 class="title">Mã giảm giá
+                            </h4>
+                            <p class="desc">
+                                Nhập mã giảm giá của bạn nếu có.</p>
                             <div id="coupon-form-container">
                                 @if ($coupon)
                                     <div class="d-flex align-items-center">
-                                        <p class="me-2">Applied coupon: <strong>{{ $coupon->code }}</strong></p>
-                                        <button type="button" id="remove-coupon-btn" class="btn-coupon">Remove</button>
+                                        <p class="me-2">
+                                            Phiếu giảm giá áp dụng:<strong>{{ $coupon->code }}</strong></p>
+                                        <button type="button" id="remove-coupon-btn" class="btn-coupon">Tháo</button>
                                     </div>
                                 @else
                                     <input type="text" id="coupon-code-input" class="form-control"
-                                           placeholder="Coupon code">
-                                    <button type="button" id="apply-coupon-btn" class="btn-coupon">Apply coupon</button>
+                                           placeholder="Mã phiếu giảm giá">
+                                    <button type="button" id="apply-coupon-btn" class="btn-coupon">Áp dụng phiếu giảm
+                                        giá
+                                    </button>
                                 @endif
                             </div>
                         </div>

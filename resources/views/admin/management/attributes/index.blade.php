@@ -5,10 +5,10 @@
             <div class="col-xl-12">
                 <div class="card">
                     <div class="d-flex card-header justify-content-between align-items-center">
-                        <h4 class="card-title">All Attributes</h4>
+                        <h4 class="card-title">Tất cả các thuộc tính</h4>
                         {{-- Add a "Create" button --}}
                         <a href="{{ route('admin.attributes.create') }}" class="btn btn-sm btn-primary">
-                            <i class="fas fa-plus me-1"></i> Add Attribute
+                            <i class="fas fa-plus me-1"></i> Thêm thuộc tính
                         </a>
                     </div>
                     <div>
@@ -32,11 +32,11 @@
                 new gridjs.Grid({
                     columns: [
                         { id: 'id', name: 'ID', width: '80px' },
-                        { id: 'name', name: 'Name' },
-                        { id: 'values', name: 'Values' },
-                        {id: 'created_at', name: 'Created At'},
+                        { id: 'name', name: 'Tên' },
+                        { id: 'values', name: 'Giá trị' },
+                        {id: 'created_at', name: 'Được tạo vào lúc'},
                         {
-                            name: 'Actions',
+                            name: 'Hành động',
                             width: '80px',
                             sort: false,
                             formatter: (cell, row) => {
@@ -54,12 +54,12 @@
                                                         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                                             <li>
                                                                 <a class="dropdown-item" href="${showUrl}">
-                                                                    <i class="bi bi-eye me-2 text-info"></i>View
+                                                                    <i class="bi bi-eye me-2 text-info"></i>Xem
                                                                 </a>
                                                             </li>
                                                             <li>
                                                                 <a class="dropdown-item" href="${editUrl}">
-                                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Edit
+                                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Chỉnh sửa
                                                                 </a>
                                                             </li>
                                                             <li><hr class="dropdown-divider"></li>
@@ -68,7 +68,7 @@
                                                                        data-id="${attributeId}"
                                                                        data-name="${attributeName}"
                                                                        data-url="${deleteUrl}">
-                                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                                    <i class="bi bi-trash me-2"></i>Xóa
                                                                 </a>
                                                             </li>
                                                         </ul>
@@ -90,9 +90,9 @@
             }
         });
         AdminCRUD.initDeleteHandler('.delete-item', {
-            confirmTitle: 'Delete Attribute?',
-            confirmText: 'You are about to delete attribute:',
-            successText: 'Attribute deleted successfully.',
+            confirmTitle: 'Xóa thuộc tính?',
+            confirmText: 'Bạn sắp xóa thuộc tính:',
+            successText: 'Thuộc tính đã được xóa thành công.',
             onSuccess: () => {
                 // Custom callback nếu cần
                 console.log('Attribute deleted!');
