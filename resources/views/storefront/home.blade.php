@@ -11,23 +11,31 @@
                             <div class="row align-items-center position-relative">
                                 <div class="col-12 col-md-6">
                                     <div class="hero-slide-content">
-                                        <div class="hero-slide-text-img"><img
-                                                src="{{asset('assets/storefront/images/slider/text-theme.webp')}}"
-                                                width="427" height="232" alt="Image">
+                                        <div class="hero-slide-text-img">
+                                            <img src="{{asset('assets/storefront/images/slider/text-theme.webp')}}"
+                                                 width="427" height="232" alt="Image">
                                         </div>
+
                                         <h2 class="hero-slide-title">
-                                            SẠCH SẼ, TƯƠI MÁT</h2>
-                                        <p class="hero-slide-desc">Lorem ipsum dolor sit amet, consectetur adipiscing
-                                            elit ut aliquam, purus sit amet luctus venenatis.</p>
-                                        <a class="btn btn-border-dark" href="{{ route('shop') }}">SHOP
-                                            NOW</a> {{-- Link to shop --}}
+                                            LÀN DA SẠCH KHỎE, TƯƠI MÁT
+                                        </h2>
+
+                                        <p class="hero-slide-desc">
+                                            Sản phẩm chăm sóc da giúp làm sạch, dưỡng ẩm và mang lại cảm giác tươi mát
+                                            cho làn da suốt cả ngày.
+                                        </p>
+
+                                        <a class="btn btn-border-dark" href="{{ route('shop') }}">
+                                            MUA NGAY
+                                        </a>
                                     </div>
                                 </div>
+
                                 <div class="col-12 col-md-6">
                                     <div class="hero-slide-thumb">
-                                        <img src="{{asset('assets/storefront/images/slider/slider1.webp')}}" width="841"
-                                             height="832"
-                                             alt="Image">
+                                        <img src="{{asset('assets/storefront/images/slider/slider1.webp')}}"
+                                             width="841" height="832"
+                                             alt="Sản phẩm chăm sóc da">
                                     </div>
                                 </div>
                             </div>
@@ -42,15 +50,20 @@
                             <div class="row align-items-center position-relative">
                                 <div class="col-12 col-md-6">
                                     <div class="hero-slide-content">
-                                        <div class="hero-slide-text-img"><img
-                                                src="{{asset('assets/storefront/images/slider/text-theme.webp')}}"
-                                                width="427" height="232" alt="Image">
+                                        <div class="hero-slide-text-img">
+                                            <img src="{{asset('assets/storefront/images/slider/text-theme.webp')}}"
+                                                 width="427" height="232" alt="Image">
                                         </div>
-                                        <h2 class="hero-slide-title">Facial Cream</h2>
-                                        <p class="hero-slide-desc">Lorem ipsum dolor sit amet, consectetur adipiscing
-                                            elit ut aliquam, purus sit amet luctus venenatis.</p>
-                                        <a class="btn btn-border-dark" href="{{ route('shop') }}">SHOP
-                                            NOW</a> {{-- Link to shop --}}
+
+                                        <h2 class="hero-slide-title">Kem dưỡng da cao cấp</h2>
+
+                                        <p class="hero-slide-desc">
+                                            Giúp dưỡng ẩm sâu, nuôi dưỡng làn da mềm mại và rạng rỡ mỗi ngày.
+                                        </p>
+
+                                        <a class="btn btn-border-dark" href="{{ route('shop') }}">
+                                            MUA NGAY
+                                        </a>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
@@ -165,7 +178,8 @@
                         </div>
                     @empty
                         <div class="col-12">
-                            <p class="text-center">No products found matching your criteria.</p>
+                            <p class="text-center">Không tìm thấy sản phẩm nào phù hợp với tiêu chí tìm kiếm của
+                                bạn.</p>
                         </div>
                     @endforelse
                 </div>
