@@ -8,9 +8,11 @@
                     <div class="col-md-5">
                         <div class="page-header-st3-content text-center text-md-start">
                             <ol class="breadcrumb justify-content-center justify-content-md-start">
-                                <li class="breadcrumb-item"><a class="text-dark" href="{{ route('home') }}">Home</a>
+                                <li class="breadcrumb-item"><a class="text-dark" href="{{ route('home') }}">Trang
+                                        chủ</a>
                                 </li>
-                                <li class="breadcrumb-item"><a class="text-dark" href="{{ route('shop') }}">Products</a>
+                                <li class="breadcrumb-item"><a class="text-dark" href="{{ route('shop') }}">Các sản
+                                        phẩm</a>
                                 </li>
                                 <li class="breadcrumb-item active text-dark"
                                     aria-current="page">{{ $product->name }}</li>
@@ -178,8 +180,8 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="section-title">
-                                <h2 class="title">Related Products</h2>
-                                <p class="m-0">Check out other products in the same category.</p>
+                                <h2 class="title">Sản phẩm liên quan</h2>
+                                <p class="m-0">Xem thêm các sản phẩm khác cùng loại.</p>
                             </div>
                         </div>
                     </div>

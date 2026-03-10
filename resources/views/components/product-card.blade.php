@@ -9,70 +9,70 @@
         </a>
         {{-- Sale badge --}}
         @php
-        $firstVariant = $product->variants->first();
-        $isOnSale = $firstVariant && $firstVariant->discount_price && $firstVariant->discount_price < $firstVariant->price;
-            @endphp
-            @if($isOnSale)
+            $firstVariant = $product->variants->first();
+            $isOnSale = $firstVariant && $firstVariant->discount_price && $firstVariant->discount_price < $firstVariant->price;
+        @endphp
+        @if($isOnSale)
             <span class="badge bg-danger position-absolute top-0 start-0 m-2">Sale</span>
-            @endif
-            <div class="product-action">
-                <button type="button" class="product-action-btn action-btn-quick-view"
+        @endif
+        <div class="product-action">
+            <button type="button" class="product-action-btn action-btn-quick-view"
                     data-product-id="{{ $product->id }}">
-                    <i class="fa fa-expand"></i>
-                </button>
-                @if($product->variants->isNotEmpty())
+                <i class="fa fa-expand"></i>
+            </button>
+            @if($product->variants->isNotEmpty())
                 <button type="button" class="product-action-btn action-btn-cart"
-                    data-variant-id="{{ $product->variants->first()->id }}"
-                    data-context="product-card">
-                    <span>Add to cart</span>
+                        data-variant-id="{{ $product->variants->first()->id }}"
+                        data-context="product-card">
+                    <span>Thêm giỏ hàng</span>
                 </button>
-                @else
+            @else
                 <button type="button" class="product-action-btn" disabled>
-                    <span>Out of stock</span>
+                    <span>Hết hàng</span>
                 </button>
-                @endif
-                <button type="button" class="product-action-btn action-btn-wishlist"
+            @endif
+            <button type="button" class="product-action-btn action-btn-wishlist"
                     data-product-id="{{ $product->id }}">
-                    <i class="fa fa-heart-o"></i>
-                </button>
-            </div>
+                <i class="fa fa-heart-o"></i>
+            </button>
+        </div>
     </div>
     <div class="product-info">
 
         <div class="product-rating"> @php
-            $averageRating = $product->averageRating();
-            $reviewsCount = $product->approved_reviews_count;
+                $averageRating = $product->averageRating();
+                $reviewsCount = $product->approved_reviews_count;
             @endphp
 
             <div class="rating">
                 @if ($reviewsCount > 0)
-                @for ($i = 1; $i <= 5; $i++)
-                    @if ($i <=$averageRating)
-                    <i class="fa fa-star"></i>
-                    @else
-                    <i class="fa fa-star-o"></i>
-                    @endif
+                    @for ($i = 1; $i <= 5; $i++)
+                        @if ($i <=$averageRating)
+                            <i class="fa fa-star"></i>
+                        @else
+                            <i class="fa fa-star-o"></i>
+                        @endif
                     @endfor
-                    @else
+                @else
                     {{-- Show empty seats if there are no reviews yet --}}
                     @for ($i = 1; $i <= 5; $i++)
                         <i class="fa fa-star-o"></i>
-                        @endfor
-                        @endif
+                    @endfor
+                @endif
             </div>
-            <div class="reviews">{{ $reviewsCount }} reviews</div>
+            <div class="reviews">{{ $reviewsCount }} đánh giá</div>
         </div>
         <h4 class="title"><a href="{{ route('products.show', $product->slug) }}">{{ $product->name }}</a></h4>
         <div class="prices">
             @php $firstVariant = $product->variants->first(); @endphp
             @if($firstVariant)
-            @if($firstVariant->discount_price && $firstVariant->discount_price < $firstVariant->price)
-                <span class="price">{{ number_format($firstVariant->discount_price, 0, ',', '.') }} VNĐ</span>
-                <span class="price-old">{{ number_format($firstVariant->price, 0, ',', '.') }} VNĐ</span>
+                @if($firstVariant->discount_price && $firstVariant->discount_price < $firstVariant->price)
+                    <span class="price">{{ number_format($firstVariant->discount_price, 0, ',', '.') }} VNĐ</span>
+                    <span class="price-old">{{ number_format($firstVariant->price, 0, ',', '.') }} VNĐ</span>
                 @else
-                <span class="price">{{ number_format($firstVariant->price, 0, ',', '.') }} VNĐ</span>
+                    <span class="price">{{ number_format($firstVariant->price, 0, ',', '.') }} VNĐ</span>
                 @endif
-                @endif
+            @endif
         </div>
 
     </div>
