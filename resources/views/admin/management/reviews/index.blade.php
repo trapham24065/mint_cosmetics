@@ -3,7 +3,7 @@
     <div class="container-xxl">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Review Management</h4>
+                <h4 class="card-title">Quản lý đánh giá</h4>
             </div>
             <div class="card-body">
                 {{-- Grid.js will render the table here --}}
@@ -23,11 +23,11 @@
 
                 new gridjs.Grid({
                     columns: [
-                        { id: 'product_name', name: 'Product' },
-                        { id: 'reviewer_name', name: 'Reviewer' },
+                        { id: 'product_name', name: 'Sản phẩm' },
+                        { id: 'reviewer_name', name: 'Người đánh giá' },
                         {
                             id: 'rating',
-                            name: 'Rating',
+                            name: 'Xếp hạng',
                             formatter: (cell) => {
                                 let stars = '';
                                 for (let i = 1; i <= 5; i++) {
@@ -37,16 +37,16 @@
                                 return gridjs.html(stars);
                             }
                         },
-                        { id: 'review', name: 'Review' },
+                        { id: 'review', name: 'Đánh giá' },
                         {
                             id: 'is_approved',
-                            name: 'Status',
+                            name: 'Trạng thái',
                             formatter: (cell) => cell
-                                ? gridjs.html('<span class="badge bg-success">Approved</span>')
-                                : gridjs.html('<span class="badge bg-warning">Pending</span>')
+                                ? gridjs.html('<span class="badge bg-success">Đồng ý</span>')
+                                : gridjs.html('<span class="badge bg-warning">Chưa giải quyết</span>')
                         },
                         {
-                            name: 'Actions',
+                            name: 'Hành động',
                             sort: false,
                             formatter: (cell, row) => {
                                 const reviewId = row.cells[6].data;
@@ -59,7 +59,7 @@
                                     <form action="${approveUrl}" method="POST" class="d-inline">
                                         <input type="hidden" name="_token" value="${csrfToken}">
                                         <input type="hidden" name="_method" value="PUT">
-                                        <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        <button type="submit" class="btn btn-sm btn-success">Chấp thuận</button>
                                     </form>`;
                                 } else {
                                     const rejectUrl = `/admin/reviews/${reviewId}/reject`;
@@ -67,16 +67,16 @@
                                     <form action="${rejectUrl}" method="POST" class="d-inline">
                                         <input type="hidden" name="_token" value="${csrfToken}">
                                         <input type="hidden" name="_method" value="PUT">
-                                        <button type="submit" class="btn btn-sm btn-secondary">Reject</button>
+                                        <button type="submit" class="btn btn-sm btn-secondary">Từ chối</button>
                                     </form>`;
                                 }
 
                                 const deleteUrl = `/admin/reviews/${reviewId}`;
                                 const deleteButton = `
-                                <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure?');">
+                                <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Bạn chắc chắn chứ?');">
                                     <input type="hidden" name="_token" value="${csrfToken}">
                                     <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    <button type="submit" class="btn btn-sm btn-danger">Xóa bỏ</button>
                                 </form>`;
 
                                 return gridjs.html(`<div class="d-flex gap-2">${approveOrRejectButton} ${deleteButton}</div>`);

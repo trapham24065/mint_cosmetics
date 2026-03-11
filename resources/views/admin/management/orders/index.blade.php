@@ -8,7 +8,7 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h4 class="card-title mb-2">Pending Payment</h4>
+                                <h4 class="card-title mb-2">Đang chờ thanh toán</h4>
                                 <p class="text-muted fw-medium fs-22 mb-0">{{ $statusCounts['pending'] ?? 0 }}</p>
                             </div>
                             <div class="avatar-md bg-primary-subtle rounded">
@@ -24,7 +24,7 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h4 class="card-title mb-2">In Progress</h4>
+                                <h4 class="card-title mb-2">Đang tiến hành</h4>
                                 <p class="text-muted fw-medium fs-22 mb-0">{{ $statusCounts['processing'] ?? 0 }}</p>
                             </div>
                             <div class="avatar-md bg-info-subtle rounded">
@@ -40,7 +40,7 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h4 class="card-title mb-2">Order Shipped</h4>
+                                <h4 class="card-title mb-2">Đơn hàng đã được vận chuyển</h4>
                                 <p class="text-muted fw-medium fs-22 mb-0">{{ $statusCounts['shipped'] ?? 0 }}</p>
                             </div>
                             <div>
@@ -58,7 +58,7 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h4 class="card-title mb-2">Delivered</h4>
+                                <h4 class="card-title mb-2">Đã giao hàng</h4>
                                 <p class="text-muted fw-medium fs-22 mb-0">{{ $statusCounts['delivered'] ?? 0 }}</p>
                             </div>
                             <div class="avatar-md bg-success-subtle rounded">
@@ -74,7 +74,7 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h4 class="card-title mb-2">Order Cancelled</h4>
+                                <h4 class="card-title mb-2">Đơn hàng đã bị hủy</h4>
                                 <p class="text-muted fw-medium fs-22 mb-0">{{ $statusCounts['cancelled'] ?? 0 }}</p>
                             </div>
                             <div class="avatar-md bg-danger-subtle rounded">
@@ -91,7 +91,7 @@
             <div class="col-xl-12">
                 <div class="card">
                     <div class="d-flex card-header justify-content-between align-items-center">
-                        <h4 class="card-title">All Order List</h4>
+                        <h4 class="card-title">Danh sách đơn hàng</h4>
                         {{-- Filter/Search Form can be added here if needed --}}
                     </div>
                     <div class="card-body">
@@ -112,17 +112,17 @@
 
                 new gridjs.Grid({
                     columns: [
-                        { id: 'id', name: 'Order ID', formatter: (cell) => gridjs.html(`<a href="/admin/orders/${cell}" class="fw-bold">#${cell}</a>`) },
-                        { id: 'created_at', name: 'Date' },
-                        { id: 'customer', name: 'Customer' },
+                        { id: 'id', name: 'Mã đơn hàng', formatter: (cell) => gridjs.html(`<a href="/admin/orders/${cell}" class="fw-bold">#${cell}</a>`) },
+                        { id: 'created_at', name: 'Ngày' },
+                        { id: 'customer', name: 'Khách hàng' },
                         {
                             id: 'total',
-                            name: 'Total',
+                            name: 'Tổng cộng',
                             formatter: (cell) => `${parseFloat(cell).toLocaleString('vi-VN')} VNĐ`
                         },
                         {
                             id: 'status',
-                            name: 'Order Status',
+                            name: 'Trạng thái đơn hàng',
                             formatter: (cell, row) => {
                                 const statusValue = row.cells[4].data;
                                 const statusColor = row.cells[6].data;
@@ -130,7 +130,7 @@
                             }
                         },
                         {
-                            name: 'Actions',
+                            name: 'Hành động',
                             width: '100px',
                             formatter: (cell, row) => {
                                 const orderId = row.cells[0].data;
@@ -138,7 +138,7 @@
                                 return gridjs.html(`<a href="${showUrl}" class="btn btn-sm btn-light" aria-label="View order ${orderId}"><i class="bi bi-eye"></i></a>`);
                             }
                         },
-                        { id: 'status_color', name: 'Status Color', hidden: true }
+                        { id: 'status_color', name: 'Màu trạng thái', hidden: true }
                     ],
                     server: {
                         url: '{{ route('admin.api.orders.data') }}',

@@ -15,32 +15,33 @@
                                             <span
                                                 class="badge bg-{{ $order->status->color() }}">{{ $order->status->name }}</span>
                                         </h4>
-                                        <p class="mb-0">Order placed on: {{ $order->created_at->format('F d, Y') }}
+                                        <p class="mb-0">Đơn hàng được đặt vào
+                                            ngày: {{ $order->created_at->format('F d, Y') }}
                                             at {{ $order->created_at->format('g:i a') }}</p>
                                     </div>
                                     <div>
                                         <a href="{{ route('admin.orders.invoice.download', $order) }}"
                                            class="btn btn-secondary" target="_blank">
-                                            <i class="fa fa-print"></i> Download Invoice
+                                            <i class="fa fa-print"></i> Tải xuống hóa đơn
                                         </a>
-                                        <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary">Back
-                                            to List</a>
+                                        <a href="{{ route('admin.orders.index') }}" class="btn btn-outline-secondary">Trở
+                                            lại danh sách</a>
                                     </div>
                                 </div>
 
                                 @php
                                     $currentStep = $order->status->step();
                                     $steps = [
-                                        1 => 'Pending',
-                                        2 => 'Processing',
-                                        3 => 'Shipped',
-                                        4 => 'Delivered',
-                                        5 => 'Completed'
+                                        1 => 'Chưa giải quyết',
+                                        2 => 'Xử lý',
+                                        3 => 'Đã vận chuyển',
+                                        4 => 'Đã giao hàng',
+                                        5 => 'Hoàn thành'
                                     ];
                                 @endphp
 
                                 <div class="mt-4">
-                                    <h4 class="fw-medium text-dark">Progress</h4>
+                                    <h4 class="fw-medium text-dark">Tiến triển</h4>
                                 </div>
                                 <div class="row row-cols-xxl-5 row-cols-md-3 row-cols-1">
                                     @foreach($steps as $step => $label)
@@ -60,17 +61,17 @@
                         </div>
                         <div class="card">
                             <div class="card-header">
-                                <h4 class="card-title">Products</h4>
+                                <h4 class="card-title">Các sản phẩm</h4>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table align-middle mb-0 table-hover table-centered">
                                         <thead class="bg-light-subtle border-bottom">
                                         <tr>
-                                            <th>Product</th>
-                                            <th>Quantity</th>
-                                            <th>Price</th>
-                                            <th class="text-end">Total</th>
+                                            <th>Sản phẩm</th>
+                                            <th>Số lượng</th>
+                                            <th>Giá</th>
+                                            <th class="text-end">Tổng cộng6</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -94,13 +95,13 @@
             </div>
             <div class="col-xl-3 col-lg-4">
                 <div class="card">
-                    <div class="card-header"><h4 class="card-title">Update Status</h4></div>
+                    <div class="card-header"><h4 class="card-title">Cập nhật trạng thái</h4></div>
                     <div class="card-body">
                         <form action="{{ route('admin.orders.updateStatus', $order) }}" method="POST">
                             @csrf
                             @method('PUT')
                             <div class="mb-3">
-                                <label for="status" class="form-label">Order Status</label>
+                                <label for="status" class="form-label">Trạng thái đơn hàng</label>
                                 <select name="status" id="status" class="form-select">
                                     @foreach($statuses as $status)
                                         <option value="{{ $status->value }}" @selected($order->status === $status)>
@@ -109,26 +110,26 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Update Status</button>
+                            <button type="submit" class="btn btn-primary w-100">Cập nhật trạng thái</button>
                         </form>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Order Summary</h4>
+                        <h4 class="card-title">Tóm tắt đơn hàng</h4>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table mb-0">
                                 <tbody>
                                 <tr>
-                                    <td class="px-0">Sub Total :</td>
+                                    <td class="px-0">Tổng phụ :</td>
                                     <td class="text-end text-dark fw-medium px-0">{{ number_format($order->total_price, 0, ',', '.') }}
                                         VNĐ
                                     </td>
                                 </tr>
                                 <tr class="border-top">
-                                    <td class="px-0"><p class="fw-medium text-dark mb-0">Total Amount</p></td>
+                                    <td class="px-0"><p class="fw-medium text-dark mb-0">Tổng số tiền</p></td>
                                     <td class="text-end"><p
                                             class="fw-medium text-dark mb-0">{{ number_format($order->total_price, 0, ',', '.') }}
                                             VNĐ</p></td>
@@ -140,15 +141,15 @@
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Customer Details</h4>
+                        <h4 class="card-title">Thông tin khách hàng</h4>
                     </div>
                     <div class="card-body">
-                        <p class="mb-1"><strong>Name:</strong> {{ $order->first_name }} {{ $order->last_name }}</p>
+                        <p class="mb-1"><strong>Tên:</strong> {{ $order->first_name }} {{ $order->last_name }}</p>
                         <p class="mb-1"><strong>Email:</strong> <a href="mailto:{{ $order->email }}"
                                                                    class="link-primary">{{ $order->email }}</a></p>
-                        <p class="mb-1"><strong>Phone:</strong> {{ $order->phone }}</p>
+                        <p class="mb-1"><strong>Điện thoại:</strong> {{ $order->phone }}</p>
                         <hr>
-                        <h5 class="mt-3">Shipping Address</h5>
+                        <h5 class="mt-3">Địa chỉ giao hàng</h5>
                         <p class="mb-1">{{ $order->address }}</p>
                     </div>
                 </div>

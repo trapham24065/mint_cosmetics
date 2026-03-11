@@ -6,7 +6,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">System Settings</h4>
+                        <h4 class="card-title">Cài đặt hệ thống</h4>
                     </div>
                     <div class="card-body">
 
@@ -85,7 +85,8 @@
                                                              style="height: 60px; border: 1px solid #eee; padding: 5px; border-radius: 4px;">
                                                     </div>
                                                 @endif
-                                                <small class="text-muted">Recommended size: 200x50px. Max size:
+                                                <small class="text-muted">Kích thước đề xuất: 200x50px. Kích thước tối
+                                                    đa:
                                                     2MB.</small>
                                             </div>
                                         @endif
@@ -96,7 +97,7 @@
 
                             <div class="mt-4 pt-3 border-top">
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-1"></i> Save Changes
+                                    <i class="fas fa-save me-1"></i> Lưu thay đổi
                                 </button>
                             </div>
                         </form>

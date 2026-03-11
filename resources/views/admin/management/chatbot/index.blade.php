@@ -3,8 +3,8 @@
     <div class="container-xxl">
         <div class="card">
             <div class="card-header d-flex justify-content-between">
-                <h4 class="card-title">Chatbot Training</h4>
-                <a href="{{ route('admin.chatbot.create') }}" class="btn btn-primary">Add New Rule</a>
+                <h4 class="card-title">Đào tạo Chatbot</h4>
+                <a href="{{ route('admin.chatbot.create') }}" class="btn btn-primary">Thêm quy tắc mới</a>
             </div>
             <div class="card-body">
                 <div id="table-data-chatbot"></div>
@@ -23,19 +23,19 @@
                 new gridjs.Grid({
                     columns: [
                         { id: 'id', name: 'ID', width: '80px' },
-                        { id: 'keyword', name: 'Keyword' },
-                        { id: 'reply', name: 'Slug' },
+                        { id: 'keyword', name: 'Từ khóa' },
+                        { id: 'reply', name: 'Hồi đáp' },
                         {
                             id: 'is_active',
-                            name: 'Status',
+                            name: 'Trạng thái',
                             formatter: (cell) => {
                                 return cell
-                                    ? gridjs.html('<span class="badge bg-success">Active</span>')
-                                    : gridjs.html('<span class="badge bg-secondary">Inactive</span>');
+                                    ? gridjs.html('<span class="badge bg-success">Hoạt động</span>')
+                                    : gridjs.html('<span class="badge bg-secondary">Không hoạt động</span>');
                             }
                         },
                         {
-                            name: 'Actions',
+                            name: 'Hành động',
                             width: '80px',
                             sort: false,
                             formatter: (cell, row) => {
@@ -52,7 +52,7 @@
                                                         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                                             <li>
                                                                 <a class="dropdown-item" href="${editUrl}">
-                                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Edit
+                                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Chỉnh sửa
                                                                 </a>
                                                             </li>
                                                             <li><hr class="dropdown-divider"></li>
@@ -61,7 +61,7 @@
                                                                        data-id="${chatbotId}"
                                                                        data-name="${chatbotName}"
                                                                        data-url="${deleteUrl}">
-                                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                                    <i class="bi bi-trash me-2"></i>Xóa
                                                                 </a>
                                                             </li>
                                                         </ul>

@@ -5,7 +5,7 @@
         {{-- Header & Actions --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="fw-bold py-3 mb-0">
-                <span class="text-muted fw-light">Customers /</span> Customer Details
+                <span class="text-muted fw-light">Khách hàng /</span> Thông tin khách hàng
             </h4>
             <div class="d-flex gap-2">
                 <form action="{{ route('admin.customers.toggle-status', $customer) }}" method="POST">
@@ -13,16 +13,17 @@
                     @method('PUT')
                     @if($customer->status)
                         <button type="submit" class="btn btn-outline-warning">
-                            <i class="bi bi-lock me-1"></i> Block Customer
+                            <i class="bi bi-lock me-1"></i> Chặn khách hàng
                         </button>
                     @else
                         <button type="submit" class="btn btn-outline-success">
-                            <i class="bi bi-unlock me-1"></i> Activate Customer
+                            <i class="bi bi-unlock me-1"></i>Kích hoạt khách hàng
                         </button>
                     @endif
                 </form>
 
-                <a href="{{ route('admin.customers.index') }}" class="btn btn-secondary">Back to List</a>
+                <a href="{{ route('admin.customers.index') }}" class="btn btn-secondary">
+                    Quay lại danh sách</a>
             </div>
         </div>
 
@@ -35,7 +36,8 @@
                              alt="user-avatar"
                              class="rounded-circle img-fluid mb-3" style="width: 100px;">
                         <h5 class="mb-1">{{ $customer->full_name }}</h5>
-                        <p class="text-muted mb-3">Customer #{{ $customer->id }}</p>
+                        <p class="text-muted mb-3">Khách hàng
+                            #{{ $customer->id }}</p>
 
                         <div class="d-flex justify-content-center gap-2">
                             <span class="badge bg-{{ $customer->status ? 'success' : 'danger' }} px-3 py-2">
@@ -52,15 +54,15 @@
                                     <span>{{ $customer->email }}</span>
                                 </li>
                                 <li class="mb-3">
-                                    <span class="fw-bold me-2">Phone:</span>
+                                    <span class="fw-bold me-2">Điện thoại:</span>
                                     <span>{{ $customer->phone ?? 'N/A' }}</span>
                                 </li>
                                 <li class="mb-3">
-                                    <span class="fw-bold me-2">Joined At:</span>
+                                    <span class="fw-bold me-2">Tham gia vào lúc:</span>
                                     <span>{{ $customer->created_at->format('d M, Y') }}</span>
                                 </li>
                                 <li class="mb-3">
-                                    <span class="fw-bold me-2">Total Spent:</span>
+                                    <span class="fw-bold me-2">Tổng chi tiêu:</span>
                                     <span class="text-primary fw-bold">{{ number_format($totalSpent) }} VND</span>
                                 </li>
                             </ul>
@@ -71,10 +73,10 @@
                 {{-- Địa chỉ (Nếu có) --}}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Address</h5>
+                        <h5 class="card-title mb-0">Địa chỉ</h5>
                     </div>
                     <div class="card-body">
-                        <p class="mb-1">{{ $customer->address ?? 'No address provided' }}</p>
+                        <p class="mb-1">{{ $customer->address ?? 'Không cung cấp địa chỉ.' }}</p>
                         <p class="mb-0">{{ $customer->city }}</p>
                     </div>
                 </div>
@@ -84,18 +86,18 @@
             <div class="col-xl-8 col-lg-7 col-md-7">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="card-title mb-0">Order History</h5>
+                        <h5 class="card-title mb-0">Lịch sử đơn hàng</h5>
                     </div>
                     <div class="table-responsive text-nowrap">
                         <table class="table table-hover">
                             <thead>
                             <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Items</th>
-                                <th>Total</th>
-                                <th>Action</th>
+                                <th>Mã đơn hàng</th>
+                                <th>Ngày</th>
+                                <th>Trạng thái</th>
+                                <th>Mặt hàng</th>
+                                <th>Tổng cộng</th>
+                                <th>Hoạt động</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -118,7 +120,7 @@
                                     <td>
                                         <a href="{{ route('admin.orders.show', $order->id) }}"
                                            class="btn btn-sm btn-light text-primary"
-                                           title="View Order">
+                                           title="Xem đơn hàng">
                                             <i class="bi bi-eye"></i>
                                         </a>
                                     </td>
@@ -126,7 +128,7 @@
                             @empty
                                 <tr>
                                     <td colspan="6" class="text-center py-4 text-muted">
-                                        This customer hasn't placed any orders yet.
+                                        Khách hàng này chưa đặt bất kỳ đơn hàng nào.
                                     </td>
                                 </tr>
                             @endforelse
