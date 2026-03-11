@@ -71,7 +71,7 @@
 
                                         @if($group === 'general')
                                             <div class="mb-3">
-                                                <label class="form-label fw-bold">Website Logo</label>
+                                                <label class="form-label fw-bold">Logo trang web</label>
                                                 <input type="file" class="form-control" name="site_logo"
                                                        accept="image/*">
                                                 @php
@@ -90,7 +90,27 @@
                                                     2MB.</small>
                                             </div>
                                         @endif
-
+                                        @if($group === 'general')
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Biểu tượng</label>
+                                                <input type="file" class="form-control" name="site_favicon"
+                                                       accept="image/*">
+                                                @php
+                                                    // Helper setting() của bạn đã được định nghĩa
+                                                    $logoPath = setting('site_favicon');
+                                                @endphp
+                                                @if($logoPath)
+                                                    <div class="mt-2">
+                                                        <img src="{{ asset('storage/' . $logoPath) }}"
+                                                             alt="Favicon Logo"
+                                                             style="height: 60px; border: 1px solid #eee; padding: 5px; border-radius: 4px;">
+                                                    </div>
+                                                @endif
+                                                <small class="text-muted">Kích thước đề xuất: 200x50px. Kích thước tối
+                                                    đa:
+                                                    2MB.</small>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>

@@ -85,11 +85,11 @@ class CategoryController extends Controller
             return redirect()->route('admin.categories.index')
                 ->with('success', 'Category created successfully.');
         } catch (QueryException $e) {
-            Log::error('Category Creation Failed: ' . $e->getMessage());
+            Log::error('Category Creation Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (Exception $e) {
-            Log::error('Category Creation Failed: ' . $e->getMessage());
+            Log::error('Category Creation Failed: '.$e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -139,11 +139,11 @@ class CategoryController extends Controller
             return redirect()->route('admin.categories.index')
                 ->with('success', 'Category updated successfully.');
         } catch (QueryException $e) {
-            Log::error('Category Update Failed: ' . $e->getMessage());
+            Log::error('Category Update Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (Exception $e) {
-            Log::error('Category Update Failed: ' . $e->getMessage());
+            Log::error('Category Update Failed: '.$e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -166,12 +166,12 @@ class CategoryController extends Controller
             return redirect()->route('admin.categories.index')
                 ->with('success', 'Category deleted successfully.');
         } catch (\Exception $e) {
-            Log::error('Category Deletion Failed: ' . $e->getMessage());
+            Log::error('Category Deletion Failed: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to delete category: ' . $e->getMessage(),
+                    'message' => 'Failed to delete category: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -207,7 +207,7 @@ class CategoryController extends Controller
                 'name'       => $order->name,
                 'slug'       => $order->slug,
                 'is_active'  => $order->active,
-                'created_at' => $order->created_at->format('d M, Y'),
+                'created_at' => $order->created_at->format('d/m/Y'),
             ];
         });
 
@@ -215,4 +215,5 @@ class CategoryController extends Controller
             'data' => $data,
         ]);
     }
+
 }

@@ -39,7 +39,7 @@ class ChatbotController extends Controller
         ChatbotRule::create($request->validated());
 
         return redirect()->route('admin.chatbot.index')
-            ->with('success', 'Rule created successfully.');
+            ->with('success', 'Quy tắc đã được tạo thành công.');
     }
 
     public function edit(ChatbotRule $chatbot)

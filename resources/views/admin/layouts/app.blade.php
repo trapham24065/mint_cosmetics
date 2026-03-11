@@ -10,9 +10,9 @@
     <meta content="" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Mint Cosmetics') }}</title>
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{asset('assets/admin/images/favicon.ico')}}">
+    <link rel="shortcut icon" href="{{ asset('storage/' . setting('site_favicon')) }}">
     <!-- Gridjs Plugin css -->
     <link href="{{asset('assets/admin/vendor/gridjs/theme/mermaid.min.css')}}" rel="stylesheet" type="text/css">
     <!-- Vendor css (Require in all Page) -->

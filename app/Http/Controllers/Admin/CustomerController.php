@@ -88,7 +88,7 @@ class CustomerController extends Controller
                 'phone'        => $customer->phone,
                 'orders_count' => $customer->orders_count,
                 'status'       => $customer->status,
-                'created_at'   => $customer->created_at->format('d M, Y'),
+                'created_at'   => $customer->created_at->format('d/m/Y'),
             ];
         });
 

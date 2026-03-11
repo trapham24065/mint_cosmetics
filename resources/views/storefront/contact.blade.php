@@ -9,9 +9,10 @@
                 <div class="row">
                     <div class="offset-lg-6 col-lg-6">
                         <div class="section-title position-relative">
-                            <h2 class="title">Get in touch</h2>
-                            <p class="m-0">Lorem ipsum dolor sit amet, consectetur adipiscing aliquam, purus sit amet
-                                luctus venenatis</p>
+                            <h2 class="title">Liên hệ với chúng tôi</h2>
+                            <p class="m-0">Đội ngũ Mint Cosmetics luôn sẵn sàng hỗ trợ bạn. Hãy liên hệ với chúng tôi
+                                nếu bạn cần
+                                tư vấn về sản phẩm, chăm sóc da hoặc bất kỳ thông tin nào khác.</p>
                             <div class="line-left-style mt-4 mb-1"></div>
                         </div>
                         <!--== Start Contact Form ==-->
@@ -22,29 +23,29 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <input class="form-control" type="text" name="con_name"
-                                                   placeholder="First Name">
+                                                   placeholder="Tên">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <input class="form-control" type="text" placeholder="Last Name">
+                                            <input class="form-control" type="text" placeholder="Họ">
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="form-group">
                                             <input class="form-control" type="email" name="con_email"
-                                                   placeholder="Email address">
+                                                   placeholder="Địa chỉ email">
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="form-group">
                                             <textarea class="form-control" name="con_message"
-                                                      placeholder="Message"></textarea>
+                                                      placeholder="Tin nhắn"></textarea>
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="form-group mb-0">
-                                            <button class="btn btn-sm" type="submit">SUBMIT</button>
+                                            <button class="btn btn-sm" type="submit">GỬI</button>
                                         </div>
                                     </div>
                                 </div>

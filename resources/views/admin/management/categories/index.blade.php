@@ -18,7 +18,7 @@
 
                             </div>
                             <h5 class="mt-3 mb-0">{{ $category->name }}</h5>
-                            <small class="text-muted">{{ $category->created_at->format('Y-m-d') }}</small>
+                            <small class="text-muted">{{ $category->created_at->format('d/m/Y') }}</small>
                         </div>
                     </div>
                 </div>

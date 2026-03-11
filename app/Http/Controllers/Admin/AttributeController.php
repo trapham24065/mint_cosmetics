@@ -76,11 +76,11 @@ class AttributeController extends Controller
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute and its values created successfully.');
         } catch (QueryException $e) {
-            Log::error('Attribute Creation Failed: ' . $e->getMessage());
+            Log::error('Attribute Creation Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Attribute Creation Failed: ' . $e->getMessage());
+            Log::error('Attribute Creation Failed: '.$e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -107,11 +107,11 @@ class AttributeController extends Controller
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute updated successfully.');
         } catch (QueryException $e) {
-            Log::error('Attribute Update Failed: ' . $e->getMessage());
+            Log::error('Attribute Update Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Attribute Update Failed: ' . $e->getMessage());
+            Log::error('Attribute Update Failed: '.$e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -134,7 +134,7 @@ class AttributeController extends Controller
             return redirect()->route('admin.attributes.index')
                 ->with('success', 'Attribute deleted successfully.');
         } catch (QueryException $e) {
-            Log::error('Attribute Deletion Failed: ' . $e->getMessage());
+            Log::error('Attribute Deletion Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
 
             if (request()->expectsJson() || request()->ajax()) {
@@ -144,7 +144,7 @@ class AttributeController extends Controller
             return redirect()->route('admin.attributes.index')
                 ->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Attribute Deletion Failed: ' . $e->getMessage());
+            Log::error('Attribute Deletion Failed: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
@@ -168,7 +168,7 @@ class AttributeController extends Controller
                 'id'         => $attribute->id,
                 'name'       => $attribute->name,
                 'values'     => $attribute->values->pluck('value')->implode(', '),
-                'created_at' => $attribute->created_at->format('d M, Y'),
+                'created_at' => $attribute->created_at->format('d/m/Y'),
             ];
         });
 
@@ -176,4 +176,5 @@ class AttributeController extends Controller
             'data' => $data,
         ]);
     }
+
 }

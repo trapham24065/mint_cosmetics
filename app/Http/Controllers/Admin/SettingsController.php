@@ -26,20 +26,21 @@ class SettingsController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $request->validate([
-            'site_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'contact_email' => 'nullable|email|max:255',
-            'site_name' => 'nullable|string|max:255',
-            'contact_phone' => 'nullable|string|max:20',
+            'site_logo'         => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'site_favicon'      => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'contact_email'     => 'nullable|email|max:255',
+            'site_name'         => 'nullable|string|max:255',
+            'contact_phone'     => 'nullable|string|max:20',
 
             // mail settings
-            'mail_driver' => 'nullable|string|in:smtp,sendmail,mailgun,ses,postmark,resend,log,array,failover,roundrobin',
-            'mail_host' => 'nullable|string|max:255',
-            'mail_port' => 'nullable|numeric',
-            'mail_username' => 'nullable|string|max:255',
-            'mail_password' => 'nullable|string|max:255',
-            'mail_encryption' => 'nullable|string|max:10',
+            'mail_driver'       => 'nullable|string|in:smtp,sendmail,mailgun,ses,postmark,resend,log,array,failover,roundrobin',
+            'mail_host'         => 'nullable|string|max:255',
+            'mail_port'         => 'nullable|numeric',
+            'mail_username'     => 'nullable|string|max:255',
+            'mail_password'     => 'nullable|string|max:255',
+            'mail_encryption'   => 'nullable|string|max:10',
             'mail_from_address' => 'nullable|email|max:255',
-            'mail_from_name' => 'nullable|string|max:255',
+            'mail_from_name'    => 'nullable|string|max:255',
         ]);
 
         if ($request->hasFile('site_logo')) {
@@ -61,12 +62,30 @@ class SettingsController extends Controller
                 ]
             );
         }
+        if ($request->hasFile('site_favicon')) {
+            $faviconSetting = Setting::where('key', 'site_favicon')->first();
 
-        $data = $request->except(['_token', 'site_logo']);
+            if ($faviconSetting && $faviconSetting->value && Storage::disk('public')->exists($faviconSetting->value)) {
+                Storage::disk('public')->delete($faviconSetting->value);
+            }
+
+            $path = $request->file('site_favicon')->store('settings', 'public');
+
+            Setting::updateOrCreate(
+                ['key' => 'site_favicon'],
+                [
+                    'value' => $path,
+                    'group' => 'general',
+                    'type'  => 'image',
+                    'label' => 'Website Favicon',
+                ]
+            );
+        }
+        $data = $request->except(['_token', 'site_logo', 'site_favicon']);
 
         foreach ($data as $key => $value) {
             // don't overwrite password if the input was not filled at all (blank or missing)
-            if ($key === 'mail_password' && ! $request->filled('mail_password')) {
+            if ($key === 'mail_password' && !$request->filled('mail_password')) {
                 continue;
             }
 
@@ -80,4 +99,5 @@ class SettingsController extends Controller
 
         return back()->with('success', 'Settings updated successfully.');
     }
+
 }

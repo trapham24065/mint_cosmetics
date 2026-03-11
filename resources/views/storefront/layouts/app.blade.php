@@ -13,7 +13,7 @@
     <meta name="author" content="codecarnival" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="{{asset('assets/storefront/images/favicon.webp')}}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('storage/' . setting('site_favicon')) }}">
     <!-- Font CSS -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>

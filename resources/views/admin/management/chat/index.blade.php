@@ -4,7 +4,7 @@
     <div class="container-fluid p-0">
         <div class="row g-0">
             {{-- Sidebar: Danh sách hội thoại --}}
-            <div class="col-md-4 border-end bg-white" style="height: calc(100vh - 100px); overflow-y: auto;">
+            <div class="col-md-4 border-end " style="height: calc(100vh - 100px); overflow-y: auto;">
                 <div class="p-3 border-bottom bg-light">
                     <h5 class="mb-0">Cuộc trò chuyện</h5>
                 </div>
