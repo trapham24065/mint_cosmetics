@@ -46,7 +46,7 @@ class CustomerAuthController extends Controller
         }
 
         throw ValidationException::withMessages([
-            'email' => __('Incorrect login information or locked account.'),
+            'email' => __('Thông tin đăng nhập không chính xác hoặc tài khoản bị khóa.'),
         ]);
     }
 
@@ -76,7 +76,7 @@ class CustomerAuthController extends Controller
 
         $this->mergeCartOnLogin();
 
-        return redirect()->route('home')->with('success', 'Account registration successful!');
+        return redirect()->route('home')->with('success', 'Đăng ký tài khoản thành công!');
     }
 
     /**

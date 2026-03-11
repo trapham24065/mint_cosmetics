@@ -2,7 +2,7 @@
 <div class="row">
     <div class="col-lg-8">
         {{-- Main Content --}}
-        <div class="card bg-white border-0 rounded-10 mb-4">
+        <div class="card  border-0 rounded-10 mb-4">
             <div class="card-body p-4">
                 {{-- Title --}}
                 <div class="mb-3">
@@ -37,7 +37,7 @@
     </div>
     <div class="col-lg-4">
         {{-- Sidebar --}}
-        <div class="card bg-white border-0 rounded-10 mb-4">
+        <div class="card  border-0 rounded-10 mb-4">
             <div class="card-body p-4">
                 {{-- Featured Image --}}
                 <div class="mb-3">

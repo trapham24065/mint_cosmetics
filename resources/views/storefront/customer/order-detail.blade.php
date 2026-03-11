@@ -50,7 +50,7 @@
                 {{-- Cột Trái: Danh sách sản phẩm --}}
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm rounded-3 mb-4">
-                        <div class="card-header bg-white border-bottom-0 pt-4 px-4">
+                        <div class="card-header  border-bottom-0 pt-4 px-4">
                             <h5 class="mb-0">Product list</h5>
                         </div>
                         <div class="card-body p-0">

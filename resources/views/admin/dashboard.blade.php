@@ -24,7 +24,7 @@
                                 <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($onlineUsers) }}</h2>
                             </div>
                             <div class="avatar-sm">
-                                <span class="avatar-title bg-white bg-opacity-25 rounded-circle fs-3">
+                                <span class="avatar-title  bg-opacity-25 rounded-circle fs-3">
                                     <i class="bx bx-user-voice"></i>
                                 </span>
                             </div>
@@ -47,14 +47,14 @@
                                 <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($todayVisits) }}</h2>
                             </div>
                             <div class="avatar-sm">
-                                <span class="avatar-title bg-white bg-opacity-25 rounded-circle fs-3">
+                                <span class="avatar-title  bg-opacity-25 rounded-circle fs-3">
                                     <i class="bx bx-show"></i>
                                 </span>
                             </div>
                         </div>
                         <div class="mt-3">
                             @if($growth >= 0)
-                                <span class="badge bg-white bg-opacity-25 text-white"><i class="bx bx-up-arrow-alt"></i> {{ number_format($growth, 1) }}%</span>
+                                <span class="badge  bg-opacity-25 text-white"><i class="bx bx-up-arrow-alt"></i> {{ number_format($growth, 1) }}%</span>
                             @else
                                 <span class="badge bg-danger text-white"><i class="bx bx-down-arrow-alt"></i> {{ number_format(abs($growth), 1) }}%</span>
                             @endif
@@ -74,7 +74,7 @@
                                 <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($pendingOrders) }}</h2>
                             </div>
                             <div class="avatar-sm">
-                                <span class="avatar-title bg-white bg-opacity-25 rounded-circle fs-3">
+                                <span class="avatar-title  bg-opacity-25 rounded-circle fs-3">
                                     <i class="bx bx-time-five"></i>
                                 </span>
                             </div>
@@ -97,7 +97,7 @@
                                 <h4 class="mb-0 fw-bold text-white">{{ number_format($totalRevenue) }} đ</h4>
                             </div>
                             <div class="avatar-sm">
-                                <span class="avatar-title bg-white bg-opacity-25 rounded-circle fs-3">
+                                <span class="avatar-title  bg-opacity-25 rounded-circle fs-3">
                                     <i class="bx bx-money"></i>
                                 </span>
                             </div>

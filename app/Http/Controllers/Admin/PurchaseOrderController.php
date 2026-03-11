@@ -186,7 +186,7 @@ class PurchaseOrderController extends Controller
                 'supplier_name' => $order->supplier->name ?? 'Không rõ',
                 'total_amount'  => number_format($order->total_amount, 2),
                 'status'        => $order->status,
-                'created_at'    => $order->created_at->format('d M, Y'),
+                'created_at'    => $order->created_at->format('d/m/Y'),
             ];
         });
 

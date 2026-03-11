@@ -116,7 +116,7 @@ class SupplierController extends Controller
                 'phone'          => $supplier->phone ?? 'N/A',
                 'contact_person' => $supplier->contact_person ?? 'N/A',
                 'is_active'      => (bool)$supplier->is_active,
-                'created_at'     => $supplier->created_at->format('d M, Y'),
+                'created_at'     => $supplier->created_at->format('d/m/Y'),
             ];
         });
 

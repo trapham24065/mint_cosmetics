@@ -103,7 +103,7 @@ class OrderController extends Controller
                 'total'        => $order->total_price,
                 'status'       => $order->status->value,
                 'status_color' => $order->status->color(),
-                'created_at'   => $order->created_at->format('d M, Y'),
+                'created_at'   => $order->created_at->format('d/m/Y'),
             ];
         });
 
