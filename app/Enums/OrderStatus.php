@@ -28,13 +28,13 @@ enum OrderStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Pending => 'Pending',
-            self::Processing => 'Processing',
-            self::Shipped => 'Shipped',
-            self::Delivered => 'Delivered',
-            self::Completed => 'Completed',
-            self::Cancelled => 'Cancelled',
-            self::Failed => 'Failed',
+            self::Pending => 'Chưa giải quyết',
+            self::Processing => 'Xử lý',
+            self::Shipped => 'Đã vận chuyển',
+            self::Delivered => 'Đã giao hàng',
+            self::Completed => 'Hoàn thành',
+            self::Cancelled => 'Đã hủy',
+            self::Failed => 'Thất bại',
         };
     }
 

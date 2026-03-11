@@ -6,16 +6,9 @@
             <div class="d-flex card-header justify-content-between align-items-center">
                 <h4 class="card-title">{{ $title }}</h4>
                 <a href="{{ route('admin.inventory.create') }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus me-1"></i> Create Purchase Order
+                    <i class="fas fa-plus me-1"></i> Tạo đơn đặt hàng
                 </a>
             </div>
-
-            @if(session('success'))
-                <div class="alert alert-success m-3">{{ session('success') }}</div>
-            @endif
-            @if(session('error'))
-                <div class="alert alert-danger m-3">{{ session('error') }}</div>
-            @endif
 
             <div class="card-body">
                 {{-- Grid.js Container --}}
@@ -38,35 +31,35 @@
                         { id: 'id', name: 'ID', width: '60px', hidden: true }, // Ẩn ID nếu không cần thiết
                         {
                             id: 'code',
-                            name: 'Code',
+                            name: 'Mã',
                             formatter: (cell, row) => {
                                 const id = row.cells[0].data; // Lấy ID từ cột ẩn
                                 const url = `{{ url('admin/inventory') }}/${id}`;
                                 return gridjs.html(`<a href="${url}" class="fw-bold text-primary">${cell}</a>`);
                             }
                         },
-                        { id: 'supplier_name', name: 'Supplier' },
+                        { id: 'supplier_name', name: 'Nhà cung cấp' },
                         {
                             id: 'total_amount',
-                            name: 'Total Amount',
+                            name: 'Tổng số tiền',
                             formatter: (cell) => gridjs.html(`<span class="fw-bold">${cell} VND</span>`)
                         },
                         {
                             id: 'status',
-                            name: 'Status',
+                            name: 'Trạng thái',
                             formatter: (cell) => {
                                 if (cell === 'completed') {
-                                    return gridjs.html('<span class="badge bg-success-subtle text-success">Completed</span>');
+                                    return gridjs.html('<span class="badge bg-success-subtle text-success">Hoàn thành</span>');
                                 } else if (cell === 'cancelled') {
-                                    return gridjs.html('<span class="badge bg-danger-subtle text-danger">Cancelled</span>');
+                                    return gridjs.html('<span class="badge bg-danger-subtle text-danger">Đã hủy</span>');
                                 } else {
-                                    return gridjs.html('<span class="badge bg-warning-subtle text-warning">Pending</span>');
+                                    return gridjs.html('<span class="badge bg-warning-subtle text-warning">Chưa giải quyết</span>');
                                 }
                             }
                         },
-                        { id: 'created_at', name: 'Created At' },
+                        { id: 'created_at', name: 'Được tạo vào lúc' },
                         {
-                            name: 'Actions',
+                            name: 'Hành động',
                             width: '100px',
                             sort: false,
                             formatter: (cell, row) => {
@@ -75,7 +68,7 @@
 
                                 return gridjs.html(`
                                     <a href="${showUrl}" class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye"></i> View
+                                        <i class="bi bi-eye"></i> Xem
                                     </a>
                                 `);
                             }

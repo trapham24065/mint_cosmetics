@@ -30,7 +30,7 @@
     <div class="container-xxl">
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">Create New Purchase Order</h2>
+                <h2 class="card-title">Tạo đơn đặt hàng mới</h2>
             </div>
             <form action="{{ route('admin.inventory.store') }}" method="POST" id="po-form">
                 @csrf
@@ -39,17 +39,17 @@
                     <div class="col-lg-8">
                         <div class="card border-0 rounded-10 mb-4 shadow-sm">
                             <div class="card-body p-4">
-                                <h4 class="fs-18 mb-3">Order Items</h4>
+                                <h4 class="fs-18 mb-3">Đặt hàng các mặt hàng</h4>
 
                                 <div class="table-responsive">
                                     <table class="table table-bordered align-middle" id="items-table"
                                            style="overflow: visible;">
                                         <thead class="table-light">
                                         <tr>
-                                            <th style="width: 40%">Product Variant</th>
-                                            <th style="width: 15%">Quantity</th>
-                                            <th style="width: 20%">Import Price</th>
-                                            <th style="width: 20%">Subtotal</th>
+                                            <th style="width: 40%">Biến thể sản phẩm</th>
+                                            <th style="width: 15%">Số lượng</th>
+                                            <th style="width: 20%">Giá nhập khẩu</th>
+                                            <th style="width: 20%">Tổng phụ</th>
                                             <th style="width: 5%"></th>
                                         </tr>
                                         </thead>
@@ -61,7 +61,7 @@
                                             <td colspan="5">
                                                 <button type="button" class="btn btn-outline-primary btn-sm"
                                                         id="add-item-btn">
-                                                    <i class="ri-add-line"></i> Add Item
+                                                    <i class="ri-add-line"></i> Thêm mục
                                                 </button>
                                             </td>
                                         </tr>
@@ -72,7 +72,7 @@
                                 <div class="row justify-content-end mt-3">
                                     <div class="col-md-5">
                                         <div class="d-flex justify-content-between border-top pt-2">
-                                            <span class="fw-bold">Grand Total:</span>
+                                            <span class="fw-bold">Tổng cộng:</span>
                                             <span class="fw-bold text-primary fs-18" id="grand-total">0.00</span>
                                         </div>
                                     </div>
@@ -82,9 +82,9 @@
 
                         <div class="card border-0 rounded-10 mb-4 shadow-sm">
                             <div class="card-body p-4">
-                                <label class="form-label fw-bold">Note</label>
+                                <label class="form-label fw-bold">Ghi chú</label>
                                 <textarea name="note" class="form-control" rows="3"
-                                          placeholder="Optional notes...">{{ old('note') }}</textarea>
+                                          placeholder="Ghi chú tùy chọn...">{{ old('note') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -93,16 +93,16 @@
                     <div class="col-lg-4">
                         <div class="card  border-0 rounded-10 mb-4 shadow-sm">
                             <div class="card-body p-4">
-                                <h4 class="fs-18 mb-3">Supplier Details</h4>
+                                <h4 class="fs-18 mb-3">Thông tin nhà cung cấp</h4>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Select Supplier <span
+                                    <label class="form-label fw-bold">Chọn nhà cung cấp <span
                                             class="text-danger">*</span></label>
                                     <select name="supplier_id" class="form-select" required>
-                                        <option value="">-- Choose Supplier --</option>
+                                        <option value="">-- Chọn nhà cung cấp --</option>
                                         @foreach($suppliers as $supplier)
                                             <option
-                                                value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
+                                                value="{{ $supplier->id }}" {{ old('supplier_id') === $supplier->id ? 'selected' : '' }}>
                                                 {{ $supplier->name }}
                                             </option>
                                         @endforeach
@@ -110,17 +110,17 @@
                                 </div>
 
                                 <div class="alert alert-info py-2">
-                                    <small><i class="ri-information-line"></i> Stock will only be updated after you
-                                        <strong>Approve</strong>
-                                        this order.</small>
+                                    <small><i class="ri-information-line"></i> Kho hàng sẽ chỉ được cập nhật sau khi bạn
+                                        <strong>Chấp thuận</strong>
+                                        thứ tự này.</small>
                                 </div>
 
                                 <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
-                                    Create Purchase Order
+                                    Tạo đơn đặt hàng
                                 </button>
                                 <a href="{{ route('admin.inventory.index') }}"
                                    class="btn btn-outline-secondary w-100 py-2 mt-2">
-                                    Cancel
+                                    Hủy bỏ
                                 </a>
                             </div>
                         </div>
@@ -133,7 +133,7 @@
                 <tr class="item-row">
                     <td>
                         <select name="items[INDEX][variant_id]" class="form-select variant-select" required>
-                            <option value="">Search Product...</option>
+                            <option value="">Tìm kiếm sản phẩm...</option>
                             @foreach($variants as $variant)
                                 <option value="{{ $variant->id }}">{{ $variant->full_name }}</option>
                             @endforeach
@@ -175,7 +175,7 @@
                 $(selectElement).select2({
                     theme: 'bootstrap-5',
                     width: '100%',
-                    placeholder: 'Select a product...',
+                    placeholder: 'Chọn một sản phẩm...',
                     allowClear: true,
                 });
             }
@@ -211,7 +211,7 @@
                         row.remove();
                         calculateTotal();
                     } else {
-                        alert('You must have at least one item.');
+                        alert('Bạn phải có ít nhất một.');
                     }
                 }
             });

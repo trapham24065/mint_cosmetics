@@ -19,7 +19,7 @@ class SupplierController extends Controller
      */
     public function index(): View
     {
-        $title = 'Supplier Management';
+        $title = 'Quản lý nhà cung cấp';
 
         return view('admin.management.supplier.index', compact('title'));
     }
@@ -29,7 +29,7 @@ class SupplierController extends Controller
      */
     public function create(): View
     {
-        $title = 'Create Supplier';
+        $title = 'Tạo nhà cung cấp';
         return view('admin.management.supplier.create', compact('title'));
     }
 
@@ -41,7 +41,7 @@ class SupplierController extends Controller
         $data = $request->validated();
         $data['is_active'] = $request->has('is_active');
         Supplier::create($data);
-        return redirect()->route('admin.suppliers.index')->with('success', 'Supplier created successfully.');
+        return redirect()->route('admin.suppliers.index')->with('success', 'Nhà cung cấp được tạo thành công.');
     }
 
     /**
@@ -85,7 +85,7 @@ class SupplierController extends Controller
     {
         $supplier->update($request->validated());
 
-        return redirect()->route('admin.suppliers.index')->with('success', 'Supplier updated successfully.');
+        return redirect()->route('admin.suppliers.index')->with('success', 'Nhà cung cấp đã cập nhật thành công.');
     }
 
     /**
@@ -96,12 +96,12 @@ class SupplierController extends Controller
         if ($supplier->purchaseOrders()->exists()) {
             return back()->with(
                 'error',
-                'Cannot delete supplier with existing purchase orders. Please deactivate them instead.'
+                'Không thể xóa nhà cung cấp có đơn đặt hàng hiện có. Vui lòng vô hiệu hóa họ thay vì xóa.'
             );
         }
         $supplier->delete();
 
-        return redirect()->route('admin.suppliers.index')->with('success', 'Supplier deleted successfully.');
+        return redirect()->route('admin.suppliers.index')->with('success', 'Nhà cung cấp đã được xóa thành công.');
     }
 
     public function getDataForGrid(): JsonResponse
@@ -137,14 +137,14 @@ class SupplierController extends Controller
 
         if ($action === 'delete') {
             Supplier::whereIn('id', $ids)->delete();
-            return response()->json(['success' => true, 'message' => "$count suppliers deleted successfully."]);
+            return response()->json(['success' => true, 'message' => "$count nhà cung cấp đã được xóa thành công."]);
         }
 
         $isActive = $action === 'activate';
         Supplier::whereIn('id', $ids)->update(['is_active' => $isActive]);
 
         $statusText = $isActive ? 'activated' : 'deactivated';
-        return response()->json(['success' => true, 'message' => "$count suppliers $statusText successfully."]);
+        return response()->json(['success' => true, 'message' => "$count nhà cung cấp $statusText thành công."]);
     }
 
 }

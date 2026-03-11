@@ -4,18 +4,18 @@
     <div class="container-xxl">
         <div class="card">
             <div class="d-flex card-header justify-content-between align-items-center">
-                <h4 class="card-title">Customer Management</h4>
+                <h4 class="card-title">Quản lý khách hàng</h4>
             </div>
             <div class="card-body">
                 <div id="bulk-actions-container" class="mb-3" style="display: none;">
                     <div class="d-flex align-items-center gap-2">
                         <span id="selected-count" class="fw-bold"></span>
                         <select id="bulk-action-select" class="form-select form-select-sm" style="width: 200px;">
-                            <option value="">Choose action...</option>
-                            <option value="activate">Activate Selected</option>
-                            <option value="deactivate">Deactivate Selected</option>
+                            <option value="">Hãy chọn hành động...</option>
+                            <option value="activate">Kích hoạt mục đã chọn</option>
+                            <option value="deactivate">Vô hiệu hóa mục đã chọn</option>
                         </select>
-                        <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Apply</button>
+                        <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
                     </div>
                 </div>
                 {{-- Grid.js will render the table here --}}
@@ -45,18 +45,18 @@
                             width: '40px'
                         },
                         { id: 'id', name: 'ID'},
-                        { id: 'name', name: 'Full Name' },
+                        { id: 'name', name: 'Họ và tên đầy đủ' },
                         { id: 'email', name: 'Email' },
-                        { id: 'phone', name: 'Phone Number' },
+                        { id: 'phone', name: 'Số điện thoại' },
                         {
-                            id: 'is_active', name: 'Status',
+                            id: 'is_active', name: 'Trạng thái',
                             formatter: (cell) => cell
-                                ? gridjs.html('<span class="badge bg-success">Active</span>')
-                                : gridjs.html('<span class="badge bg-secondary">Inactive</span>')
+                                ? gridjs.html('<span class="badge bg-success">Hoạt động</span>')
+                                : gridjs.html('<span class="badge bg-secondary">Không hoạt động</span>')
                         },
-                        { id: 'create_at', name: 'Create At' },
+                        { id: 'create_at', name: 'Thời gian tạo' },
                         {
-                            name: 'Actions',
+                            name: 'Hành động',
                             width: '80px',
                             sort: false,
                             formatter: (cell, row) => {
@@ -75,12 +75,12 @@
                                         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                             <li>
                                                 <a class="dropdown-item" href="${showUrl}">
-                                                    <i class="bi bi-eye me-2 text-info"></i>View
+                                                    <i class="bi bi-eye me-2 text-info"></i>Xem chi tiết
                                                 </a>
                                             </li>
                                             <li>
                                                 <a class="dropdown-item" href="${editUrl}">
-                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Edit
+                                                    <i class="bi bi-pencil-square me-2 text-primary"></i>Chỉnh sửa
                                                 </a>
                                             </li>
                                             <li><hr class="dropdown-divider"></li>
@@ -89,7 +89,7 @@
                                                    data-id="${customerId}"
                                                    data-name="${customerName}"
                                                    data-url="${deleteUrl}">
-                                                    <i class="bi bi-trash me-2"></i>Delete
+                                                    <i class="bi bi-trash me-2"></i>Xóa bỏ
                                                 </a>
                                             </li>
                                         </ul>
@@ -119,9 +119,9 @@
 
                 // Initialize delete handler - CHỈ CẦN 1 DÒNG!
                 AdminCRUD.initDeleteHandler('.delete-item', {
-                    confirmTitle: 'Delete Customer?',
-                    confirmText: 'You are about to delete customer:',
-                    successText: 'Customer has been deleted successfully.'
+                    confirmTitle: 'Xóa khách hàng?',
+                    confirmText: 'Bạn sắp xóa khách hàng:',
+                    successText: 'Khách hàng đã được xóa thành công.'
                 });
 
                 // Initialize select all checkbox
@@ -169,7 +169,7 @@
                     const action = actionSelect.value;
 
                     if (selectedIds.length === 0 || !action) {
-                        alert('Please select items and an action.');
+                        alert('Vui lòng chọn các mục và hành động.');
                         return;
                     }
 

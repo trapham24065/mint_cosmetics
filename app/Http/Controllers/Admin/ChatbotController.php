@@ -42,15 +42,15 @@ class ChatbotController extends Controller
             ->with('success', 'Rule created successfully.');
     }
 
-    public function edit(ChatbotRule $rule)
+    public function edit(ChatbotRule $chatbot)
     {
-        return view('admin.management.chatbot.edit', compact('rule'));
+        return view('admin.management.chatbot.edit', compact('chatbot'));
     }
 
-    public function update(UpdateChatbotRuleRequest $request, ChatbotRule $rule): RedirectResponse
+    public function update(UpdateChatbotRuleRequest $request, ChatbotRule $chatbot): RedirectResponse
     {
-        $rule->update($request->validated());
-        return redirect()->route('admin.chatbot.index')->with('success', 'Rule updated successfully.');
+        $chatbot->update($request->validated());
+        return redirect()->route('admin.chatbot.index')->with('success', 'Quy tắc đã được cập nhật thành công.');
     }
 
     public function destroy(ChatbotRule $rule): RedirectResponse|JsonResponse
@@ -60,14 +60,14 @@ class ChatbotController extends Controller
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Chatbot rule deleted successfully.',
+                    'message' => 'Quy tắc chatbot đã được xóa thành công.',
                 ]);
             }
 
             return redirect()->route('admin.chatbot.index')
                 ->with('success', 'Rule deleted successfully.');
         } catch (\Exception $e) {
-            Log::error('Chatbot Rule Deletion Failed: '.$e->getMessage());
+            Log::error('Xóa quy tắc Chatbot không thành công: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([

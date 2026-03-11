@@ -23,10 +23,16 @@ class UpdateChatbotRuleRequest extends FormRequest
      */
     public function rules(): array
     {
-        $ruleId = $this->route('rule')->id;
+        $chatbot = $this->route('chatbot');
+        $ruleId = is_object($chatbot) ? $chatbot->id : $chatbot;
 
         return [
-            'keyword'   => ['required', 'string', 'max:255', Rule::unique('chatbot_rules')->ignore($ruleId)],
+            'keyword'   => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('chatbot_rules')->ignore($ruleId),
+            ],
             'reply'     => ['required', 'string', 'max:65535'],
             'is_active' => ['sometimes', 'boolean'],
         ];

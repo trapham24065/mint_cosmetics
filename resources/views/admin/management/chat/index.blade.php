@@ -6,7 +6,7 @@
             {{-- Sidebar: Danh sách hội thoại --}}
             <div class="col-md-4 border-end bg-white" style="height: calc(100vh - 100px); overflow-y: auto;">
                 <div class="p-3 border-bottom bg-light">
-                    <h5 class="mb-0">Conversations</h5>
+                    <h5 class="mb-0">Cuộc trò chuyện</h5>
                 </div>
                 <div class="list-group list-group-flush">
                     @forelse($conversations as $conv)
@@ -16,12 +16,12 @@
                                 return $p->messageable_id !== auth()->id() || $p->messageable_type !== get_class(auth()->user());
                             });
 
-                            $name = 'Unknown';
+                            $name = 'Không rõ';
                             if ($otherParticipant && $otherParticipant->messageable) {
                                 $name = $otherParticipant->messageable->name ??
                                         ($otherParticipant->messageable->full_name ?? 'Guest');
                             } elseif ($otherParticipant) {
-                                $name = 'Deleted User';
+                                $name = 'Người dùng đã bị xóa';
                             }
 
                             $isActive = isset($currentConversation) && $currentConversation->id === $conv->id;
@@ -32,10 +32,10 @@
                                 <h6 class="mb-1">{{ $name }}</h6>
                                 <small>{{ $conv->updated_at->diffForHumans() }}</small>
                             </div>
-                            <small class="text-truncate d-block text-muted">Click to chat</small>
+                            <small class="text-truncate d-block text-muted">Nhấp vào để trò chuyện</small>
                         </a>
                     @empty
-                        <div class="p-4 text-center text-muted">No conversations yet.</div>
+                        <div class="p-4 text-center text-muted">Chưa có cuộc trò chuyện nào.</div>
                     @endforelse
                 </div>
             </div>
@@ -44,7 +44,7 @@
             <div class="col-md-8 d-flex flex-column" style="height: calc(100vh - 100px);">
                 @if(isset($currentConversation))
                     <div class="p-3 border-bottom">
-                        <h6 class="mb-0">Chatting with Customer</h6>
+                        <h6 class="mb-0">Trò chuyện với khách hàng</h6>
                     </div>
 
                     <div id="chat-box" class="flex-grow-1 p-3" style="overflow-y: auto; ">
@@ -78,15 +78,16 @@
 
                     <div class="p-3 border-top">
                         <form id="admin-chat-form" class="d-flex gap-2">
-                            <input type="text" id="message-input" class="form-control" placeholder="Type your reply..."
+                            <input type="text" id="message-input" class="form-control"
+                                   placeholder="Nhập câu trả lời của bạn..."
                                    autocomplete="off" required>
-                            <button class="btn btn-primary" type="submit" id="send-btn"><i class="bi bi-send"></i> Send
+                            <button class="btn btn-primary" type="submit" id="send-btn"><i class="bi bi-send"></i> Gửi
                             </button>
                         </form>
                     </div>
                 @else
                     <div class="d-flex align-items-center justify-content-center h-100 text-muted">
-                        <h5>Select a conversation to start chatting</h5>
+                        <h5>Chọn một cuộc trò chuyện để bắt đầu.</h5>
                     </div>
                 @endif
             </div>
@@ -143,7 +144,7 @@
                             },
                             error: function(xhr) {
                                 console.error(xhr);
-                                alert('Failed to send message.');
+                                alert('Gửi tin nhắn không thành công.');
                             },
                             complete: function() {
                                 $('#send-btn').prop('disabled', false);
