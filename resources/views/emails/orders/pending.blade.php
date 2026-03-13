@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Order Pending</title>
+    <title>Đơn hàng đang chờ xử lý</title>
 </head>
 <body>
-<h1>Thank you for your order!</h1>
-<p>Hello {{ $order->first_name }},</p>
-<p>Your order #{{ $order->id }} has been received and is currently pending processing.</p>
+<h1>Cảm ơn bạn đã đặt hàng!</h1>
+<p>Xin chào {{ $order->first_name }},</p>
+<p>Đơn hàng của bạn #{{ $order->id }} đã nhận được và hiện đang chờ xử lý.</p>
 
-<h3>Order Details:</h3>
+<h3>Chi tiết đơn hàng:</h3>
 <ul>
     @foreach($order->items as $item)
         <li>
@@ -17,10 +17,10 @@
     @endforeach
 </ul>
 
-<p><strong>Total: {{ number_format($order->total_price) }} VND</strong></p>
+<p><strong>Tổng cộng: {{ number_format($order->total_price) }} VND</strong></p>
 
-<p>We will notify you once your order is confirmed.</p>
+<p>Chúng tôi sẽ thông báo cho bạn ngay khi đơn hàng được xác nhận.</p>
 
-<p>Best regards,<br>{{ config('app.name') }}</p>
+<p>Trân trọng,<br>{{ config('app.name') }}</p>
 </body>
 </html>

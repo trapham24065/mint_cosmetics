@@ -13,7 +13,7 @@
             $isOnSale = $firstVariant && $firstVariant->discount_price && $firstVariant->discount_price < $firstVariant->price;
         @endphp
         @if($isOnSale)
-            <span class="badge bg-danger position-absolute top-0 start-0 m-2">Sale</span>
+            <span class="badge bg-danger position-absolute top-0 start-0 m-2">Giảm giá</span>
         @endif
         <div class="product-action">
             <button type="button" class="product-action-btn action-btn-quick-view"

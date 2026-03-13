@@ -6,7 +6,7 @@
             <div class="row">
                 <div class="col-md-5">
                     <div class="page-header-st3-content text-center text-md-start">
-                        <h2 class="page-header-title">New Password</h2>
+                        <h2 class="page-header-title">Mật khẩu mới</h2>
                     </div>
                 </div>
             </div>
@@ -18,14 +18,14 @@
             <div class="row justify-content-center">
                 <div class="col-lg-6">
                     <div class="my-account-item-wrap">
-                        <h3 class="title">Reset Password</h3>
+                        <h3 class="title">Đặt lại mật khẩu</h3>
                         <div class="my-account-form">
                             <form method="POST" action="{{ route('customer.password.update') }}">
                                 @csrf
                                 <input type="hidden" name="token" value="{{ $token }}">
 
                                 <div class="form-group mb-6">
-                                    <label for="email">Email Address <sup>*</sup></label>
+                                    <label for="email">Địa chỉ email <sup>*</sup></label>
                                     <input type="email" id="email" name="email" value="{{ $email ?? old('email') }}"
                                            required autofocus readonly>
                                     @error('email')
@@ -34,7 +34,7 @@
                                 </div>
 
                                 <div class="form-group mb-6">
-                                    <label for="password">New Password <sup>*</sup></label>
+                                    <label for="password">Mật khẩu mới <sup>*</sup></label>
                                     <input type="password" id="password" name="password" required>
                                     @error('password')
                                     <span class="text-danger small">{{ $message }}</span>
@@ -42,12 +42,12 @@
                                 </div>
 
                                 <div class="form-group mb-6">
-                                    <label for="password-confirm">Confirm Password <sup>*</sup></label>
+                                    <label for="password-confirm">Xác nhận mật khẩu <sup>*</sup></label>
                                     <input type="password" id="password-confirm" name="password_confirmation" required>
                                 </div>
 
                                 <div class="form-group">
-                                    <button type="submit" class="btn">Reset Password</button>
+                                    <button type="submit" class="btn">Đặt lại mật khẩu</button>
                                 </div>
                             </form>
                         </div>

@@ -2,8 +2,8 @@
 
 @section('content')
     <div class="container section-space text-center">
-        <h2>Scan QR to Pay</h2>
-        <p>Please scan the QR code below to complete your payment for order #{{ $order->id }}.</p>
+        <h2>Quét mã QR để thanh toán</h2>
+        <p>Vui lòng quét mã QR bên dưới để hoàn tất thanh toán đơn hàng. #{{ $order->id }}.</p>
 
         <div id="qr-code-container" class="my-4 d-flex justify-content-center">
             <canvas id="qr-canvas"></canvas>
@@ -11,13 +11,13 @@
 
         {{-- Show countdown time --}}
         <div class="mb-3">
-            <strong>Time remaining: <span id="countdown">15:00</span></strong>
+            <strong>Thời gian còn lại: <span id="countdown">15:00</span></strong>
         </div>
 
         <div id="payment-status">
-            Current Status: <span class="badge bg-warning text-dark">{{ $order->status }}</span>
+            Tình trạng hiện tại: <span class="badge bg-warning text-dark">{{ $order->status }}</span>
         </div>
-        <p class="text-muted mt-3">This page will automatically update once payment is confirmed.</p>
+        <p class="text-muted mt-3">Trang này sẽ tự động cập nhật sau khi thanh toán được xác nhận.</p>
     </div>
 
 
@@ -48,7 +48,7 @@
                         if (data.status !== 'pending') {
                             clearInterval(pollInterval);
                             clearInterval(countdownInterval);
-                            statusElement.innerHTML = `<h3><span class="badge bg-success">Payment Confirmed!</span></h3><p>You will be redirected shortly...</p>`;
+                            statusElement.innerHTML = `<h3><span class="badge bg-success">Thanh toán đã được xác nhận!</span></h3><p>Bạn sẽ được chuyển hướng trong giây lát...</p>`;
                             setTimeout(() => window.location.href = `/order/${orderId}/thank-you`, 3000);
                             setTimeout(() => {
                                 window.location.href = '{{ URL::signedRoute('order.thankyou', ['order' => $order->id]) }}';
@@ -81,11 +81,11 @@
                         // If time is up
                         stopAllIntervals();
                         countdownElement.textContent = 'Expired';
-                        qrContainer.innerHTML = '<h3><span class="badge bg-danger">QR Code Expired</span></h3>';
+                        qrContainer.innerHTML = '<h3><span class="badge bg-danger">Mã QR đã hết hạn</span></h3>';
                         statusElement.innerHTML = '<a href="{{ route('cart.index') }}" class="btn btn-primary mt-2">Create a new order</a>';
                         Swal.fire({
-                            title: 'QR Code Expired',
-                            text: 'You will be redirected to the home page.',
+                            title: 'Mã QR đã hết hạn',
+                            text: 'Bạn sẽ được chuyển hướng đến trang chủ..',
                             icon: 'warning',
                             confirmButtonText: 'OK',
                         }).then(() => {

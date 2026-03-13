@@ -81,7 +81,8 @@
                                         @endfor
                                     @endif
                                 </div>
-                                <a href="#review-tab" class="product-review-show">{{ $reviewsCount }} reviews</a></div>
+                                <a href="#review-tab" class="product-review-show">{{ $reviewsCount }} đánh giá
+                                </a></div>
 
                             {{-- SKU Display --}}
                             <div class="product-details-sku mb-3">
@@ -98,17 +99,20 @@
                             </div>
 
                             <div class="product-details-action">
-                                <h2 id="product-price">Select options</h2>
+                                <h2 id="product-price">Chọn tùy chọn</h2>
                                 <div class="product-details-cart-wishlist">
                                     <button type="button" class="btn-wishlist action-btn-wishlist"
                                             data-product-id="{{ $product->id }}">
                                         <i class="fa fa-heart-o"></i>
                                     </button>
-                                    <button type="button" class="btn action-btn-cart" id="add-to-cart-btn"
-                                            data-context="product-detail" disabled>Add to cart
-                                    </button>
+
                                 </div>
+
                             </div>
+                            <br>
+                            <button type="button" class="btn action-btn-cart" id="add-to-cart-btn"
+                                    data-context="product-detail" disabled>Thêm vào giỏ hàng
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -116,17 +120,19 @@
                     <div class="col-lg-12">
                         <div class="nav product-details-nav" id="product-details-nav-tab" role="tablist">
                             <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#description-tab"
-                                    type="button">Description
+                                    type="button">Mô tả
                             </button>
                             <button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review"
                                     type="button">
-                                Reviews ({{ $product->approvedReviews->count() }})
+                                Đánh giá ({{ $product->approvedReviews->count() }})
                             </button>
                         </div>
                         <div class="tab-content" id="product-details-nav-tabContent">
                             <div class="tab-pane fade show active product-description" id="description-tab"
                                  role="tabpanel">
-                                {!! $product->description !!}
+                                <x-product-description>
+                                    {!! $product->description !!}
+                                </x-product-description>
                             </div>
 
                             {{-- NEW ADD: Tab for Reviews --}}
@@ -136,7 +142,8 @@
                                         <div class="product-review-top">
                                             <div class="product-review-content">
                                                 <span class="product-review-name">{{ $review->reviewer_name }}</span>
-                                                <span class="product-review-designation">Verified Buyer</span>
+                                                <span
+                                                    class="product-review-designation">Người mua đã được xác minh</span>
                                                 <div class="product-review-icon">
                                                     @for ($i = 1; $i <= 5; $i++)
                                                         @if ($i <= $review->rating)
@@ -165,7 +172,7 @@
                                     </div>
                                 @empty
                                     <div class="product-review-item">
-                                        <p>This product has no reviews yet.</p>
+                                        <p>Sản phẩm này chưa có đánh giá nào.</p>
                                     </div>
                                 @endforelse
                             </div>
@@ -271,7 +278,7 @@
 
                     // Check if all attribute groups have a selection
                     if (selectedOptions.length !== Object.keys(attributes).length) {
-                        priceEl.textContent = 'Please select all options';
+                        priceEl.textContent = 'Vui lòng chọn tất cả các tùy chọn';
                         addToCartBtn.disabled = true;
                         if(skuEl) skuEl.textContent = 'N/A'; // Reset SKU
                         return;
@@ -309,7 +316,7 @@
                         }
 
                     } else {
-                        priceEl.textContent = 'This combination is not available';
+                        priceEl.textContent = 'Sự kết hợp này không khả dụng.';
                         addToCartBtn.dataset.variantId = '';
                         addToCartBtn.disabled = true;
                         if(skuEl) skuEl.textContent = 'N/A';

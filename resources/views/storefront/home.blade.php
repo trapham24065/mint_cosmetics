@@ -352,13 +352,13 @@
                      data-bg-img="{{asset('assets/storefront/images/photos/bg1.webp')}}">
                     <div class="newsletter-content">
                         <div class="section-title mb-0">
-                            <h2 class="title">Join with us</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam.</p>
+                            <h2 class="title">Đăng ký nhận tin</h2>
+                            <p>Nhận thông tin về sản phẩm mới, ưu đãi đặc biệt và mẹo chăm sóc da từ Mint Cosmetics.</p>
                         </div>
                     </div>
                     <div class="newsletter-form">
                         <form>
-                            <input type="email" class="form-control" placeholder="enter your email">
+                            <input type="email" class="form-control" placeholder="nhập email của bạn">
                             <button class="btn-submit" type="submit"><i class="fa fa-paper-plane"></i></button>
                         </form>
                     </div>

@@ -6,7 +6,7 @@
             <div class="row">
                 <div class="col-md-5">
                     <div class="page-header-st3-content text-center text-md-start">
-                        <h2 class="page-header-title">Reset Password</h2>
+                        <h2 class="page-header-title">Đặt lại mật khẩu</h2>
                     </div>
                 </div>
             </div>
@@ -18,7 +18,7 @@
             <div class="row justify-content-center">
                 <div class="col-lg-6">
                     <div class="my-account-item-wrap">
-                        <h3 class="title">Forgot Password</h3>
+                        <h3 class="title">Quên mật khẩu</h3>
                         <div class="my-account-form">
                             @if (session('status'))
                                 <div class="alert alert-success" role="alert">
@@ -29,7 +29,7 @@
                             <form method="POST" action="{{ route('customer.password.email') }}">
                                 @csrf
                                 <div class="form-group mb-6">
-                                    <label for="email">Email Address <sup>*</sup></label>
+                                    <label for="email">Địa chỉ email <sup>*</sup></label>
                                     <input type="email" id="email" name="email" value="{{ old('email') }}" required
                                            autofocus>
                                     @error('email')
@@ -38,8 +38,9 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <button type="submit" class="btn">Send Password Reset Link</button>
-                                    <a href="{{ route('customer.login') }}" class="btn-link ms-3">Back to Login</a>
+                                    <button type="submit" class="btn">Gửi liên kết đặt lại mật khẩu</button>
+                                    <a href="{{ route('customer.login') }}" class="btn-link ms-3">Quay lại trang đăng
+                                        nhập</a>
                                 </div>
                             </form>
                         </div>
