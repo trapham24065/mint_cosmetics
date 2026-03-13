@@ -804,7 +804,7 @@ hr {
   }
 }
 .section-title .title {
-  font-size: 50px;
+  font-size: 42px;
   font-weight: 400;
   margin-bottom: 13px;
   line-height: 39px;
@@ -813,7 +813,7 @@ hr {
 }
 @media only screen and (min-width: 992px) and (max-width: 1199px) {
   .section-title .title {
-    font-size: 42px;
+    font-size: 40px;
     margin-bottom: 12px;
     line-height: 32px;
     padding-bottom: 8px;
@@ -821,7 +821,7 @@ hr {
 }
 @media only screen and (min-width: 768px) and (max-width: 991px) {
   .section-title .title {
-    font-size: 38px;
+    font-size: 35px;
     margin-bottom: 10px;
     line-height: 30px;
     padding-bottom: 7px;
@@ -829,7 +829,7 @@ hr {
 }
 @media only screen and (max-width: 767px) {
   .section-title .title {
-    font-size: 30px;
+    font-size: 28px;
     margin-bottom: 10px;
     line-height: 30px;
     padding-bottom: 7px;

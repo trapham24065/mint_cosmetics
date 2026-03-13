@@ -19,8 +19,12 @@
                                      width="95" height="68"
                                      alt="Logo" />
                             @endif
-                            <p class="desc">Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                                Lorem Ipsum has been.</p>
+
+                            <p class="desc">
+                                Mint Cosmetics mang đến các sản phẩm chăm sóc da và làm đẹp chất lượng,
+                                giúp bạn tự tin và rạng rỡ mỗi ngày. Chúng tôi luôn cam kết lựa chọn
+                                những sản phẩm an toàn, hiệu quả và phù hợp với làn da của bạn.
+                            </p>
                         </div>
                     </div>
                 </div>

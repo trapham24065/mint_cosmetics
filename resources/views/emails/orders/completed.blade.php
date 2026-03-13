@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Order Completed</title>
+    <title>Đơn hàng đã hoàn tất</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { width: 90%; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
@@ -10,12 +10,13 @@
 </head>
 <body>
 <div class="container">
-    <h1>Your Order is Complete!</h1>
-    <p>Hi {{ $order->first_name }},</p>
-    <p>Your order #{{ $order->id }} has now been marked as completed. We hope you had a great shopping experience with
-        Mint Cosmetics.</p>
-    <p>We would love to hear your feedback! Please consider leaving a review for the products you purchased.</p>
-    <p>We look forward to seeing you again soon!</p>
+    <h1>Đơn hàng của bạn đã hoàn tất!</h1>
+    <p>CHÀO {{ $order->first_name }},</p>
+    <p>Đơn hàng của bạn #{{ $order->id }} đã được đánh dấu là hoàn thành. Chúng tôi hy vọng bạn đã có trải nghiệm mua
+        sắm tuyệt vời tại
+        {{ setting('site_name', 'Shop') }}".</p>
+    <p>Chúng tôi rất mong nhận được phản hồi của bạn! Vui lòng để lại đánh giá về các sản phẩm bạn đã mua.</p>
+    <p>Chúng tôi mong sớm được gặp lại bạn!</p>
 </div>
 </body>
 </html>

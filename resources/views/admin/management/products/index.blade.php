@@ -35,7 +35,7 @@
             if (document.getElementById("table-products-gridjs")) {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                new gridjs.Grid({
+                const grid = new gridjs.Grid({
                     columns: [
                         {
                             id: 'checkbox_select',

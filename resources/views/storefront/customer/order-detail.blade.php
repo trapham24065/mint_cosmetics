@@ -8,14 +8,15 @@
                 <div class="col-md-5">
                     <div class="page-header-st3-content text-center text-md-start">
                         <ol class="breadcrumb justify-content-center justify-content-md-start">
-                            <li class="breadcrumb-item"><a class="text-dark" href="{{ route('home') }}">Home</a></li>
-                            <li class="breadcrumb-item"><a class="text-dark" href="{{ route('customer.dashboard') }}">My
-                                    account
+                            <li class="breadcrumb-item"><a class="text-dark" href="{{ route('home') }}">Trang chủ</a>
+                            </li>
+                            <li class="breadcrumb-item"><a class="text-dark" href="{{ route('customer.dashboard') }}">Tài
+                                    khoản của tôi
                                 </a></li>
-                            <li class="breadcrumb-item active text-dark" aria-current="page">Order
+                            <li class="breadcrumb-item active text-dark" aria-current="page">Đặt hàng
                                 #{{ $order->id }}</li>
                         </ol>
-                        <h2 class="page-header-title">Order details</h2>
+                        <h2 class="page-header-title">Chi tiết đơn hàng</h2>
                     </div>
                 </div>
             </div>
@@ -31,11 +32,11 @@
                         <div
                             class="card-body p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
                             <div>
-                                <h4 class="mb-1">Order #{{ $order->id }}</h4>
-                                <p class="text-muted mb-0">Set date {{ $order->created_at->format('d/m/Y H:i') }}</p>
+                                <h4 class="mb-1">Đặt hàng #{{ $order->id }}</h4>
+                                <p class="text-muted mb-0">Đặt ngày {{ $order->created_at->format('d/m/Y H:i') }}</p>
                             </div>
                             <div class="mt-3 mt-md-0 text-md-end">
-                                <span class="d-block text-muted mb-1">Status</span>
+                                <span class="d-block text-muted mb-1">Trạng thái</span>
                                 {{-- Hiển thị Badge trạng thái đẹp hơn --}}
                                 <span class="badge rounded-pill bg-{{ $order->status->color() }} fs-6 px-3 py-2">
                                     {{ $order->status->label() }}
@@ -51,17 +52,17 @@
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm rounded-3 mb-4">
                         <div class="card-header  border-bottom-0 pt-4 px-4">
-                            <h5 class="mb-0">Product list</h5>
+                            <h5 class="mb-0">Danh sách sản phẩm</h5>
                         </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="bg-light">
                                     <tr>
-                                        <th class="ps-4" style="width: 50%">Product</th>
-                                        <th class="text-center">Price</th>
-                                        <th class="text-center">Quantity</th>
-                                        <th class="text-end pe-4">Temporarily calculated
+                                        <th class="ps-4" style="width: 50%">Sản phẩm</th>
+                                        <th class="text-center">Giá</th>
+                                        <th class="text-center">Số lượng</th>
+                                        <th class="text-end pe-4">Được tính toán tạm thời
                                         </th>
                                     </tr>
                                     </thead>
@@ -126,19 +127,19 @@
                     {{-- Tổng tiền --}}
                     <div class="card border-0 shadow-sm rounded-3 mb-4">
                         <div class="card-body p-4">
-                            <h5 class="card-title mb-4">Total</h5>
+                            <h5 class="card-title mb-4">Tổng cộng</h5>
 
                             {{-- Bạn có thể thêm các dòng như Phí ship, Giảm giá ở đây --}}
 
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-muted">Temporarily calculated</span>
+                                <span class="text-muted">Được tính toán tạm thời</span>
                                 <span class="fw-bold">{{ number_format($order->total_price) }} ₫</span>
                             </div>
 
                             <hr class="my-3">
 
                             <div class="d-flex justify-content-between align-items-center mb-4">
-                                <span class="fs-5 fw-bold text-dark">Total payment</span>
+                                <span class="fs-5 fw-bold text-dark">Tổng tiền thanh toán</span>
                                 <span
                                     class="fs-4 fw-bold text-primary">{{ number_format($order->total_price) }} ₫</span>
                             </div>
@@ -146,7 +147,7 @@
                             @if($order->status === \App\Enums\OrderStatus::Pending)
                                 <a href="{{ \Illuminate\Support\Facades\URL::signedRoute('payment.show', $order->id) }}"
                                    class="btn btn-primary w-100 py-3 fw-bold shadow-sm">
-                                    <i class="fa fa-credit-card me-2"></i> Paynow
+                                    <i class="fa fa-credit-card me-2"></i>Thanh toán ngay
                                 </a>
                             @endif
                         </div>
@@ -155,21 +156,21 @@
                     {{-- Thông tin khách hàng --}}
                     <div class="card border-0 shadow-sm rounded-3">
                         <div class="card-body p-4">
-                            <h5 class="card-title mb-4">Delivery information</h5>
+                            <h5 class="card-title mb-4">Thông tin giao hàng</h5>
 
                             <div class="mb-3">
-                                <h6 class="mb-1 fs-14 text-dark">Receiver</h6>
+                                <h6 class="mb-1 fs-14 text-dark">Người nhận hàng</h6>
                                 <p class="text-muted mb-0">{{ $order->first_name }} {{ $order->last_name }}</p>
                             </div>
 
                             <div class="mb-3">
-                                <h6 class="mb-1 fs-14 text-dark">Contact</h6>
+                                <h6 class="mb-1 fs-14 text-dark">Liên hệ</h6>
                                 <p class="text-muted mb-0"><i class="fa fa-envelope me-2"></i> {{ $order->email }}</p>
                                 <p class="text-muted mb-0"><i class="fa fa-phone me-2"></i> {{ $order->phone }}</p>
                             </div>
 
                             <div class="mb-3">
-                                <h6 class="mb-1 fs-14 text-dark">Delivery address</h6>
+                                <h6 class="mb-1 fs-14 text-dark">Địa chỉ giao hàng</h6>
                                 <p class="text-muted mb-0">
                                     <i class="fa fa-map-marker me-2"></i> {{ $order->address }}
                                 </p>
@@ -178,7 +179,7 @@
                             <div class="mt-4 pt-3 border-top text-center">
                                 <a href="{{ route('customer.dashboard') }}"
                                    class="text-decoration-none fw-bold text-muted">
-                                    <i class="fa fa-arrow-left me-1"></i> Return to Dashboard
+                                    <i class="fa fa-arrow-left me-1"></i> Trở lại bảng điều khiển
                                 </a>
                             </div>
                         </div>

@@ -28,7 +28,7 @@
                     <ul class="main-nav justify-content-start">
                         <li><a href="{{route('home')}}">Trang chủ</a></li>
                         <li><a href="{{route('about-us.index')}}">Về chúng tôi</a></li>
-                        <li><a href="{{route('shop')}}">Sản phẩm</a></li>
+                        <li><a href="{{route('shop')}}">Cửa hàng</a></li>
                         {{--                        <li><a href="{{route('blog.index')}}">Blog</a></li>--}}
                         <li><a href="{{route('contact.index')}}">Liên hệ</a></li>
                     </ul>

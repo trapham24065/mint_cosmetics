@@ -1,21 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Order Delivered</title>
+
+    <title>Đơn hàng đã được giao</title>
+
     <style>
+
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+
         .container { width: 90%; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+
         h1 { color: #28a745; }
+
     </style>
+
 </head>
 <body>
 <div class="container">
-    <h1>Your Order Has Been Delivered!</h1>
-    <p>Hi {{ $order->first_name }},</p>
-    <p>Great news! Your order #{{ $order->id }} from Mint Cosmetics has been successfully delivered to your address:</p>
+
+    <h1>Đơn hàng của bạn đã được giao!</h1>
+
+    <p>Chào {{ $order->first_name }},</p>
+
+    <p>Tin tuyệt vời!</p> Đơn hàng của bạn #{{ $order->id }} từ {{ setting('site_name', 'Shop') }} đã được giao thành
+    công đến địa chỉ của
+    bạn:</p>
+
     <p><strong>{{ $order->address }}</strong></p>
-    <p>We hope you enjoy your products. If you have any questions, feel free to contact us.</p>
-    <p>Thank you for shopping with us!</p>
+
+    <p>Chúng tôi hy vọng bạn hài lòng với sản phẩm. Nếu bạn có bất kỳ thắc mắc nào, vui lòng liên hệ với chúng tôi.</p>
+
+    <p>Cảm ơn bạn đã mua sắm với chúng tôi!</p>
+
 </div>
 </body>
 </html>

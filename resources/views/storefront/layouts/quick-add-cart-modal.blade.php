@@ -8,7 +8,7 @@
                         <i class="fa fa-times"></i>
                     </button>
                     <div class="modal-action-messages">
-                        <i class="fa fa-check-square-o"></i> Added to cart successfully!
+                        <i class="fa fa-check-square-o"></i> Thêm vào giỏ hàng thành công!
                     </div>
                     <div class="modal-action-product">
                         <div class="thumb">
@@ -16,7 +16,7 @@
                             <img id="modal-product-image" src="{{ asset('assets/storefront/images/shop/modal1.webp') }}"
                                  alt="Product" width="466" height="320">
                         </div>
-                        <h4 class="product-name"><a id="modal-product-name">Product Name</a>
+                        <h4 class="product-name"><a id="modal-product-name">Tên sản phẩm</a>
                         </h4>
                     </div>
                 </div>

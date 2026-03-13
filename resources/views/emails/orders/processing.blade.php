@@ -1,3 +1,4 @@
-<h1>Your Order is Being Processed!</h1>
-<p>Hi {{ $order->first_name }},</p>
-<p>We have successfully received payment for your order #{{ $order->id }}. We are now preparing it for shipment.</p>
+<h1>Đơn hàng của bạn đang được xử lý!</h1>
+<p>Chào bạn {{ $order->first_name }},</p>
+<p>Chúng tôi đã nhận được thanh toán thành công cho đơn hàng #{{ $order->id }} của bạn. Hiện chúng tôi đang chuẩn bị đơn
+    hàng để vận chuyển.</p>

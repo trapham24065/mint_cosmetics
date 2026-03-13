@@ -1,4 +1,3 @@
-<h1>Your Order Has Been Shipped!</h1>
-<p>Hi {{ $order->first_name }},</p>
-<p>Good news! Your order #{{ $order->id }} is on its way to you.</p>
-
+<h1>Đơn hàng của bạn đã được gửi đi!</h1>
+<p>Chào {{ $order->first_name }},</p>
+<p>Tin vui! Đơn hàng của bạn #{{ $order->id }} đang trên đường đến bạn.</p>
