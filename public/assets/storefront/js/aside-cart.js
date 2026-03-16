@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     asideCartList.insertAdjacentHTML('beforeend', itemHtml);
                 }
             } else {
-                asideCartList.innerHTML = '<li class="aside-product-list-item text-center">Your cart is empty.</li>';
+                asideCartList.innerHTML = '<li class="aside-product-list-item text-center">Giỏ hàng của bạn trống.</li>';
             }
 
             // Update subtotal

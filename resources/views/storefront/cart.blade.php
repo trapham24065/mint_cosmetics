@@ -102,29 +102,29 @@
                     </div>
                     <div class="col-12 col-lg-6">
                         <div class="cart-totals-wrap">
-                            <h2 class="title">Cart totals</h2>
+                            <h2 class="title">Tổng cộng giỏ hàng</h2>
                             <table>
                                 <tbody>
                                 <tr class="cart-subtotal">
-                                    <th>Subtotal</th>
+                                    <th>Tổng phụ</th>
                                     <td><span class="amount" id="cart-subtotal">{{ number_format($subtotal, 0, ',', '.') }} VNĐ</span>
                                     </td>
                                 </tr>
                                 <tr class="cart-discount" style="{{ !$coupon ? 'display: none;' : '' }}">
-                                    <th>Discount</th>
+                                    <th>Giảm giá</th>
                                     <td><span class="amount text-danger" id="cart-discount">-{{ number_format($discount, 0, ',', '.') }} VNĐ</span>
                                     </td>
                                 </tr>
                                 <tr class="order-total">
-                                    <th>Total</th>
+                                    <th>Tổng cộng</th>
                                     <td><span class="amount" id="cart-total">{{ number_format($total, 0, ',', '.') }} VNĐ</span>
                                     </td>
                                 </tr>
                                 </tbody>
                             </table>
                             <div class="text-end">
-                                <a href="{{route('customer.checkout.index')}}" class="checkout-button">Proceed to
-                                    checkout</a>
+                                <a href="{{route('customer.checkout.index')}}" class="checkout-button">Tiếp tục thanh
+                                    toán</a>
                             </div>
                         </div>
                     </div>

@@ -21,26 +21,34 @@ class ProductController extends Controller
     /**
      * Display the specified product.
      */
-    public function show(Product $product): View
+    public function show(Request $request, Product $product)
     {
-        // Eager-load all necessary relationships for the detail view
+        // 1. Tải các mối quan hệ (BỎ 'approvedReviews' ra khỏi đây vì ta sẽ truy vấn riêng ở dưới)
         $product->load([
             'category',
             'brand',
             'variants.attributeValues.attribute',
-            'approvedReviews',
         ]);
 
-        // Get related products (e.g., other products in the same category)
+        // 2. Truy vấn riêng Review và phân trang (ví dụ 5 review 1 trang)
+        $reviews = $product->approvedReviews()->latest()->paginate(5);
+
+        // 3. NẾU LÀ REQUEST AJAX (Do người dùng bấm chuyển trang review)
+        if ($request->ajax()) {
+            // Chỉ trả về đoạn HTML chứa danh sách review mới
+            return view('storefront.partials.reviews_list', compact('reviews'))->render();
+        }
+
+        // 4. NẾU LÀ REQUEST BÌNH THƯỜNG (Load trang lần đầu)
         $relatedProducts = Product::where('category_id', $product->category_id)
-            ->where('id', '!=', $product->id) // Exclude the current product
+            ->where('id', '!=', $product->id)
             ->where('active', true)
             ->with('variants')
             ->withCount('approvedReviews')
             ->limit(10)
             ->get();
 
-        return view('storefront.product-detail', compact('product', 'relatedProducts'));
+        return view('storefront.product-detail', compact('product', 'relatedProducts', 'reviews'));
     }
 
     public function searchApi(Request $request): JsonResponse

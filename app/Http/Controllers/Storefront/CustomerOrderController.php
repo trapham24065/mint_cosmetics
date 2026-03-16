@@ -20,7 +20,8 @@ class CustomerOrderController extends Controller
             abort(403, 'You do not have permission to view this order.');
         }
 
-        $order->load(['items.product', 'items.productVariant']);
+        $order->load(['items.product', 'items.productVariant', 'items.review']);
         return view('storefront.customer.order-detail', compact('order'));
     }
+
 }

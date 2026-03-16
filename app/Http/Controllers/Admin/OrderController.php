@@ -82,7 +82,7 @@ class OrderController extends Controller
             $order->save();
             Mail::to($order->email)->send(new OrderStatusUpdated($order));
             return redirect()->route('admin.orders.show', $order)
-                ->with('success', "Order #$order->id status updated to '$newStatus->value'.");
+                ->with('success', "Đơn hàng #$order->id trạng thái đã được cập nhật thành '$newStatus->value'.");
         } catch (ValueError) {
             return back()->with('error', 'Invalid status selected.');
         }

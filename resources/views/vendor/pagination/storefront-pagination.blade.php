@@ -1,5 +1,5 @@
 @if ($paginator->hasPages())
-    <ul class="pagination justify-content-center me-auto ms-auto mt-5 mb-0 mb-sm-10">
+    <ul class="pagination justify-content-center me-auto ms-auto mt-5 mb-10">
         {{-- Previous Page Link --}}
         @if ($paginator->onFirstPage())
             <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.previous')">

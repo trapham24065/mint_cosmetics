@@ -17,6 +17,7 @@ use App\Models\Brand;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -25,84 +26,85 @@ class ShopController extends Controller
 
     public function index(Request $request): View
     {
-        // Base query for active products only
         $query = Product::query()
             ->where('active', true)
-            ->with(['variants', 'brand'])            // eager‑load brand for display/filter
+            ->with(['variants', 'brand', 'category'])
             ->withCount('approvedReviews');
 
+        // SEARCH
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%'.$request->search.'%');
+        }
+
+        // CATEGORY
         if ($request->filled('category')) {
-            $categorySlug = $request->input('category');
-            // Add condition to find products with category with corresponding slug
-            $query->whereHas('category', function ($q) use ($categorySlug) {
-                $q->where('slug', $categorySlug);
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('slug', $request->category);
             });
         }
 
-        // brand filter if provided
+        // BRAND
         if ($request->filled('brand')) {
-            $brandSlug = $request->input('brand');
-            $query->whereHas('brand', fn($q) => $q->where('slug', $brandSlug));
+            $query->whereHas('brand', function ($q) use ($request) {
+                $q->where('slug', $request->brand);
+            });
         }
-        // Filter by price range
-        $priceRange = \DB::table('product_variants')
-            ->selectRaw('MIN(COALESCE(discount_price, price)) as min_price, MAX(COALESCE(discount_price, price)) as max_price')
-            ->first();
 
-        $minPriceFromDB = $priceRange->min_price ?? 0;
-        $maxPriceFromDB = $priceRange->max_price ?? 0;
+        // PRICE
         if ($request->filled('min_price') && $request->filled('max_price')) {
-            $minPrice = (int) $request->input('min_price');
-            $maxPrice = (int) $request->input('max_price');
+            $min = (int)$request->min_price;
+            $max = (int)$request->max_price;
 
-            $query->whereHas('variants', function ($q) use ($minPrice, $maxPrice) {
-                $q->where(function ($subQ) use ($minPrice, $maxPrice) {
-                    $subQ->whereBetween('discount_price', [$minPrice, $maxPrice])
-                        ->orWhere(function ($subQ2) use ($minPrice, $maxPrice) {
-                            $subQ2->whereNull('discount_price')
-                                ->whereBetween('price', [$minPrice, $maxPrice]);
+            $query->whereHas('variants', function ($q) use ($min, $max) {
+                $q->where(function ($sub) use ($min, $max) {
+                    $sub->whereBetween('discount_price', [$min, $max])
+                        ->orWhere(function ($s) use ($min, $max) {
+                            $s->whereNull('discount_price')
+                                ->whereBetween('price', [$min, $max]);
                         });
                 });
             });
         }
 
-        // Filter by 'on sale'
-        if ($request->input('on_sale') === 'yes') {
-            $query->whereHas('variants', fn($q) => $q->whereNotNull('discount_price')->where('discount_price', '<', \DB::raw('price')));
+        // SORT
+        switch ($request->sort) {
+            case 'price_asc':
+                $query->join('product_variants', 'products.id', '=', 'product_variants.product_id')
+                    ->orderByRaw('COALESCE(discount_price,price) ASC');
+                break;
+
+            case 'price_desc':
+                $query->join('product_variants', 'products.id', '=', 'product_variants.product_id')
+                    ->orderByRaw('COALESCE(discount_price,price) DESC');
+                break;
+
+            default:
+                $query->latest();
         }
 
-        // Sort products
-        if ($request->filled('sort')) {
-            switch ($request->input('sort')) {
-                case 'trending': // Newest
-                    $query->latest();
-                    break;
-                case 'best-selling':
-                    // You would need a sales_count column for this to work properly
-                    // $query->orderByDesc('sales_count');
-                    break;
-            }
-        } else {
-            $query->latest(); // Default sort by newest
-        }
+        $products = $query->paginate(9)->withQueryString();
 
-        if ($request->filled('search')) {
-            $searchTerm = '%' . $request->input('search') . '%';
-            $query->where('name', 'like', $searchTerm);
-        }
+        $categories = Category::where('active', true)
+            ->withCount([
+                'products' => function ($q) {
+                    $q->where('active', true);
+                },
+            ])
+            ->get();
+        $brands = Brand::where('is_active', true)->get();
 
-        $products = $query->latest()->paginate(9); // Show 9 products per page
-
-        // Get categories to display
-        $categories = Category::where('active', true)->get();
-        $brands     = Brand::where('is_active', true)->get();
+        $priceRange = DB::table('product_variants')
+            ->selectRaw(
+                'MIN(COALESCE(discount_price,price)) as min_price, MAX(COALESCE(discount_price,price)) as max_price'
+            )
+            ->first();
 
         return view('storefront.shop', [
             'products'   => $products,
             'categories' => $categories,
             'brands'     => $brands,
-            'minPrice'   => $minPriceFromDB,
-            'maxPrice'   => $maxPriceFromDB,
+            'minPrice'   => $priceRange->min_price ?? 0,
+            'maxPrice'   => $priceRange->max_price ?? 0,
         ]);
     }
 
@@ -133,4 +135,5 @@ class ShopController extends Controller
             ], 500);
         }
     }
+
 }

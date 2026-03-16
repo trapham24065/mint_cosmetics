@@ -9,6 +9,7 @@
 
 namespace App\Http\Controllers\Storefront;
 
+use App\Models\Category;
 use Illuminate\View\View;
 use App\Models\Product;
 use App\Models\BlogPost;
@@ -35,12 +36,14 @@ class HomeController
             ->orderBy('published_at', 'desc') // Order by publish date
             ->take(3) // Get the latest 3
             ->get();
+        $categories = Category::where('active', true)->get();
         return view(
             'storefront.home',
             compact(
                 'title',
                 'latestProducts',
-                'latestPosts'
+                'latestPosts',
+                'categories',
             // Pass other variables like $featuredProducts here if needed
             )
         );
