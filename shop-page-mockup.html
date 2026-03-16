@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - Mint Cosmetics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .page-header {
+            background: #fff;
+            padding: 40px 20px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .breadcrumb {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+        }
+
+        .sidebar {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+        }
+
+        .filter-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .filter-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .filter-item label {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .price-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .price-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .filter-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        .products-section {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .results-count {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .sort-select {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #f44336;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            z-index: 1;
+        }
+
+        .product-badge.new {
+            background: #4caf50;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 280px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-actions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .product-card:hover .product-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            background: #fff;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-category {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .product-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            height: 44px;
+            overflow: hidden;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+
+        .stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .star {
+            color: #ffa726;
+            font-size: 14px;
+        }
+
+        .star.empty {
+            color: #e0e0e0;
+        }
+
+        .rating-count {
+            font-size: 12px;
+            color: #999;
+            margin-left: 5px;
+        }
+
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .price-current {
+            font-size: 22px;
+            font-weight: 700;
+            color: #e91e63;
+        }
+
+        .price-original {
+            font-size: 16px;
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .add-to-cart {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #ff6b9d 0%, #e91e63 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .page-btn.active {
+            background: #667eea;
+            color: #fff;
+            border-color: #667eea;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">MINT COSMETICS</div>
+            <nav class="nav">
+                <a href="#">Trang chủ</a>
+                <a href="#">Shop</a>
+                <a href="#">Sản phẩm</a>
+                <a href="#">Liên hệ</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page-header">
+        <h1 class="page-title">Cửa Hàng</h1>
+        <div class="breadcrumb">
+            <a href="#">Trang chủ</a> / Shop
+        </div>
+    </div>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="filter-section">
+                <h3 class="filter-title">Danh mục</h3>
+                <div class="filter-item">
+                    <input type="checkbox" id="cat1">
+                    <label for="cat1">Chăm sóc da mặt</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="cat2">
+                    <label for="cat2">Trang điểm</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="cat3">
+                    <label for="cat3">Chăm sóc tóc</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="cat4">
+                    <label for="cat4">Son môi</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="cat5">
+                    <label for="cat5">Nước hoa</label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Khoảng giá</h3>
+                <div class="price-range">
+                    <input type="number" class="price-input" placeholder="Từ" value="0">
+                    <span>-</span>
+                    <input type="number" class="price-input" placeholder="Đến" value="1000000">
+                </div>
+                <button class="filter-btn">Lọc</button>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Thương hiệu</h3>
+                <div class="filter-item">
+                    <input type="checkbox" id="brand1">
+                    <label for="brand1">Cocoon</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="brand2">
+                    <label for="brand2">Innisfree</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="brand3">
+                    <label for="brand3">The Face Shop</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="brand4">
+                    <label for="brand4">Maybelline</label>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Đánh giá</h3>
+                <div class="filter-item">
+                    <input type="checkbox" id="star5">
+                    <label for="star5">★★★★★ (5 sao)</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="star4">
+                    <label for="star4">★★★★☆ (4 sao trở lên)</label>
+                </div>
+                <div class="filter-item">
+                    <input type="checkbox" id="star3">
+                    <label for="star3">★★★☆☆ (3 sao trở lên)</label>
+                </div>
+            </div>
+        </aside>
+
+        <main class="products-section">
+            <div class="products-header">
+                <div class="results-count">Hiển thị 1-12 của 48 sản phẩm</div>
+                <select class="sort-select">
+                    <option>Sắp xếp mặc định</option>
+                    <option>Giá: Thấp đến cao</option>
+                    <option>Giá: Cao đến thấp</option>
+                    <option>Mới nhất</option>
+                    <option>Bán chạy nhất</option>
+                </select>
+            </div>
+
+            <div class="products-grid">
+                <!-- Product 1 -->
+                <div class="product-card">
+                    <div class="product-badge">-20%</div>
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/ffc1cc/fff?text=Lipstick" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Son môi</div>
+                        <div class="product-name">Son Kem Lì Mịn Môi Maybelline New York</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-count">(128)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">159.000đ</span>
+                            <span class="price-original">199.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="product-card">
+                    <div class="product-badge new">Mới</div>
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/b8e6b8/fff?text=Cleanser" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Chăm sóc da</div>
+                        <div class="product-name">Sữa Rửa Mặt Tẩy Trang Cocoon Cà Phê Đắk Lắk</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star empty">★</span>
+                            </div>
+                            <span class="rating-count">(89)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">126.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/ffd4a3/fff?text=Serum" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Serum</div>
+                        <div class="product-name">Tinh Chất Dưỡng Da Innisfree Green Tea Seed Serum</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-count">(256)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">450.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Product 4 -->
+                <div class="product-card">
+                    <div class="product-badge">-15%</div>
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/d4b5ff/fff?text=Mask" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Mặt nạ</div>
+                        <div class="product-name">Mặt Nạ Giấy The Face Shop Real Nature Mask</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star empty">★</span>
+                            </div>
+                            <span class="rating-count">(45)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">25.000đ</span>
+                            <span class="price-original">30.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Product 5 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/ffb3ba/fff?text=Cushion" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Trang điểm</div>
+                        <div class="product-name">Phấn Nước Laneige Neo Cushion Matte SPF42</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-count">(312)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">680.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Product 6 -->
+                <div class="product-card">
+                    <div class="product-badge">-30%</div>
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/bae1ff/fff?text=Toner" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Toner</div>
+                        <div class="product-name">Nước Hoa Hồng Some By Mi AHA BHA PHA 30 Days</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-count">(567)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">280.000đ</span>
+                            <span class="price-original">400.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+
+                <!-- Product 7 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/ffffba/333?text=Sunscreen" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Chống nắng</div>
+                        <div class="product-name">Kem Chống Nắng Anessa Perfect UV Sunscreen SPF50+</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-count">(423)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">550.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Product 8 -->
+                <div class="product-card">
+                    <div class="product-badge">-25%</div>
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/c7ceea/fff?text=Cream" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Kem dưỡng</div>
+                        <div class="product-name">Kem Dưỡng Ẩm Cetaphil Moisturizing Cream</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star empty">★</span>
+                            </div>
+                            <span class="rating-count">(198)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">375.000đ</span>
+                            <span class="price-original">500.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Product 9 -->
+                <div class="product-card">
+                    <div class="product-badge new">Mới</div>
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/ffdfd3/333?text=Perfume" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Nước hoa</div>
+                        <div class="product-name">Nước Hoa Nữ Chanel Coco Mademoiselle EDP 50ml</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-count">(789)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">2.850.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Product 10 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/e7c6ff/333?text=Shampoo" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Chăm sóc tóc</div>
+                        <div class="product-name">Dầu Gội Dove Nutritive Solutions Daily Moisture</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star empty">★</span>
+                            </div>
+                            <span class="rating-count">(156)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">89.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Product 11 -->
+                <div class="product-card">
+                    <div class="product-badge">-10%</div>
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/b5ead7/333?text=Eyeshadow" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Trang điểm</div>
+                        <div class="product-name">Bảng Phấn Mắt Etude House Play Color Eyes</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-count">(234)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">270.000đ</span>
+                            <span class="price-original">300.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+
+                <!-- Product 12 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://via.placeholder.com/280x280/ffccf9/333?text=Blush" alt="Product">
+                        <div class="product-actions">
+                            <button class="action-btn">👁</button>
+                            <button class="action-btn">❤</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-category">Trang điểm</div>
+                        <div class="product-name">Phấn Má Hồng 3CE Mood Recipe Face Blush</div>
+                        <div class="product-rating">
+                            <div class="stars">
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                                <span class="star">★</span>
+                            </div>
+                            <span class="rating-count">(345)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="price-current">320.000đ</span>
+                        </div>
+                        <button class="add-to-cart">Thêm vào giỏ</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="page-btn">«</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">4</button>
+                <button class="page-btn">»</button>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

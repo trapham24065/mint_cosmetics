@@ -21,7 +21,8 @@
                             @endif
 
                             <p class="desc">
-                                Mint Cosmetics mang đến các sản phẩm chăm sóc da và làm đẹp chất lượng,
+                                {{ setting('site_name', 'Shop') }} mang đến các sản phẩm chăm sóc da và làm đẹp chất
+                                lượng,
                                 giúp bạn tự tin và rạng rỡ mỗi ngày. Chúng tôi luôn cam kết lựa chọn
                                 những sản phẩm an toàn, hiệu quả và phù hợp với làn da của bạn.
                             </p>
@@ -62,8 +63,9 @@
     <div class="footer-bottom">
         <div class="container pt-0 pb-0">
             <div class="footer-bottom-content">
-                <p class="copyright">© 2026 Mint Cosmetics. Được làm <i class="fa fa-heart"></i> bởi <a target="_blank"
-                                                                                                        href="https://www.facebook.com/phamtra.1212">PhamTra</a>
+                <p class="copyright">© 2026 {{ setting('site_name', 'Shop') }}. Được làm <i class="fa fa-heart"></i> bởi
+                    <a target="_blank"
+                       href="https://www.facebook.com/phamtra.1212">PhamTra</a>
                 </p>
             </div>
         </div>

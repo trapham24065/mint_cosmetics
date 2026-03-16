@@ -1,5 +1,22 @@
 @extends('storefront.layouts.app')
 @section('content')
+    <style>
+        .product-widget-category a.active {
+            color: #ff6a28;
+            font-weight: 600;
+        }
+        .product-widget-brand li {
+            margin-bottom: 8px;
+        }
+
+        .product-widget-brand label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+    </style>
     <main class="main-content">
 
         <!--== Start Page Header Area Wrapper ==-->
@@ -9,200 +26,250 @@
                     <div class="col-md-5">
                         <div class="page-header-st3-content text-center text-md-start">
                             <ol class="breadcrumb justify-content-center justify-content-md-start">
-                                <li class="breadcrumb-item"><a class="text-dark" href="{{route('home')}}">Home</a></li>
-                                <li class="breadcrumb-item active text-dark" aria-current="page">Products</li>
+                                <li class="breadcrumb-item"><a class="text-dark" href="{{route('home')}}">Trang chủ</a>
+                                </li>
+                                <li class="breadcrumb-item active text-dark" aria-current="page">Sản phẩm</li>
                             </ol>
                             <h2 class="page-header-title">Tất cả sản phẩm</h2>
                         </div>
                     </div>
                     <div class="col-md-7">
-                        <h5 class="showing-pagination-results mt-5 mt-md-9 text-center text-md-end">Hiển thị 09
-                            Kết quả</h5>
+                        <h5 class="showing-pagination-results mt-5 mt-md-9 text-center text-md-end">
+
+                            Hiển thị
+                            {{ $products->firstItem() ?? 0 }}
+                            -
+                            {{ $products->lastItem() ?? 0 }}
+
+                            của
+
+                            {{ $products->total() }}
+
+                            kết quả
+
+                        </h5>
                     </div>
                 </div>
             </div>
         </section>
         <!--== End Page Header Area Wrapper ==-->
 
-        <!--== Start Shop Top Bar Area Wrapper ==-->
-        <div class="shop-top-bar-area">
-            <div class="container">
-                {{-- Wrap the entire bar in a form --}}
-                <form id="product-filter-form" action="{{ route('shop') }}" method="GET">
-                    <div class="shop-top-bar">
-                        <!-- brand dropdown filter -->
-                        <select name="brand" class="select-shoing ">
-                            <option value="">Tất cả thương hiệu</option>
-                            @foreach($brands as $b)
-                                <option value="{{ $b->slug }}" @selected(request('brand')===$b->slug)>
-                                    {{ $b->name }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        <div class="select-price-range">
-                            <h4 class="title">Định giá</h4>
-                            <div class="select-price-range-slider">
-                                <div class="slider-range" id="slider-range"></div>
-                                {{-- Hidden inputs to store and submit price values --}}
-                                <input type="hidden" name="min_price" id="min-price"
-                                       value="{{ request('min_price') }}">
-                                <input type="hidden" name="max_price" id="max-price"
-                                       value="{{ request('max_price') }}">
-                                <div class="slider-labels">
-                                    <span id="slider-range-value1"></span>
-                                    <span>-</span>
-                                    <span id="slider-range-value2"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="select-on-sale d-none d-md-flex">
-                            <span>Đang bán:</span>
-                            <select name="on_sale" class="select-on-sale-form">
-                                <option value="no" @selected(request('on_sale')==='no' )>Không</option>
-                                <option value="yes" @selected(request('on_sale')==='yes' )>Có</option>
-                            </select>
-                        </div>
-
-                        {{-- A submit button for the form --}}
-                        <button type="submit" class="btn btn-primary btn-sm ms-4">Áp dụng bộ lọc</button>
-                        <a href="{{ route('shop') }}" class="btn btn-outline-secondary btn-sm ms-2">Đặt lại bộ lọc
-                        </a>
-
-                    </div>
-                </form>
-            </div>
-        </div>
-        <!--== End Shop Top Bar Area Wrapper ==-->
-
-        <!--== Start Product Category Area Wrapper ==-->
-        <section class="section-space pb-0">
-            <div class="container">
-                @php
-                    // Define an array of background colors for the categories
-                    $colors = ['#FFF3DA', '#FFEDB4', '#DFE4FF', '#E5F5E6', '#FFE7F9', '#E4F2FF'];
-                @endphp
-                <div class="row g-3 g-sm-6">
-                    {{-- DYNAMIC CATEGORY LIST --}}
-                    @foreach($categories->take(6) as $category)
-                        {{-- Show up to 6 categories --}}
-                        <div class="col-6 col-lg-4 col-lg-2 col-xl-2">
-                            <a href="{{route('shop', ['category' => $category->slug]) }}"
-                               class="product-category-item"
-                               data-bg-color="{{ $colors[$loop->index % count($colors)] }}">
-                                {{-- You would need to add an icon field to your category table for this image --}}
-
-                                <img
-                                    class="icon"
-                                    src="{{ $category->image ? asset('storage/' . $category->image) : asset('assets/admin/images/default.webp') }}"
-                                    alt="{{ $category->name }}" width="70" height="80">
-                                <h3 class="title">{{ $category->name }}</h3>
-                            </a>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-        <!--== End Product Category Area Wrapper ==-->
-
-
         <!--== Start Product Area Wrapper ==-->
         <section class="section-space">
             <div class="container">
-                <div class="row mb-n4 mb-sm-n10 g-3 g-sm-6">
-                    {{-- DYNAMIC PRODUCT GRID --}}
-                    @forelse ($products as $product)
-                        <div class="col-6 col-lg-4 mb-4 mb-sm-8">
-                            {{-- Call the component and pass the product data into it --}}
-                            <x-product-card :product="$product" />
+                <div class="row justify-content-between flex-xl-row-reverse">
+                    <div class="col-xl-9">
+                        <div class="row g-3 g-sm-6">
+                            @forelse ($products as $product)
+                                <div class="col-6 col-lg-4 mb-4 mb-sm-8">
+                                    {{-- Call the component and pass the product data into it --}}
+                                    <x-product-card :product="$product" />
+                                </div>
+                            @empty
+                                <div class="col-12">
+                                    <p class="text-center">Không tìm thấy sản phẩm nào phù hợp với tiêu chí tìm kiếm của
+                                        bạn.</p>
+                                </div>
+                            @endforelse
+
+                            <div class="col-12">
+                                {{-- DYNAMIC PAGINATION --}}
+                                {{ $products->appends(request()->query())->links('vendor.pagination.storefront-pagination') }}
+                            </div>
                         </div>
-                    @empty
-                        <div class="col-12">
-                            <p class="text-center">Không tìm thấy sản phẩm nào phù hợp với tiêu chí tìm kiếm của
-                                bạn.</p>
-                        </div>
-                    @endforelse
-                    <div class="col-12">
-                        {{-- DYNAMIC PAGINATION --}}
-                        <div class="mt-5">
-                            {{ $products->appends(request()->query())->links('vendor.pagination.storefront-pagination') }}
-                        </div>
+                    </div>
+                    <div class="col-xl-3">
+                        <form id="sidebar-filter-form" action="{{ route('shop') }}" method="GET">
+                            @foreach(request()->except(['min_price','max_price']) as $key => $value)
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                            @endforeach
+                            <div class="product-sidebar-widget">
+
+                                {{-- SEARCH --}}
+                                <div class="product-widget-search">
+
+                                    <input type="search"
+                                           name="search"
+                                           value="{{ request('search') }}"
+                                           placeholder="Tìm kiếm ở đây">
+
+                                    <button type="submit">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+
+                                </div>
+
+
+                                {{-- CATEGORY --}}
+                                <div class="product-widget">
+
+                                    <h4 class="product-widget-title">Thể loại</h4>
+
+                                    <ul class="product-widget-category">
+
+                                        @foreach($categories as $category)
+
+                                            <li>
+
+                                                <a href="{{ route('shop', array_merge(request()->query(), ['category'=>$category->slug])) }}"
+                                                   class="{{ request('category')===$category->slug ? 'active':'' }}">
+
+                                                    {{ $category->name }}
+                                                    <span>({{ $category->products_count }})</span>
+                                                </a>
+
+                                            </li>
+
+                                        @endforeach
+
+                                    </ul>
+
+                                </div>
+
+
+                                {{-- BRAND --}}
+                                <div class="product-widget">
+
+                                    <h4 class="product-widget-title">Thương hiệu</h4>
+
+                                    <ul class="product-widget-brand">
+
+                                        @foreach($brands as $brand)
+
+                                            <li>
+
+                                                <label>
+
+                                                    <input type="radio"
+                                                           name="brand"
+                                                           value="{{ $brand->slug }}"
+                                                           {{ request('brand')===$brand->slug ? 'checked':'' }}
+                                                           onchange="this.form.submit()">
+
+                                                    <span>{{ $brand->name }}</span>
+
+                                                </label>
+
+                                            </li>
+
+                                        @endforeach
+
+                                    </ul>
+
+                                </div>
+
+
+                                {{-- PRICE SLIDER (GIỮ UI CŨ) --}}
+                                <div class="product-widget">
+
+                                    <h4 class="product-widget-title">Định giá</h4>
+
+                                    <div class="product-widget-range-slider">
+
+                                        <div id="slider-range"></div>
+
+                                        <input type="hidden"
+                                               name="min_price"
+                                               id="min-price"
+                                               value="{{ request('min_price') }}">
+
+                                        <input type="hidden"
+                                               name="max_price"
+                                               id="max-price"
+                                               value="{{ request('max_price') }}">
+
+                                        <div class="slider-labels">
+
+                                            <span id="slider-range-value1"></span>
+                                            <span>-</span>
+                                            <span id="slider-range-value2"></span>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <a href="{{ route('shop') }}" class="btn btn-light mt-3">
+                                    Xóa bộ lọc
+                                </a>
+
+                            </div>
+
+                        </form>
                     </div>
                 </div>
             </div>
         </section>
         <!--== End Product Area Wrapper ==-->
+
     </main>
     @push('scripts')
         <!-- @formatter:off -->
 
         {{-- Ensure you load jQuery and the range-slider.js plugin in your main layout --}}
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // --- Price Range Slider Logic ---
-                const rangeSlider = document.getElementById('slider-range');
-                if (rangeSlider) {
-                    const minPriceInput = document.getElementById('min-price');
-                    const maxPriceInput = document.getElementById('max-price');
-                    const minPriceDisplay = document.getElementById('slider-range-value1');
-                    const maxPriceDisplay = document.getElementById('slider-range-value2');
-                const maxPriceValue = {{ $maxPrice ?? 0 }};
-                const minPriceValue = {{ $minPrice ?? 0 }};
+            document.addEventListener('DOMContentLoaded', function () {
 
-                if (maxPriceValue === 0 || minPriceValue === null) {
-                    console.warn('Price range not available');
-                    return;
-                }
+                const slider = document.getElementById('slider-range');
 
-                // Create noUiSlider
-                noUiSlider.create(rangeSlider, {
+                if(!slider) return;
+
+                const minInput = document.getElementById('min-price');
+                const maxInput = document.getElementById('max-price');
+
+                const minDisplay = document.getElementById('slider-range-value1');
+                const maxDisplay = document.getElementById('slider-range-value2');
+
+                const form = document.getElementById('sidebar-filter-form');
+
+                const minPrice = {{ $minPrice }};
+                const maxPrice = {{ $maxPrice }};
+
+                noUiSlider.create(slider, {
+
                     start: [
-                        minPriceInput.value || minPriceValue,
-                        maxPriceInput.value || maxPriceValue,
+                        minInput.value || minPrice,
+                        maxInput.value || maxPrice
                     ],
-                    connect: true,
-                    range: {
-                        'min': minPriceValue,
-                        'max': maxPriceValue,
-                    },
-                    format: {
-                        to: function(value) {
-                            return Math.round(value);
-                        },
-                        from: function(value) {
-                            return Number(value);
-                        },
-                    },
-                });
 
-                rangeSlider.noUiSlider.on('update', function(values, handle) {
-                    const value = values[handle];
-                    if (handle === 0) {
-                        minPriceInput.value = value;
-                        minPriceDisplay.textContent = value.toLocaleString('vi-VN') + ' VNĐ';
-                    } else {
-                        maxPriceInput.value = value;
-                        maxPriceDisplay.textContent = value.toLocaleString('vi-VN') + ' VNĐ';
+                    connect:true,
+
+                    range:{
+                        min:minPrice,
+                        max:maxPrice
+                    },
+
+                    format:{
+                        to: v => Math.round(v),
+                        from: v => Number(v)
                     }
+
                 });
 
-                // Auto-submit form when slider drag ends
-                const filterForm = document.getElementById('product-filter-form');
-                rangeSlider.noUiSlider.on('change', function() {
-                    filterForm.submit();
-                });
-                }
+                slider.noUiSlider.on('update',function(values,handle){
 
-                // --- Auto-submit form on select changes ---
-                const filterForm = document.getElementById('product-filter-form');
-                if (filterForm) {
-                    filterForm.querySelectorAll('select').forEach(select => {
-                        select.addEventListener('change', () => {
-                            filterForm.submit();
-                        });
-                    });
-                }
+                    if(handle===0){
+
+                        minInput.value = values[0];
+                        minDisplay.textContent =
+                            Number(values[0]).toLocaleString('vi-VN')+' VNĐ';
+
+                    }else{
+
+                        maxInput.value = values[1];
+                        maxDisplay.textContent =
+                            Number(values[1]).toLocaleString('vi-VN')+' VNĐ';
+
+                    }
+
+                });
+
+                slider.noUiSlider.on('change',function(){
+                    form.submit();
+                });
+
             });
         </script>
                     <!-- @formatter:on -->

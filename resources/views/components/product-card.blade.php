@@ -1,6 +1,6 @@
 @props(['product'])
 
-<div class="product-item">
+<div class="product-item product-st3-item">
     <div class="product-thumb">
         <a class="d-block" href="{{ route('products.show', $product->slug) }}">
             <img

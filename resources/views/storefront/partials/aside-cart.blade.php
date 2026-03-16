@@ -10,7 +10,7 @@
     <div class="offcanvas-body">
         <ul class="aside-cart-product-list" id="aside-cart-product-list">
         </ul>
-        <p class="cart-total"><span>Subtotal:</span><span class="amount" id="aside-cart-subtotal">0 VNĐ</span></p>
+        <p class="cart-total"><span>Tổng phụ:</span><span class="amount" id="aside-cart-subtotal">0 VNĐ</span></p>
         <a class="btn-total" href="{{route('cart.index')}}">Xem giỏ hàng</a>
         <a class="btn-total" href="{{route('customer.checkout.index')}}">Thanh toán
         </a>

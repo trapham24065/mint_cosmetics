@@ -30,11 +30,11 @@
     <div class="invoice-details">
         <table>
             <tr>
-                <td><strong>Invoice #:</strong> {{ $order->id }}</td>
+                <td><strong>Hóa đơn #:</strong> {{ $order->id }}</td>
                 <td style="text-align: right;"><strong>Date:</strong> {{ $order->created_at->format('d/m/Y') }}</td>
             </tr>
             <tr>
-                <td colspan="2"><strong>Billed To:</strong></td>
+                <td colspan="2"><strong>Đã lập hóa đơn cho:</strong></td>
             </tr>
             <tr>
                 <td colspan="2">
@@ -50,10 +50,10 @@
     <table class="items-table">
         <thead>
         <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Unit Price</th>
-            <th>Total</th>
+            <th>Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Tổng cộng</th>
         </tr>
         </thead>
         <tbody>
@@ -71,22 +71,22 @@
     <div class="totals">
         <table>
             <tr>
-                <td><strong>Subtotal:</strong></td>
+                <td><strong>Tổng phụ :</strong></td>
                 <td style="text-align: right;">{{ number_format($order->total_price, 0, ',', '.') }} VNĐ</td>
             </tr>
             <tr>
-                <td><strong>Shipping:</strong></td>
+                <td><strong>Vận chuyển :</strong></td>
                 <td style="text-align: right;">0 VNĐ</td>
             </tr>
             <tr style="font-weight: bold; border-top: 2px solid black;">
-                <td><strong>Total:</strong></td>
+                <td><strong>Tổng cộng:</strong></td>
                 <td style="text-align: right;">{{ number_format($order->total_price, 0, ',', '.') }} VNĐ</td>
             </tr>
         </table>
     </div>
 
     <div class="footer" style="margin-top: 100px;">
-        <p>Thank you for your business!</p>
+        <p>Cảm ơn quý khách đã tin dùng sản phẩm của chúng tôi!</p>
     </div>
 </div>
 </body>

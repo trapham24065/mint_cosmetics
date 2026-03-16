@@ -127,54 +127,11 @@
                                 Đánh giá ({{ $product->approvedReviews->count() }})
                             </button>
                         </div>
-                        <div class="tab-content" id="product-details-nav-tabContent">
-                            <div class="tab-pane fade show active product-description" id="description-tab"
-                                 role="tabpanel">
-                                <x-product-description>
-                                    {!! $product->description !!}
-                                </x-product-description>
-                            </div>
-
-                            {{-- NEW ADD: Tab for Reviews --}}
-                            <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
-                                @forelse($product->approvedReviews as $review)
-                                    <div class="product-review-item">
-                                        <div class="product-review-top">
-                                            <div class="product-review-content">
-                                                <span class="product-review-name">{{ $review->reviewer_name }}</span>
-                                                <span
-                                                    class="product-review-designation">Người mua đã được xác minh</span>
-                                                <div class="product-review-icon">
-                                                    @for ($i = 1; $i <= 5; $i++)
-                                                        @if ($i <= $review->rating)
-                                                            <i class="fa fa-star"></i>
-                                                        @else
-                                                            <i class="fa fa-star-o"></i>
-                                                        @endif
-                                                    @endfor
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <p class="desc">{{ $review->review }}</p>
-                                        @if(!empty($review->media) && is_array($review->media))
-                                            <div class="review-media-gallery d-flex flex-wrap gap-2 mt-3">
-                                                {{-- Loop through array of image paths --}}
-                                                @foreach($review->media as $mediaPath)
-                                                    <a href="{{ asset('storage/' . $mediaPath) }}"
-                                                       data-fancybox="review-{{ $review->id }}">
-                                                        <img src="{{ asset('storage/' . $mediaPath) }}"
-                                                             alt="Review image" class="img-thumbnail" width="80"
-                                                             height="80" style="object-fit: cover;">
-                                                    </a>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    </div>
-                                @empty
-                                    <div class="product-review-item">
-                                        <p>Sản phẩm này chưa có đánh giá nào.</p>
-                                    </div>
-                                @endforelse
+                        <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
+                            {{-- Tạo một thẻ DIV bọc ngoài có ID cố định để thay thế nội dung bằng AJAX --}}
+                            <div id="ajax-reviews-container">
+                                {{-- Nhúng giao diện review lần đầu tiên --}}
+                                @include('storefront.partials.reviews_list', ['reviews' => $reviews])
                             </div>
                         </div>
                     </div>
@@ -221,6 +178,40 @@
             }
         </style>
         <!-- @formatter:off -->
+        <script>
+            $(document).ready(function() {
+                // Lắng nghe sự kiện click vào các nút phân trang (trong khu vực review)
+                $(document).on('click', '.review-pagination-container a', function(e) {
+                    e.preventDefault(); // Chặn hành vi chuyển trang mặc định của trình duyệt
+
+                    // Lấy đường link của trang mới (ví dụ: ?page=2)
+                    var url = $(this).attr('href');
+
+                    // Làm mờ khu vực review để báo hiệu đang tải dữ liệu
+                    $('#ajax-reviews-container').css('opacity', '0.5');
+
+                    // Gọi AJAX để tải nội dung HTML mới
+                    $.ajax({
+                        url: url,
+                        type: 'GET',
+                        success: function(data) {
+                            // Nhét đoạn HTML vừa tải được vào thẻ DIV
+                            $('#ajax-reviews-container').html(data);
+                            $('#ajax-reviews-container').css('opacity', '1');
+
+                            // Cuộn màn hình nhẹ nhàng lên đầu khu vực review để khách dễ đọc
+                            $('html, body').animate({
+                                scrollTop: $("#review-tab").offset().top - 50
+                            }, 500);
+                        },
+                        error: function() {
+                            alert('Có lỗi xảy ra khi tải đánh giá. Vui lòng thử lại.');
+                            $('#ajax-reviews-container').css('opacity', '1');
+                        }
+                    });
+                });
+            });
+        </script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const productData = @json($product);
