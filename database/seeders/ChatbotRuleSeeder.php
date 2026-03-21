@@ -15,17 +15,18 @@ class ChatbotRuleSeeder extends Seeder
     public function run(): void
     {
         $rules = [
+
             [
-                'keyword' => 'Shipping policy',
-                'reply'   => 'We offer free shipping on orders over 500,000 VND.',
+                'keyword' => 'Chính sách vận chuyển',
+                'reply'   => 'Chúng tôi cung cấp dịch vụ vận chuyển miễn phí cho đơn hàng trên 500.000 VND.',
             ],
             [
-                'keyword' => 'Current promotions',
-                'reply'   => 'There is currently a 10% discount on all lipsticks. Check it out!',
+                'keyword' => 'Khuyến mãi hiện tại',
+                'reply'   => 'Hiện đang có chương trình giảm giá 10% cho tất cả các loại son môi. Hãy xem ngay!',
             ],
             [
-                'keyword' => 'How to return goods?',
-                'reply'   => 'You can return the product within 7 days if the label is still intact. Please contact the hotline for support.',
+                'keyword' => 'Cách thức đổi trả hàng?',
+                'reply'   => 'Bạn có thể đổi trả sản phẩm trong vòng 7 ngày nếu tem nhãn còn nguyên vẹn. Vui lòng liên hệ hotline để được hỗ trợ.',
             ],
         ];
 

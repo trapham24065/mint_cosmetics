@@ -15,6 +15,14 @@
 
                             {{-- Tab Navigation --}}
                             <ul class="nav nav-tabs mb-3" id="settingTabs" role="tablist">
+                                @php
+                                    $groupLabels = [
+                                        'general' => 'Cài đặt chung',
+                                        'mail' => 'Cấu hình email',
+                                        'payment' => 'Thanh toán',
+                                        'seo' => 'SEO',
+                                    ];
+                                @endphp
                                 @foreach($settings as $group => $groupSettings)
                                     <li class="nav-item">
                                         <button class="nav-link {{ $loop->first ? 'active' : '' }}"
@@ -23,7 +31,7 @@
                                                 data-bs-target="#{{ $group }}"
                                                 type="button"
                                                 role="tab">
-                                            {{ ucfirst($group) }}
+                                            {{ $groupLabels[$group] ?? ucfirst($group) }}
                                         </button>
                                     </li>
                                 @endforeach

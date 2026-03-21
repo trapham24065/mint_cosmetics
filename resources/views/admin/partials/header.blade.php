@@ -53,7 +53,7 @@
                                     {{-- Link xóa/đọc tất cả thông báo --}}
                                     <a href="{{ route('admin.notifications.readAll') }}"
                                        class="text-dark text-decoration-underline">
-                                        <small>Clear All</small>
+                                        <small>Xóa tất cả</small>
                                     </a>
                                 </div>
                             </div>

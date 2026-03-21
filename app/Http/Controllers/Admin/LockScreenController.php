@@ -39,11 +39,11 @@ class LockScreenController extends Controller
 
         if (Hash::check($request->password, $user->password)) {
             session()->forget('admin_locked');
-            return redirect()->route('admin.dashboard')->with('success', 'Welcome back!');
+            return redirect()->route('admin.dashboard')->with('success', 'Chào mừng bạn trở lại!');
         }
 
         throw ValidationException::withMessages([
-            'password' => 'The password is incorrect.',
+            'password' => 'Mật khẩu không chính xác.',
         ]);
     }
 

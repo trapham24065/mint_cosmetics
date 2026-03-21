@@ -7,42 +7,42 @@
                 <div class="row">
                     <div class="col-lg-6">
                         <div class="checkout-billing-details-wrap">
-                            <h2 class="title">Billing details</h2>
+                            <h2 class="title">Chi tiết thanh toán</h2>
                             <div class="billing-form-wrap">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="form-group"><label>First name <abbr
+                                        <div class="form-group"><label>Tên<abbr
                                                     class="required">*</abbr></label><input name="first_name"
                                                                                             type="text"
                                                                                             class="form-control"
                                                                                             required></div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-group"><label>Last name <abbr class="required">*</abbr></label><input
+                                        <div class="form-group"><label>Họ<abbr class="required">*</abbr></label><input
                                                 name="last_name" type="text" class="form-control" required></div>
                                     </div>
                                     <div class="col-md-12">
-                                        <div class="form-group"><label>Street address <abbr
+                                        <div class="form-group"><label>Địa chỉ đường phố<abbr
                                                     class="required">*</abbr></label><input name="address" type="text"
                                                                                             class="form-control"
                                                                                             required></div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-group"><label>Phone <abbr
+                                        <div class="form-group"><label>Điện thoại <abbr
                                                     class="required">*</abbr></label><input name="phone" type="text"
                                                                                             class="form-control"
                                                                                             required></div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-group"><label>Email address <abbr
+                                        <div class="form-group"><label>Địa chỉ email<abbr
                                                     class="required">*</abbr></label><input name="email" type="email"
                                                                                             class="form-control"
                                                                                             required></div>
                                     </div>
                                     <div class="col-md-12">
-                                        <div class="form-group mb-0"><label>Order notes (optional)</label><textarea
+                                        <div class="form-group mb-0"><label>Ghi chú đơn hàng (tùy chọn)</label><textarea
                                                 name="notes" class="form-control"
-                                                placeholder="Notes about your order..."></textarea></div>
+                                                placeholder="Ghi chú về đơn hàng của bạn..."></textarea></div>
                                     </div>
                                 </div>
                             </div>
@@ -50,13 +50,13 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="checkout-order-details-wrap">
-                            <h2 class="title mb-25">Your order</h2>
+                            <h2 class="title mb-25">Đơn hàng của bạn</h2>
                             <div class="order-details-table-wrap table-responsive">
                                 <table class="table">
                                     <thead>
                                     <tr>
-                                        <th class="product-name">Product</th>
-                                        <th class="product-total">Total</th>
+                                        <th class="product-name">Sản phẩm</th>
+                                        <th class="product-total">Tổng cộng</th>
                                     </tr>
                                     </thead>
                                     <tbody class="table-body">
@@ -72,17 +72,17 @@
                                     </tbody>
                                     <tfoot class="table-foot">
                                     <tr class="cart-subtotal">
-                                        <th>Subtotal</th>
+                                        <th>Tổng phụ</th>
                                         <td>{{ number_format($subtotal, 0, ',', '.') }} VNĐ</td>
                                     </tr>
                                     <tr class="order-total">
-                                        <th>Total</th>
+                                        <th>Tổng cộng</th>
                                         <td><strong>{{ number_format($total, 0, ',', '.') }} VNĐ</strong></td>
                                     </tr>
                                     </tfoot>
                                 </table>
                                 <div class="shop-payment-method">
-                                    <button type="submit" class="btn-place-order">Place order</button>
+                                    <button type="submit" class="btn-place-order">Đặt hàng</button>
                                 </div>
                             </div>
                         </div>

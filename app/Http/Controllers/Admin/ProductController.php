@@ -69,13 +69,11 @@ class ProductController extends Controller
             $this->productService->createProduct($data);
 
             return redirect()->route('admin.products.index')
-                ->with('success', ' Product created successfully.');
+                ->with('success', ' Sản phẩm đã được tạo thành công.');
         } catch (QueryException $e) {
-            Log::error('Product Creation Failed', ['exception' => $e]);
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Product Creation Failed', ['exception' => $e]);
             return back()->withInput()
                 ->with('error', $e->getMessage());
         }
@@ -137,24 +135,35 @@ class ProductController extends Controller
             // Normalize active flag and log a safe subset of incoming payload for debugging
             $data['active'] = $request->has('active');
 
-            $logKeys = ['name', 'category_id', 'brand_id', 'product_type', 'variants', 'new_variants', 'deleted_variants', 'sku', 'price', 'stock', 'discount_price', 'active'];
+            $logKeys = [
+                'name',
+                'category_id',
+                'brand_id',
+                'product_type',
+                'variants',
+                'new_variants',
+                'deleted_variants',
+                'sku',
+                'price',
+                'stock',
+                'discount_price',
+                'active',
+            ];
             $logData = array_intersect_key($data, array_flip($logKeys));
             // Ensure we don't accidentally serialize UploadedFile objects; keep only scalars/arrays
-            Log::info('Admin Product Update Request', ['product_id' => $product->id, 'payload' => $logData]);
+            Log::info('Yêu cầu cập nhật sản phẩm quản trị', ['product_id' => $product->id, 'payload' => $logData]);
 
             $this->productService->updateProduct($product, $data);
 
             return redirect()->route('admin.products.index')
-                ->with('success', ' Product updated successfully.');
+                ->with('success', ' Sản phẩm đã được cập nhật thành công..');
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Let Laravel handle validation exceptions so they are returned as validation errors
             throw $e;
         } catch (QueryException $e) {
-            Log::error('Product Update Failed', ['exception' => $e]);
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Product Update Failed', ['exception' => $e]);
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -170,19 +179,17 @@ class ProductController extends Controller
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Product deleted successfully.',
+                    'message' => 'Sản phẩm đã được xóa thành công.',
                 ]);
             }
 
             return redirect()->route('admin.products.index')
-                ->with('success', 'Product deleted successfully.');
+                ->with('success', 'Sản phẩm đã được xóa thành công.');
         } catch (\Exception $e) {
-            Log::error('Product Deletion Failed', ['exception' => $e]);
-
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to delete product: ' . $e->getMessage(),
+                    'message' => 'Không thể xóa sản phẩm: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -236,10 +243,9 @@ class ProductController extends Controller
                 $validated['product_ids'],
                 $validated['value']
             );
-            return response()->json(['success' => true, 'message' => "Successfully updated {$count} products."]);
+            return response()->json(['success' => true, 'message' => "Đã cập nhật thành công {$count} sản phẩm."]);
         } catch (\Exception $e) {
-            Log::error('Bulk Product Update Failed: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'An error occurred.'], 500);
+            return response()->json(['success' => false, 'message' => 'Đã xảy ra lỗi.'], 500);
         }
     }
 
@@ -251,15 +257,15 @@ class ProductController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $path = $file->storeAs('products/descriptions', $filename, 'public');
 
             return response()->json([
-                'location' => asset('storage/' . $path),
+                'location' => asset('storage/'.$path),
             ]);
         }
 
-        return response()->json(['error' => 'Upload failed'], 400);
+        return response()->json(['error' => 'Tải lên thất bại'], 400);
     }
 
     /**
@@ -291,4 +297,5 @@ class ProductController extends Controller
             'results' => $variants->values(),
         ]);
     }
+
 }

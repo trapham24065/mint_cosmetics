@@ -110,7 +110,7 @@
                                             @forelse($orders as $order)
                                                 <tr>
                                                     <td>#{{ $order->id }}</td>
-                                                    <td>{{ $order->created_at->format('M d, Y') }}</td>
+                                                    <td>{{ $order->created_at->format('d/m/Y') }}</td>
                                                     <td>
                                                         <span
                                                             class="badge bg-{{ $order->status->color() ?? 'secondary' }}">

@@ -15,8 +15,8 @@ class ChatbotTrainingSeeder extends Seeder
     {
         // Rule 1: Shipping Policy
         $shippingReply = ChatbotReply::create([
-            'topic' => 'Shipping Policy',
-            'reply' => 'We offer free shipping for all orders over 500,000 VND.',
+            'topic' => 'Chính sách vận chuyển',
+            'reply' => 'Chúng tôi cung cấp dịch vụ giao hàng miễn phí cho tất cả đơn hàng trên 500.000 VND.',
         ]);
         $shippingReply->keywords()->createMany([
             ['keyword' => 'shipping'],
@@ -27,8 +27,8 @@ class ChatbotTrainingSeeder extends Seeder
 
         // Rule 2: Return Policy
         $returnReply = ChatbotReply::create([
-            'topic' => 'Return Policy',
-            'reply' => 'You can return any item within 7 days of purchase, provided it is in its original condition. Please contact our support hotline to initiate a return.',
+            'topic' => 'Chính sách đổi trả',
+            'reply' => 'Bạn có thể trả lại bất kỳ sản phẩm nào trong vòng 7 ngày kể từ ngày mua, với điều kiện sản phẩm còn nguyên trạng. Vui lòng liên hệ đường dây nóng hỗ trợ của chúng tôi để bắt đầu quy trình trả hàng.',
         ]);
         $returnReply->keywords()->createMany([
             ['keyword' => 'return'],

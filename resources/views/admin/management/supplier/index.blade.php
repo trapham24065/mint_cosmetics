@@ -167,7 +167,7 @@
                     const selectedIds = getSelectedIds();
                     if (selectedIds.length > 0) {
                         bulkActionsContainer.style.display = 'block';
-                        selectedCountEl.textContent = `${selectedIds.length} item(s) selected`;
+                        selectedCountEl.textContent = `${selectedIds.length} mục đã chọn`;
                     } else {
                         bulkActionsContainer.style.display = 'none';
                     }
@@ -189,16 +189,16 @@
                     const action = actionSelect.value;
 
                     if (selectedIds.length === 0 || !action) {
-                        Swal.fire('Warning', 'Please select items and an action.', 'warning');
+                        Swal.fire('Warning', 'Vui lòng chọn các mục và hành động.', 'warning');
                         return;
                     }
 
                     Swal.fire({
-                        title: 'Confirm Bulk Action',
-                        text: `Apply '${action}' to ${selectedIds.length} items?`,
+                        title: 'Xác nhận hành động hàng loạt',
+                        text: `Áp dụng '${action}' to ${selectedIds.length} mục?`,
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'Yes, apply'
+                        confirmButtonText: 'Vâng, hãy áp dụng'
                     }).then((result) => {
                         if (result.isConfirmed) {
                             fetch('{{ route("admin.suppliers.bulkUpdate") }}', {
@@ -223,7 +223,7 @@
                             })
                             .catch(err => {
                                 console.error(err);
-                                Swal.fire('Error', 'Something went wrong.', 'error');
+                                Swal.fire('Error', 'Đã xảy ra lỗi.', 'error');
                             });
                         }
                     });

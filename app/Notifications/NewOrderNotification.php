@@ -46,7 +46,7 @@ class NewOrderNotification extends Notification
             'order_id'      => $this->order->id,
             'customer_name' => $this->order->first_name.' '.$this->order->last_name,
             'total_price'   => $this->order->total_price,
-            'message'       => 'New order #'.$this->order->id.' has been placed.',
+            'message'       => 'Đơn đặt hàng mới #'.$this->order->id.' đã được đặt.',
             'link'          => route('admin.orders.show', $this->order->id), // Link đến chi tiết đơn hàng
         ];
     }

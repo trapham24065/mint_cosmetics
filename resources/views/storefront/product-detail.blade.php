@@ -69,7 +69,7 @@
                                 <div class="product-review-icon">
                                     @if ($reviewsCount > 0)
                                         @for ($i = 1; $i <= 5; $i++)
-                                            @if ($i <= $averageRating)
+                                            @if ($i <=$averageRating)
                                                 <i class="fa fa-star"></i>
                                             @else
                                                 <i class="fa fa-star-o"></i>
@@ -82,7 +82,8 @@
                                     @endif
                                 </div>
                                 <a href="#review-tab" class="product-review-show">{{ $reviewsCount }} đánh giá
-                                </a></div>
+                                </a>
+                            </div>
 
                             {{-- SKU Display --}}
                             <div class="product-details-sku mb-3">
@@ -91,28 +92,36 @@
 
                             <div id="variant-options-container" class="mb-4"></div>
 
-                            <div class="product-details-pro-qty">
+                            {{-- Price Display Section --}}
+                            <div class="product-price-wrapper mb-4">
+                                <div id="product-price" class="d-flex align-items-center gap-3 flex-wrap">
+                                    <span class="text-muted">Chọn tùy chọn</span>
+                                </div>
+                            </div>
+
+                            {{-- Quantity Section --}}
+                            <div class="product-details-pro-qty mb-4">
+                                <label class="fw-bold mb-2" style="font-size: 14px;">Số lượng:</label>
                                 <div class="pro-qty">
-                                    <!-- Change ID from "quantity" to "productDetailQuantity" -->
                                     <input type="number" id="productDetailQuantity" title="Quantity" value="1" min="1">
                                 </div>
                             </div>
 
-                            <div class="product-details-action">
-                                <h2 id="product-price">Chọn tùy chọn</h2>
-                                <div class="product-details-cart-wishlist">
-                                    <button type="button" class="btn-wishlist action-btn-wishlist"
-                                            data-product-id="{{ $product->id }}">
-                                        <i class="fa fa-heart-o"></i>
-                                    </button>
-
-                                </div>
-
+                            {{-- Action Buttons Section --}}
+                            <div class="product-details-action-buttons d-flex gap-3 mb-3 flex-wrap">
+                                <button type="button" class="btn btn-primary flex-fill" id="buy-now-btn"
+                                        data-context="product-detail" disabled style="min-width: 200px;">
+                                    <i class="fa fa-bolt me-2"></i>Mua ngay
+                                </button>
+                                <button type="button" class="btn btn-outline-dark flex-fill" id="add-to-cart-btn"
+                                        data-context="product-detail" disabled style="min-width: 200px;">
+                                    <i class="fa fa-shopping-cart me-2"></i>Thêm vào giỏ hàng
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-wishlist action-btn-wishlist"
+                                        data-product-id="{{ $product->id }}" style="min-width: 50px;">
+                                    <i class="fa fa-heart-o"></i>
+                                </button>
                             </div>
-                            <br>
-                            <button type="button" class="btn action-btn-cart" id="add-to-cart-btn"
-                                    data-context="product-detail" disabled>Thêm vào giỏ hàng
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -127,11 +136,20 @@
                                 Đánh giá ({{ $product->approvedReviews->count() }})
                             </button>
                         </div>
-                        <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
-                            {{-- Tạo một thẻ DIV bọc ngoài có ID cố định để thay thế nội dung bằng AJAX --}}
-                            <div id="ajax-reviews-container">
-                                {{-- Nhúng giao diện review lần đầu tiên --}}
-                                @include('storefront.partials.reviews_list', ['reviews' => $reviews])
+                        <div class="tab-content product-details-tab-content" id="product-details-tab-content">
+                            {{-- Tab Mô tả --}}
+                            <div class="tab-pane fade show active" id="description-tab" role="tabpanel">
+                                <x-product-description>
+                                    {!! $product->description !!}
+                                </x-product-description>
+                            </div>
+                            {{-- Tab Đánh giá --}}
+                            <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
+                                {{-- Tạo một thẻ DIV bọc ngoài có ID cố định để thay thế nội dung bằng AJAX --}}
+                                <div id="ajax-reviews-container">
+                                    {{-- Nhúng giao diện review lần đầu tiên --}}
+                                    @include('storefront.partials.reviews_list', ['reviews' => $reviews])
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -173,8 +191,45 @@
             .product-image-container #product-main-image {
                 transition: opacity 0.4s ease-in-out;
             }
+
             .product-image-container #product-main-image.fade-out {
                 opacity: 0;
+            }
+
+            /* Product Price Styling */
+            .product-price-wrapper {
+                padding: 20px;
+                background: #f8f9fa;
+                border-radius: 8px;
+                border-left: 4px solid #FF6565;
+            }
+
+            /* Action Buttons Styling */
+            .product-details-action-buttons .btn {
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+
+            .product-details-action-buttons .btn:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .product-details-action-buttons .btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 576px) {
+                .product-details-action-buttons {
+                    flex-direction: column;
+                }
+
+                .product-details-action-buttons .btn {
+                    width: 100%;
+                    min-width: auto !important;
+                }
             }
         </style>
         <!-- @formatter:off -->
@@ -219,6 +274,7 @@
                 const optionsContainer = document.getElementById('variant-options-container');
                 const priceEl = document.getElementById('product-price');
                 const addToCartBtn = document.getElementById('add-to-cart-btn');
+                const buyNowBtn = document.getElementById('buy-now-btn');
                 const skuEl = document.getElementById('product-sku'); // Get SKU element
 
                 // 1. Group attributes and values from all variants
@@ -269,8 +325,9 @@
 
                     // Check if all attribute groups have a selection
                     if (selectedOptions.length !== Object.keys(attributes).length) {
-                        priceEl.textContent = 'Vui lòng chọn tất cả các tùy chọn';
+                        priceEl.innerHTML = '<span class="text-muted">Vui lòng chọn tất cả các tùy chọn</span>';
                         addToCartBtn.disabled = true;
+                        buyNowBtn.disabled = true;
                         if(skuEl) skuEl.textContent = 'N/A'; // Reset SKU
                         return;
                     }
@@ -291,15 +348,21 @@
                             null;
 
                         if (discountPrice && discountPrice < price) {
-                            priceHtml = `<h2>${discountPrice.toLocaleString(
-                                'vi-VN')}Đ</h2> <p style="text-decoration-line: line-through;" class="price-old">${price.toLocaleString(
-                                'vi-VN')}Đ</p>`;
+                            priceHtml = `
+                                <div class="d-flex align-items-center gap-3 flex-wrap">
+                                    <h2 class="mb-0 text-danger fw-bold" style="font-size: 2rem;">${discountPrice.toLocaleString('vi-VN')}₫</h2>
+                                    <span class="text-muted text-decoration-line-through" style="font-size: 1.2rem;">${price.toLocaleString('vi-VN')}₫</span>
+                                    <span class="badge bg-danger">-${Math.round((1 - discountPrice/price) * 100)}%</span>
+                                </div>
+                            `;
                         } else {
-                            priceHtml = `<h2 >${price.toLocaleString('vi-VN')}Đ</h2>`;
+                            priceHtml = `<h2 class="mb-0 text-dark fw-bold" style="font-size: 2rem;">${price.toLocaleString('vi-VN')}₫</h2>`;
                         }
                         priceEl.innerHTML = priceHtml;
                         addToCartBtn.dataset.variantId = matchedVariant.id;
+                        buyNowBtn.dataset.variantId = matchedVariant.id;
                         addToCartBtn.disabled = false;
+                        buyNowBtn.disabled = false;
 
                         // Update SKU
                         if(skuEl) {
@@ -307,9 +370,11 @@
                         }
 
                     } else {
-                        priceEl.textContent = 'Sự kết hợp này không khả dụng.';
+                        priceEl.innerHTML = '<span class="text-danger">Sự kết hợp này không khả dụng.</span>';
                         addToCartBtn.dataset.variantId = '';
+                        buyNowBtn.dataset.variantId = '';
                         addToCartBtn.disabled = true;
+                        buyNowBtn.disabled = true;
                         if(skuEl) skuEl.textContent = 'N/A';
                     }
                 }
@@ -324,15 +389,21 @@
                         null;
 
                     if (discountPrice && discountPrice < price) {
-                        priceHtml = `<h2 >${discountPrice.toLocaleString(
-                            'vi-VN')}Đ</h2> <p style="text-decoration-line: line-through;" class="price-old">${price.toLocaleString(
-                            'vi-VN')}Đ</p>`;
+                        priceHtml = `
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <h2 class="mb-0 text-danger fw-bold" style="font-size: 2rem;">${discountPrice.toLocaleString('vi-VN')}₫</h2>
+                                <span class="text-muted text-decoration-line-through" style="font-size: 1.2rem;">${price.toLocaleString('vi-VN')}₫</span>
+                                <span class="badge bg-danger">-${Math.round((1 - discountPrice/price) * 100)}%</span>
+                            </div>
+                        `;
                     } else {
-                        priceHtml = `<h2 >${price.toLocaleString('vi-VN')}Đ</h2>`;
+                        priceHtml = `<h2 class="mb-0 text-dark fw-bold" style="font-size: 2rem;">${price.toLocaleString('vi-VN')}₫</h2>`;
                     }
                     priceEl.innerHTML = priceHtml;
                     addToCartBtn.dataset.variantId = variants[0].id;
+                    buyNowBtn.dataset.variantId = variants[0].id;
                     addToCartBtn.disabled = false;
+                    buyNowBtn.disabled = false;
 
                     // Update SKU for simple product
                     if(skuEl) {
@@ -396,6 +467,67 @@
                     startSlideshow();
                 }
                 // --- NEW LOGIC ENDING ---
+
+                // --- BUY NOW BUTTON LOGIC ---
+                if (buyNowBtn) {
+                    buyNowBtn.addEventListener('click', function() {
+                        const variantId = buyNowBtn.dataset.variantId;
+                        const quantityInput = document.getElementById('productDetailQuantity');
+                        const quantity = quantityInput ? parseInt(quantityInput.value) || 1 : 1;
+
+                        if (!variantId) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: 'Vui lòng chọn các tùy chọn sản phẩm trước.',
+                            });
+                            return;
+                        }
+
+                        // Disable button and show loading
+                        const originalText = buyNowBtn.innerHTML;
+                        buyNowBtn.disabled = true;
+                        buyNowBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i>Đang xử lý...';
+
+                        // Add to cart first
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                        fetch('/cart/add', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                            },
+                            body: JSON.stringify({
+                                variant_id: variantId,
+                                quantity: quantity,
+                            }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update cart count if exists
+                                const cartCountEl = document.getElementById('cart-count');
+                                if (cartCountEl && data.cartCount) {
+                                    cartCountEl.textContent = `(${data.cartCount})`;
+                                }
+                                // Redirect to checkout (route is protected, will redirect to login if needed)
+                                window.location.href = '{{ route("customer.checkout.index") }}';
+                            } else {
+                                Swal.fire('Lỗi', data.message || 'Không thể thêm sản phẩm vào giỏ hàng.', 'error');
+                                buyNowBtn.disabled = false;
+                                buyNowBtn.innerHTML = originalText;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire('Lỗi', 'Đã xảy ra lỗi không mong muốn.', 'error');
+                            buyNowBtn.disabled = false;
+                            buyNowBtn.innerHTML = originalText;
+                        });
+                    });
+                }
+                // --- END BUY NOW BUTTON LOGIC ---
             });
         </script>
         <!-- @formatter:on -->

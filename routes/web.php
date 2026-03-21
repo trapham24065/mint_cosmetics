@@ -69,4 +69,4 @@ Route::controller(ChatController::class)->prefix('chat')->name('chat.')->group(f
 });
 
 // --- Admin & Other Auth Routes ---
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
