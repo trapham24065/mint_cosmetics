@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        commands: __DIR__.'/../routes/console.php',
+        web: __DIR__ . '/../routes/web.php',
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
         then: function () {
             // Define the route group for the admin panel
@@ -38,5 +38,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Render custom error pages for HTTP exceptions
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, $request) {
+            $statusCode = $e->getStatusCode();
+
+            // Check if custom error view exists
+            if (view()->exists("errors.{$statusCode}")) {
+                return response()->view("errors.{$statusCode}", [], $statusCode);
+            }
+        });
     })->create();

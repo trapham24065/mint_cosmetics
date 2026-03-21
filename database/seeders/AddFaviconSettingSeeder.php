@@ -26,8 +26,8 @@ class AddFaviconSettingSeeder extends Seeder
                 'value' => null,
                 'type' => 'image',
                 'group' => 'general',
-                'label' => 'Favico Logo',
-                'description' => 'Upload Favicon logo for your website (PNG, JPG, SVG).',
+                'label' => 'Biểu tượng Favicon',
+                'description' => 'Tải lên logo Favicon cho trang web của bạn (PNG, JPG, SVG).',
                 'sort_order' => 0,
             ]
         );

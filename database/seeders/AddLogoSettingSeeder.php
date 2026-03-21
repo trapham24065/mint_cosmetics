@@ -20,8 +20,8 @@ class AddLogoSettingSeeder extends Seeder
                 'value' => null,
                 'type' => 'image',
                 'group' => 'general',
-                'label' => 'Website Logo',
-                'description' => 'Upload logo for your website (PNG, JPG, SVG).',
+                'label' => 'Logo trang web',
+                'description' => 'Tải lên logo cho trang web của bạn (PNG, JPG, SVG).',
                 'sort_order' => 0,
             ]
         );

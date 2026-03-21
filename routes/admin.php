@@ -21,7 +21,6 @@ use App\Http\Controllers\Admin\{
     CustomerController,
     DashboardController,
     GlobalSearchController,
-    LockScreenController,
     OrderController,
     ProductController,
     ProfileController,
@@ -145,9 +144,6 @@ Route::controller(ProfileController::class)->prefix('profile')->name('profile.')
     Route::put('/update', 'update')->name('update');
     Route::put('/password', 'updatePassword')->name('password');
 });
-// --- LOCK SCREEN ROUTES ---
-Route::get('/lock-screen', [LockScreenController::class, 'lock'])->name('lock');
-Route::post('/unlock', [LockScreenController::class, 'unlock'])->name('unlock');
 
 // Global Search
 Route::get('/global-search', [GlobalSearchController::class, 'search'])->name('global.search');

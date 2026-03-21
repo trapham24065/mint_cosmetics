@@ -54,15 +54,16 @@
                                 </td>
                                 <td class="product-stock-status">
                                     @if($product->variants->sum('stock') > 0)
-                                        <span class="wishlist-in-stock">In Stock</span>
+                                        <span class="wishlist-in-stock">Còn hàng</span>
                                     @else
-                                        <span class="wishlist-out-of-stock">Out of Stock</span>
+                                        <span class="wishlist-out-of-stock">Hết hàng</span>
                                     @endif
                                 </td>
                                 <td class="product-add-to-cart">
                                     @if($product->variants->first())
                                         <button class="btn-shop-cart action-btn-cart"
-                                                data-variant-id="{{ $product->variants->first()->id }}">Add to Cart
+                                                data-variant-id="{{ $product->variants->first()->id }}">Thêm vào giỏ
+                                            hàng
                                         </button>
                                     @endif
                                 </td>

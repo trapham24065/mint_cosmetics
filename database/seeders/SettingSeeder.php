@@ -21,8 +21,8 @@ class SettingSeeder extends Seeder
                 'value'       => 'Mint Cosmetics',
                 'type'        => 'text',
                 'group'       => 'general',
-                'label'       => 'Website name',
-                'description' => 'Website display name.',
+                'label'       => 'Tên trang web',
+                'description' => 'Tên hiển thị của trang web.',
                 'sort_order'  => 1,
             ],
             [
@@ -30,7 +30,7 @@ class SettingSeeder extends Seeder
                 'value'      => 'contact@mintcosmetics.com',
                 'type'       => 'email',
                 'group'      => 'general',
-                'label'      => 'Contact email',
+                'label'      => 'Email liên hệ',
                 'sort_order' => 2,
             ],
             [
@@ -38,7 +38,7 @@ class SettingSeeder extends Seeder
                 'value'      => '0123456789',
                 'type'       => 'text',
                 'group'      => 'general',
-                'label'      => 'Phone number',
+                'label'      => 'Số điện thoại',
                 'sort_order' => 3,
             ],
 
@@ -48,7 +48,7 @@ class SettingSeeder extends Seeder
                 'value'      => '970436',
                 'type'       => 'select',
                 'group'      => 'payment',
-                'label'      => 'VietQR Bank',
+                'label'      => 'Ngân hàng VietQR',
                 'options'    => json_encode(
                     ['970436' => 'Vietcombank', '970422' => 'MB Bank', '970423' => 'TPBank'],
                     JSON_THROW_ON_ERROR
@@ -60,7 +60,7 @@ class SettingSeeder extends Seeder
                 'value'      => '1032850005',
                 'type'       => 'text',
                 'group'      => 'payment',
-                'label'      => 'Account number VietQR',
+                'label'      => 'Số tài khoản VietQR',
                 'sort_order' => 2,
             ],
             [
@@ -68,7 +68,7 @@ class SettingSeeder extends Seeder
                 'value'      => 'DH',
                 'type'       => 'text',
                 'group'      => 'payment',
-                'label'      => 'Order prefix',
+                'label'      => 'Tiền tố thứ tự',
                 'sort_order' => 3,
             ],
 
@@ -78,7 +78,7 @@ class SettingSeeder extends Seeder
                 'value'      => 'Mint Cosmetics',
                 'type'       => 'text',
                 'group'      => 'email',
-                'label'      => 'Email sender name',
+                'label'      => 'Tên người gửi email',
                 'sort_order' => 1,
             ],
             [
@@ -86,7 +86,7 @@ class SettingSeeder extends Seeder
                 'value'      => 'no-reply@mintcosmetics.com',
                 'type'       => 'email',
                 'group'      => 'email',
-                'label'      => 'Email address',
+                'label'      => 'Địa chỉ email',
                 'sort_order' => 2,
             ],
             // SMTP configuration (overridable via settings)
@@ -97,14 +97,14 @@ class SettingSeeder extends Seeder
                 'group'      => 'email',
                 'label'      => 'Mail driver',
                 'options'    => json_encode([
-                    'smtp'      => 'SMTP',
-                    'sendmail'  => 'Sendmail',
-                    'mailgun'   => 'Mailgun',
-                    'ses'       => 'SES',
-                    'postmark'  => 'Postmark',
-                    'resend'    => 'Resend',
-                    'log'       => 'Log',
-                    'array'     => 'Array',
+                    'smtp'     => 'SMTP',
+                    'sendmail' => 'Sendmail',
+                    'mailgun'  => 'Mailgun',
+                    'ses'      => 'SES',
+                    'postmark' => 'Postmark',
+                    'resend'   => 'Resend',
+                    'log'      => 'Log',
+                    'array'    => 'Array',
                 ], JSON_THROW_ON_ERROR),
                 'sort_order' => 3,
             ],
@@ -113,7 +113,7 @@ class SettingSeeder extends Seeder
                 'value'      => '127.0.0.1',
                 'type'       => 'text',
                 'group'      => 'email',
-                'label'      => 'SMTP host',
+                'label'      => 'Máy chủ SMTP',
                 'sort_order' => 4,
             ],
             [
@@ -121,7 +121,7 @@ class SettingSeeder extends Seeder
                 'value'      => '2525',
                 'type'       => 'text',
                 'group'      => 'email',
-                'label'      => 'SMTP port',
+                'label'      => 'Cổng SMTP',
                 'sort_order' => 5,
             ],
             [
@@ -129,7 +129,7 @@ class SettingSeeder extends Seeder
                 'value'      => null,
                 'type'       => 'text',
                 'group'      => 'email',
-                'label'      => 'SMTP username',
+                'label'      => 'Tên người dùng SMTP',
                 'sort_order' => 6,
             ],
             [
@@ -137,7 +137,7 @@ class SettingSeeder extends Seeder
                 'value'      => null,
                 'type'       => 'password',
                 'group'      => 'email',
-                'label'      => 'SMTP password',
+                'label'      => 'Mật khẩu SMTP',
                 'sort_order' => 7,
             ],
             [
@@ -145,7 +145,7 @@ class SettingSeeder extends Seeder
                 'value'      => 'tls',
                 'type'       => 'select',
                 'group'      => 'email',
-                'label'      => 'Encryption',
+                'label'      => 'Mã hóa',
                 'options'    => json_encode(['tls' => 'TLS', 'ssl' => 'SSL', '' => 'None'], JSON_THROW_ON_ERROR),
                 'sort_order' => 8,
             ],
@@ -155,4 +155,5 @@ class SettingSeeder extends Seeder
             Setting::updateOrCreate(['key' => $setting['key']], $setting);
         }
     }
+
 }

@@ -135,7 +135,7 @@ class ChatController extends Controller
 
         return Guest::firstOrCreate(
             ['session_id' => $sessionId],
-            ['name' => 'Visitors', 'ip_address' => request()->ip()]
+            ['name' => 'Khách Vãng Lai', 'ip_address' => request()->ip()]
         );
     }
 

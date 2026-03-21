@@ -41,17 +41,17 @@
                                 height="88" alt="user-image" class="rounded-circle shadow-sm img-thumbnail"
                                 style="width: 88px; height: 88px; object-fit: cover;">
 
-                            <h4 class="text-dark-50 text-center mt-3 fw-bold">Hi ! {{ auth()->user()->name }}</h4>
-                            <p class="text-muted mb-4">Enter your password to access the admin.</p>
+                            <h4 class="text-dark-50 text-center mt-3 fw-bold">Xin chào ! {{ auth()->user()->name }}</h4>
+                            <p class="text-muted mb-4">Nhập mật khẩu của bạn để truy cập trang quản trị.</p>
                         </div>
 
                         <form action="{{ route('admin.unlock') }}" method="POST">
                             @csrf
                             <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
+                                <label for="password" class="form-label">Mật khẩu</label>
                                 <input class="form-control @error('password') is-invalid @enderror"
                                        type="password" required id="password" name="password"
-                                       placeholder="Enter your password">
+                                       placeholder="Nhập mật khẩu của bạn">
 
                                 @error('password')
                                 <div class="invalid-feedback">
@@ -61,7 +61,7 @@
                             </div>
 
                             <div class="mb-0 text-center">
-                                <button class="btn btn-primary w-100" type="submit">Unlock</button>
+                                <button class="btn btn-primary w-100" type="submit">Mở khóa</button>
                             </div>
                         </form>
                     </div> <!-- end card-body-->
@@ -71,10 +71,10 @@
                 <div class="row mt-3">
                     <div class="col-12 text-center">
                         {{-- Nút đăng xuất (Logout) nếu không phải tài khoản này --}}
-                        <p class="text-muted">Not you? return
+                        <p class="text-muted">Không phải bạn sao? Quay lại
                             <a href="{{ route('admin.logout') }}"
                                onclick="event.preventDefault(); document.getElementById('logout-form-lock').submit();"
-                               class="text-muted ms-1"><b>Sign In</b></a>
+                               class="text-muted ms-1"><b>Đăng nhập</b></a>
                         </p>
                         <form id="logout-form-lock" action="{{ route('admin.logout') }}" method="POST" class="d-none">
                             @csrf

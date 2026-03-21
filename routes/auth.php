@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\LockScreenController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
@@ -55,6 +56,10 @@ Route::middleware('auth.admin')
 
         Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
             ->name('logout');
+
+        // --- LOCK SCREEN ROUTES (without CheckLockScreen middleware to avoid infinite loop) ---
+        Route::get('lock-screen', [LockScreenController::class, 'lock'])->name('lock');
+        Route::post('unlock', [LockScreenController::class, 'unlock'])->name('unlock');
     });
 Route::prefix('customer')
     ->name('customer.')

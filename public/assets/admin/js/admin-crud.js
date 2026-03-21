@@ -169,11 +169,11 @@ const AdminCRUD = {
         if (typeof Swal !== 'undefined') {
           Swal.fire({
             icon: 'warning',
-            title: 'No items selected',
-            text: 'Please select at least one item to delete.'
+            title: 'Chưa có mục nào được chọn.',
+            text: 'Vui lòng chọn ít nhất một mục để xóa..'
           });
         } else {
-          alert('Please select at least one item to delete.');
+          alert('Vui lòng chọn ít nhất một mục để xóa.');
         }
         return;
       }
@@ -190,16 +190,16 @@ const AdminCRUD = {
 
     if (typeof Swal !== 'undefined') {
       Swal.fire({
-        title: 'Delete Multiple Items?',
-        html: `You are about to delete <strong>${ids.length}</strong> item(s).`,
+        title: 'Xóa nhiều mục?',
+        html: `Bạn sắp xóa <strong>${ids.length}</strong> mục.`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
-        confirmButtonText: 'Yes, delete them!'
+        confirmButtonText: 'Đúng vậy, hãy xóa chúng đi!'
       }).then((result) => {
         if (result.isConfirmed) {
           Swal.fire({
-            title: 'Deleting...',
+            title: 'Đang xóa...',
             allowOutsideClick: false,
             didOpen: () => Swal.showLoading()
           });
@@ -220,7 +220,7 @@ const AdminCRUD = {
               Swal.fire({
                 icon: 'success',
                 title: 'Deleted!',
-                text: data.message || 'Items deleted successfully.',
+                text: data.message || 'Các mục đã được xóa thành công.',
                 timer: 2000
               }).then(() => location.reload());
             } else {

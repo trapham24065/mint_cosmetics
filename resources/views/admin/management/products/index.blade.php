@@ -160,7 +160,7 @@
                     const selectedIds = getSelectedIds();
                     if (selectedIds.length > 0) {
                         bulkActionsContainer.style.display = 'block';
-                        selectedCountEl.textContent = `${selectedIds.length} item(s) selected`;
+                        selectedCountEl.textContent = `${selectedIds.length} mục đã chọn`;
                     } else {
                         bulkActionsContainer.style.display = 'none';
                     }
