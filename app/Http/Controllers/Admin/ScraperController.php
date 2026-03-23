@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -32,7 +33,7 @@ class ScraperController extends Controller
         $urls = array_filter(preg_split('/\r\n|\r|\n/', $validated['urls']));
 
         if (empty($urls)) {
-            return back()->with('error', 'Please provide at least one URL.');
+            return back()->with('error', 'Vui lòng cung cấp ít nhất một URL.');
         }
 
         // Gọi service để cào dữ liệu
@@ -41,5 +42,4 @@ class ScraperController extends Controller
         // Tạo và tải về file Excel
         return Excel::download(new ScrapedProductsExport($scrapedData), 'scraped-products.xlsx');
     }
-
 }

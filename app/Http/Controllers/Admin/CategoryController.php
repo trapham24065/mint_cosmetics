@@ -83,13 +83,13 @@ class CategoryController extends Controller
             $this->categoryService->createCategory($data);
 
             return redirect()->route('admin.categories.index')
-                ->with('success', 'Category created successfully.');
+                ->with('success', 'Danh mục đã được tạo thành công.');
         } catch (QueryException $e) {
-            Log::error('Category Creation Failed: '.$e->getMessage());
+            Log::error('Category Creation Failed: ' . $e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (Exception $e) {
-            Log::error('Category Creation Failed: '.$e->getMessage());
+            Log::error('Category Creation Failed: ' . $e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -137,13 +137,13 @@ class CategoryController extends Controller
             $this->categoryService->updateCategory($category, $data);
 
             return redirect()->route('admin.categories.index')
-                ->with('success', 'Category updated successfully.');
+                ->with('success', 'Danh mục đã được cập nhật thành công.');
         } catch (QueryException $e) {
-            Log::error('Category Update Failed: '.$e->getMessage());
+            Log::error('Category Update Failed: ' . $e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (Exception $e) {
-            Log::error('Category Update Failed: '.$e->getMessage());
+            Log::error('Category Update Failed: ' . $e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -159,19 +159,19 @@ class CategoryController extends Controller
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Category deleted successfully.',
+                    'message' => 'Danh mục đã được xóa thành công.',
                 ]);
             }
 
             return redirect()->route('admin.categories.index')
-                ->with('success', 'Category deleted successfully.');
+                ->with('success', 'Danh mục đã được xóa thành công.');
         } catch (\Exception $e) {
-            Log::error('Category Deletion Failed: '.$e->getMessage());
+            Log::error('Category Deletion Failed: ' . $e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to delete category: '.$e->getMessage(),
+                    'message' => 'Failed to delete category: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -215,5 +215,4 @@ class CategoryController extends Controller
             'data' => $data,
         ]);
     }
-
 }

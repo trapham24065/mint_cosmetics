@@ -7,7 +7,9 @@
  * @date 9/03/2025
  * @time 4:56 PM
  */
+
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\OrderStatus;
@@ -84,7 +86,7 @@ class OrderController extends Controller
             return redirect()->route('admin.orders.show', $order)
                 ->with('success', "Đơn hàng #$order->id trạng thái đã được cập nhật thành '$newStatus->value'.");
         } catch (ValueError) {
-            return back()->with('error', 'Invalid status selected.');
+            return back()->with('error', 'Trạng thái không hợp lệ.');
         }
     }
 
@@ -99,7 +101,7 @@ class OrderController extends Controller
         $data = $query->map(function ($order) {
             return [
                 'id'           => $order->id,
-                'customer'     => $order->first_name.' '.$order->last_name,
+                'customer'     => $order->first_name . ' ' . $order->last_name,
                 'total'        => $order->total_price,
                 'status'       => $order->status->value,
                 'status_color' => $order->status->color(),
@@ -120,8 +122,7 @@ class OrderController extends Controller
         $order->load('items');
 
         return Pdf::loadView('admin.management.orders.invoice', compact('order'))->download(
-            'invoice-'.$order->id.'.pdf'
+            'invoice-' . $order->id . '.pdf'
         );
     }
-
 }

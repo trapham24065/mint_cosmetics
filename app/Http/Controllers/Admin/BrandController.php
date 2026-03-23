@@ -49,7 +49,7 @@ class BrandController extends Controller
             $data = $request->validated();
             $data['is_active'] = $request->has('is_active');
             $this->brandService->createBrand($data);
-            return redirect()->route('admin.brands.index')->with('success', 'Brand created successfully.');
+            return redirect()->route('admin.brands.index')->with('success', 'Thương hiệu đã được tạo thành công.');
         } catch (QueryException $e) {
             Log::error('Brand Creation Failed: ' . $e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
@@ -71,7 +71,7 @@ class BrandController extends Controller
             $data = $request->validated();
             $data['is_active'] = $request->has('is_active');
             $this->brandService->updateBrand($brand, $data);
-            return redirect()->route('admin.brands.index')->with('success', 'Brand updated successfully.');
+            return redirect()->route('admin.brands.index')->with('success', 'Thương hiệu đã được cập nhật thành công.');
         } catch (QueryException $e) {
             Log::error('Brand Update Failed: ' . $e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
@@ -89,12 +89,12 @@ class BrandController extends Controller
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Brand deleted successfully.',
+                    'message' => 'Thương hiệu đã được xóa thành công.',
                 ]);
             }
 
             return redirect()->route('admin.brands.index')
-                ->with('success', 'Brand deleted successfully.');
+                ->with('success', 'Thương hiệu đã được xóa thành công.');
         } catch (\Exception $e) {
             Log::error('Brand Deletion Failed: ' . $e->getMessage());
 

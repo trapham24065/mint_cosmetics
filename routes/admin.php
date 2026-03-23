@@ -29,7 +29,8 @@ use App\Http\Controllers\Admin\{
     ScraperController,
     SettingsController,
     ChatController as AdminChatController,
-    SupplierController
+    SupplierController,
+    UserController
 };
 use Illuminate\Support\Facades\Route;
 
@@ -40,52 +41,52 @@ use Illuminate\Support\Facades\Route;
 | Prefix: 'admin', Middleware: 'auth' (Applied globally)
 */
 
-require __DIR__ . '/api.php';
+require __DIR__.'/api.php';
 
 // --- Dashboard ---
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-// --- Core Management Resources (CRUD) ---
-Route::resources([
-    'attributes' => AttributeController::class,
-    'brands'     => BrandController::class,
-    'coupons'    => CouponController::class,
-    'blog-posts' => BlogPostController::class,
-]);
 
-// --- Category Management ---
-Route::get('categories/{category}/attributes', [CategoryController::class, 'getAttributes'])->name(
-    'categories.attributes'
-);
-Route::resource('categories', CategoryController::class);
+// --- Admin & Sale Routes ---
+Route::middleware(['role:admin,sale'])->group(function () {
+    // --- Core Management Resources (CRUD) ---
+    Route::resources([
+        'attributes' => AttributeController::class,
+        'brands'     => BrandController::class,
+        'coupons'    => CouponController::class,
+        'blog-posts' => BlogPostController::class,
+    ]);
 
-// --- Product Management ---
-Route::controller(ProductController::class)->prefix('products')->name('products.')->group(function () {
-    Route::post('bulk-update', 'bulkUpdate')->name('bulkUpdate');
-    Route::post('upload-tinymce-image', 'uploadTinyMCEImage')->name('upload.tinymce');
-    Route::get('variants/search', 'searchVariants')->name('variants.search'); // Search variants by query
-});
-Route::resource('products', ProductController::class);
+    // --- Category Management ---
+    Route::get('categories/{category}/attributes', [CategoryController::class, 'getAttributes'])->name(
+        'categories.attributes'
+    );
+    Route::resource('categories', CategoryController::class);
 
-// --- Order Management ---
-Route::controller(OrderController::class)->prefix('orders')->name('orders.')->group(function () {
-    Route::get('/', 'index')->name('index');
-    Route::get('/{order}', 'show')->name('show');
-    Route::put('/{order}/update-status', 'updateStatus')->name('updateStatus');
-    Route::get('/{order}/invoice', 'downloadInvoice')->name('invoice.download');
+    // --- Product Management ---
+    Route::controller(ProductController::class)->prefix('products')->name('products.')->group(function () {
+        Route::post('bulk-update', 'bulkUpdate')->name('bulkUpdate');
+        Route::post('upload-tinymce-image', 'uploadTinyMCEImage')->name('upload.tinymce');
+        Route::get('variants/search', 'searchVariants')->name('variants.search'); // Search variants by query
+    });
+    Route::resource('products', ProductController::class);
 });
 
-// --- Review Management ---
-Route::controller(ReviewController::class)->prefix('reviews')->name('reviews.')->group(function () {
-    Route::get('/', 'index')->name('index');
-    Route::put('/{review}/approve', 'approve')->name('approve');
-    Route::put('/{review}/reject', 'reject')->name('reject');
-    Route::delete('/{review}', 'destroy')->name('destroy');
-});
+// --- Order Management (Admin & Sale) ---
+Route::middleware(['role:admin,sale'])->group(function () {
+    Route::controller(OrderController::class)->prefix('orders')->name('orders.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{order}', 'show')->name('show');
+        Route::put('/{order}/update-status', 'updateStatus')->name('updateStatus');
+        Route::get('/{order}/invoice', 'downloadInvoice')->name('invoice.download');
+    });
 
-// --- Settings ---
-Route::controller(SettingsController::class)->prefix('settings')->name('settings.')->group(function () {
-    Route::get('/', 'index')->name('index');
-    Route::post('/', 'update')->name('update');
+    // --- Review Management ---
+    Route::controller(ReviewController::class)->prefix('reviews')->name('reviews.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::put('/{review}/approve', 'approve')->name('approve');
+        Route::put('/{review}/reject', 'reject')->name('reject');
+        Route::delete('/{review}', 'destroy')->name('destroy');
+    });
 });
 
 // --- Chatbot System ---
@@ -105,14 +106,26 @@ Route::controller(ScraperController::class)->prefix('scraper')->name('scraper.')
     Route::post('/run', 'run')->name('run');
 });
 
-// Customer Management
-Route::controller(CustomerController::class)->prefix('customers')->name(
-    'customers.'
-)->group(function () {
-    Route::get('/', 'index')->name('index');
-    Route::get('/{customer}', 'show')->name('show');
-    Route::delete('/{customer}', 'destroy')->name('destroy');
-    Route::put('/{customer}/toggle-status', 'toggleStatus')->name('toggle-status');
+// Customer Management (Admin & Sale)
+Route::middleware(['role:admin,sale'])->group(function () {
+    Route::controller(CustomerController::class)->prefix('customers')->name(
+        'customers.'
+    )->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{customer}', 'show')->name('show');
+        Route::delete('/{customer}', 'destroy')->name('destroy');
+        Route::put('/{customer}/toggle-status', 'toggleStatus')->name('toggle-status');
+    });
+});
+
+// User Management (Admin Dashboard Users) - Only Admin can access
+Route::middleware(['role:admin'])->group(function () {
+    Route::resource('users', UserController::class);
+    // --- Settings ---
+    Route::controller(SettingsController::class)->prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'update')->name('update');
+    });
 });
 
 Route::controller(AdminChatController::class)->prefix('chat')->name('chat.')->group(function () {
@@ -121,23 +134,26 @@ Route::controller(AdminChatController::class)->prefix('chat')->name('chat.')->gr
     Route::get('/{conversation}/fetch', 'fetchMessages')->name('fetch');
 });
 
-Route::resource('suppliers', SupplierController::class);
-Route::post('suppliers/bulk-update', [SupplierController::class, 'bulkUpdate'])->name('suppliers.bulkUpdate');
+// Warehouse Management (Admin & Warehouse)
+Route::middleware(['role:admin,warehouse'])->group(function () {
+    Route::resource('suppliers', SupplierController::class);
+    Route::post('suppliers/bulk-update', [SupplierController::class, 'bulkUpdate'])->name('suppliers.bulkUpdate');
 
-Route::controller(PurchaseOrderController::class)
-    ->prefix('inventory')
-    ->name('inventory.')
-    ->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/create', 'create')->name('create');
-        Route::post('/', 'store')->name('store');
+    Route::controller(PurchaseOrderController::class)
+        ->prefix('inventory')
+        ->name('inventory.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
 
-        Route::get('/{purchaseOrder}', 'show')->name('show');
+            Route::get('/{purchaseOrder}', 'show')->name('show');
 
-        // Actions
-        Route::put('/{purchaseOrder}/approve', 'approve')->name('approve');
-        Route::put('/{purchaseOrder}/cancel', 'cancel')->name('cancel');
-    });
+            // Actions
+            Route::put('/{purchaseOrder}/approve', 'approve')->name('approve');
+            Route::put('/{purchaseOrder}/cancel', 'cancel')->name('cancel');
+        });
+});
 //Admin profile
 Route::controller(ProfileController::class)->prefix('profile')->name('profile.')->group(function () {
     Route::get('/', 'index')->name('index');

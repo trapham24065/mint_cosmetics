@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author PhamTra
@@ -18,6 +19,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\OrderController;
@@ -48,4 +50,6 @@ Route::name('api.')->group(function () {
     Route::get('/suppliers/api', [SupplierController::class, 'getDataForGrid'])->name('suppliers.data');
 
     Route::get('/inventories/api', [PurchaseOrderController::class, 'getDataForGrid'])->name('inventories.data');
+
+    Route::get('/users/api', [UserController::class, 'getDataForGrid'])->name('users.data');
 });

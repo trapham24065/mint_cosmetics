@@ -46,7 +46,7 @@ class ChatbotReplyController extends Controller
     public function store(StoreChatbotReplyRequest $request): RedirectResponse
     {
         ChatbotReply::create($request->validated());
-        return redirect()->route('admin.chatbot-replies.index')->with('success', 'Reply created successfully.');
+        return redirect()->route('admin.chatbot-replies.index')->with('success', 'Phản hồi đã được tạo thành công.');
     }
 
     /**
@@ -77,7 +77,7 @@ class ChatbotReplyController extends Controller
     public function destroy(ChatbotReply $chatbotReply): RedirectResponse
     {
         $chatbotReply->delete();
-        return redirect()->route('admin.chatbot-replies.index')->with('success', 'Reply deleted successfully.');
+        return redirect()->route('admin.chatbot-replies.index')->with('success', 'Phản hồi đã được xóa thành công.');
     }
 
     /**
@@ -86,7 +86,7 @@ class ChatbotReplyController extends Controller
     public function storeKeyword(StoreChatbotKeywordRequest $request, ChatbotReply $reply): RedirectResponse
     {
         $reply->keywords()->create($request->validated());
-        return back()->with('success', 'Keyword added successfully.');
+        return back()->with('success', 'Từ khóa đã được thêm thành công.');
     }
 
     /**
@@ -95,7 +95,7 @@ class ChatbotReplyController extends Controller
     public function destroyKeyword(ChatbotKeyword $keyword): RedirectResponse
     {
         $keyword->delete();
-        return back()->with('success', 'Keyword deleted successfully.');
+        return back()->with('success', 'Từ khóa đã được xóa thành công.');
     }
 
     /**
@@ -121,5 +121,4 @@ class ChatbotReplyController extends Controller
             'data' => $data,
         ]);
     }
-
 }

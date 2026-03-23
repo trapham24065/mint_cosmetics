@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author PhamTra
@@ -65,14 +66,14 @@ class ChatbotController extends Controller
             }
 
             return redirect()->route('admin.chatbot.index')
-                ->with('success', 'Rule deleted successfully.');
+                ->with('success', 'Quy tắc đã được xóa thành công.');
         } catch (\Exception $e) {
-            Log::error('Xóa quy tắc Chatbot không thành công: '.$e->getMessage());
+            Log::error('Xóa quy tắc Chatbot không thành công: ' . $e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to delete category: '.$e->getMessage(),
+                    'message' => 'Failed to delete category: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -102,5 +103,4 @@ class ChatbotController extends Controller
             'data' => $data,
         ]);
     }
-
 }

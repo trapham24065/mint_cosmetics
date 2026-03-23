@@ -7,7 +7,9 @@
  * @date 8/26/2025
  * @time 4:56 PM
  */
+
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\CouponType;
@@ -82,13 +84,13 @@ class CouponController extends Controller
             $this->couponService->createCoupon($data);
 
             return redirect()->route('admin.coupons.index')
-                ->with('success', 'Coupon created successfully.');
+                ->with('success', 'Phiếu giảm giá đã được tạo thành công.');
         } catch (QueryException $e) {
-            Log::error('Coupon Creation Failed: '.$e->getMessage());
+            Log::error('Coupon Creation Failed: ' . $e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Coupon Creation Failed: '.$e->getMessage());
+            Log::error('Coupon Creation Failed: ' . $e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -114,13 +116,13 @@ class CouponController extends Controller
             $this->couponService->updateCoupon($coupon, $data);
 
             return redirect()->route('admin.coupons.index')
-                ->with('success', 'Coupon updated successfully.');
+                ->with('success', 'Phiếu giảm giá đã được cập nhật thành công.');
         } catch (QueryException $e) {
-            Log::error('Coupon Update Failed: '.$e->getMessage());
+            Log::error('Coupon Update Failed: ' . $e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Coupon Update Failed: '.$e->getMessage());
+            Log::error('Coupon Update Failed: ' . $e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -136,21 +138,21 @@ class CouponController extends Controller
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Coupon deleted successfully.',
+                    'message' => 'Phiếu giảm giá đã được xóa thành công.',
                 ]);
             }
 
             return redirect()->route('admin.coupons.index')
-                ->with('success', 'Coupon deleted successfully.');
+                ->with('success', 'Phiếu giảm giá đã được xóa thành công.');
         } catch (QueryException $e) {
-            Log::error('Coupon Deletion Failed: '.$e->getMessage());
+            Log::error('Coupon Deletion Failed: ' . $e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json(['success' => false, 'message' => $message], 500);
             }
             return back()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Coupon Deletion Failed: '.$e->getMessage());
+            Log::error('Coupon Deletion Failed: ' . $e->getMessage());
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
             }
@@ -172,8 +174,8 @@ class CouponController extends Controller
                 'code'      => $coupon->code,
                 'type'      => $coupon->type->value,
                 'value'     => (float)$coupon->value,
-                'usage'     => ($coupon->times_used ?? 0).' / '.($coupon->max_uses ?? '∞'),
-                'dates'     => $coupon->starts_at->format('d/m/Y').' - '.$coupon->expires_at->format('d/m/Y'),
+                'usage'     => ($coupon->times_used ?? 0) . ' / ' . ($coupon->max_uses ?? '∞'),
+                'dates'     => $coupon->starts_at->format('d/m/Y') . ' - ' . $coupon->expires_at->format('d/m/Y'),
                 'is_active' => $coupon->isValid(),
             ];
         });
@@ -182,5 +184,4 @@ class CouponController extends Controller
             'data' => $data,
         ]);
     }
-    
 }

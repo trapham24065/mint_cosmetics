@@ -32,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.customer'  => \App\Http\Middleware\AuthenticateCustomer::class,
             'auth.admin'     => \App\Http\Middleware\AuthenticateAdmin::class,
             'locked'         => \App\Http\Middleware\CheckLockScreen::class,
+            'role'           => \App\Http\Middleware\CheckRole::class,
         ]);
         $middleware->web(append: [
             \App\Http\Middleware\TrackVisits::class,

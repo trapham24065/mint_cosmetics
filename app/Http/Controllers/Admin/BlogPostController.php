@@ -50,7 +50,7 @@ class BlogPostController extends Controller
 
         BlogPost::create($validated);
 
-        return redirect()->route('admin.blog-posts.index')->with('success', 'Blog post created successfully.');
+        return redirect()->route('admin.blog-posts.index')->with('success', 'Bài viết blog đã được tạo thành công.');
     }
 
     /**
@@ -99,13 +99,13 @@ class BlogPostController extends Controller
         } else {
             if ($blogPost->isDirty('title') || empty($blogPost->slug)) {
                 $validated['slug'] = Str::slug($validated['title']);
-                $count = BlogPost::where('slug', 'LIKE', $validated['slug'].'%')->where(
+                $count = BlogPost::where('slug', 'LIKE', $validated['slug'] . '%')->where(
                     'id',
                     '!=',
                     $blogPost->id
                 )->count();
                 if ($count > 0) {
-                    $validated['slug'] .= '-'.($count + 1);
+                    $validated['slug'] .= '-' . ($count + 1);
                 }
             } else {
                 unset($validated['slug']);
@@ -114,7 +114,7 @@ class BlogPostController extends Controller
 
         $blogPost->update($validated);
 
-        return redirect()->route('blog.index')->with('success', 'Blog post updated successfully.');
+        return redirect()->route('blog.index')->with('success', 'Bài viết blog đã được cập nhật thành công.');
     }
 
     /**
@@ -126,7 +126,7 @@ class BlogPostController extends Controller
             Storage::disk('public')->delete($blogPost->image);
         }
         $blogPost->delete();
-        return redirect()->route('blog.index')->with('success', 'Blog post deleted successfully.');
+        return redirect()->route('blog.index')->with('success', 'Bài viết blog đã được xóa thành công.');
     }
 
     public function getDataForGrid(): JsonResponse
@@ -147,5 +147,4 @@ class BlogPostController extends Controller
             'data' => $data,
         ]);
     }
-
 }
