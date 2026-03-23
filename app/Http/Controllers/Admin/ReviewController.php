@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -27,7 +28,7 @@ class ReviewController extends Controller
     {
         $review->is_approved = true;
         $review->save();
-        return back()->with('success', 'Review approved successfully.');
+        return back()->with('success', 'Đánh giá đã được phê duyệt thành công.');
     }
 
     /**
@@ -37,7 +38,7 @@ class ReviewController extends Controller
     {
         $review->is_approved = false;
         $review->save();
-        return back()->with('success', 'Review has been set to pending.');
+        return back()->with('success', 'Đánh giá đã được đặt về trạng thái chờ duyệt.');
     }
 
     /**
@@ -46,7 +47,7 @@ class ReviewController extends Controller
     public function destroy(Review $review): RedirectResponse
     {
         $review->delete();
-        return back()->with('success', 'Review deleted successfully.');
+        return back()->with('success', 'Đánh giá đã được xóa thành công.');
     }
 
     /**
@@ -72,5 +73,4 @@ class ReviewController extends Controller
             'data' => $data,
         ]);
     }
-
 }

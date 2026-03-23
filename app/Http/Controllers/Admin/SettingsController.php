@@ -97,7 +97,6 @@ class SettingsController extends Controller
 
         Cache::forget('all_settings');
 
-        return back()->with('success', 'Settings updated successfully.');
+        return back()->with('success', 'Cài đặt đã được cập nhật thành công.');
     }
-
 }

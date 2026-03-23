@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author M397
@@ -56,8 +57,8 @@ class CustomerController extends Controller
         $customer->status = !$customer->status;
         $customer->save();
 
-        $statusMsg = $customer->status ? 'activated' : 'blocked';
-        return back()->with('success', "Customer has been {$statusMsg} successfully.");
+        $statusMsg = $customer->status ? 'kích hoạt' : 'chặn';
+        return back()->with('success', "Khách hàng đã được {$statusMsg} thành công.");
     }
 
     /**
@@ -69,11 +70,11 @@ class CustomerController extends Controller
         if ($customer->orders()->exists()) {
             // Instead of deleting, maybe just block them?
             // For now, let's just block deletion if they have orders for data integrity
-            return back()->with('error', 'Cannot delete customer with existing orders. Please block them instead.');
+            return back()->with('error', 'Không thể xóa khách hàng có đơn hàng. Vui lòng chặn họ thay thế.');
         }
 
         $customer->delete();
-        return back()->with('success', 'Customer deleted successfully.');
+        return back()->with('success', 'Khách hàng đã được xóa thành công.');
     }
 
     public function getDataForGrid(): JsonResponse
@@ -94,5 +95,4 @@ class CustomerController extends Controller
 
         return response()->json(['data' => $data]);
     }
-
 }

@@ -74,13 +74,13 @@ class AttributeController extends Controller
             $this->attributeService->createAttribute($request->validated());
 
             return redirect()->route('admin.attributes.index')
-                ->with('success', 'Attribute and its values created successfully.');
+                ->with('success', 'Thuộc tính và các giá trị đã được tạo thành công.');
         } catch (QueryException $e) {
-            Log::error('Attribute Creation Failed: '.$e->getMessage());
+            Log::error('Attribute Creation Failed: ' . $e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Attribute Creation Failed: '.$e->getMessage());
+            Log::error('Attribute Creation Failed: ' . $e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -105,13 +105,13 @@ class AttributeController extends Controller
             $this->attributeService->updateAttribute($attribute, $request->validated());
 
             return redirect()->route('admin.attributes.index')
-                ->with('success', 'Attribute updated successfully.');
+                ->with('success', 'Thuộc tính đã được cập nhật thành công.');
         } catch (QueryException $e) {
-            Log::error('Attribute Update Failed: '.$e->getMessage());
+            Log::error('Attribute Update Failed: ' . $e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Attribute Update Failed: '.$e->getMessage());
+            Log::error('Attribute Update Failed: ' . $e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -127,14 +127,14 @@ class AttributeController extends Controller
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Attribute deleted successfully.',
+                    'message' => 'Thuộc tính đã được xóa thành công.',
                 ]);
             }
 
             return redirect()->route('admin.attributes.index')
-                ->with('success', 'Attribute deleted successfully.');
+                ->with('success', 'Thuộc tính đã được xóa thành công.');
         } catch (QueryException $e) {
-            Log::error('Attribute Deletion Failed: '.$e->getMessage());
+            Log::error('Attribute Deletion Failed: ' . $e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
 
             if (request()->expectsJson() || request()->ajax()) {
@@ -144,7 +144,7 @@ class AttributeController extends Controller
             return redirect()->route('admin.attributes.index')
                 ->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Attribute Deletion Failed: '.$e->getMessage());
+            Log::error('Attribute Deletion Failed: ' . $e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
@@ -176,5 +176,4 @@ class AttributeController extends Controller
             'data' => $data,
         ]);
     }
-
 }

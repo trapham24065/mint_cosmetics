@@ -117,8 +117,8 @@
                                         data-context="product-detail" disabled style="min-width: 200px;">
                                     <i class="fa fa-shopping-cart me-2"></i>Thêm vào giỏ hàng
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary btn-wishlist action-btn-wishlist"
-                                        data-product-id="{{ $product->id }}" style="min-width: 50px;">
+                                <button type="button" class="btn btn-wishlist action-btn-wishlist"
+                                        data-product-id="{{ $product->id }}">
                                     <i class="fa fa-heart-o"></i>
                                 </button>
                             </div>
@@ -188,6 +188,22 @@
 
     @push('scripts')
         <style>
+
+            /* Chrome, Safari, Edge */
+            input[type=number]::-webkit-outer-spin-button,
+            input[type=number]::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            /* Firefox */
+            input[type=number] {
+                -moz-appearance: textfield;
+                text-align: center;
+            }
+            #productDetailQuantity {
+                text-align: center;
+            }
             .product-image-container #product-main-image {
                 transition: opacity 0.4s ease-in-out;
             }
@@ -204,11 +220,6 @@
                 border-left: 4px solid #FF6565;
             }
 
-            /* Action Buttons Styling */
-            .product-details-action-buttons .btn {
-                font-weight: 600;
-                transition: all 0.3s ease;
-            }
 
             .product-details-action-buttons .btn:hover:not(:disabled) {
                 transform: translateY(-2px);
@@ -511,7 +522,7 @@
                                 if (cartCountEl && data.cartCount) {
                                     cartCountEl.textContent = `(${data.cartCount})`;
                                 }
-                                // Redirect to checkout (route is protected, will redirect to login if needed)
+                                // Redirect to check out (route is protected, will redirect to log in if needed)
                                 window.location.href = '{{ route("customer.checkout.index") }}';
                             } else {
                                 Swal.fire('Lỗi', data.message || 'Không thể thêm sản phẩm vào giỏ hàng.', 'error');
@@ -520,7 +531,6 @@
                             }
                         })
                         .catch(error => {
-                            console.error('Error:', error);
                             Swal.fire('Lỗi', 'Đã xảy ra lỗi không mong muốn.', 'error');
                             buyNowBtn.disabled = false;
                             buyNowBtn.innerHTML = originalText;

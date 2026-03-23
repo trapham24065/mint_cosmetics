@@ -19,33 +19,33 @@ abstract class Controller
 
         // Handle integrity constraint violations (1062 = duplicate key)
         if ($sqlState === '23000' && $errorCode === 1062) {
-            if (strpos($e->getMessage(), 'unique') !== false) {
-                return 'This record already exists. Please use different values.';
+            if (str_contains($e->getMessage(), 'unique')) {
+                return 'Bản ghi này đã tồn tại. Vui lòng sử dụng các giá trị khác..';
             }
-            return 'Duplicate entry. Please check your input.';
+            return 'Nhập liệu trùng lặp. Vui lòng kiểm tra lại thông tin đã nhập.';
         }
 
         // Handle foreign key constraint violations (1452 = foreign key fails)
         if ($sqlState === '23000' && $errorCode === 1452) {
             if (str_contains($e->getMessage(), 'category_id') || str_contains($e->getMessage(), 'categories')) {
-                return 'The selected category is invalid or has been deleted.';
+                return 'Danh mục đã chọn không hợp lệ hoặc đã bị xóa.';
             }
             if (str_contains($e->getMessage(), 'brand_id') || str_contains($e->getMessage(), 'brands')) {
-                return 'The selected brand is invalid or has been deleted.';
+                return 'Thương hiệu đã chọn không hợp lệ hoặc đã bị xóa.';
             }
             if (str_contains($e->getMessage(), 'attribute')) {
-                return 'The selected attribute is invalid or has been deleted.';
+                return 'Thuộc tính đã chọn không hợp lệ hoặc đã bị xóa.';
             }
-            return 'One or more related records are invalid.';
+            return 'Một hoặc nhiều bản ghi liên quan không hợp lệ.';
         }
 
         // Handle delete restriction violations (1451 = cannot delete/update)
         if ($sqlState === '23000' && $errorCode === 1451) {
-            return 'Cannot delete this record because it is referenced by other records.';
+            return 'Không thể xóa bản ghi này vì nó được các bản ghi khác tham chiếu đến.';
         }
 
         // Default database error
-        return 'A database error occurred. Please try again.';
+        return 'Đã xảy ra lỗi cơ sở dữ liệu. Vui lòng thử lại.';
     }
 
 }

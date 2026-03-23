@@ -28,6 +28,7 @@ class User extends Authenticatable
         'avatar',
         'email',
         'password',
+        'role',
         'status',
         'last_login_at',
         'last_login_ip',
@@ -70,4 +71,35 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Check if user has a specific role
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    /**
+     * Check if user is admin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is sale
+     */
+    public function isSale(): bool
+    {
+        return $this->role === 'sale';
+    }
+
+    /**
+     * Check if user is warehouse
+     */
+    public function isWarehouse(): bool
+    {
+        return $this->role === 'warehouse';
+    }
 }

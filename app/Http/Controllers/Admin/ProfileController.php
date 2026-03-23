@@ -28,7 +28,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'name'   => 'required|string|max:255',
-            'email'  => 'required|email|max:255|unique:users,email,'.$admin->id,
+            'email'  => 'required|email|max:255|unique:users,email,' . $admin->id,
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -41,7 +41,7 @@ class ProfileController extends Controller
         $admin->email = $validated['email'];
         $admin->save();
 
-        return back()->with('success', 'Profile updated successfully.');
+        return back()->with('success', 'Hồ sơ đã được cập nhật thành công.');
     }
 
     /**
@@ -58,7 +58,6 @@ class ProfileController extends Controller
         $user->password = Hash::make($request->password);
         $user->save();
 
-        return back()->with('success', 'Password changed successfully.');
+        return back()->with('success', 'Mật khẩu đã được thay đổi thành công.');
     }
-
 }
