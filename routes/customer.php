@@ -1,14 +1,8 @@
 <?php
 
-/**
- * @project mint_cosmetics
- * @author PhamTra
- * @email trapham24065@gmail.com
- * @date 8/22/2025
- * @time 3:11 PM
- */
 declare(strict_types=1);
 
+use App\Http\Controllers\Customer\ReturnRequestController;
 use App\Http\Controllers\Storefront\Auth\CustomerAuthController;
 use App\Http\Controllers\Storefront\CheckoutController;
 use App\Http\Controllers\Storefront\CustomerDashboardController;
@@ -25,5 +19,10 @@ Route::put('address', [CustomerDashboardController::class, 'updateAddress'])->na
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout/place-order', [PaymentController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::post('/hooks/sepay-payment', [WebhookController::class, 'handlePaymentWebhook']);
-Route::get('orders/{order}', [CustomerOrderController::class, 'show'])
-    ->name('orders.show');
+
+Route::get('orders/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
+
+// Return request routes (không lồng thêm prefix/name customer ở đây)
+Route::get('returns', [ReturnRequestController::class, 'index'])->name('returns.index');
+Route::get('orders/{order}/return', [ReturnRequestController::class, 'create'])->name('returns.create');
+Route::post('orders/{order}/return', [ReturnRequestController::class, 'store'])->name('returns.store');

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author M397
@@ -8,7 +9,6 @@
  */
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Clean Pending Orders Configuration
@@ -22,5 +22,5 @@ return [
     */
 
     'clean_pending_enabled' => env('CLEAN_PENDING_ORDERS_ENABLED', false),
-
+    'return_days' => env('ORDER_RETURN_DAYS', 7),
 ];

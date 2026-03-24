@@ -79,6 +79,12 @@ class OrderController extends Controller
                         Mail::to($order->email)->send(new RequestReview($item));
                     }
                 }
+
+                $order->completed_at = now();
+            }
+
+            if ($newStatus !== OrderStatus::Completed && $order->status === OrderStatus::Completed) {
+                $order->completed_at = null;
             }
             $order->status = $newStatus;
             $order->save();

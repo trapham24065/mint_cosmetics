@@ -18,10 +18,12 @@ use App\Http\Controllers\Admin\{
     ChatbotController,
     ChatbotReplyController,
     CouponController,
+    ContactMessageController,
     CustomerController,
     DashboardController,
     GlobalSearchController,
     OrderController,
+    OrderReturnController,
     ProductController,
     ProfileController,
     PurchaseOrderController,
@@ -41,7 +43,7 @@ use Illuminate\Support\Facades\Route;
 | Prefix: 'admin', Middleware: 'auth' (Applied globally)
 */
 
-require __DIR__.'/api.php';
+require __DIR__ . '/api.php';
 
 // --- Dashboard ---
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -80,6 +82,17 @@ Route::middleware(['role:admin,sale'])->group(function () {
         Route::get('/{order}/invoice', 'downloadInvoice')->name('invoice.download');
     });
 
+    // --- Return Management ---
+    Route::controller(OrderReturnController::class)->prefix('returns')->name('returns.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/data', 'getDataForGrid')->name('data'); // API for Grid.js
+        Route::get('/{return}', 'show')->name('show');
+        Route::post('/{return}/approve', 'approve')->name('approve');
+        Route::post('/{return}/reject', 'reject')->name('reject');
+        Route::post('/{return}/refund', 'refund')->name('refund');
+        Route::post('/{return}/cancel', 'cancel')->name('cancel');
+    });
+
     // --- Review Management ---
     Route::controller(ReviewController::class)->prefix('reviews')->name('reviews.')->group(function () {
         Route::get('/', 'index')->name('index');
@@ -115,6 +128,12 @@ Route::middleware(['role:admin,sale'])->group(function () {
         Route::get('/{customer}', 'show')->name('show');
         Route::delete('/{customer}', 'destroy')->name('destroy');
         Route::put('/{customer}/toggle-status', 'toggleStatus')->name('toggle-status');
+    });
+
+    Route::controller(ContactMessageController::class)->prefix('contacts')->name('contacts.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{contactMessage}', 'show')->name('show');
+        Route::post('/{contactMessage}/mark-processed', 'markProcessed')->name('markProcessed');
     });
 });
 
@@ -152,8 +171,10 @@ Route::middleware(['role:admin,warehouse'])->group(function () {
             // Actions
             Route::put('/{purchaseOrder}/approve', 'approve')->name('approve');
             Route::put('/{purchaseOrder}/cancel', 'cancel')->name('cancel');
+            Route::post('/adjust-stock', 'adjustStock')->name('adjustStock');
         });
 });
+
 //Admin profile
 Route::controller(ProfileController::class)->prefix('profile')->name('profile.')->group(function () {
     Route::get('/', 'index')->name('index');

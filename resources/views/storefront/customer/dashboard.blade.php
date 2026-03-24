@@ -1,5 +1,27 @@
 @extends('storefront.layouts.app')
 @section('content')
+    <style>
+        table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .reason-cell {
+            max-width: 250px;
+        }
+
+        .reason-text {
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* hiển thị 2 dòng */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .reason-text:hover {
+            text-decoration: underline;
+        }
+    </style>
     <main class="main-content">
 
         <!--== Start Page Header Area Wrapper ==-->
@@ -35,6 +57,11 @@
                             </button>
                             <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders"
                                     type="button" role="tab" aria-controls="orders" aria-selected="false"> Đơn đặt hàng
+                            </button>
+                            <button class="nav-link" id="returns-tab" data-bs-toggle="tab" data-bs-target="#returns"
+                                    type="button" role="tab" aria-controls="returns" aria-selected="false"> Danh sách
+                                yêu cầu trả
+                                hàng
                             </button>
                             <button class="nav-link" id="address-edit-tab" data-bs-toggle="tab"
                                     data-bs-target="#address-edit" type="button" role="tab" aria-controls="address-edit"
@@ -79,7 +106,8 @@
                                                 href="#"
                                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                                                 class="logout"> Đăng xuất
-                                            </a>)</p>
+                                            </a>)
+                                        </p>
                                     </div>
                                     <p>Từ trang tổng quan tài khoản, bạn có thể dễ dàng kiểm tra và xem các đơn đặt hàng
                                         gần đây,
@@ -101,6 +129,7 @@
                                             <tr>
                                                 <th>Đặt hàng</th>
                                                 <th>Ngày</th>
+                                                <th>Hoàn thành lúc</th>
                                                 <th>Trạng thái</th>
                                                 <th>Tổng cộng</th>
                                                 <th>Hoạt động</th>
@@ -112,18 +141,27 @@
                                                     <td>#{{ $order->id }}</td>
                                                     <td>{{ $order->created_at->format('d/m/Y') }}</td>
                                                     <td>
-                                                        <span
-                                                            class="badge bg-{{ $order->status->color() ?? 'secondary' }}">
-                                                            {{ $order->status->label() ?? $order->status }}
-                                                        </span>
+                                                        @if($order->status === \App\Enums\OrderStatus::Completed)
+                                                            {{ optional($order->completed_at ?? $order->updated_at)->format('d/m/Y H:i') }}
+                                                        @else
+                                                            <span class="text-muted">Chưa hoàn thành</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                    <span
+                                                        class="badge bg-{{ $order->status->color() ?? 'secondary' }}">
+                                                        {{ $order->status->label() ?? $order->status }}
+                                                    </span>
                                                     </td>
                                                     <td>{{ number_format($order->total_price) }} VND</td>
-                                                    <td><a href="{{ route('customer.orders.show', $order->id) }}"
-                                                           class="check-btn sqr-btn">Xem</a></td>
+                                                    <td>
+                                                        <a href="{{ route('customer.orders.show', $order->id) }}"
+                                                           class="check-btn sqr-btn">Xem</a>
+                                                    </td>
                                                 </tr>
                                             @empty
                                                 <tr>
-                                                    <td colspan="5">Không tìm thấy đơn đặt hàng nào.</td>
+                                                    <td colspan="6">Không tìm thấy đơn đặt hàng nào.</td>
                                                 </tr>
                                             @endforelse
                                             </tbody>
@@ -132,6 +170,94 @@
                                 </div>
                             </div>
 
+                            {{-- RETURNS TAB--}}
+                            <div class="tab-pane fade" id="returns" role="tabpanel" aria-labelledby="returns-tab">
+                                <div class="myaccount-content">
+                                    <h3>Danh sách yêu cầu trả hàng</h3>
+                                    <div class="myaccount-table table-responsive text-center">
+                                        <table class="table table-bordered">
+                                            <thead class="bg-light">
+                                            <tr>
+                                                <th class="ps-4">STT</th>
+                                                <th>Đơn hàng</th>
+                                                <th>Lý do</th>
+                                                <th>Trạng thái</th>
+                                                <th>Ngày gửi</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            @forelse($returns as $return)
+                                                @php
+                                                    $statusValue = $return->status instanceof \App\Enums\ReturnStatus
+                                                    ? $return->status->value
+                                                    : (string) $return->status;
+                                                    $statusLabel = $return->status instanceof \App\Enums\ReturnStatus
+                                                    ? $return->status->label()
+                                                    : ucfirst($statusValue);
+                                                    $statusClass = [
+                                                    'pending' => 'warning',
+                                                    'approved' => 'info',
+                                                    'rejected' => 'danger',
+                                                    'refunded' => 'success',
+                                                    'cancelled' => 'secondary',
+                                                    ][$statusValue] ?? 'secondary';
+                                                @endphp
+                                                <tr>
+                                                    <td class="ps-4">{{ $return->id }}</td>
+                                                    <td>
+                                                        @if($return->order)
+                                                            <a href="{{ route('customer.orders.show', $return->order) }}"
+                                                               class="text-decoration-none">
+                                                                #{{ $return->order->id }}
+                                                            </a>
+                                                        @else
+                                                            <span class="text-muted">Không tồn tại</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="reason-cell">
+                                                        <div
+                                                            class="fw-semibold reason-text"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#reasonModal"
+                                                            data-reason="{{ $return->reason }}"
+                                                            data-description="{{ $return->description }}"
+                                                            data-images='@json($return->evidence_images, JSON_THROW_ON_ERROR)'
+                                                        >
+                                                            {{ $return->reason }}
+                                                        </div>
+
+                                                        @if($return->description)
+                                                            <small
+                                                                class="text-muted reason-text"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#reasonModal"
+                                                                data-reason="{{ $return->reason }}"
+                                                                data-description="{{ $return->description }}"
+                                                            >
+                                                                {{ $return->description }}
+                                                            </small>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                                    <span
+                                                                        class="badge bg-{{ $statusClass }}">{{ $statusLabel }}</span>
+                                                    </td>
+                                                    <td class=" pe-4">
+                                                        {{ $return->created_at->format('d/m/Y H:i') }}
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted py-5">
+                                                        Bạn chưa có yêu cầu trả hàng nào.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                             {{-- ADDRESS TAB --}}
                             <div class="tab-pane fade" id="address-edit" role="tabpanel"
                                  aria-labelledby="address-edit-tab">
@@ -140,7 +266,8 @@
                                     <address>
                                         <p><strong>{{ $customer->full_name }}</strong></p>
                                         <p>{{ $customer->address ?? 'Address not set' }} <br>
-                                            {{ $customer->city ?? 'City not set' }}</p>
+                                            {{ $customer->city ?? 'City not set' }}
+                                        </p>
                                         <p>Mobile: {{ $customer->phone ?? 'N/A' }}</p>
                                     </address>
                                     {{-- Nút mở Modal sửa địa chỉ --}}
@@ -224,7 +351,7 @@
                                                 </div>
                                             </fieldset>
                                             <div class="single-input-item">
-                                                <button class="check-btn sqr-btn">Save Changes</button>
+                                                <button class="check-btn sqr-btn">Lưu thay đổi</button>
                                             </div>
                                         </form>
                                     </div>
@@ -244,7 +371,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Billing Address</h5>
+                    <h5 class="modal-title">Chỉnh sửa địa chỉ thanh toán</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form action="{{ route('customer.address.update') }}" method="POST">
@@ -288,16 +415,99 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="reasonModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết lý do trả hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
 
+                <div class="modal-body">
+                    <p><strong>Lý do:</strong></p>
+                    <p id="modal-reason"></p>
+
+                    <div id="modal-description-wrapper" style="display:none;">
+                        <p><strong>Mô tả chi tiết:</strong></p>
+                        <p id="modal-description"></p>
+                    </div>
+
+                    <!-- ✅ THÊM PHẦN ẢNH -->
+                    <div id="modal-images-wrapper" style="display:none;">
+                        <p><strong>Ảnh bằng chứng:</strong></p>
+                        <div id="modal-images" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
     <script>
         $(document).ready(function() {
-            @if ($errors->has('address') || $errors->has('city') || $errors->has('phone') || ($errors->has('first_name') && request()->routeIs('customer.address.update')))
-            var editAddressModal = new bootstrap.Modal(document.getElementById('editAddressModal'));
-            editAddressModal.show();
-            @endif
+            const shouldOpenAddressModal = @json($errors -> has('address') ||
+            $errors -> has('city') ||
+            $errors -> has('phone') ||
+            ($errors -> has('first_name') && request() -> routeIs('customer.address.update')), JSON_THROW_ON_ERROR);
+
+            if (shouldOpenAddressModal) {
+                const editAddressModal = new bootstrap.Modal(document.getElementById('editAddressModal'));
+                editAddressModal.show();
+            }
+        });
+        document.addEventListener('DOMContentLoaded', function() {
+            var reasonModal = document.getElementById('reasonModal');
+
+            reasonModal.addEventListener('show.bs.modal', function(event) {
+                var trigger = event.relatedTarget;
+
+                var reason = trigger.getAttribute('data-reason');
+                var description = trigger.getAttribute('data-description');
+                var images = trigger.getAttribute('data-images');
+
+                document.getElementById('modal-reason').textContent = reason;
+
+                // description
+                if (description) {
+                    document.getElementById('modal-description').textContent = description;
+                    document.getElementById('modal-description-wrapper').style.display = 'block';
+                } else {
+                    document.getElementById('modal-description-wrapper').style.display = 'none';
+                }
+
+                // images
+                var imagesWrapper = document.getElementById('modal-images-wrapper');
+                var imagesContainer = document.getElementById('modal-images');
+                imagesContainer.innerHTML = '';
+
+                if (images) {
+                    try {
+                        var imageArray = JSON.parse(images);
+
+                        if (imageArray.length > 0) {
+                            imageArray.forEach(function(img) {
+                                var imageEl = document.createElement('img');
+                                imageEl.src = '/storage/' + img;
+                                imageEl.style.width = '100px';
+                                imageEl.style.height = '100px';
+                                imageEl.style.objectFit = 'cover';
+                                imageEl.classList.add('rounded', 'border');
+
+                                imagesContainer.appendChild(imageEl);
+                            });
+
+                            imagesWrapper.style.display = 'block';
+                        } else {
+                            imagesWrapper.style.display = 'none';
+                        }
+                    } catch (e) {
+                        imagesWrapper.style.display = 'none';
+                    }
+                } else {
+                    imagesWrapper.style.display = 'none';
+                }
+            });
         });
     </script>
 @endpush

@@ -15,6 +15,135 @@
                 <div id="table-inventory-gridjs"></div>
             </div>
         </div>
+
+        <div class="row mt-4">
+            <div class="col-lg-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Xử lý sự cố kho / Điều chỉnh tồn</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('admin.inventory.adjustStock') }}" method="POST">
+                            @csrf
+
+                            <div class="mb-3">
+                                <label class="form-label">Biến thể sản phẩm <span class="text-danger">*</span></label>
+                                <select name="variant_id" class="form-select" required>
+                                    <option value="">Chọn biến thể</option>
+                                    @foreach($variants as $variant)
+                                        <option value="{{ $variant->id }}" @selected(old('variant_id')==$variant->id)>
+                                            SKU: {{ $variant->sku ?? ('VAR-' . $variant->id) }}
+                                            | {{ $variant->product->name }}
+                                            | Tồn: {{ $variant->stock }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Loại điều chỉnh <span class="text-danger">*</span></label>
+                                <select name="adjustment_type" class="form-select" required>
+                                    <option value="">Chọn loại</option>
+                                    @foreach($adjustmentTypes as $key => $label)
+                                        <option value="{{ $key }}" @selected(old('adjustment_type')===$key)>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Số lượng điều chỉnh <span class="text-danger">*</span></label>
+                                <input type="number" name="quantity" min="1" max="100000"
+                                       class="form-control"
+                                       value="{{ old('quantity', 1) }}" required>
+                                <small class="text-muted">
+                                    Hệ thống sẽ tự động cộng (+) hoặc trừ (-) dựa theo loại điều chỉnh.
+                                </small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Ghi chú / Nguyên nhân</label>
+                                <textarea name="reason" rows="3" class="form-control"
+                                          placeholder="Mô tả sự cố, biên bản, mã tham chiếu...">{{ old('reason') }}</textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-warning w-100">
+                                <i class="fa fa-tools me-1"></i>
+                                Ghi nhận sự cố & cập nhật tồn kho
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Lịch sử điều chỉnh tồn gần đây</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">Thời gian</th>
+                                    <th>SKU</th>
+                                    <th>Loại</th>
+                                    <th>Biến động</th>
+                                    <th>Tồn sau</th>
+                                    <th>Người xử lý</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @forelse($recentAdjustments as $adj)
+                                    <tr>
+                                        <td class="ps-3">{{ $adj->created_at->format('d/m H:i') }}</td>
+                                        <td>
+                                            <div class="fw-semibold">
+                                                {{ $adj->productVariant->sku ?? ('VAR-' . $adj->product_variant_id) }}
+                                            </div>
+                                            <small class="text-muted">
+                                                {{ $adj->productVariant->product->name ?? 'Không xác định' }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {{ $adjustmentTypes[$adj->adjustment_type] ?? $adj->adjustment_type }}
+                                        </td>
+                                        <td>
+                                <span
+                                    class="badge {{ $adj->quantity_change < 0 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success' }}">
+                                    {{ $adj->quantity_change > 0 ? '+' : '' }}{{ $adj->quantity_change }}
+                                </span>
+                                        </td>
+                                        <td>{{ $adj->stock_after }}</td>
+                                        <td>{{ $adj->user->name ?? 'Hệ thống' }}</td>
+                                    </tr>
+
+                                    @if($adj->reason)
+                                        <tr>
+                                            <td></td>
+                                            <td colspan="5">
+                                                <small class="text-muted">
+                                                    Ghi chú: {{ $adj->reason }}
+                                                </small>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">
+                                            Chưa có lịch sử điều chỉnh tồn kho.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -75,7 +204,7 @@
                         }
                     ],
                     server: {
-                        url: '{{ route('admin.api.inventories.data') }}',
+                        url: 'inventories/api',
                         then: results => results.data.map(order => [
                             order.id,
                             order.code,
@@ -94,10 +223,7 @@
                         thead: 'table-light',
                         th: 'fw-bold text-muted'
                     },
-                    language: {
-                        'search': { 'placeholder': 'Search orders...' },
-                        'pagination': { 'previous': 'Prev', 'next': 'Next' }
-                    }
+
                 }).render(document.getElementById("table-inventory-gridjs"));
             }
         });
