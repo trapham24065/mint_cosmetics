@@ -6,14 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\ProductVariant;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
+use App\Models\StockAdjustment;
 use App\Models\Supplier;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rule;
 
 class PurchaseOrderController extends Controller
 {
@@ -24,7 +27,80 @@ class PurchaseOrderController extends Controller
     public function index(): View
     {
         $title = 'Hàng tồn kho / Đơn đặt hàng';
-        return view('admin.management.inventory.index', compact('title'));
+        $variants = ProductVariant::query()
+            ->with(['product'])
+            ->whereHas('product')
+            ->orderBy('id')
+            ->get();
+
+        $adjustmentTypes = $this->adjustmentTypes();
+
+        $recentAdjustments = StockAdjustment::query()
+            ->with(['productVariant.product', 'user'])
+            ->latest()
+            ->limit(20)
+            ->get();
+
+        return view(
+            'admin.management.inventory.index',
+            compact(
+                'title',
+                'variants',
+                'adjustmentTypes',
+                'recentAdjustments'
+            )
+        );
+    }
+
+    public function adjustStock(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'variant_id'      => ['required', 'exists:product_variants,id'],
+            'adjustment_type' => ['required', 'string', Rule::in(array_keys($this->adjustmentTypes()))],
+            'quantity'        => ['required', 'integer', 'min:1', 'max:100000'],
+            'reason'          => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $type = $request->string('adjustment_type')->toString();
+        $quantity = (int)$request->integer('quantity');
+        $change = $this->getSignedQuantity($type, $quantity);
+
+        try {
+            DB::transaction(function () use ($request, $type, $change) {
+                $variant = ProductVariant::query()
+                    ->lockForUpdate()
+                    ->findOrFail((int)$request->integer('variant_id'));
+
+                $before = (int)$variant->stock;
+                $after = $before + $change;
+
+                if ($after < 0) {
+                    throw new \RuntimeException('So luong ton kho khong du de tru theo yeu cau su co.');
+                }
+
+                $variant->update(['stock' => $after]);
+
+                StockAdjustment::create([
+                    'product_variant_id' => $variant->id,
+                    'user_id'            => Auth::id(),
+                    'adjustment_type'    => $type,
+                    'quantity_change'    => $change,
+                    'stock_before'       => $before,
+                    'stock_after'        => $after,
+                    'reason'             => $request->input('reason'),
+                ]);
+            });
+
+            return redirect()->route('admin.inventory.index')->with(
+                'success',
+                'Da cap nhat ton kho va ghi nhan bien dong su co thanh cong.'
+            );
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage())->withInput();
+        } catch (\Exception $e) {
+            Log::error('Stock adjustment error: '.$e->getMessage());
+            return back()->with('error', 'Co loi xay ra khi dieu chinh ton kho.')->withInput();
+        }
     }
 
     /**
@@ -45,7 +121,7 @@ class PurchaseOrderController extends Controller
                 $attributes = $variant->attributeValues->map(fn($v) => "{$v->attribute->name}: {$v->value}")->join(
                     ', '
                 );
-//                $variant->full_name = $variant->product->name . ($attributes ? " ({$attributes})" : "") . " - " . ($variant->sku ?? 'No SKU');
+                //                $variant->full_name = $variant->product->name . ($attributes ? " ({$attributes})" : "") . " - " . ($variant->sku ?? 'No SKU');
                 $variant->full_name = $variant->sku;
                 return $variant;
             });
@@ -191,6 +267,27 @@ class PurchaseOrderController extends Controller
         });
 
         return response()->json(['data' => $data]);
+    }
+
+    private function adjustmentTypes(): array
+    {
+        return [
+            'damaged'       => 'Hàng hỏng / vỡ',
+            'lost'          => 'Thất thoát kho',
+            'expired'       => 'Hết hạn sử dụng',
+            'repair_out'    => 'Xuất đi sửa chữa',
+            'repair_in'     => 'Nhận lại sau sửa chữa',
+            'found'         => 'Kiểm kê dư hàng',
+            'recount_minus' => 'Kiểm kê thiếu',
+            'recount_plus'  => 'Kiểm kê thừa',
+            'other'         => 'Điều chỉnh khác',
+        ];
+    }
+
+    private function getSignedQuantity(string $type, int $quantity): int
+    {
+        $negativeTypes = ['damaged', 'lost', 'expired', 'repair_out', 'recount_minus'];
+        return in_array($type, $negativeTypes, true) ? -$quantity : $quantity;
     }
 
 }

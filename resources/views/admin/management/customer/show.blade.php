@@ -108,7 +108,7 @@
                                             #{{ $order->id }}
                                         </a>
                                     </td>
-                                    <td>{{ $order->created_at->format('M d, Y') }}</td>
+                                    <td>{{ $order->created_at->format('d/m/Y') }}</td>
                                     <td>
                                         {{-- Sử dụng Enum hoặc label có sẵn --}}
                                         <span class="badge bg-{{ $order->status->color() }}">

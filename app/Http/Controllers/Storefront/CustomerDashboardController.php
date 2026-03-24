@@ -11,6 +11,7 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateAddressRequest;
+use App\Models\OrderReturn;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,11 +27,15 @@ class CustomerDashboardController extends Controller
     public function index(): View
     {
         $customer = Auth::guard('customer')->user();
-
+        $customerId = Auth::guard('customer')->id();
         // Get orders history with relationship
         $orders = $customer->orders()->with('items')->latest()->get();
-
-        return view('storefront.customer.dashboard', compact('customer', 'orders'));
+        $returns = OrderReturn::query()
+            ->with('order')
+            ->where('customer_id', $customerId)
+            ->latest()
+            ->paginate(10);
+        return view('storefront.customer.dashboard', compact('customer', 'orders', 'returns'));
     }
 
     /**

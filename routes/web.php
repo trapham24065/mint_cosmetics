@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about-us', [AboutUsController::class, 'index'])->name('about-us.index');
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/sitemap.xml', [\App\Http\Controllers\Storefront\SitemapController::class, 'index'])->name('sitemap');
 
@@ -69,4 +70,4 @@ Route::controller(ChatController::class)->prefix('chat')->name('chat.')->group(f
 });
 
 // --- Admin & Other Auth Routes ---
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

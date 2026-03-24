@@ -45,6 +45,7 @@ class Order extends Model
 
     protected $casts = [
         'status' => OrderStatus::class,
+        'completed_at' => 'datetime',
     ];
 
     public function customer(): BelongsTo
@@ -55,6 +56,11 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function returns(): HasMany
+    {
+        return $this->hasMany(OrderReturn::class);
     }
 
     // Helper method to get total items count
@@ -78,5 +84,4 @@ class Order extends Model
     {
         return self::where('status', OrderStatus::Completed)->sum('total_price');
     }
-
 }
