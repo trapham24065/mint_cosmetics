@@ -1,83 +1,152 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="container-xxl">
-    @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
-    <div class="card">
-        <div class="card-header">
-            <h4 class="card-title mb-0">Lien he tu khach hang</h4>
-        </div>
-
-        <div class="card-body">
-            <form method="GET" action="{{ route('admin.contacts.index') }}" class="row g-2 mb-3">
-                <div class="col-md-5">
-                    <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control" placeholder="Tim theo ten, email, noi dung...">
-                </div>
-                <div class="col-md-3">
-                    <select name="status" class="form-select">
-                        <option value="">Tat ca trang thai</option>
-                        <option value="pending" @selected(request('status')==='pending' )>Chua xu ly</option>
-                        <option value="processed" @selected(request('status')==='processed' )>Da xu ly</option>
-                    </select>
-                </div>
-                <div class="col-md-4 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary">Loc</button>
-                    <a href="{{ route('admin.contacts.index') }}" class="btn btn-light">Dat lai</a>
-                </div>
-            </form>
-
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>ID</th>
-                            <th>Khach hang</th>
-                            <th>Email</th>
-                            <th>Noi dung</th>
-                            <th>Trang thai</th>
-                            <th>Gui luc</th>
-                            <th class="text-end">Hanh dong</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($messages as $message)
-                        <tr>
-                            <td>{{ $message->id }}</td>
-                            <td>{{ trim($message->first_name . ' ' . $message->last_name) ?: 'N/A' }}</td>
-                            <td>{{ $message->email }}</td>
-                            <td>{{ \Illuminate\Support\Str::limit($message->message, 90) }}</td>
-                            <td>
-                                @if($message->processed_at)
-                                <span class="badge bg-success-subtle text-success">Da xu ly</span>
-                                @else
-                                <span class="badge bg-warning-subtle text-warning">Chua xu ly</span>
-                                @endif
-                            </td>
-                            <td>{{ $message->created_at->format('d/m/Y H:i') }}</td>
-                            <td class="text-end">
-                                <a href="{{ route('admin.contacts.show', $message) }}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="7" class="text-center text-muted py-4">Chua co lien he nao.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+    <div class="container-xxl">
+        <div class="card">
+            <div class="d-flex card-header justify-content-between align-items-center">
+                <h4 class="card-title">Quản lý liên hệ khách hàng</h4>
             </div>
 
-            @if($messages->hasPages())
-            <div class="mt-3">
-                {{ $messages->links() }}
+            <div class="card-body">
+
+                {{-- BULK ACTION --}}
+                <div id="bulk-actions-container" class="mb-3" style="display: none;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="selected-count" class="fw-bold"></span>
+
+                        <select id="bulk-action-select" class="form-select form-select-sm" style="width: 220px;">
+                            <option value="">Chọn hành động...</option>
+                            <option value="mark_processed">Đánh dấu đã xử lý</option>
+                            <option value="delete">Xóa</option>
+                        </select>
+
+                        <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">
+                            Áp dụng
+                        </button>
+                    </div>
+                </div>
+
+                {{-- GRID --}}
+                <div id="table-contacts-gridjs"></div>
+
             </div>
-            @endif
         </div>
     </div>
-</div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('table-contacts-gridjs')) {
+
+                new gridjs.Grid({
+                    columns: [
+                        {
+                            id: 'checkbox',
+                            name: gridjs.html('<input type="checkbox" class="gridjs-checkbox-all"/>'),
+                            formatter: (cell, row) => {
+                                const id = row.cells[1].data;
+                                return gridjs.html(
+                                    `<input type="checkbox" class="gridjs-checkbox-row" data-id="${id}"/>`);
+                            },
+                            width: '40px',
+                            sort: false,
+                        },
+                        { id: 'id', name: 'ID' },
+                        { id: 'name', name: 'Khách hàng' },
+                        { id: 'email', name: 'Email' },
+                        {
+                            id: 'message',
+                            name: 'Nội dung',
+                            formatter: (cell) => {
+                                return gridjs.html(`<span title="${cell}">${cell}</span>`);
+                            },
+                        },
+                        {
+                            id: 'status',
+                            name: 'Trạng thái',
+                            formatter: (cell) => {
+                                return cell === 'processed'
+                                    ? gridjs.html('<span class="badge bg-success">Đã xử lý</span>')
+                                    : gridjs.html('<span class="badge bg-warning text-dark">Chưa xử lý</span>');
+                            },
+                        },
+                        { id: 'created_at', name: 'Gửi lúc' },
+                        {
+                            name: 'Hành động',
+                            sort: false,
+                            width: '80px',
+                            formatter: (cell, row) => {
+                                const id = row.cells[1].data;
+                                const name = row.cells[2].data;
+
+                                const showUrl = `{{ url('admin/contacts') }}/${id}`;
+                                const deleteUrl = `{{ url('admin/contacts') }}/${id}`;
+
+                                return gridjs.html(`
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                    <li>
+                                        <a class="dropdown-item" href="${showUrl}">
+                                            <i class="bi bi-eye me-2 text-info"></i>Xem
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item mark-processed" href="#"
+                                           data-id="${id}">
+                                            <i class="bi bi-check-lg me-2 text-success"></i>Đánh dấu đã xử lý
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger delete-item"
+                                           href="#"
+                                           data-id="${id}"
+                                           data-name="${name}"
+                                           data-url="${deleteUrl}">
+                                            <i class="bi bi-trash me-2"></i>Xóa bỏ
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        `);
+                            },
+                        },
+                    ],
+
+                    server: {
+                        url: "{{ route('admin.api.contacts.data') }}",
+                        then: data => data.data.map(item => [
+                            null,
+                            item.id,
+                            item.name,
+                            item.email,
+                            item.message,
+                            item.status,
+                            item.created_at,
+                            null,
+                        ]),
+                    },
+
+                    search: true,
+                    sort: true,
+                    pagination: {
+                        limit: 10,
+                    },
+
+                }).render(document.getElementById('table-contacts-gridjs'));
+
+                // DELETE
+                AdminCRUD.initDeleteHandler('.delete-item', {
+                    confirmTitle: 'Xóa liên hệ?',
+                    confirmText: 'Bạn sắp xóa liên hệ:',
+                    successText: 'Đã xóa thành công.',
+                });
+
+            }
+        });
+    </script>
+@endpush

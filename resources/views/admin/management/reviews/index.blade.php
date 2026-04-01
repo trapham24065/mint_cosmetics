@@ -1,20 +1,20 @@
 @extends('admin.layouts.app')
 @section('content')
-    <div class="container-xxl">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title">Quản lý đánh giá</h4>
-            </div>
-            <div class="card-body">
-                {{-- Grid.js will render the table here --}}
-                <div id="table-reviews-gridjs"></div>
+<div class="container-xxl">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">Quản lý đánh giá</h4>
+        </div>
+        <div class="card-body">
+            {{-- Grid.js will render the table here --}}
+            <div id="table-reviews-gridjs"></div>
 
-            </div>
         </div>
     </div>
+</div>
 @endsection
 @push('scripts')
-    <!-- @formatter:off -->
+<!-- @formatter:off -->
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -51,6 +51,7 @@
                             formatter: (cell, row) => {
                                 const reviewId = row.cells[6].data;
                                 const isApproved = row.cells[4].data;
+                                const reviewProductName = row.cells[0].data;
 
                                 let approveOrRejectButton;
                                 if (!isApproved) {
@@ -73,11 +74,12 @@
 
                                 const deleteUrl = `/admin/reviews/${reviewId}`;
                                 const deleteButton = `
-                                <form action="${deleteUrl}" method="POST" class="d-inline" onsubmit="return confirm('Bạn chắc chắn chứ?');">
-                                    <input type="hidden" name="_token" value="${csrfToken}">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-sm btn-danger">Xóa bỏ</button>
-                                </form>`;
+                                <a href="#" class="btn btn-sm btn-danger delete-item"
+                                   data-id="${reviewId}"
+                                   data-name="${reviewProductName}"
+                                   data-url="${deleteUrl}">
+                                   Xóa bỏ
+                                </a>`;
 
                                 return gridjs.html(`<div class="d-flex gap-2">${approveOrRejectButton} ${deleteButton}</div>`);
                             }
@@ -103,6 +105,11 @@
                         limit: 10,
                     }
                 }).render(document.getElementById("table-reviews-gridjs"));
+
+                AdminCRUD.initDeleteHandler('.delete-item', {
+                    confirmTitle: 'Xóa đánh giá?',
+                    confirmText: 'Bạn sắp xóa đánh giá của sản phẩm:'
+                });
             }
         });
     </script>

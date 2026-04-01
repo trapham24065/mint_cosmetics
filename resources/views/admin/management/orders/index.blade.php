@@ -40,7 +40,7 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <h4 class="card-title mb-2">Đơn hàng đã được vận chuyển</h4>
+                                <h4 class="card-title mb-2">Đơn hàng vận chuyển</h4>
                                 <p class="text-muted fw-medium fs-22 mb-0">{{ $statusCounts['shipped'] ?? 0 }}</p>
                             </div>
                             <div>

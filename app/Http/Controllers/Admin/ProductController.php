@@ -285,7 +285,7 @@ class ProductController extends Controller
             ->map(function ($variant) {
                 $attrText = $variant->attributeValues
                     ->map(fn($val) => $val->value)
-                    ->implode(' / ') ?: 'Default';
+                    ->implode(' / ') ?: 'Mặc định';
 
                 return [
                     'id'   => $variant->id,

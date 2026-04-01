@@ -6,7 +6,7 @@
             <div class="row">
                 <div class="col-xl-3 col-lg-4">
                     <div class="card">
-                        <div class="card-header"><h4 class="card-title">Actions</h4></div>
+                        <div class="card-header"><h4 class="card-title">Hành động</h4></div>
                         <div class="card-body">
                             <p class="text-muted">Điền đầy đủ các trường bắt buộc, tạo biến thể nếu cần, rồi nhấp vào
                                 tạo.</p>

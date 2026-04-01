@@ -13,7 +13,7 @@
 
     <!-- Reply -->
     <div class="col-12 mb-3">
-        <label for="reply" class="form-label">Bot's Reply</label>
+        <label for="reply" class="form-label">Phản hồi của Bot</label>
         <textarea id="reply" name="reply" class="form-control @error('reply') is-invalid @enderror"
                   rows="5" placeholder="Nhập câu trả lời mà bot nên đưa ra."
                   required>{{ old('reply', $chatbot->reply ?? '') }}</textarea>

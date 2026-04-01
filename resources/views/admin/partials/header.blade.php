@@ -77,7 +77,7 @@
                                         <div class="flex-grow-1">
                                             <p class="mb-0 fw-semibold">
                                                 {{-- Tiêu đề thông báo --}}
-                                                New Order #{{ $notification->data['order_id'] ?? 'N/A' }}
+                                                Đơn hàng mới #{{ $notification->data['order_id'] ?? 'N/A' }}
                                             </p>
                                             <p class="mb-0 text-wrap text-muted small">
                                                 {{-- Nội dung chi tiết --}}
@@ -95,10 +95,10 @@
                             @endforelse
                         </div>
 
-                        <div class="text-center py-3">
-                            <a href="javascript:void(0);" class="btn btn-primary btn-sm">Xem tất cả thông báo<i
-                                    class="bx bx-right-arrow-alt ms-1"></i></a>
-                        </div>
+                        {{--                        <div class="text-center py-3">--}}
+                        {{--                            <a href="javascript:void(0);" class="btn btn-primary btn-sm">Xem tất cả thông báo<i--}}
+                        {{--                                    class="bx bx-right-arrow-alt ms-1"></i></a>--}}
+                        {{--                        </div>--}}
                     </div>
                 </div>
 

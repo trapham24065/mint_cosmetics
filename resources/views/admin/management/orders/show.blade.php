@@ -71,7 +71,7 @@
                                             <th>Sản phẩm</th>
                                             <th>Số lượng</th>
                                             <th>Giá</th>
-                                            <th class="text-end">Tổng cộng6</th>
+                                            <th class="text-end">Tổng cộng</th>
                                         </tr>
                                         </thead>
                                         <tbody>

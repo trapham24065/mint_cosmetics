@@ -17,7 +17,9 @@ use Illuminate\View\View;
 class ReturnRequestController extends Controller
 {
 
-    public function __construct(private readonly OrderReturnService $returnService) {}
+    public function __construct(private readonly OrderReturnService $returnService)
+    {
+    }
 
     public function create(Order $order): View|RedirectResponse
     {
@@ -50,10 +52,10 @@ class ReturnRequestController extends Controller
         }
 
         $returnPayload = [
-            'order_id' => $order->id,
-            'customer_id' => $customerId,
-            'reason' => $request->validated('reason'),
-            'description' => $request->validated('details'),
+            'order_id'        => $order->id,
+            'customer_id'     => $customerId,
+            'reason'          => $request->validated('reason'),
+            'description'     => $request->validated('details'),
             'evidence_images' => $evidenceImages,
         ];
 
@@ -88,7 +90,7 @@ class ReturnRequestController extends Controller
         $completedAt = $order->completed_at ?? $order->updated_at;
 
         if (!$completedAt || now()->diffInDays($completedAt) > $returnDays) {
-            return "Don hang da qua han {$returnDays} ngay de yeu cau tra hang.";
+            return "Đơn hàng đã quá hạn {$returnDays} ngày để yêu cầu trả hàng.";
         }
 
         $exists = OrderReturn::query()
@@ -98,7 +100,7 @@ class ReturnRequestController extends Controller
             ->exists();
 
         if ($exists) {
-            return 'Ban da co yeu cau tra hang dang duoc xu ly cho don nay.';
+            return 'Bạn đang có đơn hàng đang chờ xử lý.';
         }
 
         return null;
@@ -148,16 +150,16 @@ class ReturnRequestController extends Controller
 
             $orderItem = $orderItems->get($orderItemId);
             if (!$orderItem) {
-                return 'Co san pham khong thuoc don hang nay.';
+                return 'Có sản phẩm không thuộc đơn hàng này.';
             }
 
             $availableQty = (int)$orderItem->quantity - (int)($lockedQtyByItem[$orderItemId] ?? 0);
             if ($availableQty <= 0) {
-                return 'Co san pham da duoc tra hoac dang xu ly tra hang, khong the yeu cau lai.';
+                return 'Có sản phẩm đã được trả hoặc đang xử lý trả hàng, không thể yêu cầu lại.';
             }
 
             if ($requestQty > $availableQty) {
-                return 'So luong tra vuot qua so luong con lai co the tra.';
+                return 'Số lượng trả vượt quá số lượng còn lại có thể trả.';
             }
         }
 
@@ -205,4 +207,5 @@ class ReturnRequestController extends Controller
 
         return $paths;
     }
+
 }

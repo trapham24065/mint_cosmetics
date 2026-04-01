@@ -51,11 +51,11 @@ class BrandController extends Controller
             $this->brandService->createBrand($data);
             return redirect()->route('admin.brands.index')->with('success', 'Thương hiệu đã được tạo thành công.');
         } catch (QueryException $e) {
-            Log::error('Brand Creation Failed: ' . $e->getMessage());
+            Log::error('Brand Creation Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Brand Creation Failed: ' . $e->getMessage());
+            Log::error('Brand Creation Failed: '.$e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -73,11 +73,11 @@ class BrandController extends Controller
             $this->brandService->updateBrand($brand, $data);
             return redirect()->route('admin.brands.index')->with('success', 'Thương hiệu đã được cập nhật thành công.');
         } catch (QueryException $e) {
-            Log::error('Brand Update Failed: ' . $e->getMessage());
+            Log::error('Brand Update Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Brand Update Failed: ' . $e->getMessage());
+            Log::error('Brand Update Failed: '.$e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -96,12 +96,12 @@ class BrandController extends Controller
             return redirect()->route('admin.brands.index')
                 ->with('success', 'Thương hiệu đã được xóa thành công.');
         } catch (\Exception $e) {
-            Log::error('Brand Deletion Failed: ' . $e->getMessage());
+            Log::error('Brand Deletion Failed: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to delete brand: ' . $e->getMessage(),
+                    'message' => 'Failed to delete brand: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -143,4 +143,5 @@ class BrandController extends Controller
             'data' => $data,
         ]);
     }
+
 }

@@ -14,6 +14,7 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
+
     /**
      * Display a listing of the users.
      */
@@ -42,19 +43,19 @@ class UserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'in:admin,sale,warehouse'],
-            'status' => ['nullable', 'boolean'],
+            'role'     => ['required', 'in:admin,sale,warehouse'],
+            'status'   => ['nullable', 'boolean'],
         ]);
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role'],
-            'status' => $validated['status'] ?? 1,
+            'name'              => $validated['name'],
+            'email'             => $validated['email'],
+            'password'          => Hash::make($validated['password']),
+            'role'              => $validated['role'],
+            'status'            => $validated['status'] ?? 1,
             'email_verified_at' => now(),
         ]);
 
@@ -67,7 +68,7 @@ class UserController extends Controller
      */
     public function edit(User $user): View
     {
-        $title = 'Chỉnh sửa tài khoản: ' . $user->name;
+        $title = 'Chỉnh sửa tài khoản: '.$user->name;
         $roles = ['admin', 'sale', 'warehouse'];
 
         return view('admin.management.users.edit', compact('user', 'roles', 'title'));
@@ -79,17 +80,17 @@ class UserController extends Controller
     public function update(Request $request, User $user): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', 'in:admin,sale,warehouse'],
-            'status' => ['nullable', 'boolean'],
+            'role'     => ['required', 'in:admin,sale,warehouse'],
+            'status'   => ['nullable', 'boolean'],
         ]);
 
         $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'role' => $validated['role'],
+            'name'   => $validated['name'],
+            'email'  => $validated['email'],
+            'role'   => $validated['role'],
             'status' => $validated['status'] ?? 0,
         ]);
 
@@ -138,4 +139,5 @@ class UserController extends Controller
 
         return response()->json(['data' => $data]);
     }
+
 }

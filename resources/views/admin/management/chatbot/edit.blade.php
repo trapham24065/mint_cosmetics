@@ -4,7 +4,7 @@
     <div class="container-xxl">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title">Chỉnh sửa quy tắc Chatbot</h4>
+                <h4 class="card-title">Chỉnh sửa câu</h4>
             </div>
             <div class="card-body">
                 <form method="POST" action="{{ route('admin.chatbot.update', $chatbot->id) }}" novalidate>

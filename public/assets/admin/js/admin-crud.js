@@ -3,7 +3,7 @@
  * Reusable functions for Create, Read, Update, Delete operations
  */
 
-const AdminCRUD = {
+let AdminCRUD = {
   /**
    * Initialize delete handlers for a specific selector
    * @param {string} selector - CSS selector for delete buttons (default: '.delete-item')
@@ -11,17 +11,10 @@ const AdminCRUD = {
    */
   initDeleteHandler(selector = '.delete-item', options = {}) {
     const defaults = {
-      confirmTitle: 'Are you sure?',
-      confirmText: 'You won\'t be able to revert this!',
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'Cancel',
-      successTitle: 'Deleted!',
-      successText: 'Item has been deleted successfully.',
-      errorTitle: 'Error!',
-      errorText: 'An error occurred while deleting.',
-      onSuccess: () => location.reload(),
-      onError: null,
-      useSwal: typeof Swal !== 'undefined'
+      confirmTitle: 'Xác nhận xóa',
+      confirmText: 'Bạn có chắc muốn xóa mục này?',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy'
     };
 
     const config = { ...defaults, ...options };
@@ -33,7 +26,7 @@ const AdminCRUD = {
       e.preventDefault();
 
       const itemId = deleteBtn.dataset.id;
-      const itemName = deleteBtn.dataset.name || 'this item';
+      const itemName = deleteBtn.dataset.name || 'vật phẩm này';
       const deleteUrl = deleteBtn.dataset.url;
 
       if (!deleteUrl) {
@@ -49,32 +42,35 @@ const AdminCRUD = {
    * Show confirmation dialog and delete if confirmed
    */
   confirmDelete(deleteUrl, itemName, config) {
-    if (config.useSwal) {
-      Swal.fire({
-        title: config.confirmTitle,
-        html: `${config.confirmText}<br><strong>${itemName}</strong>`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#6c757d',
-        confirmButtonText: config.confirmButtonText,
-        cancelButtonText: config.cancelButtonText
-      }).then((result) => {
-        if (result.isConfirmed) {
-          AdminCRUD.performDelete(deleteUrl, itemName, config);
-        }
-      });
-    } else {
-      if (confirm(`Are you sure you want to delete: ${itemName}?`)) {
-        AdminCRUD.performDelete(deleteUrl, itemName, config);
-      }
+    const modal = AdminCRUD.ensureDeleteModal();
+    if (!modal) {
+      return;
+    }
+
+    const titleEl = document.getElementById('admin-delete-modal-title');
+    const textEl = document.getElementById('admin-delete-modal-text');
+    const nameEl = document.getElementById('admin-delete-item-name');
+    const confirmBtn = document.getElementById('admin-delete-confirm-btn');
+
+    if (titleEl) titleEl.textContent = config.confirmTitle;
+    if (textEl) textEl.textContent = config.confirmText;
+    if (nameEl) nameEl.textContent = itemName;
+    if (confirmBtn) confirmBtn.textContent = config.confirmButtonText;
+
+    modal.show();
+
+    if (confirmBtn) {
+      confirmBtn.onclick = function () {
+        modal.hide();
+        AdminCRUD.performDelete(deleteUrl);
+      };
     }
   },
 
   /**
    * Perform the actual delete operation
    */
-  performDelete(deleteUrl, itemName, config) {
+  performDelete(deleteUrl) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
     if (!csrfToken) {
@@ -82,69 +78,33 @@ const AdminCRUD = {
       return;
     }
 
-    // Show loading
-    if (config.useSwal) {
-      Swal.fire({
-        title: 'Deleting...',
-        text: 'Please wait',
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading()
-      });
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = deleteUrl;
+
+    const tokenInput = document.createElement('input');
+    tokenInput.type = 'hidden';
+    tokenInput.name = '_token';
+    tokenInput.value = csrfToken;
+    form.appendChild(tokenInput);
+
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'DELETE';
+    form.appendChild(methodInput);
+
+    document.body.appendChild(form);
+    form.submit();
+  },
+
+  ensureDeleteModal() {
+    const modalEl = document.getElementById('adminDeleteConfirmModal');
+    if (!modalEl || typeof bootstrap === 'undefined') {
+      return null;
     }
 
-    fetch(deleteUrl, {
-      method: 'DELETE',
-      headers: {
-        'X-CSRF-TOKEN': csrfToken,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      },
-      credentials: 'same-origin'
-    })
-    .then(response => {
-      if (!response.ok) {
-        return response.json().then(err => {
-          throw new Error(err.message || `HTTP Error: ${response.status}`);
-        });
-      }
-      return response.json();
-    })
-    .then(data => {
-      if (data.success) {
-        if (config.useSwal) {
-          Swal.fire({
-            icon: 'success',
-            title: config.successTitle,
-            text: data.message || config.successText,
-            timer: 2000,
-            showConfirmButton: false
-          }).then(() => {
-            if (config.onSuccess) config.onSuccess(data);
-          });
-        } else {
-          alert(data.message || config.successText);
-          if (config.onSuccess) config.onSuccess(data);
-        }
-      } else {
-        throw new Error(data.message || 'Delete operation failed');
-      }
-    })
-    .catch(error => {
-      console.error('Delete Error:', error);
-
-      if (config.useSwal) {
-        Swal.fire({
-          icon: 'error',
-          title: config.errorTitle,
-          text: error.message || config.errorText
-        });
-      } else {
-        alert(error.message || config.errorText);
-      }
-
-      if (config.onError) config.onError(error);
-    });
+    return bootstrap.Modal.getOrCreateInstance(modalEl);
   },
 
   /**

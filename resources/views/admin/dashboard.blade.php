@@ -14,6 +14,50 @@
 
         <!-- ROW 1: Real-time Stats & Key Metrics -->
         <div class="row">
+            <!-- Total Revenue -->
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-info text-white mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-white-50 text-uppercase mb-2">
+                                    Tổng doanh thu</h6>
+                                <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($totalRevenue) }} đ</h2>
+                            </div>
+                            <div class="avatar-sm">
+                                <span class="avatar-title  bg-opacity-25 rounded-circle fs-3">
+                                    <i class="bx bx-money"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span class="text-white-50 fs-13">Đơn hàng đã hoàn thành</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Pending Orders -->
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-warning text-white mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-white-50 text-uppercase mb-2">Đơn hàng đang chờ xử lý</h6>
+                                <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($pendingOrders) }}</h2>
+                            </div>
+                            <div class="avatar-sm">
+                                <span class="avatar-title  bg-opacity-25 rounded-circle fs-3">
+                                    <i class="bx bx-time-five"></i>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <span class="text-white-50 fs-13">Cần phê duyệt ngay</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Online Users -->
             <div class="col-xl-3 col-md-6">
                 <div class="card bg-success text-white mb-4">
@@ -63,51 +107,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Pending Orders -->
-            <div class="col-xl-3 col-md-6">
-                <div class="card bg-warning text-white mb-4">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-white-50 text-uppercase mb-2">Đơn hàng đang chờ xử lý</h6>
-                                <h2 class="mb-0 display-6 fw-bold text-white">{{ number_format($pendingOrders) }}</h2>
-                            </div>
-                            <div class="avatar-sm">
-                                <span class="avatar-title  bg-opacity-25 rounded-circle fs-3">
-                                    <i class="bx bx-time-five"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <span class="text-white-50 fs-13">Cần phê duyệt ngay</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Revenue -->
-            <div class="col-xl-3 col-md-6">
-                <div class="card bg-info text-white mb-4">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-white-50 text-uppercase mb-2">
-                                    Tổng doanh thu</h6>
-                                <h4 class="mb-0 fw-bold text-white">{{ number_format($totalRevenue) }} đ</h4>
-                            </div>
-                            <div class="avatar-sm">
-                                <span class="avatar-title  bg-opacity-25 rounded-circle fs-3">
-                                    <i class="bx bx-money"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <span class="text-white-50 fs-13">Đơn hàng đã hoàn thành</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
         </div>
 
         <!-- ROW 2: Additional Stats -->
