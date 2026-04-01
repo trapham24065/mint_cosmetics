@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <div id="chat-suggestions" class="chat-suggestions" style="padding: 10px 15px; display: none;">
+        <div id="chat-suggestions" class="chat-suggestions">
             <div class="suggestions-header" style="font-size: 12px; color: #666; margin-bottom: 5px;">
                 <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
                 <span>Gợi ý nhanh</span>
@@ -44,7 +44,7 @@
 
         <div class="chat-input-area">
             <div class="input-wrapper">
-                <input type="text" id="chat-input" placeholder="Enter message..." autocomplete="off">
+                <input type="text" id="chat-input" placeholder="Nhập tin nhắn..." autocomplete="off">
                 <button id="chat-send-btn">
                     <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
                 </button>
@@ -390,9 +390,8 @@
     .chat-suggestions {
         border-top: 2px solid rgba(255, 182, 193, 0.2);
         background: linear-gradient(to bottom, #ffffff, #fff5f8);
-        max-height: 140px;
+        max-height: 80px;
         overflow-y: auto;
-        padding: 5px 0;
     }
 
     .suggestions-header {

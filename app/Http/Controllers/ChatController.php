@@ -26,7 +26,7 @@ class ChatController extends Controller
         $admin = User::first();
 
         if (!$admin) {
-            return response()->json(['success' => false, 'message' => 'The system is not ready.'], 500);
+            return response()->json(['success' => false, 'message' => 'Hệ thống chưa sẵn sàng'], 500);
         }
 
         $conversation = $participant->conversations->sortByDesc('updated_at')->first();
@@ -114,7 +114,7 @@ class ChatController extends Controller
                 'body'        => data_get($message, 'body'),
                 'created_at'  => $message->created_at->format('H:i'),
                 'is_me'       => $isMe,
-                'sender_name' => $isMe ? 'You' : 'Support',
+                'sender_name' => $isMe ? 'Bạn' : 'Hỗ trợ',
             ];
         }
 
@@ -155,17 +155,17 @@ class ChatController extends Controller
         $admin = User::first();
 
         if (!$admin) {
-            return response()->json(['success' => false, 'message' => 'The system is not ready.'], 500);
+            return response()->json(['success' => false, 'message' => 'Hệ thống chưa sẵn sàng.'], 500);
         }
 
         $conversation = $participant->conversations->sortByDesc('updated_at')->first();
 
         if (!$conversation) {
-            return response()->json(['success' => false, 'message' => 'No conversation found.'], 404);
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy cuộc trò chuyện nào.'], 404);
         }
 
         // Gửi tin nhắn mặc định
-        $defaultMessage = "Sorry, the admin is busy right now. You can choose one of the frequently asked questions below to get an immediate answer!😊";
+        $defaultMessage = "Xin lỗi, quản trị viên hiện đang bận. Bạn có thể chọn một trong những câu hỏi thường gặp bên dưới để nhận được câu trả lời ngay lập tức! 😊";
         $botMessage = ChatFacade::message($defaultMessage)
             ->from($admin)
             ->to($conversation)

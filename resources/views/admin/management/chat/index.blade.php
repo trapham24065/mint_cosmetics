@@ -29,10 +29,10 @@
                         <a href="{{ route('admin.chat.index', ['conversation_id' => $conv->id]) }}"
                            class="list-group-item list-group-item-action {{ $isActive ? 'active' : '' }}">
                             <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">{{ $name }}</h6>
+                                <small class="mb-1">{{ $name }}</small>
                                 <small>{{ $conv->updated_at->diffForHumans() }}</small>
                             </div>
-                            <small class="text-truncate d-block text-muted">Nhấp vào để trò chuyện</small>
+                            <small class="text-truncate d-block">Nhấp vào để trò chuyện</small>
                         </a>
                     @empty
                         <div class="p-4 text-center text-muted">Chưa có cuộc trò chuyện nào.</div>

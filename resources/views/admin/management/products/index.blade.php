@@ -1,35 +1,36 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <div class="container-xxl">
-        <div class="card">
-            <div class="d-flex card-header justify-content-between align-items-center">
-                <h4 class="card-title">Quản lý sản phẩm</h4>
-                <a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus me-1"></i> Thêm sản phẩm
-                </a>
-            </div>
-            <div class="card-body">
-                <div id="bulk-actions-container" class="mb-3" style="display: none;">
-                    <div class="d-flex align-items-center gap-2">
-                        <span id="selected-count" class="fw-bold"></span>
-                        <select id="bulk-action-select" class="form-select form-select-sm" style="width: 200px;">
-                            <option value="">Chọn hành động...</option>
-                            <option value="activate">Kích hoạt đã chọn</option>
-                            <option value="deactivate">Vô hiệu hóa đã chọn</option>
-                        </select>
-                        <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
-                    </div>
+<div class="container-xxl">
+    <div class="card">
+        <div class="d-flex card-header justify-content-between align-items-center">
+            <h4 class="card-title">Quản lý sản phẩm</h4>
+            <a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus me-1"></i> Thêm sản phẩm
+            </a>
+        </div>
+        <div class="card-body">
+            <div id="bulk-actions-container" class="mb-3" style="display: none;">
+                <div class="d-flex align-items-center gap-2">
+                    <span id="selected-count" class="fw-bold"></span>
+                    <select id="bulk-action-select" class="form-select form-select-sm" style="width: 200px;">
+                        <option value="">Chọn hành động...</option>
+                        <option value="activate">Kích hoạt đã chọn</option>
+                        <option value="deactivate">Vô hiệu hóa đã chọn</option>
+                    </select>
+                    <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
                 </div>
-                {{-- Grid.js will render the table here --}}
-                <div id="table-products-gridjs"></div>
             </div>
+            {{-- Grid.js will render the table here --}}
+            <div id="table-products-gridjs"></div>
         </div>
     </div>
+</div>
+
 @endsection
 @push('scripts')
 
-    <!-- @formatter:off -->
+<!-- @formatter:off -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (document.getElementById("table-products-gridjs")) {
@@ -99,7 +100,7 @@
                                             </li>
                                             <li><hr class="dropdown-divider"></li>
                                             <li>
-                                                <a class="dropdown-item text-danger delete-item" href="#"
+                                                                <a class="dropdown-item text-danger delete-item" href="#"
                                                    data-id="${productId}"
                                                    data-name="${productName}"
                                                    data-url="${deleteUrl}">
@@ -132,11 +133,9 @@
                     pagination: { limit: 10 }
                 }).render(document.getElementById("table-products-gridjs"));
 
-                // Initialize delete handler - CHỈ CẦN 1 DÒNG!
                 AdminCRUD.initDeleteHandler('.delete-item', {
-                    confirmTitle: 'Xóa sản phẩm?',
-                    confirmText: 'Bạn sắp xóa sản phẩm:',
-                    successText: 'Sản phẩm đã được xóa thành công.'
+                    confirmTitle: 'Xác nhận xóa sản phẩm',
+                    confirmText: 'Bạn có chắc muốn xóa sản phẩm này?'
                 });
 
                 // Initialize select all checkbox

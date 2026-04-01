@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ChatbotController;
 use App\Http\Controllers\Admin\ChatbotReplyController;
+use App\Http\Controllers\Admin\ContactMessageController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ProductController;
@@ -52,4 +53,6 @@ Route::name('api.')->group(function () {
     Route::get('/inventories/api', [PurchaseOrderController::class, 'getDataForGrid'])->name('inventories.data');
 
     Route::get('/users/api', [UserController::class, 'getDataForGrid'])->name('users.data');
+
+    Route::get('/contacts/api', [ContactMessageController::class, 'getDataForGrid'])->name('contacts.data');
 });

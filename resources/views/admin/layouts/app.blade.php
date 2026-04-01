@@ -32,45 +32,64 @@
 <body>
 
 
-<!-- START Wrapper -->
-<div class="wrapper">
-    @include('admin.partials.header')
-    {{--    @include('admin.layouts.timeline')--}}
-    @include('admin.partials.sidebar')
-    @include('admin.layouts.menu')
-    <div class="page-content">
+    <!-- START Wrapper -->
+    <div class="wrapper">
+        @include('admin.partials.header')
+        {{-- @include('admin.layouts.timeline')--}}
+        @include('admin.partials.sidebar')
+        @include('admin.layouts.menu')
+        <div class="page-content">
 
-        <!-- Page Content-->
-        @yield('content')
-        @include('admin.partials.footer')
-        <!-- end page content -->
+            <!-- Page Content-->
+            @yield('content')
+            @include('admin.partials.footer')
+            <!-- end page content -->
+        </div>
+
+
     </div>
 
+    <div class="modal fade" id="adminDeleteConfirmModal" tabindex="-1" aria-labelledby="adminDeleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="admin-delete-modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-1" id="admin-delete-modal-text">Bạn có chắc muốn xóa mục này?</p>
+                    <p class="mb-0"><strong id="admin-delete-item-name"></strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" id="admin-delete-confirm-btn">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{asset('assets/storefront/js/vendor/jquery-3.6.0.min.js')}}"></script>
 
-</div>
-<script src="{{asset('assets/storefront/js/vendor/jquery-3.6.0.min.js')}}"></script>
-
-<script src="https://cdn.tiny.cloud/1/456eizv25xorupt47tepkzopmaeapg49dxyklm5u5yarht9b/tinymce/8/tinymce.min.js"
+    <script src="https://cdn.tiny.cloud/1/456eizv25xorupt47tepkzopmaeapg49dxyklm5u5yarht9b/tinymce/8/tinymce.min.js"
         referrerpolicy="origin" crossorigin="anonymous"></script>
-<!-- Admin CRUD Utilities -->
-<script src="{{ asset('assets/admin/js/admin-crud.js') }}"></script>
-<!-- Vendor Javascript (Require in all Page) -->
-<script src="{{asset('assets/admin/js/vendor.js')}}"></script>
+    <!-- Admin CRUD Utilities -->
+    <script src="{{ asset('assets/admin/js/admin-crud.js') }}"></script>
+    <!-- Vendor Javascript (Require in all Page) -->
+    <script src="{{asset('assets/admin/js/vendor.js')}}"></script>
 
-<!-- App Javascript (Require in all Page) -->
-<script src="{{asset('assets/admin/js/app.js')}}"></script>
-<!-- Gridjs Plugin js -->
-<script src="{{asset('assets/admin/vendor/gridjs/gridjs.umd.js')}}"></script>
-<script src="{{asset('assets/admin/js/components/table-gridjs.js')}}"></script>
-<!-- Vector Map Js -->
-<script src="{{asset('assets/admin/vendor/jsvectormap/js/jsvectormap.min.js')}}"></script>
-<script src="{{asset('assets/admin/vendor/jsvectormap/maps/world-merc.js')}}"></script>
-<script src="{{asset('assets/admin/vendor/jsvectormap/maps/world.js')}}"></script>
+    <!-- App Javascript (Require in all Page) -->
+    <script src="{{asset('assets/admin/js/app.js')}}"></script>
+    <!-- Gridjs Plugin js -->
+    <script src="{{asset('assets/admin/vendor/gridjs/gridjs.umd.js')}}"></script>
+    <script src="{{asset('assets/admin/js/components/table-gridjs.js')}}"></script>
+    <!-- Vector Map Js -->
+    <script src="{{asset('assets/admin/vendor/jsvectormap/js/jsvectormap.min.js')}}"></script>
+    <script src="{{asset('assets/admin/vendor/jsvectormap/maps/world-merc.js')}}"></script>
+    <script src="{{asset('assets/admin/vendor/jsvectormap/maps/world.js')}}"></script>
 
-<!-- Dashboard Js -->
-<script src="{{asset('assets/admin/js/pages/dashboard.js')}}"></script>
-@stack('scripts')
-<x-toast />
+    <!-- Dashboard Js -->
+    <script src="{{asset('assets/admin/js/pages/dashboard.js')}}"></script>
+    @stack('scripts')
+    <x-toast />
 </body>
 
 </html>

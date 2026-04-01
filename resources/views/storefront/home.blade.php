@@ -126,6 +126,14 @@
         <!--== Start Product Area Wrapper ==-->
         <section class="section-space">
             <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="section-title text-center">
+                            <h2 class="title">Bán chạy nhất</h2>
+                            <p>Những sản phẩm được khách hàng yêu thích và lựa chọn nhiều nhất hiện nay.</p>
+                        </div>
+                    </div>
+                </div>
                 <div class="row mb-n4 mb-sm-n10 g-3 g-sm-6">
                     {{-- DYNAMIC PRODUCT GRID --}}
                     @forelse($latestProducts as $product)

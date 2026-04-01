@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace App\Services\Admin;
 
+use App\Enums\OrderStatus;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Exception;
@@ -20,8 +21,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class ProductService
 {
@@ -299,9 +298,22 @@ class ProductService
      */
     public function deleteProduct(Product $product): bool
     {
-        if ($product->orderItems()->exists()) {
+        $totalStock = (int) $product->variants()->sum('stock');
+        if ($totalStock > 0) {
             throw new \RuntimeException(
-                'Không thể xóa sản phẩm vì sản phẩm đó được liên kết với các đơn hàng hiện có.'
+                'Không thể xóa sản phẩm vì vẫn còn tồn kho. Vui lòng xử lý tồn kho về 0 trước khi xóa.'
+            );
+        }
+
+        $hasUnsuccessfulOrderItems = $product->orderItems()
+            ->whereHas('order', function ($query) {
+                $query->where('status', '!=', OrderStatus::Completed->value);
+            })
+            ->exists();
+
+        if ($hasUnsuccessfulOrderItems) {
+            throw new \RuntimeException(
+                'Không thể xóa sản phẩm vì đang nằm trong đơn hàng chưa hoàn thành thành công.'
             );
         }
 
@@ -330,9 +342,9 @@ class ProductService
                 $affectedRows = Product::whereIn('id', $productIds)->update(['active' => (bool)$value]);
                 return (int)$affectedRows;
 
-            // Bạn có thể thêm các case khác ở đây trong tương lai, ví dụ: 'bulk_delete'
-            // case 'bulk_delete':
-            //     return Product::destroy($productIds);
+                // Bạn có thể thêm các case khác ở đây trong tương lai, ví dụ: 'bulk_delete'
+                // case 'bulk_delete':
+                //     return Product::destroy($productIds);
         }
 
         return 0;
@@ -353,10 +365,9 @@ class ProductService
 
         // Vòng lặp để đảm bảo duy nhất
         do {
-            $sku = $prefix.'-'.strtoupper(Str::random(6));
+            $sku = $prefix . '-' . strtoupper(Str::random(6));
         } while (ProductVariant::where('sku', $sku)->exists());
 
         return $sku;
     }
-
 }

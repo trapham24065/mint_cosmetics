@@ -49,7 +49,7 @@ class SupplierController extends Controller
      */
     public function show(Supplier $supplier): View
     {
-        $title = 'Supplier Details: '.$supplier->name;
+        $title = 'Supplier Details: ' . $supplier->name;
 
         $purchaseOrders = $supplier->purchaseOrders()
             ->withCount('items')
@@ -136,7 +136,35 @@ class SupplierController extends Controller
         $count = count($ids);
 
         if ($action === 'delete') {
-            Supplier::whereIn('id', $ids)->delete();
+            $suppliers = Supplier::whereIn('id', $ids)->withCount('purchaseOrders')->get();
+
+            $blocked = $suppliers->filter(function (Supplier $supplier) {
+                return $supplier->purchase_orders_count > 0;
+            });
+
+            $deletableIds = $suppliers
+                ->filter(function (Supplier $supplier) {
+                    return $supplier->purchase_orders_count === 0;
+                })
+                ->pluck('id')
+                ->all();
+
+            if (empty($deletableIds)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể xóa: tất cả nhà cung cấp đã chọn đều có đơn nhập hàng.',
+                ], 422);
+            }
+
+            Supplier::whereIn('id', $deletableIds)->delete();
+
+            if ($blocked->isNotEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => count($deletableIds) . ' nhà cung cấp đã được xóa. ' . $blocked->count() . ' nhà cung cấp bị bỏ qua vì đã có đơn nhập hàng.',
+                ]);
+            }
+
             return response()->json(['success' => true, 'message' => "$count nhà cung cấp đã được xóa thành công."]);
         }
 
@@ -146,5 +174,4 @@ class SupplierController extends Controller
         $statusText = $isActive ? 'activated' : 'deactivated';
         return response()->json(['success' => true, 'message' => "$count nhà cung cấp $statusText thành công."]);
     }
-
 }

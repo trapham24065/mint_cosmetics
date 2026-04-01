@@ -10,7 +10,7 @@
                             <img class="logo-main"
                                  src="{{ asset('storage/' . setting('site_logo')) }}"
                                  width="95" height="68"
-                                 alt="{{ setting('site_name', 'Logo') }}"
+                                 alt="{{ setting('site_name', 'Biểu tượng') }}"
                                  style="object-fit: contain;">
                         @else
                             <img class="logo-main"

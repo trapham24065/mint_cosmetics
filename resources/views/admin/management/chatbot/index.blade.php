@@ -3,7 +3,7 @@
     <div class="container-xxl">
         <div class="card">
             <div class="card-header d-flex justify-content-between">
-                <h4 class="card-title">Đào tạo Chatbot</h4>
+                <h4 class="card-title">Quản lý trả lời nhanh</h4>
                 <a href="{{ route('admin.chatbot.create') }}" class="btn btn-primary">Thêm quy tắc mới</a>
             </div>
             <div class="card-body">

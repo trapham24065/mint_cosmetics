@@ -13,6 +13,7 @@ use Illuminate\View\View;
 
 class ContactMessageController extends Controller
 {
+
     public function index(Request $request): View
     {
         $query = ContactMessage::query()->with('processedBy')->latest();
@@ -51,7 +52,7 @@ class ContactMessageController extends Controller
     public function markProcessed(ContactMessage $contactMessage): RedirectResponse
     {
         if ($contactMessage->processed_at !== null) {
-            return back()->with('success', 'Lien he nay da duoc danh dau xu ly truoc do.');
+            return back()->with('success', 'Liên hệ này đã được xử lý trước đó.');
         }
 
         $contactMessage->update([
@@ -59,6 +60,26 @@ class ContactMessageController extends Controller
             'processed_by' => Auth::id(),
         ]);
 
-        return back()->with('success', 'Da danh dau lien he la da xu ly.');
+        return back()->with('success', 'Đã đánh dấu liên hệ là đã xử lý.');
     }
+
+    public function getDataForGrid(): \Illuminate\Http\JsonResponse
+    {
+        $messages = \App\Models\ContactMessage::latest()->get();
+
+        $data = $messages->map(function ($message) {
+            return [
+                'id'         => $message->id,
+                'name'       => trim($message->first_name.' '.$message->last_name) ?: 'N/A',
+                'email'      => $message->email,
+                'message'    => \Illuminate\Support\Str::limit($message->message, 80),
+                'status'     => $message->processed_at ? 'Đã xử lý' : 'Chưa xử lý',
+                'created_at' => $message->created_at->format('d/m/Y H:i'),
+                'action'     => route('admin.contacts.show', $message),
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
 }

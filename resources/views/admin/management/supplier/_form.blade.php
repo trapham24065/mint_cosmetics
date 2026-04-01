@@ -10,7 +10,7 @@
                     <label for="name" class="form-label fw-semibold">Tên nhà cung cấp<span
                             class="text-danger">*</span></label>
                     <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name"
-                           value="{{ old('name', $supplier->name ?? '') }}" placeholder="Enter supplier company name"
+                           value="{{ old('name', $supplier->name ?? '') }}" placeholder="Nhập tên công ty nhà cung cấp"
                            required>
                     @error('name')
                     <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -100,7 +100,7 @@
                         <i class="ri-save-line me-1"></i> {{ $buttonText ?? 'Lưu nhà cung cấp' }}
                     </button>
                     <a href="{{ route('admin.suppliers.index') }}" class="btn btn-outline-secondary py-2">
-                        Cancel
+                        Hủy bỏ
                     </a>
                 </div>
             </div>

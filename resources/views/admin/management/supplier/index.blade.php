@@ -5,7 +5,7 @@
         <div class="card">
             <div class="d-flex card-header justify-content-between align-items-center">
                 <h4 class="card-title">Quản lý nhà cung cấp</h4>
-                <a href="#" class="btn btn-sm btn-primary">
+                <a href="{{ route('admin.suppliers.create') }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-plus me-1"></i> Thêm nhà cung cấp
                 </a>
             </div>
@@ -65,6 +65,7 @@
                             sort: false,
                             formatter: (cell, row) => {
                                 const supplierId = row.cells[1].data;
+                                const supplierName = row.cells[2].data;
                                 const showUrl = `{{ url('admin/suppliers') }}/${supplierId}`;
                                 const editUrl = `{{ url('admin/suppliers') }}/${supplierId}/edit`;
                                 const deleteUrl = `{{ url('admin/suppliers') }}/${supplierId}`;
@@ -89,6 +90,7 @@
                                             <li>
                                                 <a class="dropdown-item text-danger delete-item" href="#"
                                                    data-id="${supplierId}"
+                                                   data-name="${supplierName}"
                                                    data-url="${deleteUrl}">
                                                     <i class="bi bi-trash me-2"></i>Xóa
                                                 </a>
@@ -119,34 +121,9 @@
                     pagination: { limit: 10 }
                 }).render(document.getElementById("table-customers-gridjs"));
 
-                document.addEventListener('click', function(e) {
-                    if (e.target && e.target.closest('.delete-item')) {
-                        e.preventDefault();
-                        const btn = e.target.closest('.delete-item');
-                        const url = btn.dataset.url;
-
-                        Swal.fire({
-                            title: 'Bạn có chắc không??',
-                            text: "Nhà cung cấp này sẽ bị xóa vĩnh viễn.!",
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#d33',
-                            confirmButtonText: 'Yes, delete it!'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                const form = document.createElement('form');
-                                form.method = 'POST';
-                                form.action = url;
-                                const csrf = document.createElement('input');
-                                csrf.type = 'hidden'; csrf.name = '_token'; csrf.value = csrfToken;
-                                const method = document.createElement('input');
-                                method.type = 'hidden'; method.name = '_method'; method.value = 'DELETE';
-                                form.appendChild(csrf); form.appendChild(method);
-                                document.body.appendChild(form);
-                                form.submit();
-                            }
-                        });
-                    }
+                AdminCRUD.initDeleteHandler('.delete-item', {
+                    confirmTitle: 'Xóa nhà cung cấp?',
+                    confirmText: 'Bạn sắp xóa nhà cung cấp:'
                 });
 
                 // --- BULK ACTIONS ---
