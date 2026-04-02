@@ -18,6 +18,7 @@ use App\Http\Requests\Attributes\UpdateAttributeRequest;
 use App\Models\Attribute;
 use App\Models\Product;
 use App\Services\Admin\AttributeService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
@@ -52,9 +53,9 @@ class AttributeController extends Controller
             $query->where('attribute_id', $attribute->id);
         })->pluck('id');
 
-        $products = Product::whereIn('id', $productIds)->with('category')->paginate(10);
+        $productsCount = Product::whereIn('id', $productIds)->count();
 
-        return view('admin.management.attributes.show', compact('attribute', 'products'));
+        return view('admin.management.attributes.show', compact('attribute', 'productsCount'));
     }
 
     /**
@@ -175,5 +176,26 @@ class AttributeController extends Controller
         return response()->json([
             'data' => $data,
         ]);
+    }
+
+    public function getProductsDataForGrid(Attribute $attribute): JsonResponse
+    {
+        $productIds = Product::whereHas('variants.attributeValues', static function ($query) use ($attribute) {
+            $query->where('attribute_id', $attribute->id);
+        })->pluck('id');
+
+        $products = Product::whereIn('id', $productIds)->with('category')->latest()->get();
+
+        $data = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'category' => $product->category->name ?? 'N/A',
+                'active' => (bool) $product->active,
+                'show_url' => route('admin.products.show', $product),
+            ];
+        });
+
+        return response()->json(['data' => $data]);
     }
 }

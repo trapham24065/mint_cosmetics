@@ -50,11 +50,7 @@ class SupplierController extends Controller
     public function show(Supplier $supplier): View
     {
         $title = 'Supplier Details: ' . $supplier->name;
-
-        $purchaseOrders = $supplier->purchaseOrders()
-            ->withCount('items')
-            ->latest()
-            ->paginate(10);
+        $purchaseOrdersCount = $supplier->purchaseOrders()->count();
 
         $totalImportValue = $supplier->purchaseOrders()
             ->where('status', 'completed')
@@ -62,7 +58,7 @@ class SupplierController extends Controller
 
         return view(
             'admin.management.supplier.show',
-            compact('supplier', 'title', 'purchaseOrders', 'totalImportValue')
+            compact('supplier', 'title', 'purchaseOrdersCount', 'totalImportValue')
         );
     }
 
@@ -117,6 +113,25 @@ class SupplierController extends Controller
                 'contact_person' => $supplier->contact_person ?? 'N/A',
                 'is_active'      => (bool)$supplier->is_active,
                 'created_at'     => $supplier->created_at->format('d/m/Y'),
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
+    public function getOrdersDataForGrid(Supplier $supplier): JsonResponse
+    {
+        $orders = $supplier->purchaseOrders()->withCount('items')->latest()->get();
+
+        $data = $orders->map(function ($po) {
+            return [
+                'id' => $po->id,
+                'code' => $po->code,
+                'created_at' => $po->created_at->format('d/m/Y'),
+                'status' => $po->status,
+                'items_count' => (int) $po->items_count,
+                'total_amount' => (float) $po->total_amount,
+                'show_url' => route('admin.inventory.show', $po),
             ];
         });
 

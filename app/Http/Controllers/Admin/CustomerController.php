@@ -35,18 +35,13 @@ class CustomerController extends Controller
     public function show(Customer $customer): View
     {
         $title = 'Customer Details';
-
-        $customer->load([
-            'orders' => function ($query) {
-                $query->latest()->withCount('items');
-            },
-        ]);
+        $ordersCount = $customer->orders()->count();
 
         $totalSpent = $customer->orders()
             ->where('status', OrderStatus::Completed)
             ->sum('total_price');
 
-        return view('admin.management.customer.show', compact('customer', 'title', 'totalSpent'));
+        return view('admin.management.customer.show', compact('customer', 'title', 'totalSpent', 'ordersCount'));
     }
 
     /**
@@ -90,6 +85,27 @@ class CustomerController extends Controller
                 'orders_count' => $customer->orders_count,
                 'status'       => $customer->status,
                 'created_at'   => $customer->created_at->format('d/m/Y'),
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
+    public function getOrdersDataForGrid(Customer $customer): JsonResponse
+    {
+        $orders = $customer->orders()->withCount('items')->latest()->get();
+
+        $data = $orders->map(function ($order) {
+            return [
+                'id' => $order->id,
+                'created_at' => $order->created_at->format('d/m/Y'),
+                'status' => [
+                    'label' => $order->status->label(),
+                    'color' => $order->status->color(),
+                ],
+                'items_count' => (int) $order->items_count,
+                'total_price' => (float) $order->total_price,
+                'show_url' => route('admin.orders.show', $order),
             ];
         });
 
