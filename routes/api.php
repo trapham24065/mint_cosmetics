@@ -31,8 +31,10 @@ Route::name('api.')->group(function () {
     Route::get('/orders/api', [OrderController::class, 'getDataForGrid'])->name('orders.data');
 
     Route::get('/categories/api', [CategoryController::class, 'getDataForGrid'])->name('categories.data');
+    Route::get('/categories/{category}/products/api', [CategoryController::class, 'getProductsDataForGrid'])->name('categories.products.data');
 
     Route::get('/attributes/api', [AttributeController::class, 'getDataForGrid'])->name('attributes.data');
+    Route::get('/attributes/{attribute}/products/api', [AttributeController::class, 'getProductsDataForGrid'])->name('attributes.products.data');
 
     Route::get('/coupons/api', [CouponController::class, 'getDataForGrid'])->name('coupons.data');
 
@@ -49,10 +51,13 @@ Route::name('api.')->group(function () {
     Route::get('/blogs/api', [BlogPostController::class, 'getDataForGrid'])->name('blogs.data');
 
     Route::get('/suppliers/api', [SupplierController::class, 'getDataForGrid'])->name('suppliers.data');
+    Route::get('/suppliers/{supplier}/orders/api', [SupplierController::class, 'getOrdersDataForGrid'])->name('suppliers.orders.data');
 
     Route::get('/inventories/api', [PurchaseOrderController::class, 'getDataForGrid'])->name('inventories.data');
 
     Route::get('/users/api', [UserController::class, 'getDataForGrid'])->name('users.data');
 
     Route::get('/contacts/api', [ContactMessageController::class, 'getDataForGrid'])->name('contacts.data');
+    Route::get('/brands/{brand}/products/api', [BrandController::class, 'getProductsDataForGrid'])->name('brands.products.data');
+    Route::get('/customers/{customer}/orders/api', [CustomerController::class, 'getOrdersDataForGrid'])->name('customers.orders.data');
 });

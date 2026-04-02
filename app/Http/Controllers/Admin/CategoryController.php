@@ -100,10 +100,9 @@ class CategoryController extends Controller
     public function show(Category $category): View
     {
         $category->load('productAttributes');
+        $productsCount = $category->products()->count();
 
-        $products = $category->products()->latest()->paginate(10);
-
-        return view('admin.management.categories.show', compact('category', 'products'));
+        return view('admin.management.categories.show', compact('category', 'productsCount'));
     }
 
     /**
@@ -214,5 +213,22 @@ class CategoryController extends Controller
         return response()->json([
             'data' => $data,
         ]);
+    }
+
+    public function getProductsDataForGrid(Category $category): JsonResponse
+    {
+        $products = $category->products()->latest()->get();
+
+        $data = $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'image' => $product->image,
+                'name' => $product->name,
+                'active' => (bool) $product->active,
+                'show_url' => route('admin.products.show', $product),
+            ];
+        });
+
+        return response()->json(['data' => $data]);
     }
 }
