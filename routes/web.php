@@ -42,7 +42,7 @@ Route::controller(CartController::class)->prefix('cart')->name('cart.')->group(f
 
 Route::controller(PaymentController::class)->prefix('order')->group(function () {
     // Payment specific routes (Require signed/auth logic inside controller or middleware)
-    Route::middleware('signed')->group(function () {
+    Route::middleware('signed:relative')->group(function () {
         Route::get('/{order}/payment', 'showPaymentPage')->name('payment.show');
         Route::get('/{order}/thank-you', 'thankYou')->name('order.thankyou');
     });

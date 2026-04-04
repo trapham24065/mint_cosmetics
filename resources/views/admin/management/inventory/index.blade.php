@@ -31,7 +31,7 @@
                                 <select name="variant_id" class="form-select" required>
                                     <option value="">Chọn biến thể</option>
                                     @foreach($variants as $variant)
-                                        <option value="{{ $variant->id }}" @selected(old('variant_id')==$variant->id)>
+                                        <option value="{{ $variant->id }}" @selected(old('variant_id')===$variant->id)>
                                             SKU: {{ $variant->sku ?? ('VAR-' . $variant->id) }}
                                             | {{ $variant->product->name }}
                                             | Tồn: {{ $variant->stock }}
