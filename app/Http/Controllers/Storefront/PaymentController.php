@@ -111,6 +111,14 @@ class PaymentController extends Controller
      */
     public function showPaymentPage(Order $order): View
     {
+        $request = request();
+        $hasValidRelativeSignature = URL::hasValidSignature($request, absolute: false);
+        $hasValidAbsoluteSignature = URL::hasValidSignature($request, absolute: true);
+
+        if (!$hasValidRelativeSignature && !$hasValidAbsoluteSignature) {
+            abort(403, 'Invalid or expired payment link.');
+        }
+
         if ($order->customer_id !== Auth::guard('customer')->id()) {
             abort(403, 'Unauthorized action.');
         }
@@ -135,6 +143,14 @@ class PaymentController extends Controller
 
     public function thankYou(Order $order): View
     {
+        $request = request();
+        $hasValidRelativeSignature = URL::hasValidSignature($request, absolute: false);
+        $hasValidAbsoluteSignature = URL::hasValidSignature($request, absolute: true);
+
+        if (!$hasValidRelativeSignature && !$hasValidAbsoluteSignature) {
+            abort(403, 'Invalid or expired payment link.');
+        }
+
         if ($order->customer_id !== Auth::guard('customer')->id()) {
             abort(403);
         }
