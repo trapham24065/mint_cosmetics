@@ -34,6 +34,13 @@ class Order extends Model
         'payment_method',
         'coupon_code',
         'discount_amount',
+        'shipping_fee',
+        'shipping_provider',
+        'shipping_province_id',
+        'shipping_district_id',
+        'shipping_ward_code',
+        'ghn_order_code',
+        'ghn_response',
         'transaction_id',
         'notes',
         'first_name',
@@ -46,6 +53,8 @@ class Order extends Model
     protected $casts = [
         'status' => OrderStatus::class,
         'completed_at' => 'datetime',
+        'shipping_fee' => 'decimal:2',
+        'ghn_response' => 'array',
     ];
 
     public function customer(): BelongsTo

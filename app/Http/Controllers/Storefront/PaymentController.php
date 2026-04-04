@@ -14,6 +14,7 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\Storefront\GhnService;
 use App\Services\Storefront\CartService;
 use App\Services\Storefront\OrderService;
 use App\Services\Storefront\PaymentService;
@@ -37,11 +38,14 @@ class PaymentController extends Controller
 
     protected PaymentService $paymentService;
 
-    public function __construct(CartService $cartService, OrderService $orderService, PaymentService $paymentService)
+    protected GhnService $ghnService;
+
+    public function __construct(CartService $cartService, OrderService $orderService, PaymentService $paymentService, GhnService $ghnService)
     {
         $this->cartService = $cartService;
         $this->orderService = $orderService;
         $this->paymentService = $paymentService;
+        $this->ghnService = $ghnService;
     }
 
     /**
@@ -63,6 +67,9 @@ class PaymentController extends Controller
             'address'    => ['required', 'string'],
             'phone'      => ['required', 'string'],
             'email'      => ['required', 'email'],
+            'province_id' => ['required', 'integer'],
+            'district_id' => ['required', 'integer'],
+            'ward_code'   => ['required', 'string', 'max:50'],
             'notes'      => ['nullable', 'string'],
         ]);
 
@@ -72,11 +79,35 @@ class PaymentController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
+        try {
+            $weightGram = $this->ghnService->estimateWeight($cartData['items']);
+            $feeData = $this->ghnService->calculateFee((int) $validatedData['district_id'], (string) $validatedData['ward_code'], $weightGram);
+            $shippingFee = (float) ($feeData['total'] ?? 0);
+        } catch (\Throwable $e) {
+            Log::error('Failed to calculate GHN shipping fee: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Không thể tính phí vận chuyển GHN sandbox. Vui lòng thử lại.');
+        }
+
         $customerId = Auth::guard('customer')->id();
         $validatedData['customer_id'] = $customerId;
+        $validatedData['shipping_fee'] = $shippingFee;
+        $validatedData['shipping_provider'] = 'ghn';
+        $validatedData['shipping_province_id'] = $validatedData['province_id'];
+        $validatedData['shipping_district_id'] = $validatedData['district_id'];
+        $validatedData['shipping_ward_code'] = $validatedData['ward_code'];
 
         // 3. Call the OrderService to create a new order in the database
         $order = $this->orderService->createOrder($validatedData, $cartData);
+
+        try {
+            $ghnOrder = $this->ghnService->createOrder($order, $validatedData, $weightGram);
+            $order->forceFill([
+                'ghn_order_code' => $ghnOrder['order_code'] ?? $ghnOrder['orderCode'] ?? null,
+                'ghn_response' => $ghnOrder,
+            ])->save();
+        } catch (\Throwable $e) {
+            Log::warning('GHN sandbox shipping order creation failed: ' . $e->getMessage());
+        }
 
         try {
             // Lấy tất cả user trong bảng users (giả định là admin)
