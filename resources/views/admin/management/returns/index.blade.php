@@ -60,7 +60,7 @@
                             formatter: (cell, row) => {
                                 const returnID = row.cells[8].data;
                                 const showUrl = `/admin/returns/${returnID}`;
-                                return gridjs.html(`<a href="${showUrl}" class="btn btn-sm btn-light" aria-label="View return ${returnID}"><i class="bi bi-eye"></i></a>`);
+                                return gridjs.html(`<a href="${showUrl}" class="btn btn-sm btn-outline-primary" aria-label="View return ${returnID}"><i class="bi bi-eye"></i> Xem</a>`);
                             }
                         },
                         { id: 'id', name: 'ID', hidden: true },

@@ -97,7 +97,7 @@ class PaymentController extends Controller
         $this->cartService->clear();
 
         // 5. Redirect the user to the payment page with the new order ID
-        $signedUrl = URL::signedRoute('payment.show', ['order' => $order->id]);
+        $signedUrl = URL::signedRoute('payment.show', ['order' => $order->id], absolute: false);
 
         return redirect($signedUrl);
     }

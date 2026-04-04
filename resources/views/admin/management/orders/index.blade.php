@@ -135,7 +135,7 @@
                             formatter: (cell, row) => {
                                 const orderId = row.cells[0].data;
                                 const showUrl = `/admin/orders/${orderId}`;
-                                return gridjs.html(`<a href="${showUrl}" class="btn btn-sm btn-light" aria-label="View order ${orderId}"><i class="bi bi-eye"></i></a>`);
+                                return gridjs.html(`<a href="${showUrl}" class="btn btn-sm btn-outline-primary" aria-label="View order ${orderId}"><i class="bi bi-eye"></i> Xem</a>`);
                             }
                         },
                         { id: 'status_color', name: 'Màu trạng thái', hidden: true }
