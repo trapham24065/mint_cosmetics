@@ -17,6 +17,10 @@ Route::put('profile', [CustomerDashboardController::class, 'updateProfile'])->na
 Route::put('address', [CustomerDashboardController::class, 'updateAddress'])->name('address.update');
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::get('/checkout/ghn/provinces', [CheckoutController::class, 'provinces'])->name('checkout.ghn.provinces');
+Route::get('/checkout/ghn/districts', [CheckoutController::class, 'districts'])->name('checkout.ghn.districts');
+Route::get('/checkout/ghn/wards', [CheckoutController::class, 'wards'])->name('checkout.ghn.wards');
+Route::get('/checkout/ghn/fee', [CheckoutController::class, 'fee'])->name('checkout.ghn.fee');
 Route::post('/checkout/place-order', [PaymentController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::post('/hooks/sepay-payment', [WebhookController::class, 'handlePaymentWebhook']);
 

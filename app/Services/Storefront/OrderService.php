@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author PhamTra
@@ -14,7 +15,6 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
-use Exception;
 
 class OrderService
 {
@@ -23,6 +23,8 @@ class OrderService
     {
         return DB::transaction(function () use ($customerData, $cartData) {
             $coupon = $cartData['coupon'];
+            $shippingFee = (float) ($customerData['shipping_fee'] ?? 0);
+            $totalPrice = (float) $cartData['total'] + $shippingFee;
             // 1. KIỂM TRA TỒN KHO TRƯỚC (Validation)
             // Lặp qua để đảm bảo tất cả sản phẩm đều đủ hàng TRƯỚC KHI tạo bất cứ thứ gì
             foreach ($cartData['items'] as $item) {
@@ -45,7 +47,7 @@ class OrderService
             // 1. Create a single row main
             $order = Order::create([
                 'customer_id'     => $customerData['customer_id'],
-                'total_price'     => $cartData['total'],
+                'total_price'     => $totalPrice,
                 'status'          => OrderStatus::Pending,
                 'payment_method'  => 'vnpay',
                 'first_name'      => $customerData['first_name'],
@@ -56,6 +58,11 @@ class OrderService
                 'notes'           => $customerData['notes'] ?? null,
                 'coupon_code'     => $coupon ? $coupon->code : null,
                 'discount_amount' => $cartData['discount'],
+                'shipping_fee' => $shippingFee,
+                'shipping_provider' => $customerData['shipping_provider'] ?? null,
+                'shipping_province_id' => $customerData['shipping_province_id'] ?? null,
+                'shipping_district_id' => $customerData['shipping_district_id'] ?? null,
+                'shipping_ward_code' => $customerData['shipping_ward_code'] ?? null,
             ]);
 
             foreach ($cartData['items'] as $item) {
@@ -69,7 +76,7 @@ class OrderService
                     'order_id'           => $order->id,
                     'product_id'         => $item['product_id'],
                     'product_variant_id' => $item['variant_id'],
-                    'product_name'       => $item['product_name'].' ('.($item['variant_name'] ?? '').')',
+                    'product_name'       => $item['product_name'] . ' (' . ($item['variant_name'] ?? '') . ')',
                     'quantity'           => $item['quantity'],
                     'price'              => $item['price'],
                 ]);
@@ -86,5 +93,4 @@ class OrderService
             return $order;
         });
     }
-
 }
