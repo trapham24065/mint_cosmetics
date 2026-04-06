@@ -13,9 +13,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Services\Storefront\GhnService;
 
 use App\Services\Storefront\CartService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -55,10 +57,28 @@ class CheckoutController extends Controller
             return redirect()->route('shop')->with('info', 'Your cart is empty. Please add products to proceed.');
         }
 
+        $customer = Auth::guard('customer')->user();
+        $latestOrder = null;
+        if ($customer) {
+            $latestOrder = Order::query()
+                ->where('customer_id', $customer->id)
+                ->whereNotNull('shipping_province_id')
+                ->whereNotNull('shipping_district_id')
+                ->whereNotNull('shipping_ward_code')
+                ->latest('id')
+                ->first();
+        }
+
         // Otherwise, show the checkout page with the cart data
         return view('storefront.checkout', array_merge($cartData, [
-            'shipping_fee' => 0,
-            'grand_total' => $cartData['total'],
+            'shipping_fee' => 30000,
+            'grand_total'  => $cartData['total'] + 30000,
+            'customer' => $customer,
+            'shipping_defaults' => [
+                'province_id' => $customer?->shipping_province_id ?? $latestOrder?->shipping_province_id,
+                'district_id' => $customer?->shipping_district_id ?? $latestOrder?->shipping_district_id,
+                'ward_code' => $customer?->shipping_ward_code ?? $latestOrder?->shipping_ward_code,
+            ],
         ]));
     }
 
@@ -73,7 +93,7 @@ class CheckoutController extends Controller
             'province_id' => ['required', 'integer'],
         ]);
 
-        return response()->json($this->ghnService->districts((int) $validated['province_id']));
+        return response()->json($this->ghnService->districts((int)$validated['province_id']));
     }
 
     public function wards(Request $request): JsonResponse
@@ -82,25 +102,37 @@ class CheckoutController extends Controller
             'district_id' => ['required', 'integer'],
         ]);
 
-        return response()->json($this->ghnService->wards((int) $validated['district_id']));
+        return response()->json($this->ghnService->wards((int)$validated['district_id']));
     }
 
     public function fee(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'district_id' => ['required', 'integer'],
-            'ward_code' => ['required', 'string'],
-        ]);
+        try {
+            $validated = $request->validate([
+                'district_id' => ['required', 'integer'],
+                'ward_code'   => ['required', 'string'],
+            ]);
 
-        $cartData = $this->cartService->getCartContents();
-        $weightGram = $this->ghnService->estimateWeight($cartData['items']);
-        $feeData = $this->ghnService->calculateFee((int) $validated['district_id'], (string) $validated['ward_code'], $weightGram);
-        $shippingFee = (float) ($feeData['total'] ?? 0);
+            $cartData = $this->cartService->getCartContents();
+            $weightGram = $this->ghnService->estimateWeight($cartData['items']);
 
-        return response()->json([
-            'shipping_fee' => $shippingFee,
-            'grand_total' => (float) $cartData['total'] + $shippingFee,
-            'raw' => $feeData,
-        ]);
+            $feeData = $this->ghnService->calculateFee(
+                (int)$validated['district_id'],
+                (string)$validated['ward_code'],
+                $weightGram
+            );
+            $shippingFee = (float)($feeData['total'] ?? 0);
+
+            return response()->json([
+                'shipping_fee' => $shippingFee,
+                'grand_total'  => (float)$cartData['total'] + $shippingFee,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'shipping_fee' => 30000,
+                'grand_total'  => 30000,
+                'error'        => $e->getMessage(),
+            ]);
+        }
     }
 }

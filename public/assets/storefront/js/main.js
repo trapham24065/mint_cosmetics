@@ -189,7 +189,7 @@
   });
 
   // Select Js
-  $('select').niceSelect();
+  // $('select').niceSelect();
 
   // Review Form Rating Function
   var reviewFormRatingSelect = $('#product-review-form-rating-select'),

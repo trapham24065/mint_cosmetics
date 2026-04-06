@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use App\Models\Order;
 use App\Services\Storefront\GhnService;
 use App\Services\Storefront\CartService;
@@ -70,6 +71,9 @@ class PaymentController extends Controller
             'province_id' => ['required', 'integer'],
             'district_id' => ['required', 'integer'],
             'ward_code'   => ['required', 'string', 'max:50'],
+            'province_name' => ['nullable', 'string', 'max:255'],
+            'district_name' => ['nullable', 'string', 'max:255'],
+            'ward_name'     => ['nullable', 'string', 'max:255'],
             'notes'      => ['nullable', 'string'],
         ]);
 
@@ -89,6 +93,31 @@ class PaymentController extends Controller
         }
 
         $customerId = Auth::guard('customer')->id();
+        $customer = Auth::guard('customer')->user();
+
+        if ($customer instanceof Customer) {
+            $city = implode(', ', array_filter([
+                $validatedData['ward_name'] ?? null,
+                $validatedData['district_name'] ?? null,
+                $validatedData['province_name'] ?? null,
+            ]));
+
+            $customer->update([
+                'first_name' => $validatedData['first_name'],
+                'last_name'  => $validatedData['last_name'],
+                'email'      => $validatedData['email'],
+                'phone'      => $validatedData['phone'],
+                'address'    => $validatedData['address'],
+                'city'       => $city !== '' ? $city : $customer->city,
+                'shipping_province_id' => $validatedData['province_id'],
+                'shipping_district_id' => $validatedData['district_id'],
+                'shipping_ward_code'   => $validatedData['ward_code'],
+                'shipping_province_name' => $validatedData['province_name'] ?? null,
+                'shipping_district_name' => $validatedData['district_name'] ?? null,
+                'shipping_ward_name' => $validatedData['ward_name'] ?? null,
+            ]);
+        }
+
         $validatedData['customer_id'] = $customerId;
         $validatedData['shipping_fee'] = $shippingFee;
         $validatedData['shipping_provider'] = 'ghn';

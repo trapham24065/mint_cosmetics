@@ -1,5 +1,13 @@
 @extends('storefront.layouts.app')
 @section('content')
+    @php $shouldOpenAddressModal =
+$errors->has('address') ||
+$errors->has('shipping_province_id') ||
+$errors->has('shipping_district_id') ||
+$errors->has('shipping_ward_code') ||
+$errors->has('phone') ||
+($errors->has('first_name') && request()->routeIs('customer.address.update'));
+    @endphp
     <style>
         table {
             table-layout: fixed;
@@ -12,7 +20,9 @@
 
         .reason-text {
             display: -webkit-box;
-            -webkit-line-clamp: 2; /* hiển thị 2 dòng */
+            -webkit-line-clamp: 2;
+            /* hiển thị 2 dòng */
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             cursor: pointer;
@@ -22,7 +32,7 @@
             text-decoration: underline;
         }
     </style>
-    <main class="main-content">
+    <main class="main-content" data-should-open-address-modal="{{ $shouldOpenAddressModal ? '1' : '0' }}">
 
         <!--== Start Page Header Area Wrapper ==-->
         <section class="page-header-area pt-10 pb-9" data-bg-color="#FFF3DA">
@@ -178,7 +188,6 @@
                                         <table class="table table-bordered">
                                             <thead class="bg-light">
                                             <tr>
-                                                <th class="ps-4">STT</th>
                                                 <th>Đơn hàng</th>
                                                 <th>Lý do</th>
                                                 <th>Trạng thái</th>
@@ -203,7 +212,6 @@
                                                     ][$statusValue] ?? 'secondary';
                                                 @endphp
                                                 <tr>
-                                                    <td class="ps-4">{{ $return->id }}</td>
                                                     <td>
                                                         @if($return->order)
                                                             <a href="{{ route('customer.orders.show', $return->order) }}"
@@ -221,8 +229,7 @@
                                                             data-bs-target="#reasonModal"
                                                             data-reason="{{ $return->reason }}"
                                                             data-description="{{ $return->description }}"
-                                                            data-images='@json($return->evidence_images, JSON_THROW_ON_ERROR)'
-                                                        >
+                                                            data-images='@json($return->evidence_images, JSON_THROW_ON_ERROR)'>
                                                             {{ $return->reason }}
                                                         </div>
 
@@ -233,14 +240,14 @@
                                                                 data-bs-target="#reasonModal"
                                                                 data-reason="{{ $return->reason }}"
                                                                 data-description="{{ $return->description }}"
-                                                            >
+                                                                data-images='@json($return->evidence_images, JSON_THROW_ON_ERROR)'>
                                                                 {{ $return->description }}
                                                             </small>
                                                         @endif
                                                     </td>
                                                     <td>
-                                                                    <span
-                                                                        class="badge bg-{{ $statusClass }}">{{ $statusLabel }}</span>
+                                                    <span
+                                                        class="badge bg-{{ $statusClass }}">{{ $statusLabel }}</span>
                                                     </td>
                                                     <td class=" pe-4">
                                                         {{ $return->created_at->format('d/m/Y H:i') }}
@@ -265,10 +272,16 @@
                                     <h3>Địa chỉ thanh toán</h3>
                                     <address>
                                         <p><strong>{{ $customer->full_name }}</strong></p>
-                                        <p>{{ $customer->address ?? 'Address not set' }} <br>
-                                            {{ $customer->city ?? 'City not set' }}
+                                        <p>{{ $customer->address ?? 'Chưa có địa chỉ' }}</p>
+                                        <p>
+                                            <strong>Phường/Xã:</strong> {{ $customer->shipping_ward_name ?? ($customer->shipping_ward_code ?? 'Chưa chọn') }}
+                                            <br>
+                                            <strong>Quận/Huyện:</strong> {{ $customer->shipping_district_name ?? 'Chưa chọn' }}
+                                            <br>
+                                            <strong>Tỉnh/Thành
+                                                phố:</strong> {{ $customer->shipping_province_name ?? 'Chưa chọn' }}
                                         </p>
-                                        <p>Mobile: {{ $customer->phone ?? 'N/A' }}</p>
+                                        <p><strong>Điện thoại:</strong> {{ $customer->phone ?? 'N/A' }}</p>
                                     </address>
                                     {{-- Nút mở Modal sửa địa chỉ --}}
                                     <a href="#" class="check-btn sqr-btn" data-bs-toggle="modal"
@@ -374,9 +387,21 @@
                     <h5 class="modal-title">Chỉnh sửa địa chỉ thanh toán</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('customer.address.update') }}" method="POST">
+                <form action="{{ route('customer.address.update') }}" method="POST" id="dashboard-address-form"
+                      data-provinces-url="{{ route('customer.checkout.ghn.provinces') }}"
+                      data-districts-url="{{ route('customer.checkout.ghn.districts') }}"
+                      data-wards-url="{{ route('customer.checkout.ghn.wards') }}"
+                      data-default-province-id="{{ old('shipping_province_id', $customer->shipping_province_id ?? '') }}"
+                      data-default-district-id="{{ old('shipping_district_id', $customer->shipping_district_id ?? '') }}"
+                      data-default-ward-code="{{ old('shipping_ward_code', $customer->shipping_ward_code ?? '') }}">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="shipping_province_name" id="shipping_province_name"
+                           value="{{ old('shipping_province_name', $customer->shipping_province_name ?? '') }}">
+                    <input type="hidden" name="shipping_district_name" id="shipping_district_name"
+                           value="{{ old('shipping_district_name', $customer->shipping_district_name ?? '') }}">
+                    <input type="hidden" name="shipping_ward_name" id="shipping_ward_name"
+                           value="{{ old('shipping_ward_name', $customer->shipping_ward_name ?? '') }}">
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -395,15 +420,38 @@
                                        value="{{ old('address', $customer->address) }}" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Thành phố <span class="text-danger">*</span></label>
-                                <input type="text" name="city" class="form-control"
-                                       value="{{ old('city', $customer->city) }}" required>
+                                <label class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                <select name="shipping_province_id" id="shipping_province_id" class="form-control"
+                                        required>
+                                    <option value="">Chọn tỉnh/thành phố</option>
+                                </select>
+                                @error('shipping_province_id') <span
+                                    class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Điện thoại
                                     <span class="text-danger">*</span></label>
                                 <input type="text" name="phone" class="form-control"
                                        value="{{ old('phone', $customer->phone) }}" required>
+                                @error('phone') <span class="text-danger small">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
+                                <select name="shipping_district_id" id="shipping_district_id" class="form-control"
+                                        required disabled>
+                                    <option value="">Chọn quận/huyện</option>
+                                </select>
+                                @error('shipping_district_id') <span
+                                    class="text-danger small">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phường/Xã <span class="text-danger">*</span></label>
+                                <select name="shipping_ward_code" id="shipping_ward_code" class="form-control" required
+                                        disabled>
+                                    <option value="">Chọn phường/xã</option>
+                                </select>
+                                @error('shipping_ward_code') <span
+                                    class="text-danger small">{{ $message }}</span> @enderror
                             </div>
                         </div>
                     </div>
@@ -446,21 +494,155 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-            const shouldOpenAddressModal = @json($errors -> has('address') ||
-            $errors -> has('city') ||
-            $errors -> has('phone') ||
-            ($errors -> has('first_name') && request() -> routeIs('customer.address.update')), JSON_THROW_ON_ERROR);
+            const mainContent = document.querySelector('.main-content');
+            const shouldOpenAddressModal = mainContent && mainContent.dataset.shouldOpenAddressModal === '1';
 
             if (shouldOpenAddressModal) {
                 const editAddressModal = new bootstrap.Modal(document.getElementById('editAddressModal'));
                 editAddressModal.show();
             }
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const addressForm = document.getElementById('dashboard-address-form');
+            if (!addressForm) {
+                return;
+            }
+
+            const provinceSelect = document.getElementById('shipping_province_id');
+            const districtSelect = document.getElementById('shipping_district_id');
+            const wardSelect = document.getElementById('shipping_ward_code');
+
+            const provinceNameInput = document.getElementById('shipping_province_name');
+            const districtNameInput = document.getElementById('shipping_district_name');
+            const wardNameInput = document.getElementById('shipping_ward_name');
+
+            const defaultProvinceId = addressForm.dataset.defaultProvinceId || '';
+            const defaultDistrictId = addressForm.dataset.defaultDistrictId || '';
+            const defaultWardCode = addressForm.dataset.defaultWardCode || '';
+
+            const normalize = (res) => Array.isArray(res) ? res : (res.data || []);
+
+            const loadProvinces = async () => {
+                try {
+                    const res = await fetch(addressForm.dataset.provincesUrl);
+                    const data = await res.json();
+                    const items = normalize(data);
+
+                    provinceSelect.innerHTML = '<option value="">Chọn tỉnh/thành phố</option>';
+                    items.forEach((p) => {
+                        provinceSelect.insertAdjacentHTML('beforeend',
+                            `<option value="${p.ProvinceID}">${p.ProvinceName}</option>`);
+                    });
+
+                    if (defaultProvinceId) {
+                        provinceSelect.value = String(defaultProvinceId);
+                        provinceSelect.dispatchEvent(new window.Event('change'));
+                    }
+                } catch (e) {
+                    console.error('Lỗi tải tỉnh/thành:', e);
+                }
+            };
+
+            const loadDistricts = async (provinceId) => {
+                if (!provinceId) {
+                    districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                    wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
+                    districtSelect.disabled = true;
+                    wardSelect.disabled = true;
+                    return;
+                }
+
+                districtSelect.disabled = true;
+                districtSelect.innerHTML = '<option value="">Đang tải...</option>';
+                wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
+                wardSelect.disabled = true;
+
+                try {
+                    const res = await fetch(`${addressForm.dataset.districtsUrl}?province_id=${provinceId}`);
+                    const data = await res.json();
+                    const items = normalize(data);
+
+                    districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                    items.forEach((d) => {
+                        districtSelect.insertAdjacentHTML('beforeend',
+                            `<option value="${d.DistrictID}">${d.DistrictName}</option>`);
+                    });
+                    districtSelect.disabled = false;
+
+                    if (defaultDistrictId && String(provinceId) === String(defaultProvinceId)) {
+                        districtSelect.value = String(defaultDistrictId);
+                    }
+                    districtSelect.dispatchEvent(new window.Event('change'));
+                } catch (e) {
+                    console.error('Lỗi tải quận/huyện:', e);
+                }
+            };
+
+            const loadWards = async (districtId) => {
+                if (!districtId) {
+                    wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
+                    wardSelect.disabled = true;
+                    return;
+                }
+
+                wardSelect.disabled = true;
+                wardSelect.innerHTML = '<option value="">Đang tải...</option>';
+
+                try {
+                    const res = await fetch(`${addressForm.dataset.wardsUrl}?district_id=${districtId}`);
+                    const data = await res.json();
+                    const items = normalize(data);
+
+                    wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
+                    items.forEach((w) => {
+                        wardSelect.insertAdjacentHTML('beforeend',
+                            `<option value="${w.WardCode}">${w.WardName}</option>`);
+                    });
+                    wardSelect.disabled = false;
+
+                    if (defaultWardCode && String(districtId) === String(defaultDistrictId)) {
+                        wardSelect.value = String(defaultWardCode);
+                    }
+                } catch (e) {
+                    console.error('Lỗi tải phường/xã:', e);
+                }
+            };
+
+            provinceSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                provinceNameInput.value = selectedOption ? selectedOption.text : '';
+                districtNameInput.value = '';
+                wardNameInput.value = '';
+                loadDistricts(this.value);
+            });
+
+            districtSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                districtNameInput.value = selectedOption ? selectedOption.text : '';
+                wardNameInput.value = '';
+                loadWards(this.value);
+            });
+
+            wardSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                wardNameInput.value = selectedOption ? selectedOption.text : '';
+            });
+
+            loadProvinces();
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             var reasonModal = document.getElementById('reasonModal');
+            if (!reasonModal) {
+                return;
+            }
 
             reasonModal.addEventListener('show.bs.modal', function(event) {
                 var trigger = event.relatedTarget;
+                if (!trigger) {
+                    return;
+                }
 
                 var reason = trigger.getAttribute('data-reason');
                 var description = trigger.getAttribute('data-description');
