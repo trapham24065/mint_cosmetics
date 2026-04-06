@@ -1,6 +1,40 @@
 @extends('storefront.layouts.app')
 
 @section('content')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Tùy chỉnh Select2 để khớp với giao diện Bootstrap/Storefront */
+    .select2-hidden-accessible {
+        display: none !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 45px !important;
+        border: 1px solid #ebebeb !important;
+        display: flex;
+        align-items: center;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 45px !important;
+        padding-left: 15px !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 43px !important;
+    }
+
+    .select2-dropdown {
+        border: 1px solid #ebebeb !important;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Ẩn hiện phần phí vận chuyển cho chuyên nghiệp */
+    #shipping-fee-value {
+        font-weight: bold;
+        color: #ff5e14;
+    }
+</style>
 <section class="shopping-checkout-wrap section-space">
     <div class="container">
         @if (session('error'))
@@ -14,76 +48,76 @@
             data-provinces-url="{{ route('customer.checkout.ghn.provinces') }}"
             data-districts-url="{{ route('customer.checkout.ghn.districts') }}"
             data-wards-url="{{ route('customer.checkout.ghn.wards') }}"
+            data-default-province-id="{{ old('province_id', $shipping_defaults['province_id'] ?? '') }}"
+            data-default-district-id="{{ old('district_id', $shipping_defaults['district_id'] ?? '') }}"
+            data-default-ward-code="{{ old('ward_code', $shipping_defaults['ward_code'] ?? '') }}"
             data-fee-url="{{ route('customer.checkout.ghn.fee') }}">
             @csrf
+            <input type="hidden" name="province_name" id="province_name" value="{{ old('province_name') }}">
+            <input type="hidden" name="district_name" id="district_name" value="{{ old('district_name') }}">
+            <input type="hidden" name="ward_name" id="ward_name" value="{{ old('ward_name') }}">
             <div class="row">
                 <div class="col-lg-6">
                     <div class="checkout-billing-details-wrap">
                         <h2 class="title">Chi tiết thanh toán</h2>
                         <div class="billing-form-wrap">
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Tên<abbr class="required">*</abbr></label>
-                                        <input name="first_name" type="text" class="form-control" required>
-                                    </div>
+                                <div class="col-md-6 form-group">
+                                    <label>Tên<abbr class="required">*</abbr></label>
+                                    <input name="first_name" type="text" class="form-control" value="{{ old('first_name', $customer->first_name ?? '') }}" required>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Họ<abbr class="required">*</abbr></label>
-                                        <input name="last_name" type="text" class="form-control" required>
-                                    </div>
+                                <div class="col-md-6 form-group">
+                                    <label>Họ<abbr class="required">*</abbr></label>
+                                    <input name="last_name" type="text" class="form-control" value="{{ old('last_name', $customer->last_name ?? '') }}" required>
                                 </div>
 
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Tỉnh/Thành phố<abbr class="required">*</abbr></label>
-                                        <select name="province_id" id="province_id" class="form-control" required>
-                                            <option value="">Đang tải...</option>
-                                        </select>
-                                    </div>
+                                <div class="col-md-4 form-group">
+                                    <label>Tỉnh/Thành phố<abbr class="required">*</abbr></label>
+                                    <select name="province_id" id="province_id"
+                                        class="form-control select2-shipping" required>
+                                        <option value="">Chọn tỉnh thành</option>
+                                    </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Quận/Huyện<abbr class="required">*</abbr></label>
-                                        <select name="district_id" id="district_id" class="form-control" required disabled>
-                                            <option value="">Chọn tỉnh/thành phố trước</option>
-                                        </select>
-                                    </div>
+                                <div class="col-md-4 form-group">
+                                    <label>Quận/Huyện<abbr class="required">*</abbr></label>
+                                    <select name="district_id" id="district_id"
+                                        class="form-control select2-shipping" required disabled>
+                                        <option value="">Chọn huyện</option>
+                                    </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Phường/Xã<abbr class="required">*</abbr></label>
-                                        <select name="ward_code" id="ward_code" class="form-control" required disabled>
-                                            <option value="">Chọn quận/huyện trước</option>
-                                        </select>
-                                    </div>
+                                <div class="col-md-4 form-group">
+                                    <label>Phường/Xã<abbr class="required">*</abbr></label>
+                                    <select name="ward_code" id="ward_code" class="form-control select2-shipping"
+                                        required disabled>
+                                        <option value="">Chọn xã</option>
+                                    </select>
                                 </div>
 
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>Địa chỉ đường phố<abbr class="required">*</abbr></label>
-                                        <input name="address" type="text" class="form-control" required placeholder="Số nhà, tên đường...">
-                                    </div>
+                                <div class="col-md-12 form-group">
+                                    <label>Địa chỉ đường phố<abbr class="required">*</abbr></label>
+                                    <input name="address" type="text" class="form-control" required
+                                        value="{{ old('address', $customer->address ?? '') }}"
+                                        placeholder="Số nhà, tên đường...">
                                 </div>
 
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Điện thoại <abbr class="required">*</abbr></label>
-                                        <input name="phone" type="text" class="form-control" required>
+                                        <input name="phone" type="text" class="form-control" value="{{ old('phone', $customer->phone ?? '') }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Địa chỉ email<abbr class="required">*</abbr></label>
-                                        <input name="email" type="email" class="form-control" required>
+                                        <input name="email" type="email" class="form-control" value="{{ old('email', $customer->email ?? '') }}" required>
                                     </div>
                                 </div>
 
                                 <div class="col-md-12">
                                     <div class="form-group mb-0">
                                         <label>Ghi chú đơn hàng (tùy chọn)</label>
-                                        <textarea name="notes" class="form-control" placeholder="Ghi chú về đơn hàng của bạn..."></textarea>
+                                        <textarea name="notes" class="form-control"
+                                            placeholder="Ghi chú về đơn hàng của bạn..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -105,8 +139,11 @@
                                 <tbody class="table-body">
                                     @foreach($items as $item)
                                     <tr class="cart-item">
-                                        <td class="product-name">{{ $item['product_name'] }} <span class="product-quantity">× {{ $item['quantity'] }}</span></td>
-                                        <td class="product-total">{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }} VNĐ</td>
+                                        <td class="product-name">{{ $item['product_name'] }} <span
+                                                class="product-quantity">× {{ $item['quantity'] }}</span></td>
+                                        <td class="product-total">{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
+                                            VNĐ
+                                        </td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -121,7 +158,8 @@
                                     </tr>
                                     <tr class="order-total">
                                         <th>Tổng cộng</th>
-                                        <td><strong id="grand-total-value">{{ number_format($total, 0, ',', '.') }} VNĐ</strong></td>
+                                        <td><strong id="grand-total-value">{{ number_format($total, 0, ',', '.') }}
+                                                VNĐ</strong></td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -138,173 +176,160 @@
 @endsection
 
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('checkout-form');
-        if (!form) {
-            return;
-        }
+<!-- @formatter:off -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('checkout-form');
+            if (!form) return;
 
-        const provincesUrl = form.dataset.provincesUrl;
-        const districtsUrl = form.dataset.districtsUrl;
-        const wardsUrl = form.dataset.wardsUrl;
-        const feeUrl = form.dataset.feeUrl;
-        const provinceSelect = document.getElementById('province_id');
-        const districtSelect = document.getElementById('district_id');
-        const wardSelect = document.getElementById('ward_code');
-        const shippingFeeValue = document.getElementById('shipping-fee-value');
-        const grandTotalValue = document.getElementById('grand-total-value');
-        const subtotal = parseFloat('{{ $subtotal ?? 0 }}');
+            // Các thành phần DOM
+            const provinceSelect = $('#province_id');
+            const districtSelect = $('#district_id');
+            const wardSelect = $('#ward_code');
+            const provinceNameInput = document.getElementById('province_name');
+            const districtNameInput = document.getElementById('district_name');
+            const wardNameInput = document.getElementById('ward_name');
+            const shippingFeeValue = document.getElementById('shipping-fee-value');
+            const grandTotalValue = document.getElementById('grand-total-value');
+            const defaultProvinceId = form.dataset.defaultProvinceId || '';
+            const defaultDistrictId = form.dataset.defaultDistrictId || '';
+            const defaultWardCode = form.dataset.defaultWardCode || '';
 
-        const money = (value) => Number(value).toLocaleString('vi-VN');
+            const subtotal = parseFloat('{{ $subtotal ?? 0 }}');
+            const money = (v) => Number(v).toLocaleString('vi-VN');
 
-        const resetSelect = (select, placeholder, disabled = true) => {
-            select.innerHTML = `<option value="">${placeholder}</option>`;
-            select.disabled = disabled;
-        };
+            // Khởi tạo Select2 cho tất cả
+            if (!provinceSelect.hasClass("select2-hidden-accessible")) {
+                $('.select2-shipping').select2({
+                    width: '100%',
+                    placeholder: "Chọn thông tin"
+                });
+            }
+            const normalize = (res) => Array.isArray(res) ? res : (res.data || []);
 
-        const setFee = (shippingFee, grandTotal) => {
-            shippingFeeValue.textContent = `${money(shippingFee)} VNĐ`;
-            grandTotalValue.textContent = `${money(grandTotal)} VNĐ`;
-        };
+            // ===== 1. TẢI TỈNH THÀNH =====
+            const loadProvinces = async () => {
+                try {
+                    const res = await fetch(form.dataset.provincesUrl);
+                    const data = await res.json();
+                    const items = normalize(data);
 
-        const loadProvinces = async () => {
-            resetSelect(provinceSelect, 'Đang tải tỉnh/thành phố...');
+                    provinceSelect.empty().append('<option value="">Chọn tỉnh/thành phố</option>');
+                    items.forEach(p => {
+                        provinceSelect.append(`<option value="${p.ProvinceID}">${p.ProvinceName}</option>`);
+                    });
 
-            try {
-                const response = await fetch(provincesUrl, {
-                    headers: {
-                        Accept: 'application/json'
+                    if (defaultProvinceId) {
+                        provinceSelect.val(defaultProvinceId).trigger('change');
                     }
-                });
-                const provinces = await response.json();
 
-                provinceSelect.innerHTML = '<option value="">Chọn tỉnh/thành phố</option>';
-                provinces.forEach((province) => {
-                    const option = document.createElement('option');
-                    option.value = province.ProvinceID;
-                    option.textContent = province.ProvinceName;
-                    provinceSelect.appendChild(option);
-                });
+                } catch (e) { console.error("Lỗi tỉnh:", e); }
+            };
 
-                provinceSelect.disabled = false;
-            } catch (error) {
-                console.error('Load provinces failed:', error);
-                provinceSelect.innerHTML = '<option value="">Không tải được danh sách tỉnh/thành phố</option>';
-            }
-        };
-
-        const loadDistricts = async (provinceId) => {
-            resetSelect(districtSelect, 'Đang tải quận/huyện...');
-            resetSelect(wardSelect, 'Chọn quận/huyện trước');
-
-            if (!provinceId) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`${districtsUrl}?province_id=${encodeURIComponent(provinceId)}`, {
-                    headers: {
-                        Accept: 'application/json'
-                    },
-                });
-                const districts = await response.json();
-
-                districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
-                districts.forEach((district) => {
-                    const option = document.createElement('option');
-                    option.value = district.DistrictID;
-                    option.textContent = district.DistrictName;
-                    districtSelect.appendChild(option);
-                });
-
-                districtSelect.disabled = false;
-            } catch (error) {
-                console.error('Load districts failed:', error);
-                districtSelect.innerHTML = '<option value="">Không tải được danh sách quận/huyện</option>';
-            }
-        };
-
-        const loadWards = async (districtId) => {
-            resetSelect(wardSelect, 'Đang tải phường/xã...');
-
-            if (!districtId) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`${wardsUrl}?district_id=${encodeURIComponent(districtId)}`, {
-                    headers: {
-                        Accept: 'application/json'
-                    },
-                });
-                const wards = await response.json();
-
-                wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
-                wards.forEach((ward) => {
-                    const option = document.createElement('option');
-                    option.value = ward.WardCode;
-                    option.textContent = ward.WardName;
-                    wardSelect.appendChild(option);
-                });
-
-                wardSelect.disabled = false;
-            } catch (error) {
-                console.error('Load wards failed:', error);
-                wardSelect.innerHTML = '<option value="">Không tải được danh sách phường/xã</option>';
-            }
-        };
-
-        const refreshFee = async () => {
-            const districtId = districtSelect.value;
-            const wardCode = wardSelect.value;
-
-            if (!districtId || !wardCode) {
-                shippingFeeValue.textContent = 'Chọn đầy đủ quận/huyện và phường/xã';
-                grandTotalValue.textContent = `${money(subtotal)} VNĐ`;
-                return;
-            }
-
-            shippingFeeValue.textContent = 'Đang tính phí GHN...';
-
-            try {
-                const response = await fetch(`${feeUrl}?district_id=${encodeURIComponent(districtId)}&ward_code=${encodeURIComponent(wardCode)}`, {
-                    headers: {
-                        Accept: 'application/json'
-                    },
-                });
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Không thể tính phí vận chuyển.');
+            // ===== 2. TẢI QUẬN HUYỆN =====
+            const loadDistricts = async (provinceId) => {
+                if (!provinceId) {
+                    districtSelect.empty().append('<option value="">Chọn huyện</option>').prop('disabled', true);
+                    wardSelect.empty().append('<option value="">Chọn xã</option>').prop('disabled', true);
+                    return;
                 }
 
-                setFee(data.shipping_fee ?? 0, data.grand_total ?? subtotal);
-            } catch (error) {
-                console.error('Calculate shipping fee failed:', error);
-                shippingFeeValue.textContent = 'Không tính được phí GHN';
-                grandTotalValue.textContent = `${money(subtotal)} VNĐ`;
-            }
-        };
+                districtSelect.prop('disabled', true).empty().append('<option value="">Đang tải...</option>').trigger('change');
 
-        provinceSelect.addEventListener('change', async () => {
-            resetSelect(districtSelect, 'Chọn quận/huyện trước');
-            resetSelect(wardSelect, 'Chọn quận/huyện trước');
-            shippingFeeValue.textContent = 'Chọn địa chỉ giao hàng';
-            grandTotalValue.textContent = `${money(subtotal)} VNĐ`;
-            await loadDistricts(provinceSelect.value);
+                try {
+                    const res = await fetch(`${form.dataset.districtsUrl}?province_id=${provinceId}`);
+                    const data = await res.json();
+                    const items = normalize(data);
+
+                    districtSelect.empty().append('<option value="">Chọn quận/huyện</option>');
+                    items.forEach(d => {
+                        districtSelect.append(`<option value="${d.DistrictID}">${d.DistrictName}</option>`);
+                    });
+                    districtSelect.prop('disabled', false);
+
+                    if (defaultDistrictId && String(provinceId) === String(defaultProvinceId)) {
+                        districtSelect.val(defaultDistrictId);
+                    }
+                } catch (e) { console.error("Lỗi huyện:", e); }
+                districtSelect.trigger('change');
+            };
+
+            // ===== 3. TẢI PHƯỜNG XÃ =====
+            const loadWards = async (districtId) => {
+                if (!districtId) {
+                    wardSelect.empty().append('<option value="">Chọn xã</option>').prop('disabled', true);
+                    return;
+                }
+
+                wardSelect.prop('disabled', true).empty().append('<option value="">Đang tải...</option>').trigger('change');
+
+                try {
+                    const res = await fetch(`${form.dataset.wardsUrl}?district_id=${districtId}`);
+                    const data = await res.json();
+                    const items = normalize(data);
+
+                    wardSelect.empty().append('<option value="">Chọn phường/xã</option>');
+                    items.forEach(w => {
+                        wardSelect.append(`<option value="${w.WardCode}">${w.WardName}</option>`);
+                    });
+                    wardSelect.prop('disabled', false);
+
+                    if (defaultWardCode && String(districtId) === String(defaultDistrictId)) {
+                        wardSelect.val(defaultWardCode);
+                    }
+                } catch (e) { console.error("Lỗi xã:", e); }
+                wardSelect.trigger('change');
+            };
+
+            // ===== 4. TÍNH PHÍ VẬN CHUYỂN =====
+            const refreshFee = async () => {
+                const dId = districtSelect.val();
+                const wCode = wardSelect.val();
+
+                if (!dId || !wCode) {
+                    shippingFeeValue.textContent = 'Chọn địa chỉ giao hàng';
+                    return;
+                }
+
+                shippingFeeValue.textContent = 'Đang tính phí...';
+
+                try {
+                    const res = await fetch(`${form.dataset.feeUrl}?district_id=${dId}&ward_code=${wCode}`);
+                    const data = await res.json();
+
+                    if (data.shipping_fee !== undefined) {
+                        shippingFeeValue.textContent = `${money(data.shipping_fee)} VNĐ`;
+                        grandTotalValue.textContent = `${money(data.grand_total)} VNĐ`;
+                    }
+                } catch (e) {
+                    shippingFeeValue.textContent = 'Lỗi tính phí';
+                }
+            };
+
+            // ===== XỬ LÝ SỰ KIỆN =====
+            provinceSelect.on('change', function() {
+                const selected = this.options[this.selectedIndex];
+                provinceNameInput.value = selected ? selected.text : '';
+                districtNameInput.value = '';
+                wardNameInput.value = '';
+                loadDistricts(this.value);
+            });
+            districtSelect.on('change', function() {
+                const selected = this.options[this.selectedIndex];
+                districtNameInput.value = selected ? selected.text : '';
+                wardNameInput.value = '';
+                loadWards(this.value);
+            });
+            wardSelect.on('change', function() {
+                const selected = this.options[this.selectedIndex];
+                wardNameInput.value = selected ? selected.text : '';
+                refreshFee();
+            });
+
+            // Chạy lần đầu
+            loadProvinces();
         });
-
-        districtSelect.addEventListener('change', async () => {
-            resetSelect(wardSelect, 'Chọn phường/xã trước');
-            shippingFeeValue.textContent = 'Chọn địa chỉ giao hàng';
-            grandTotalValue.textContent = `${money(subtotal)} VNĐ`;
-            await loadWards(districtSelect.value);
-        });
-
-        wardSelect.addEventListener('change', refreshFee);
-
-        loadProvinces();
-    });
-</script>
+    </script>
+    <!-- @formatter:on -->
 @endpush

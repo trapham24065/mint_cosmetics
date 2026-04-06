@@ -77,7 +77,7 @@ class CustomerDashboardController extends Controller
         $customer = Auth::guard('customer')->user();
         $customer->update($request->validated());
 
-        return redirect()->route('customer.dashboard')->with('success', 'Address updated successfully!');
+        return redirect()->route('customer.dashboard')->with('success', 'Địa chỉ được cập nhật thành công!');
     }
 
 }

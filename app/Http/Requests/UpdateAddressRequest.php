@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author M397
@@ -34,9 +35,28 @@ class UpdateAddressRequest extends FormRequest
             'first_name' => ['required', 'string', 'max:255'],
             'last_name'  => ['required', 'string', 'max:255'],
             'address'    => ['required', 'string', 'max:500'],
-            'city'       => ['required', 'string', 'max:255'],
+            'city'       => ['nullable', 'string', 'max:255'],
             'phone'      => ['required', 'string', 'regex:/^[0-9]{10,11}$/'],
+            'shipping_province_id' => ['required', 'integer'],
+            'shipping_district_id' => ['required', 'integer'],
+            'shipping_ward_code' => ['required', 'string', 'max:50'],
+            'shipping_province_name' => ['required', 'string', 'max:255'],
+            'shipping_district_name' => ['required', 'string', 'max:255'],
+            'shipping_ward_name' => ['required', 'string', 'max:255'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $city = implode(', ', array_filter([
+            $this->input('shipping_ward_name'),
+            $this->input('shipping_district_name'),
+            $this->input('shipping_province_name'),
+        ]));
+
+        if ($city !== '') {
+            $this->merge(['city' => $city]);
+        }
     }
 
     /**
@@ -50,10 +70,11 @@ class UpdateAddressRequest extends FormRequest
             'first_name.required' => 'Vui lòng nhập tên.',
             'last_name.required'  => 'Vui lòng nhập họ.',
             'address.required'    => 'Vui lòng nhập địa chỉ.',
-            'city.required'       => 'Vui lòng nhập thành phố.',
             'phone.required'      => 'Vui lòng nhập số điện thoại.',
             'phone.regex'         => 'Định dạng số điện thoại không hợp lệ (10-11 chữ số).',
+            'shipping_province_id.required' => 'Vui lòng chọn tỉnh/thành phố.',
+            'shipping_district_id.required' => 'Vui lòng chọn quận/huyện.',
+            'shipping_ward_code.required' => 'Vui lòng chọn phường/xã.',
         ];
     }
-
 }
