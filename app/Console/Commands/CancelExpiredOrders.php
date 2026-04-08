@@ -80,8 +80,14 @@ class CancelExpiredOrders extends Command
                     Log::info("Scheduler: Cancelled overdue order #{$order->id}");
                 } catch (\Exception $e) {
                     DB::rollBack();
-                    Log::error("Error processing overdue order #{$order->id}: ".$e->getMessage());
-                    $this->error("Order processing error #{$order->id}");
+
+                    $this->error("Order processing error #{$order->id}: ".$e->getMessage());
+
+                    Log::error("Error processing overdue order #{$order->id}", [
+                        'message' => $e->getMessage(),
+                        'line'    => $e->getLine(),
+                        'file'    => $e->getFile(),
+                    ]);
                 }
             }
             $this->info("Cleanup completed.");
