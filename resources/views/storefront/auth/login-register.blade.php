@@ -30,12 +30,12 @@
                         <div class="my-account-item-wrap">
                             <h3 class="title">Đăng nhập</h3>
                             <div class="my-account-form">
-                                <form action="{{ route('customer.login.submit') }}" method="post">
+                                <form action="{{ route('customer.login.submit') }}" method="post" autocomplete="on">
                                     @csrf
                                     <div class="form-group mb-6">
                                         <label for="login_email">Địa chỉ email <sup>*</sup></label>
                                         <input type="email" id="login_email" name="email" value="{{ old('email') }}"
-                                               required>
+                                               required autocomplete="username">
                                         @error('email')
                                         <span class="text-danger small">{{ $message }}</span>
                                         @enderror
@@ -43,7 +43,8 @@
 
                                     <div class="form-group mb-6">
                                         <label for="login_pwsd">Mật khẩu <sup>*</sup></label>
-                                        <input type="password" id="login_pwsd" name="password" required>
+                                        <input type="password" id="login_pwsd" name="password" required
+                                               autocomplete="current-password">
                                         @error('password')
                                         <span class="text-danger small">{{ $message }}</span>
                                         @enderror
@@ -68,7 +69,7 @@
                         <div class="my-account-item-wrap">
                             <h3 class="title">Đăng ký</h3>
                             <div class="my-account-form">
-                                <form action="{{ route('customer.register.submit') }}" method="post">
+                                <form action="{{ route('customer.register.submit') }}" method="post" autocomplete="off">
                                     @csrf
                                     <div class="row">
                                         <div class="col-md-6">
@@ -105,7 +106,7 @@
                                     <div class="form-group mb-6">
                                         <label for="register_email">Địa chỉ email <sup>*</sup></label>
                                         <input type="email" id="register_email" name="email" value="{{ old('email') }}"
-                                               required>
+                                               required autocomplete="new-email">
                                         @error('email')
                                         <span class="text-danger small">{{ $message }}</span>
                                         @enderror
@@ -113,7 +114,8 @@
 
                                     <div class="form-group mb-6">
                                         <label for="register_pwsd">Mật khẩu <sup>*</sup></label>
-                                        <input type="password" id="register_pwsd" name="password" required>
+                                        <input type="password" id="register_pwsd" name="password" required
+                                               autocomplete="new-password">
                                         @error('password')
                                         <span class="text-danger small">{{ $message }}</span>
                                         @enderror
@@ -122,7 +124,7 @@
                                     <div class="form-group mb-6">
                                         <label for="register_pwsd_confirm">Xác nhận mật khẩu <sup>*</sup></label>
                                         <input type="password" id="register_pwsd_confirm" name="password_confirmation"
-                                               required>
+                                               required autocomplete="new-password">
                                     </div>
 
                                     <div class="form-group">

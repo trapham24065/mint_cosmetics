@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author M397
@@ -11,7 +12,9 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateAddressRequest;
+use App\Models\Customer;
 use App\Models\OrderReturn;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,16 +29,72 @@ class CustomerDashboardController extends Controller
      */
     public function index(): View
     {
+        /** @var Customer $customer */
         $customer = Auth::guard('customer')->user();
+
+        return view('storefront.customer.dashboard', compact('customer'));
+    }
+
+    /**
+     * API: Lấy dữ liệu đơn hàng cho tab dashboard (AJAX).
+     */
+    public function ordersData(): JsonResponse
+    {
+        $request = request();
+        /** @var Customer $customer */
+        $customer = Auth::guard('customer')->user();
+
+        $perPage = (int) $request->integer('per_page', 10);
+        $perPage = max(5, min($perPage, 50));
+
+        $orders = $customer->orders()->latest()->paginate($perPage);
+        $html = view('storefront.partials.orders-table', compact('orders'))->render();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'html' => $html,
+            ],
+            'meta' => [
+                'current_page' => $orders->currentPage(),
+                'last_page' => $orders->lastPage(),
+                'per_page' => $orders->perPage(),
+                'total' => $orders->total(),
+            ],
+        ]);
+    }
+
+    /**
+     * API: Lấy dữ liệu yêu cầu trả hàng cho tab dashboard (AJAX).
+     */
+    public function returnsData(): JsonResponse
+    {
+        $request = request();
         $customerId = Auth::guard('customer')->id();
-        // Get orders history with relationship
-        $orders = $customer->orders()->with('items')->latest()->get();
+
+        $perPage = (int) $request->integer('per_page', 10);
+        $perPage = max(5, min($perPage, 50));
+
         $returns = OrderReturn::query()
             ->with('order')
             ->where('customer_id', $customerId)
             ->latest()
-            ->paginate(10);
-        return view('storefront.customer.dashboard', compact('customer', 'orders', 'returns'));
+            ->paginate($perPage);
+
+        $html = view('storefront.partials.returns-table', compact('returns'))->render();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'html' => $html,
+            ],
+            'meta' => [
+                'current_page' => $returns->currentPage(),
+                'last_page' => $returns->lastPage(),
+                'per_page' => $returns->perPage(),
+                'total' => $returns->total(),
+            ],
+        ]);
     }
 
     /**
@@ -43,12 +102,13 @@ class CustomerDashboardController extends Controller
      */
     public function updateProfile(Request $request): RedirectResponse
     {
+        /** @var Customer $customer */
         $customer = Auth::guard('customer')->user();
 
         $validated = $request->validate([
             'first_name'       => 'required|string|max:255',
             'last_name'        => 'required|string|max:255',
-            'email'            => 'required|email|max:255|unique:customers,email,'.$customer->id,
+            'email'            => 'required|email|max:255|unique:customers,email,' . $customer->id,
             'current_password' => 'nullable|required_with:new_password',
             'new_password'     => 'nullable|string|min:8|confirmed',
         ]);
@@ -74,10 +134,10 @@ class CustomerDashboardController extends Controller
      */
     public function updateAddress(UpdateAddressRequest $request): RedirectResponse
     {
+        /** @var Customer $customer */
         $customer = Auth::guard('customer')->user();
         $customer->update($request->validated());
 
         return redirect()->route('customer.dashboard')->with('success', 'Địa chỉ được cập nhật thành công!');
     }
-
 }
