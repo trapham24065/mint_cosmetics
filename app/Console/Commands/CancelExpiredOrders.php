@@ -56,7 +56,7 @@ class CancelExpiredOrders extends Command
                 DB::beginTransaction();
                 try {
                     // 1. HOÀN LẠI TỒN KHO (Restore Stock)
-                    foreach ($order->orderItems as $item) {
+                    foreach ($order->items as $item) {
                         if ($item->productVariant) {
                             $item->productVariant->increment('stock', $item->quantity);
                             Log::info(
