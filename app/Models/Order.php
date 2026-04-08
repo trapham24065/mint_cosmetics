@@ -51,7 +51,7 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'status' => OrderStatus::class,
+        'status'       => OrderStatus::class,
         'completed_at' => 'datetime',
         'shipping_fee' => 'decimal:2',
         'ghn_response' => 'array',
@@ -93,4 +93,5 @@ class Order extends Model
     {
         return self::where('status', OrderStatus::Completed)->sum('total_price');
     }
+
 }

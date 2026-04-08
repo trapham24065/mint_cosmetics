@@ -44,7 +44,7 @@ class CancelExpiredOrders extends Command
         // Tìm đơn hàng pending quá hạn
         $expiredOrders = Order::where('status', OrderStatus::Pending)
             ->where('created_at', '<', $cutOffTime)
-            ->with('orderItems.productVariant') // Eager load để hoàn kho
+            ->with('items.productVariant') // Eager load để hoàn kho
             ->get();
 
         $count = $expiredOrders->count();
