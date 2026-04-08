@@ -13,6 +13,7 @@ namespace App\Services\Storefront;
 use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 
@@ -49,7 +50,7 @@ class OrderService
                 'customer_id'     => $customerData['customer_id'],
                 'total_price'     => $totalPrice,
                 'status'          => OrderStatus::Pending,
-                'payment_method'  => 'vnpay',
+                'payment_method'  => 'bank_transfer_qr',
                 'first_name'      => $customerData['first_name'],
                 'last_name'       => $customerData['last_name'],
                 'address'         => $customerData['address'],
@@ -63,6 +64,13 @@ class OrderService
                 'shipping_province_id' => $customerData['shipping_province_id'] ?? null,
                 'shipping_district_id' => $customerData['shipping_district_id'] ?? null,
                 'shipping_ward_code' => $customerData['shipping_ward_code'] ?? null,
+            ]);
+
+            Payment::create([
+                'order_id' => $order->id,
+                'amount' => $totalPrice,
+                'payment_method' => 'bank_transfer_qr',
+                'status' => 'pending',
             ]);
 
             foreach ($cartData['items'] as $item) {
