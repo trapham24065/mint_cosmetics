@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('logout', [CustomerAuthController::class, 'logout'])->name('logout');
 Route::get('dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+Route::get('dashboard/orders-data', [CustomerDashboardController::class, 'ordersData'])->name('dashboard.ordersData');
+Route::get('dashboard/returns-data', [CustomerDashboardController::class, 'returnsData'])->name('dashboard.returnsData');
 Route::put('profile', [CustomerDashboardController::class, 'updateProfile'])->name('profile.update');
 Route::put('address', [CustomerDashboardController::class, 'updateAddress'])->name('address.update');
 
