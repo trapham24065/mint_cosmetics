@@ -71,6 +71,18 @@ class ProductController extends Controller
                 ? json_decode($request->input('list_image'), true)
                 : [];
 
+            if ($data['product_type'] === 'simple') {
+                // Đảm bảo sản phẩm đơn giản có stock bằng 0
+                $data['stock'] = 0;
+            } else {
+                // Nếu là variable, duyệt qua các biến thể và gán stock = 0
+                if (isset($data['variants']) && is_array($data['variants'])) {
+                    foreach ($data['variants'] as $key => $variant) {
+                        $data['variants'][$key]['stock'] = 0;
+                    }
+                }
+            }
+            
             $this->productService->createProduct($data);
 
             return redirect()->route('admin.products.index')
@@ -149,7 +161,7 @@ class ProductController extends Controller
             $size = 0;
 
             if (Storage::disk('public')->exists($path)) {
-                $size = (int) Storage::disk('public')->size($path);
+                $size = (int)Storage::disk('public')->size($path);
             }
 
             return [
@@ -238,7 +250,7 @@ class ProductController extends Controller
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không thể xóa sản phẩm: ' . $e->getMessage(),
+                    'message' => 'Không thể xóa sản phẩm: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -306,11 +318,11 @@ class ProductController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = time().'_'.$file->getClientOriginalName();
             $path = $file->storeAs('products/descriptions', $filename, 'public');
 
             return response()->json([
-                'location' => asset('storage/' . $path),
+                'location' => asset('storage/'.$path),
             ]);
         }
 
@@ -364,4 +376,5 @@ class ProductController extends Controller
 
         return response()->json(['error' => 'Upload failed'], 400);
     }
+
 }

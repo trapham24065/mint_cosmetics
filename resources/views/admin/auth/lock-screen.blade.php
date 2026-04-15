@@ -37,7 +37,7 @@
                         <div class="text-center w-75 m-auto">
                             {{-- Hiển thị Avatar Admin --}}
                             <img
-                                src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('assets/admin/images/users/avatar-1.jpg') }}"
+                                src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('assets/admin/images/users/dummy-avatar.jpg') }}"
                                 height="88" alt="user-image" class="rounded-circle shadow-sm img-thumbnail"
                                 style="width: 88px; height: 88px; object-fit: cover;">
 

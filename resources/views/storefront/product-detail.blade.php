@@ -59,6 +59,22 @@
                 <div class="col-lg-6">
                     <div class="product-details-content">
                         <h5 class="product-details-collection">{{ $product->category->name ?? 'Collection' }}</h5>
+                        @if($product->brand)
+                        <div class="product-details-brand mb-2 d-flex align-items-center gap-2">
+                            @if($product->brand->logo)
+                            <img src="{{ asset('storage/' . $product->brand->logo) }}"
+                                alt="{{ $product->brand->name }}"
+                                class="product-brand-logo"
+                                loading="lazy">
+                            @else
+                            <img src="{{ asset('assets/storefront/images/shop/default.webp') }}"
+                                alt="{{ $product->brand->name }}"
+                                class="product-brand-logo"
+                                loading="lazy">
+                            @endif
+                            <span>Thương hiệu: {{ $product->brand->name }}</span>
+                        </div>
+                        @endif
                         <h3 class="product-details-title">{{ $product->name }}</h3>
 
                         <div class="product-details-review">
@@ -216,6 +232,20 @@
 
     .product-image-container #product-main-image.fade-out {
         opacity: 0;
+    }
+
+    .product-details-brand {
+        color: #5a5a5a;
+        font-size: 14px;
+    }
+
+    .product-brand-logo {
+        width: 22px;
+        height: 22px;
+        object-fit: contain;
+        border-radius: 50%;
+        border: 1px solid #ececec;
+        background: #fff;
     }
 
     /* Product Price Styling */

@@ -107,7 +107,7 @@
                     </div>
                 </div>
             </div>
-            
+
         </div>
 
         <!-- ROW 2: Additional Stats -->
@@ -212,7 +212,7 @@
                         <table class="table table-hover table-nowrap table-centered m-0">
                             <thead class="bg-light bg-opacity-50">
                             <tr>
-                                <th>ID đơn hàng</th>
+                                <th>Mã đơn hàng</th>
                                 <th>
 
                                     Khách hàng
