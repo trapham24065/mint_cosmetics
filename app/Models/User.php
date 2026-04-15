@@ -67,7 +67,7 @@ class User extends Authenticatable
     {
         return [
             'name'   => $this->name,
-            'avatar' => asset('assets/admin/images/users/avatar-1.jpg'),
+            'avatar' => asset('assets/admin/images/users/dummy-avatar.jpg'),
         ];
     }
 
@@ -102,4 +102,5 @@ class User extends Authenticatable
     {
         return $this->role === 'warehouse';
     }
+
 }

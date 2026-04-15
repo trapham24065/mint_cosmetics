@@ -26,7 +26,7 @@ class Guest extends Model
     {
         return [
             'name'   => $this->name,
-            'avatar' => asset('assets/storefront/images/blog/default-avatar.png'),
+            'avatar' => asset('assets/storefront/images/users/dummy-avatar.jpg'),
         ];
     }
 

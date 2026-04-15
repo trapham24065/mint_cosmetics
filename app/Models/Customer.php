@@ -63,11 +63,11 @@ class Customer extends Authenticatable
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password'          => 'hashed',
+        'email_verified_at'    => 'datetime',
+        'password'             => 'hashed',
         'shipping_province_id' => 'integer',
         'shipping_district_id' => 'integer',
-        'status'            => 'boolean',
+        'status'               => 'boolean',
     ];
 
     public function orders(): Customer|HasMany
@@ -77,7 +77,7 @@ class Customer extends Authenticatable
 
     public function getFullNameAttribute(): string
     {
-        return $this->first_name . ' ' . $this->last_name;
+        return $this->first_name.' '.$this->last_name;
     }
 
     public function getStatusBadgeClassAttribute(): string
@@ -89,7 +89,7 @@ class Customer extends Authenticatable
     {
         return [
             'name'   => $this->full_name,
-            'avatar' => asset('assets/storefront/images/blog/default-avatar.png'),
+            'avatar' => asset('assets/storefront/images/users/dummy-avatar.jpg'),
         ];
     }
 
@@ -108,4 +108,5 @@ class Customer extends Authenticatable
         return $this->morphToMany(Conversation::class, 'messageable', 'chat_participation')
             ->withPivot('created_at', 'updated_at');
     }
+
 }

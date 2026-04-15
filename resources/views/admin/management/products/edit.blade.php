@@ -116,7 +116,7 @@
                 <div id="simple-product-fields">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title">Giá cả & Hàng tồn kho</h4>
+                            <h4 class="card-title">Giá cả </h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -134,21 +134,30 @@
 
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Giá</label>
-                                    <input type="number" step="any" name="price" class="form-control"
+                                    <input type="number" step="any" id="edit-price" name="price" class="form-control @error('price') is-invalid @enderror"
                                         value="{{ old('price', $firstVariant->price ?? '') }}">
+                                    @error('price')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Giá khuyến mãi</label>
-                                    <input type="number" step="any" name="discount_price" class="form-control"
-                                        value="{{ old('discount_price', $firstVariant->discount_price ?? '') }}">
+                                    <label class="form-label">Tỷ lệ chiết khấu (%)</label>
+                                    <input type="number" step="any" min="0" max="100" id="edit-discount-percentage" name="discount_percentage" class="form-control @error('discount_percentage') is-invalid @enderror"
+                                        value="{{ old('discount_percentage', ($firstVariant && $firstVariant->price > 0 && $firstVariant->discount_price !== null) ? round((($firstVariant->price - $firstVariant->discount_price) / $firstVariant->price) * 100, 2) : 0) }}"
+                                        placeholder="e.g., 15">
+                                    @error('discount_percentage')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
-                                {{-- STOCK FIELD (Readonly) --}}
                                 <div class="col-md-4 mb-3">
-                                    <label for="stock" class="form-label">Số lượng hàng tồn kho</label>
-                                    <input type="number" id="stock" name="stock"
-                                        class="form-control bg-light"
-                                        value="{{ old('stock', $firstVariant->stock ?? 0) }}" readonly>
+                                    <label class="form-label">Giá khuyến mãi (Tự động tính toán)</label>
+                                    <input type="number" step="any" id="edit-discount-price" name="discount_price" class="form-control @error('discount_price') is-invalid @enderror"
+                                        value="{{ old('discount_price', $firstVariant->discount_price ?? '') }}" readonly>
+                                    @error('discount_price')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -200,19 +209,27 @@
                                                 <label class="form-label">Giá</label>
                                                 <input type="number" step="any"
                                                     name="variants[{{ $variant->id }}][price]"
-                                                    class="form-control"
+                                                    class="form-control variant-price"
                                                     value="{{ old('variants.'.$variant->id.'.price', $variant->price) }}"
                                                     required>
                                             </div>
                                             <div class="col-md-4">
-                                                <label class="form-label">Giá khuyến mãi</label>
+                                                <label class="form-label">Tỷ lệ chiết khấu (%)</label>
+                                                <input type="number" step="any" min="0" max="100"
+                                                    name="variants[{{ $variant->id }}][discount_percentage]"
+                                                    class="form-control variant-discount-percentage"
+                                                    value="{{ old('variants.'.$variant->id.'.discount_percentage', ($variant->price > 0 && $variant->discount_price !== null) ? round((($variant->price - $variant->discount_price) / $variant->price) * 100, 2) : 0) }}"
+                                                    placeholder="e.g., 15">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">Giá khuyến mãi (Tự động tính toán)</label>
                                                 <input type="number" step="any"
                                                     name="variants[{{ $variant->id }}][discount_price]"
-                                                    class="form-control"
-                                                    value="{{ old('variants.'.$variant->id.'.discount_price', $variant->discount_price) }}">
+                                                    class="form-control variant-discount-price"
+                                                    value="{{ old('variants.'.$variant->id.'.discount_price', $variant->discount_price) }}" readonly>
                                             </div>
                                             {{-- Variant STOCK (Readonly) --}}
-                                            <div class="col-md-4">
+                                            <div class="col-md-12 mt-2">
                                                 <label class="form-label">Số lượng</label>
                                                 <input type="number"
                                                     name="variants[{{ $variant->id }}][stock]"
@@ -257,11 +274,13 @@
                             <div id="edit-main-image-preview-wrapper" class="mt-3 d-none">
                                 <div class="d-flex align-items-start gap-3">
                                     <img id="edit-main-image-preview" src="#" alt="Main image preview"
-                                        class="img-thumbnail" style="width: 120px; height: 120px; object-fit: cover;">
+                                        class="img-thumbnail"
+                                        style="width: 120px; height: 120px; object-fit: cover;">
                                     <div>
                                         <div id="edit-main-image-name" class="small text-muted"></div>
                                         <button type="button" id="remove-edit-main-image-btn"
-                                            class="btn btn-sm btn-outline-danger mt-2">Xóa ảnh đã chọn</button>
+                                            class="btn btn-sm btn-outline-danger mt-2">Xóa ảnh đã chọn
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -319,7 +338,8 @@
                             @php
                             $initialGalleryJson = old('list_image', json_encode($galleryImages, JSON_UNESCAPED_UNICODE));
                             @endphp
-                            <input type="hidden" name="list_image" id="list_image" value="{{ $initialGalleryJson }}">
+                            <input type="hidden" name="list_image" id="list_image"
+                                value="{{ $initialGalleryJson }}">
 
                             @error('list_image')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -617,9 +637,10 @@
                              <label class="form-label">SKU</label>
                              <input type="text" name="new_variants[${index}][sku]" class="form-control form-control-sm" value="${variantSku}" placeholder="Biến thể SKU">
                         </div>
-                        <div class="col-md-4"><label class="form-label">Giá</label><input type="number" step="any" name="new_variants[${index}][price]" class="form-control" placeholder="Giá" required></div>
-                        <div class="col-md-4"><label class="form-label">Giá khuyến mãi</label><input type="number" step="any" name="new_variants[${index}][discount_price]" class="form-control" placeholder="Giá khuyến mãi"></div>
-                        <div class="col-md-4"><label class="form-label">Tồn kho</label><input type="number" name="new_variants[${index}][stock]" class="form-control bg-light" value="0" readonly></div>
+                        <div class="col-md-4"><label class="form-label">Giá</label><input type="number" step="any" name="new_variants[${index}][price]" class="form-control variant-price" placeholder="Giá" required></div>
+                        <div class="col-md-4"><label class="form-label">Tỷ lệ chiết khấu (%)</label><input type="number" step="any" min="0" max="100" name="new_variants[${index}][discount_percentage]" class="form-control variant-discount-percentage" value="0" placeholder="e.g., 15"></div>
+                        <div class="col-md-4"><label class="form-label">Giá khuyến mãi (Tự động tính toán)</label><input type="number" step="any" name="new_variants[${index}][discount_price]" class="form-control variant-discount-price" placeholder="Giá khuyến mãi" readonly></div>
+                        <div class="col-md-12 mt-2"><label class="form-label">Tồn kho</label><input type="number" name="new_variants[${index}][stock]" class="form-control bg-light" value="0" readonly></div>
                     </div>
                 </div>
             </div>`;
@@ -643,8 +664,111 @@
                     }
                 });
 
+                function normalizePercentageValue(rawValue) {
+                    let percentage = parseFloat(rawValue);
+
+                    if (isNaN(percentage)) {
+                        percentage = 0;
+                    }
+
+                    if (percentage < 0) {
+                        percentage = 0;
+                    }
+
+                    if (percentage > 100) {
+                        percentage = 100;
+                    }
+
+                    return percentage;
+                }
+
+                function calculateSimpleDiscountPrice() {
+                    const priceInput = document.getElementById('edit-price');
+                    const percentageInput = document.getElementById('edit-discount-percentage');
+                    const discountPriceInput = document.getElementById('edit-discount-price');
+
+                    if (!priceInput || !percentageInput || !discountPriceInput) {
+                        return;
+                    }
+
+                    const price = parseFloat(priceInput.value);
+                    const percentage = normalizePercentageValue(percentageInput.value);
+                    percentageInput.value = percentage;
+
+                    if (!isNaN(price) && price > 0) {
+                        const finalPrice = price - (price * (percentage / 100));
+                        discountPriceInput.value = finalPrice.toFixed(0);
+                    } else {
+                        discountPriceInput.value = '';
+                    }
+                }
+
+                function calculateVariantDiscount(row) {
+                    const variantPriceInput = row.querySelector('.variant-price');
+                    const variantPercentageInput = row.querySelector('.variant-discount-percentage');
+                    const variantDiscountPriceInput = row.querySelector('.variant-discount-price');
+
+                    if (!variantPriceInput || !variantPercentageInput || !variantDiscountPriceInput) {
+                        return;
+                    }
+
+                    const price = parseFloat(variantPriceInput.value);
+                    const percentage = normalizePercentageValue(variantPercentageInput.value);
+                    variantPercentageInput.value = percentage;
+
+                    if (!isNaN(price) && price > 0) {
+                        const finalPrice = price - (price * (percentage / 100));
+                        variantDiscountPriceInput.value = finalPrice.toFixed(0);
+                    } else {
+                        variantDiscountPriceInput.value = '';
+                    }
+                }
+
+                document.addEventListener('input', function(event) {
+                    if (event.target.id === 'edit-price' || event.target.id === 'edit-discount-percentage') {
+                        calculateSimpleDiscountPrice();
+                        return;
+                    }
+
+                    if (!event.target.classList.contains('variant-price') && !event.target.classList.contains('variant-discount-percentage')) {
+                        return;
+                    }
+
+                    const variantRow = event.target.closest('.card-body');
+                    if (variantRow) {
+                        calculateVariantDiscount(variantRow);
+                    }
+                });
+
+                document.addEventListener('blur', function(event) {
+                    if (event.target.id === 'edit-discount-percentage') {
+                        if (event.target.value === '') {
+                            event.target.value = 0;
+                        }
+                        calculateSimpleDiscountPrice();
+                        return;
+                    }
+
+                    if (!event.target.classList.contains('variant-discount-percentage')) {
+                        return;
+                    }
+
+                    if (event.target.value === '') {
+                        event.target.value = 0;
+                    }
+
+                    const variantRow = event.target.closest('.card-body');
+                    if (variantRow) {
+                        calculateVariantDiscount(variantRow);
+                    }
+                }, true);
+
                 // --- 7. INITIALIZATION ---
                 toggleProductTypeFields();
+                calculateSimpleDiscountPrice();
+                document.querySelectorAll('.variant-form-row .card-body, .new-variant-form-row .card-body').forEach(row => {
+                    calculateVariantDiscount(row);
+                });
                 if (document.getElementById('type_variable').checked && attributesContainer.children.length === 0) {
                 }
             });

@@ -102,7 +102,8 @@
                 <div id="simple-product-fields">
                     <div class="card">
                         <div class="card-header">
-                            <h4 class="card-title">Giá cả & Hàng tồn kho</h4>
+                            <h4 class="card-title">Giá cả
+                            </h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -130,7 +131,8 @@
                                 <div class="col-md-4 mb-3">
                                     <label for="discount-percentage" class="form-label">Tỷ lệ chiết khấu
                                         (%)</label>
-                                    <input type="number" step="any" id="discount-percentage" class="form-control"
+                                    <input type="number" step="any" min="0" max="100" id="discount-percentage" name="discount_percentage" class="form-control"
+                                        value="{{ old('discount_percentage', 0) }}"
                                         placeholder="e.g., 15">
                                 </div>
                                 <div class="col-md-4 mb-3">
@@ -144,15 +146,7 @@
                                     @enderror
                                 </div>
 
-                                {{-- STOCK FIELD (Readonly) --}}
-                                <div class="col-md-12 mb-3">
-                                    <label for="stock" class="form-label">Số lượng hàng tồn kho</label>
-                                    <input type="number" id="stock" name="stock"
-                                        class="form-control bg-light"
-                                        value="0" readonly>
-                                    <small class="text-muted">Hàng tồn kho được quản lý thông qua các đơn đặt hàng
-                                        mua hàng tồn kho. Số lượng tồn kho ban đầu là 0.</small>
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -168,6 +162,16 @@
                             <p class="text-muted">Chọn một danh mục để tải các thuộc tính của nó, sau đó chọn các
                                 giá trị và
                                 tạo các biến thể.</p>
+                            @if($errors->any() && old('product_type') === 'variable')
+                            <div class="alert alert-danger" role="alert">
+                                <div class="fw-semibold mb-1">Có lỗi khi tạo sản phẩm biến thể:</div>
+                                <ul class="mb-0 ps-3">
+                                    @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                            @endif
                             <div id="attributes-container" class="mb-3"></div>
                             <button type="button" id="generate-variants-btn" class="btn btn-secondary"
                                 style="display: none;">Tạo biến thể
@@ -203,7 +207,8 @@
                                     <div>
                                         <div id="main-image-name" class="small text-muted"></div>
                                         <button type="button" id="remove-main-image-btn"
-                                            class="btn btn-sm btn-outline-danger mt-2">Xóa ảnh đã chọn</button>
+                                            class="btn btn-sm btn-outline-danger mt-2">Xóa ảnh đã chọn
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -250,7 +255,7 @@
                         </div>
 
                         <!-- hidden -->
-                        <input type="hidden" name="list_image" id="list_image">
+                        <input type="hidden" name="list_image" id="list_image" value='{{ old('list_image', '[]') }}'>
 
                     </div>
                 </div>
@@ -385,6 +390,24 @@
         const attributesContainer = document.getElementById('attributes-container');
         const generateBtn = document.getElementById('generate-variants-btn');
         const variantsContainer = document.getElementById('variants-container');
+        const oldVariantsRaw = @json(old('variants', []));
+        const oldVariants = Array.isArray(oldVariantsRaw) ? oldVariantsRaw : Object.values(oldVariantsRaw || {});
+        const oldSelectedValueIds = new Set(
+            oldVariants
+            .flatMap(variant => {
+                const ids = variant?.attribute_value_ids;
+                if (Array.isArray(ids)) {
+                    return ids.map(id => String(id));
+                }
+
+                if (typeof ids === 'string') {
+                    return ids.split(',').map(id => id.trim()).filter(Boolean);
+                }
+
+                return [];
+            })
+        );
+        let hasRestoredOldVariants = false;
 
         if (categorySelect.value) {
             const changeEvent = document.createEvent('HTMLEvents');
@@ -429,7 +452,7 @@
                 let valuesHtml = attr.values.map(val => `
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input attribute-value-check" type="checkbox" id="value-${val.id}"
-                                    data-attribute-id="${attr.id}" value="${val.id}">
+                                    data-attribute-id="${attr.id}" value="${val.id}" ${oldSelectedValueIds.has(String(val.id)) ? 'checked' : ''}>
                                 <label class="form-check-label" for="value-${val.id}">${val.value}</label>
                             </div>
                         `).join('');
@@ -441,6 +464,70 @@
                         `;
             });
             generateBtn.style.display = 'block';
+
+            if (!hasRestoredOldVariants && initialType === 'variable' && oldVariants.length > 0) {
+                renderOldVariantForms(attributes);
+                hasRestoredOldVariants = true;
+            }
+        }
+
+        function renderOldVariantForms(attributes) {
+            const valueLabelMap = new Map();
+            attributes.forEach(attr => {
+                (attr.values || []).forEach(val => {
+                    valueLabelMap.set(String(val.id), val.value);
+                });
+            });
+
+            variantsContainer.innerHTML = '';
+
+            oldVariants.forEach((variant, index) => {
+                const rawIds = variant?.attribute_value_ids;
+                const valueIds = Array.isArray(rawIds) ?
+                    rawIds.map(id => String(id)) :
+                    (typeof rawIds === 'string' ? rawIds.split(',').map(id => id.trim()).filter(Boolean) : []);
+
+                const variantName = valueIds
+                    .map(id => valueLabelMap.get(String(id)) || `#${id}`)
+                    .join(' / ') || `Biến thể ${index + 1}`;
+
+                const price = variant?.price ?? '';
+                const discountPrice = variant?.discount_price ?? '';
+                const discountPercentage = variant?.discount_percentage ?? (
+                    Number(price) > 0 && Number(discountPrice) >= 0 ?
+                    (((Number(price) - Number(discountPrice)) / Number(price)) * 100).toFixed(2) :
+                    ''
+                );
+                const sku = variant?.sku ?? '';
+
+                const formHtml = `
+                            <div class="card mb-3 bg-light-subtle variant-form-row">
+                                <div class="card-body">
+                                    <h6 class="card-title">${variantName}</h6>
+                                    <input type="hidden" name="variants[${index}][attribute_value_ids]" value="${valueIds.join(',')}">
+                                    <div class="row">
+                                        <div class="col-md-12 mb-2">
+                                            <label class="form-label">SKU</label>
+                                            <input type="text" name="variants[${index}][sku]" class="form-control form-control-sm" value="${sku}" placeholder="Biến thể SKU">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Giá</label>
+                                            <input type="number" step="any" name="variants[${index}][price]" class="form-control variant-price" value="${price}" placeholder="Giá" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Tỷ lệ chiết khấu (%)</label>
+                                            <input type="number" step="any" min="0" max="100" name="variants[${index}][discount_percentage]" class="form-control variant-discount-percentage" value="${discountPercentage}" placeholder="e.g., 15">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Giá khuyến mãi (Tự động tính toán)</label>
+                                            <input type="number" step="any" name="variants[${index}][discount_price]" class="form-control variant-discount-price" value="${discountPrice}" placeholder="Giá khuyến mãi" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                variantsContainer.innerHTML += formHtml;
+            });
         }
 
         generateBtn.addEventListener('click', function() {
@@ -500,16 +587,17 @@
 
                                         <div class="col-md-4">
                                             <label class="form-label">Giá</label>
-                                            <input type="number" step="any" name="variants[${index}][price]" class="form-control" placeholder="Giá" required>
+                                            <input type="number" step="any" name="variants[${index}][price]" class="form-control variant-price" placeholder="Giá" required>
                                         </div>
                                         <div class="col-md-4">
-                                            <label class="form-label">Giá khuyến mãi</label>
-                                            <input type="number" step="any" name="variants[${index}][discount_price]" class="form-control" placeholder="Giá khuyến mãi">
+                                            <label class="form-label">Tỷ lệ chiết khấu (%)</label>
+                                            <input type="number" step="any" min="0" max="100" name="variants[${index}][discount_percentage]" class="form-control variant-discount-percentage" value="0" placeholder="e.g., 15">
                                         </div>
                                         <div class="col-md-4">
-                                            <label class="form-label">Tồn kho</label>
-                                            <input type="number" name="variants[${index}][stock]" class="form-control bg-light" value="0" readonly>
+                                            <label class="form-label">Giá khuyến mãi (Tự động tính toán)</label>
+                                            <input type="number" step="any" name="variants[${index}][discount_price]" class="form-control variant-discount-price" placeholder="Giá khuyến mãi" readonly>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -525,11 +613,31 @@
         const percentageInput = document.getElementById('discount-percentage');
         const discountPriceInput = document.getElementById('discount-price');
 
+        function normalizePercentageValue(rawValue) {
+            let percentage = parseFloat(rawValue);
+
+            if (isNaN(percentage)) {
+                percentage = 0;
+            }
+
+            if (percentage < 0) {
+                percentage = 0;
+            }
+
+            if (percentage > 100) {
+                percentage = 100;
+            }
+
+            return percentage;
+        }
+
         if (priceInput && percentageInput && discountPriceInput) {
             function calculateDiscountPrice() {
                 const price = parseFloat(priceInput.value);
-                const percentage = parseFloat(percentageInput.value);
-                if (!isNaN(price) && price > 0 && !isNaN(percentage) && percentage >= 0) {
+                const percentage = normalizePercentageValue(percentageInput.value);
+                percentageInput.value = percentage;
+
+                if (!isNaN(price) && price > 0) {
                     const finalPrice = price - (price * (percentage / 100));
                     discountPriceInput.value = finalPrice.toFixed(0);
                 } else {
@@ -539,7 +647,70 @@
 
             priceInput.addEventListener('input', calculateDiscountPrice);
             percentageInput.addEventListener('input', calculateDiscountPrice);
+            percentageInput.addEventListener('blur', function() {
+                if (this.value === '') {
+                    this.value = 0;
+                }
+                calculateDiscountPrice();
+            });
+
+            if (percentageInput.value === '') {
+                percentageInput.value = 0;
+            }
+
+            calculateDiscountPrice();
         }
+
+        function calculateVariantDiscount(row) {
+            const variantPriceInput = row.querySelector('.variant-price');
+            const variantPercentageInput = row.querySelector('.variant-discount-percentage');
+            const variantDiscountPriceInput = row.querySelector('.variant-discount-price');
+
+            if (!variantPriceInput || !variantPercentageInput || !variantDiscountPriceInput) {
+                return;
+            }
+
+            const price = parseFloat(variantPriceInput.value);
+            const percentage = normalizePercentageValue(variantPercentageInput.value);
+            variantPercentageInput.value = percentage;
+
+            if (!isNaN(price) && price > 0) {
+                const finalPrice = price - (price * (percentage / 100));
+                variantDiscountPriceInput.value = finalPrice.toFixed(0);
+            } else {
+                variantDiscountPriceInput.value = '';
+            }
+        }
+
+        document.addEventListener('input', function(event) {
+            if (!event.target.classList.contains('variant-price') && !event.target.classList.contains('variant-discount-percentage')) {
+                return;
+            }
+
+            const variantRow = event.target.closest('.card-body');
+            if (variantRow) {
+                calculateVariantDiscount(variantRow);
+            }
+        });
+
+        document.addEventListener('blur', function(event) {
+            if (!event.target.classList.contains('variant-discount-percentage')) {
+                return;
+            }
+
+            if (event.target.value === '') {
+                event.target.value = 0;
+            }
+
+            const variantRow = event.target.closest('.card-body');
+            if (variantRow) {
+                calculateVariantDiscount(variantRow);
+            }
+        }, true);
+
+        document.querySelectorAll('.variant-form-row .card-body, .card.mb-3.bg-light-subtle .card-body').forEach(row => {
+            calculateVariantDiscount(row);
+        });
     });
 </script>
 @endpush

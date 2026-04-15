@@ -10,6 +10,46 @@ use Illuminate\Validation\Rule;
 class UpdateProductRequest extends FormRequest
 {
 
+    protected function prepareForValidation(): void
+    {
+        $variants = $this->input('variants', []);
+        $newVariants = $this->input('new_variants', []);
+
+        if (is_array($variants)) {
+            foreach ($variants as $index => $variant) {
+                if (!is_array($variant)) {
+                    continue;
+                }
+
+                $percentage = $variant['discount_percentage'] ?? null;
+                if ($percentage === null || $percentage === '') {
+                    $variants[$index]['discount_percentage'] = 0;
+                }
+            }
+        }
+
+        if (is_array($newVariants)) {
+            foreach ($newVariants as $index => $variant) {
+                if (!is_array($variant)) {
+                    continue;
+                }
+
+                $percentage = $variant['discount_percentage'] ?? null;
+                if ($percentage === null || $percentage === '') {
+                    $newVariants[$index]['discount_percentage'] = 0;
+                }
+            }
+        }
+
+        $simpleDiscountPercentage = $this->input('discount_percentage');
+
+        $this->merge([
+            'discount_percentage' => ($simpleDiscountPercentage === null || $simpleDiscountPercentage === '') ? 0 : $simpleDiscountPercentage,
+            'variants' => $variants,
+            'new_variants' => $newVariants,
+        ]);
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -48,6 +88,7 @@ class UpdateProductRequest extends FormRequest
         if ($isSimple) {
             // Rules cho Simple Product
             $rules['price'] = ['required', 'numeric', 'min:0'];
+            $rules['discount_percentage'] = ['nullable', 'numeric', 'min:0', 'max:100'];
             $rules['discount_price'] = [
                 'nullable',
                 'numeric',
@@ -77,7 +118,8 @@ class UpdateProductRequest extends FormRequest
                 foreach ($this->input('variants') as $index => $variantData) {
                     $rules["variants.{$index}.id"] = ['required', 'integer', 'exists:product_variants,id'];
                     $rules["variants.{$index}.price"] = ['required', 'numeric', 'min:0'];
-                    $rules["variants.{$index}.discount_price"] = ['nullable', 'numeric', 'min:0'];
+                    $rules["variants.{$index}.discount_price"] = ['nullable', 'numeric', 'min:0', "lte:variants.{$index}.price"];
+                    $rules["variants.{$index}.discount_percentage"] = ['nullable', 'numeric', 'min:0', 'max:100'];
                     $rules["variants.{$index}.attributes"] = ['nullable', 'array'];
 
                     $currentVariantId = $variantData['id'] ?? null;
@@ -95,7 +137,8 @@ class UpdateProductRequest extends FormRequest
             if ($this->has('new_variants') && is_array($this->input('new_variants'))) {
                 foreach ($this->input('new_variants') as $index => $variantData) {
                     $rules["new_variants.{$index}.price"] = ['required', 'numeric', 'min:0'];
-                    $rules["new_variants.{$index}.discount_price"] = ['nullable', 'numeric', 'min:0'];
+                    $rules["new_variants.{$index}.discount_price"] = ['nullable', 'numeric', 'min:0', "lte:new_variants.{$index}.price"];
+                    $rules["new_variants.{$index}.discount_percentage"] = ['nullable', 'numeric', 'min:0', 'max:100'];
                     $rules["new_variants.{$index}.attribute_value_ids"] = ['required', 'string'];
 
                     $rules["new_variants.{$index}.sku"] = [
@@ -143,6 +186,9 @@ class UpdateProductRequest extends FormRequest
             'discount_price.numeric'                        => 'Giá giảm phải là một số.',
             'discount_price.min'                            => 'Giá giảm không được nhỏ hơn 0.',
             'discount_price.lte'                            => 'Giá giảm phải nhỏ hơn hoặc bằng giá gốc.',
+            'discount_percentage.numeric'                   => 'Tỷ lệ chiết khấu phải là một số.',
+            'discount_percentage.min'                       => 'Tỷ lệ chiết khấu không được nhỏ hơn 0%.',
+            'discount_percentage.max'                       => 'Tỷ lệ chiết khấu không được lớn hơn 100%.',
             'variants.prohibited'                           => 'Không thể thêm biến thể cho sản phẩm đơn.',
             'new_variants.prohibited'                       => 'Không thể thêm biến thể mới cho sản phẩm đơn.',
 
@@ -162,6 +208,9 @@ class UpdateProductRequest extends FormRequest
             'variants.*.discount_price.numeric'             => 'Giá giảm của biến thể phải là một số.',
             'variants.*.discount_price.min'                 => 'Giá giảm của biến thể không được nhỏ hơn 0.',
             'variants.*.discount_price.lte'                 => 'Giá giảm của biến thể phải nhỏ hơn hoặc bằng giá gốc của nó.',
+            'variants.*.discount_percentage.numeric'        => 'Tỷ lệ chiết khấu của biến thể phải là một số.',
+            'variants.*.discount_percentage.min'            => 'Tỷ lệ chiết khấu của biến thể không được nhỏ hơn 0%.',
+            'variants.*.discount_percentage.max'            => 'Tỷ lệ chiết khấu của biến thể không được lớn hơn 100%.',
             'variants.*.attribute_value_ids.required'       => 'Mỗi biến thể phải có thuộc tính.',
             'variants.*.attribute_value_ids.array'          => 'Định dạng dữ liệu thuộc tính của biến thể không hợp lệ.',
             'variants.*.attribute_value_ids.min'            => 'Mỗi biến thể phải có ít nhất một thuộc tính.',
@@ -180,6 +229,9 @@ class UpdateProductRequest extends FormRequest
             'new_variants.*.discount_price.numeric'         => 'Giá giảm của biến thể mới phải là một số.',
             'new_variants.*.discount_price.min'             => 'Giá giảm của biến thể mới không được nhỏ hơn 0.',
             'new_variants.*.discount_price.lte'             => 'Giá giảm của biến thể mới phải nhỏ hơn hoặc bằng giá gốc.',
+            'new_variants.*.discount_percentage.numeric'    => 'Tỷ lệ chiết khấu của biến thể mới phải là một số.',
+            'new_variants.*.discount_percentage.min'        => 'Tỷ lệ chiết khấu của biến thể mới không được nhỏ hơn 0%.',
+            'new_variants.*.discount_percentage.max'        => 'Tỷ lệ chiết khấu của biến thể mới không được lớn hơn 100%.',
             'new_variants.*.attribute_value_ids.required'   => 'Mỗi biến thể mới phải có thuộc tính.',
             'new_variants.*.attribute_value_ids.array'      => 'Định dạng dữ liệu thuộc tính của biến thể mới không hợp lệ.',
             'new_variants.*.attribute_value_ids.min'        => 'Mỗi biến thể mới phải có ít nhất một thuộc tính.',

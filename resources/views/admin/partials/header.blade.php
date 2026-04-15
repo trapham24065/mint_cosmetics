@@ -116,7 +116,7 @@
                        aria-haspopup="true" aria-expanded="false">
                             <span class="d-flex align-items-center">
                                  <img class="rounded-circle" width="32"
-                                      src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('assets/admin/images/users/avatar-1.jpg') }}"
+                                      src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('assets/admin/images/users/dummy-avatar.jpg') }}"
                                       alt="{{ auth()->user()->name ?? 'Admin Avatar' }}"
                                       style="object-fit: cover; height: 32px;">
                             </span>
