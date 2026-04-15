@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -30,9 +31,18 @@ class ProfileController extends Controller
             'name'   => 'required|string|max:255',
             'email'  => 'required|email|max:255|unique:users,email,' . $admin->id,
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'remove_current_avatar' => 'sometimes|boolean',
         ]);
 
+        if (!empty($validated['remove_current_avatar']) && $admin->avatar) {
+            Storage::disk('public')->delete($admin->avatar);
+            $admin->avatar = null;
+        }
+
         if ($request->hasFile('avatar')) {
+            if ($admin->avatar) {
+                Storage::disk('public')->delete($admin->avatar);
+            }
             $avatarPath = $request->file('avatar')->store('avatars', 'public');
             $admin->avatar = $avatarPath;
         }

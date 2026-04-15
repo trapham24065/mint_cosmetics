@@ -66,6 +66,7 @@ Route::middleware(['role:admin,sale'])->group(function () {
 
     // --- Product Management ---
     Route::controller(ProductController::class)->prefix('products')->name('products.')->group(function () {
+        Route::post('/upload-image', [ProductController::class, 'uploadImage'])->name('upload-image');
         Route::post('bulk-update', 'bulkUpdate')->name('bulkUpdate');
         Route::post('upload-tinymce-image', 'uploadTinyMCEImage')->name('upload.tinymce');
         Route::get('variants/search', 'searchVariants')->name('variants.search'); // Search variants by query

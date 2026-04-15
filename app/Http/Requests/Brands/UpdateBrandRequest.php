@@ -27,6 +27,7 @@ class UpdateBrandRequest extends FormRequest
         return [
             'name'      => ['required', 'string', 'max:255', Rule::unique('brands')->ignore($brandId)],
             'logo'      => ['nullable', 'image', 'mimes:jpg,png,jpeg,webp', 'max:1024'],
+            'remove_current_logo' => ['sometimes', 'boolean'],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }
@@ -49,5 +50,4 @@ class UpdateBrandRequest extends FormRequest
             'is_active.boolean' => 'Trạng thái hoạt động không hợp lệ.',
         ];
     }
-
 }

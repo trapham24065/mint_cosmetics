@@ -7,7 +7,9 @@
  * @date 8/23/2025
  * @time 8:14 PM
  */
+
 declare(strict_types=1);
+
 namespace App\Http\Requests\Categories;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -37,6 +39,7 @@ class UpdateCategoryRequest extends FormRequest
         return [
             'name'            => ['required', 'string', 'max:255', Rule::unique('categories')->ignore($categoryId)],
             'image'           => ['nullable', 'image', 'mimes:jpg,png,jpeg,webp', 'max:1024'],
+            'remove_current_image' => ['sometimes', 'boolean'],
             'active'          => ['sometimes', 'boolean'],
             'attribute_ids'   => ['nullable', 'array'],
             'attribute_ids.*' => ['exists:attributes,id'],
@@ -63,5 +66,4 @@ class UpdateCategoryRequest extends FormRequest
             'attribute_ids.*.exists' => 'Một trong các thuộc tính đã chọn không hợp lệ.',
         ];
     }
-
 }

@@ -21,7 +21,8 @@
                             @endif
 
                             <p class="desc">
-                                {{ setting('site_name', 'Shop') }} mang đến các sản phẩm chăm sóc da và làm đẹp chất
+                                {{ setting('site_name', ' Cửa hàng ') }} mang đến các sản phẩm chăm sóc da và làm đẹp
+                                chất
                                 lượng,
                                 giúp bạn tự tin và rạng rỡ mỗi ngày. Chúng tôi luôn cam kết lựa chọn
                                 những sản phẩm an toàn, hiệu quả và phù hợp với làn da của bạn.

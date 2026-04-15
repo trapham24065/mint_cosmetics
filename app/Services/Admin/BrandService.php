@@ -7,7 +7,9 @@
  * @date 8/28/2025
  * @time 6:00 PM
  */
+
 declare(strict_types=1);
+
 namespace App\Services\Admin;
 
 use App\Models\Brand;
@@ -30,6 +32,11 @@ class BrandService
     public function updateBrand(Brand $brand, array $data): bool
     {
         return DB::transaction(function () use ($brand, $data) {
+            if (!empty($data['remove_current_logo']) && $brand->logo) {
+                Storage::disk('public')->delete($brand->logo);
+                $data['logo'] = null;
+            }
+
             if (!empty($data['logo'])) {
                 if ($brand->logo) {
                     Storage::disk('public')->delete($brand->logo);
@@ -53,5 +60,4 @@ class BrandService
             return $brand->delete();
         });
     }
-
 }

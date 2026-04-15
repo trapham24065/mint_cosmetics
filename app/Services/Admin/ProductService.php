@@ -31,24 +31,20 @@ class ProductService
     public function createProduct(array $data): Product
     {
         return DB::transaction(function () use ($data) {
-            // 1. Handle image uploads
-            if (!empty($data['image'])) {
+            if (!empty($data['image']) && $data['image'] instanceof UploadedFile) {
                 $data['image'] = $data['image']->store('products', 'public');
             }
-            if (!empty($data['list_image'])) {
-                $galleryPaths = [];
-                foreach ($data['list_image'] as $file) {
-                    if ($file instanceof UploadedFile) {
-                        $galleryPaths[] = $file->store('products/gallery', 'public');
-                    }
-                }
-                $data['list_image'] = $galleryPaths;
-            }
 
-            // 2. Create the main Product
+            $galleryPaths = $data['images'] ?? [];
+
             $product = Product::create($data);
 
-            // 3. Create variants based on the product type
+            foreach ($galleryPaths as $path) {
+                $product->images()->create([
+                    'path' => $path,
+                ]);
+            }
+
             $this->createVariants($product, $data);
 
             return $product;
@@ -64,6 +60,11 @@ class ProductService
             Log::info('Updating product', ['product_id' => $product->id]);
 
             // 1. Handle main image update
+            if (!empty($data['remove_current_image']) && $product->image) {
+                Storage::disk('public')->delete($product->image);
+                $data['image'] = null;
+            }
+
             if (!empty($data['image']) && $data['image'] instanceof UploadedFile) {
                 if ($product->image) {
                     Storage::disk('public')->delete($product->image);
@@ -72,18 +73,34 @@ class ProductService
             }
 
             // 2. Handle gallery images update
-            if (!empty($data['list_image'])) {
-                if (is_array($product->list_image)) {
-                    foreach ($product->list_image as $oldImage) {
-                        Storage::disk('public')->delete($oldImage);
+            if (array_key_exists('images', $data)) {
+                $galleryPaths = array_values(array_filter(
+                    is_array($data['images']) ? $data['images'] : [],
+                    static fn($path) => is_string($path) && trim($path) !== ''
+                ));
+
+                $existingPaths = $product->images()->pluck('path')->filter()->values()->toArray();
+                if (empty($existingPaths) && !empty($product->list_image)) {
+                    if (is_array($product->list_image)) {
+                        $existingPaths = array_values(array_filter($product->list_image));
+                    } else {
+                        $decoded = json_decode((string)$product->list_image, true);
+                        if (is_array($decoded)) {
+                            $existingPaths = array_values(array_filter($decoded));
+                        }
                     }
                 }
-                $galleryPaths = [];
-                foreach ($data['list_image'] as $file) {
-                    if ($file instanceof UploadedFile) {
-                        $galleryPaths[] = $file->store('products/gallery', 'public');
-                    }
+
+                $removedPaths = array_diff($existingPaths, $galleryPaths);
+                foreach ($removedPaths as $oldImage) {
+                    Storage::disk('public')->delete($oldImage);
                 }
+
+                $product->images()->delete();
+                foreach ($galleryPaths as $path) {
+                    $product->images()->create(['path' => $path]);
+                }
+
                 $data['list_image'] = $galleryPaths;
             } else {
                 unset($data['list_image']);
@@ -298,7 +315,7 @@ class ProductService
      */
     public function deleteProduct(Product $product): bool
     {
-        $totalStock = (int) $product->variants()->sum('stock');
+        $totalStock = (int)$product->variants()->sum('stock');
         if ($totalStock > 0) {
             throw new \RuntimeException(
                 'Không thể xóa sản phẩm vì vẫn còn tồn kho. Vui lòng xử lý tồn kho về 0 trước khi xóa.'

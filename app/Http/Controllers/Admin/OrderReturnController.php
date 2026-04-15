@@ -14,6 +14,15 @@ use Illuminate\View\View;
 class OrderReturnController extends Controller
 {
 
+    private const RETURN_STATUS_PRIORITY_CASE = "CASE status
+        WHEN 'pending' THEN 1
+        WHEN 'approved' THEN 2
+        WHEN 'refunded' THEN 3
+        WHEN 'rejected' THEN 4
+        WHEN 'cancelled' THEN 5
+        ELSE 99
+    END";
+
     protected OrderReturnService $returnService;
 
     public function __construct(OrderReturnService $returnService)
@@ -121,22 +130,22 @@ class OrderReturnController extends Controller
     public function getDataForGrid(): JsonResponse
     {
         $returns = OrderReturn::with(['order', 'customer', 'processedBy'])
-            ->latest()
+            ->orderByRaw(self::RETURN_STATUS_PRIORITY_CASE)
+            ->orderByDesc('created_at')
             ->get()
             ->map(function ($return) {
                 return [
                     'id'            => $return->id,
                     'return_code'   => $return->return_code,
-                    'order_id'      => '#'.$return->order_id,
-                    'customer'      => $return->customer ? $return->customer->first_name.' '.$return->customer->last_name : 'N/A',
+                    'order_id'      => '#' . $return->order_id,
+                    'customer'      => $return->customer ? $return->customer->first_name . ' ' . $return->customer->last_name : 'N/A',
                     'reason'        => Str::limit($return->reason, 50),
-                    'refund_amount' => number_format($return->refund_amount, 0, ',', '.').' ₫',
-                    'status'        => '<span class="badge bg-'.$return->status_color.'">'.$return->status_label.'</span>',
+                    'refund_amount' => number_format($return->refund_amount, 0, ',', '.') . ' ₫',
+                    'status'        => '<span class="badge bg-' . $return->status_color . '">' . $return->status_label . '</span>',
                     'created_at'    => $return->created_at->format('d/m/Y H:i'),
                 ];
             });
 
         return response()->json(['data' => $returns]);
     }
-
 }

@@ -35,8 +35,8 @@ class UpdateProductRequest extends FormRequest
             'brand_id'              => ['nullable', 'exists:brands,id'],
             'description'           => ['nullable', 'string', 'max:65535'],
             'image'                 => ['nullable', 'image', 'mimes:jpg,png,jpeg,webp', 'max:2048'],
-            'list_image'            => ['nullable', 'array'],
-            'list_image.*'          => ['sometimes', 'image', 'mimes:jpg,png,jpeg,webp', 'max:2048'],
+            'remove_current_image'  => ['sometimes', 'boolean'],
+            'list_image'            => ['nullable', 'string', 'json'],
             'active'                => ['sometimes', 'boolean'],
             'product_type'          => ['required', Rule::in(['simple', 'variable'])],
             'deleted_variants'      => ['nullable', 'array'],
@@ -128,9 +128,7 @@ class UpdateProductRequest extends FormRequest
             'image.image'                                   => 'Tệp tải lên phải là hình ảnh.',
             'image.mimes'                                   => 'Hình ảnh phải có định dạng: jpg, png, jpeg, webp.',
             'image.max'                                     => 'Kích thước hình ảnh không được vượt quá 2MB.',
-            'list_image.*.image'                            => 'Một trong các tệp trong thư viện ảnh không phải là hình ảnh hợp lệ.',
-            'list_image.*.mimes'                            => 'Ảnh trong thư viện phải có định dạng: jpg, png, jpeg, webp.',
-            'list_image.*.max'                              => 'Mỗi ảnh trong thư viện không được vượt quá 2MB.',
+            'list_image.json'                               => 'Danh sách ảnh thư viện không đúng định dạng JSON.',
             'product_type.required'                         => 'Vui lòng chọn loại sản phẩm.',
             'product_type.in'                               => 'Loại sản phẩm đã chọn không hợp lệ.',
             'deleted_variants.*.exists'                     => 'Một trong các biến thể được đánh dấu xóa không hợp lệ.',
@@ -242,5 +240,4 @@ class UpdateProductRequest extends FormRequest
         $variantData = $this->input("{$arrayName}.{$index}");
         return isset($variantData['id']) ? (int)$variantData['id'] : null;
     }
-
 }

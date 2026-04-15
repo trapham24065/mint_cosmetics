@@ -32,8 +32,7 @@ class StoreProductRequest extends FormRequest
             'brand_id'                       => ['nullable', 'exists:brands,id'],
             'description'                    => 'nullable|string|max:65535',
             'image'                          => ['nullable', 'image', 'mimes:jpg,png,jpeg,webp', 'max:2048'],
-            'list_image'                     => ['nullable', 'array'],
-            'list_image.*'                   => ['image', 'mimes:jpg,png,jpeg,webp', 'max:2048'],
+            'list_image'                     => ['nullable', 'string', 'json'],
             'active'                         => ['sometimes', 'boolean'],
             'product_type'                   => ['required', Rule::in(['simple', 'variable'])],
 
@@ -95,9 +94,7 @@ class StoreProductRequest extends FormRequest
             'image.image'                               => 'Tệp tải lên phải là hình ảnh.',
             'image.mimes'                               => 'Hình ảnh phải có định dạng: jpg, png, jpeg, webp.',
             'image.max'                                 => 'Kích thước hình ảnh không được vượt quá 2MB.',
-            'list_image.*.image'                        => 'Một trong các tệp trong thư viện ảnh không phải là hình ảnh hợp lệ.',
-            'list_image.*.mimes'                        => 'Ảnh trong thư viện phải có định dạng: jpg, png, jpeg, webp.',
-            'list_image.*.max'                          => 'Mỗi ảnh trong thư viện không được vượt quá 2MB.',
+            'list_image.json'                           => 'Danh sách ảnh thư viện không đúng định dạng JSON.',
             'product_type.required'                     => 'Vui lòng chọn loại sản phẩm.',
             'product_type.in'                           => 'Loại sản phẩm đã chọn không hợp lệ.',
 
@@ -160,5 +157,4 @@ class StoreProductRequest extends FormRequest
         // Example: 'variants.0.discount_price' -> keys[1] would be '0'
         return isset($keys[1]) && is_numeric($keys[1]) ? (int)$keys[1] : null;
     }
-
 }
