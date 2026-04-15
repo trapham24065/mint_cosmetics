@@ -86,6 +86,11 @@ class Product extends Model
         return $this->hasManyThrough(OrderItem::class, ProductVariant::class);
     }
 
+    public function images(): HasMany|Product
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
     /**
      * The "booted" method of the model.
      */
@@ -117,7 +122,7 @@ class Product extends Model
         while (self::where('slug', $slug)->when($exceptId, function ($query) use ($exceptId) {
             return $query->where('id', '!=', $exceptId);
         })->exists()) {
-            $slug = $baseSlug . '-' . $counter;
+            $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
 
@@ -151,4 +156,5 @@ class Product extends Model
     {
         return $this->approvedReviews()->count();
     }
+
 }

@@ -31,6 +31,17 @@ use Illuminate\Http\Response;
 class OrderController extends Controller
 {
 
+    private const STATUS_PRIORITY_CASE = "CASE status
+        WHEN 'processing' THEN 1
+        WHEN 'pending' THEN 2
+        WHEN 'shipped' THEN 3
+        WHEN 'delivered' THEN 4
+        WHEN 'completed' THEN 5
+        WHEN 'cancelled' THEN 6
+        WHEN 'failed' THEN 7
+        ELSE 99
+    END";
+
     public function index(Request $request): View
     {
         // --- Get data for main table ---
@@ -40,7 +51,10 @@ class OrderController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        $orders = $query->latest()->paginate(10);
+        $orders = $query
+            ->orderByRaw(self::STATUS_PRIORITY_CASE)
+            ->orderByDesc('created_at')
+            ->paginate(10);
 
         // --- Get data for summary tags ---
         $statusCounts = Order::query()
@@ -90,7 +104,7 @@ class OrderController extends Controller
             $order->save();
             Mail::to($order->email)->send(new OrderStatusUpdated($order));
             return redirect()->route('admin.orders.show', $order)
-                ->with('success', "Đơn hàng #$order->id trạng thái đã được cập nhật thành '$newStatus->value'.");
+                ->with('success', "Đơn hàng #$order->id trạng thái đã được cập nhật thành '{$newStatus->label()}'.");
         } catch (ValueError) {
             return back()->with('error', 'Trạng thái không hợp lệ.');
         }
@@ -101,7 +115,10 @@ class OrderController extends Controller
      */
     public function getDataForGrid(): JsonResponse
     {
-        $query = Order::latest()->get();
+        $query = Order::query()
+            ->orderByRaw(self::STATUS_PRIORITY_CASE)
+            ->orderByDesc('created_at')
+            ->get();
 
         // Format data for Grid.js
         $data = $query->map(function ($order) {
@@ -109,7 +126,7 @@ class OrderController extends Controller
                 'id'           => $order->id,
                 'customer'     => $order->first_name . ' ' . $order->last_name,
                 'total'        => $order->total_price,
-                'status'       => $order->status->value,
+                'status'       => $order->status->label(),
                 'status_color' => $order->status->color(),
                 'created_at'   => $order->created_at->format('d/m/Y'),
             ];
@@ -125,7 +142,7 @@ class OrderController extends Controller
      */
     public function downloadInvoice(Order $order): Response
     {
-        $order->load('items');
+        $order->load(['items', 'latestPayment', 'customer']);
 
         return Pdf::loadView('admin.management.orders.invoice', compact('order'))->download(
             'invoice-' . $order->id . '.pdf'

@@ -24,6 +24,26 @@ use Illuminate\View\View;
 class CustomerDashboardController extends Controller
 {
 
+    private const ORDER_STATUS_PRIORITY_CASE = "CASE status
+        WHEN 'processing' THEN 1
+        WHEN 'pending' THEN 2
+        WHEN 'shipped' THEN 3
+        WHEN 'delivered' THEN 4
+        WHEN 'completed' THEN 5
+        WHEN 'cancelled' THEN 6
+        WHEN 'failed' THEN 7
+        ELSE 99
+    END";
+
+    private const RETURN_STATUS_PRIORITY_CASE = "CASE status
+        WHEN 'pending' THEN 1
+        WHEN 'approved' THEN 2
+        WHEN 'refunded' THEN 3
+        WHEN 'rejected' THEN 4
+        WHEN 'cancelled' THEN 5
+        ELSE 99
+    END";
+
     /**
      * Show the customer dashboard.
      */
@@ -47,7 +67,10 @@ class CustomerDashboardController extends Controller
         $perPage = (int) $request->integer('per_page', 10);
         $perPage = max(5, min($perPage, 50));
 
-        $orders = $customer->orders()->latest()->paginate($perPage);
+        $orders = $customer->orders()
+            ->orderByRaw(self::ORDER_STATUS_PRIORITY_CASE)
+            ->orderByDesc('created_at')
+            ->paginate($perPage);
         $html = view('storefront.partials.orders-table', compact('orders'))->render();
 
         return response()->json([
@@ -78,7 +101,8 @@ class CustomerDashboardController extends Controller
         $returns = OrderReturn::query()
             ->with('order')
             ->where('customer_id', $customerId)
-            ->latest()
+            ->orderByRaw(self::RETURN_STATUS_PRIORITY_CASE)
+            ->orderByDesc('created_at')
             ->paginate($perPage);
 
         $html = view('storefront.partials.returns-table', compact('returns'))->render();

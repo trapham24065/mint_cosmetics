@@ -7,7 +7,9 @@
  * @date 8/26/2025
  * @time 8:03 PM
  */
+
 declare(strict_types=1);
+
 namespace App\Services\Admin;
 
 use App\Models\Category;
@@ -61,6 +63,12 @@ class CategoryService
                 );
             }
         }
+
+        if (!empty($data['remove_current_image']) && $category->image) {
+            Storage::disk('public')->delete($category->image);
+            $data['image'] = null;
+        }
+
         if (!empty($data['image'])) {
             if ($category->image) {
                 Storage::disk('public')->delete($category->image);
@@ -89,5 +97,4 @@ class CategoryService
         }
         return $category->delete();
     }
-
 }

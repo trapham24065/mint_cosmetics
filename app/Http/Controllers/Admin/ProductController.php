@@ -26,6 +26,7 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -66,6 +67,10 @@ class ProductController extends Controller
             $data = $request->validated();
             $data['active'] = $request->has('active');
 
+            $data['images'] = !empty($request->input('list_image'))
+                ? json_decode($request->input('list_image'), true)
+                : [];
+
             $this->productService->createProduct($data);
 
             return redirect()->route('admin.products.index')
@@ -99,7 +104,7 @@ class ProductController extends Controller
     public function edit(Product $product): View
     {
         // Eager-load all necessary data for the form
-        $product->load(['variants.attributeValues']);
+        $product->load(['variants.attributeValues', 'images']);
 
         $categories = Category::where('active', true)->get();
         $brands = Brand::where('is_active', true)->get();
@@ -112,6 +117,48 @@ class ProductController extends Controller
             return $variant->attributeValues->pluck('id');
         })->unique()->toArray();
 
+        $galleryImages = [];
+
+        if ($product->images->isNotEmpty()) {
+            $galleryImages = $product->images->pluck('path')->filter()->values()->toArray();
+        } elseif (!empty($product->list_image)) {
+            if (is_array($product->list_image)) {
+                $galleryImages = array_values(array_filter($product->list_image));
+            } else {
+                $decoded = json_decode((string)$product->list_image, true);
+                if (is_array($decoded)) {
+                    $galleryImages = array_values(array_filter($decoded));
+                } elseif (is_string($product->list_image)) {
+                    $galleryImages = [(string)$product->list_image];
+                }
+            }
+        }
+
+        $galleryImages = collect($galleryImages)
+            ->filter(fn($path) => is_string($path) && trim($path) !== '')
+            ->map(function (string $path) {
+                $normalized = str_replace('\\', '/', trim($path));
+                return preg_replace('#^/?storage/#', '', $normalized) ?? $normalized;
+            })
+            ->unique()
+            ->values()
+            ->toArray();
+
+        $galleryImageMeta = collect($galleryImages)->map(function (string $path) {
+            $name = basename($path);
+            $size = 0;
+
+            if (Storage::disk('public')->exists($path)) {
+                $size = (int) Storage::disk('public')->size($path);
+            }
+
+            return [
+                'path' => $path,
+                'name' => $name,
+                'size' => $size,
+            ];
+        })->toArray();
+
         return view(
             'admin.management.products.edit',
             compact(
@@ -119,7 +166,9 @@ class ProductController extends Controller
                 'categories',
                 'brands',
                 'allAttributesForCategory',
-                'selectedAttributeValueIds'
+                'selectedAttributeValueIds',
+                'galleryImages',
+                'galleryImageMeta'
             )
         );
     }
@@ -134,7 +183,7 @@ class ProductController extends Controller
 
             // Normalize active flag and log a safe subset of incoming payload for debugging
             $data['active'] = $request->has('active');
-
+            $data['images'] = json_decode($request->input('list_image') ?? '[]', true);
             $logKeys = [
                 'name',
                 'category_id',
@@ -189,7 +238,7 @@ class ProductController extends Controller
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không thể xóa sản phẩm: '.$e->getMessage(),
+                    'message' => 'Không thể xóa sản phẩm: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -257,11 +306,11 @@ class ProductController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $filename = time().'_'.$file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('products/descriptions', $filename, 'public');
 
             return response()->json([
-                'location' => asset('storage/'.$path),
+                'location' => asset('storage/' . $path),
             ]);
         }
 
@@ -298,4 +347,21 @@ class ProductController extends Controller
         ]);
     }
 
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|image|max:2048',
+        ]);
+
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('products', 'public');
+
+            return response()->json([
+                'success' => true,
+                'path'    => $path,
+            ]);
+        }
+
+        return response()->json(['error' => 'Upload failed'], 400);
+    }
 }

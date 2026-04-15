@@ -8,7 +8,11 @@
     <style>
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 14px;
+            font-size: 12px;
+            color: #222;
+            line-height: 1.5;
+            margin: 0;
+            padding: 18px;
         }
 
         .container {
@@ -16,139 +20,312 @@
             margin: 0 auto;
         }
 
-        .header,
-        .footer {
+        .invoice-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 0 6px;
+            letter-spacing: 1px;
             text-align: center;
         }
 
-        .header h1 {
+        .company-name {
+            font-size: 16px;
+            font-weight: bold;
             margin: 0;
+            text-align: center;
         }
 
-        .invoice-details {
-            margin-top: 20px;
-            margin-bottom: 20px;
+        .muted {
+            color: #5f6368;
         }
 
-        .invoice-details table {
+        .section-title {
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0 0 6px;
+            letter-spacing: 0.4px;
+        }
+
+        .top-grid {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
         }
 
-        .invoice-details td {
-            padding: 5px;
+        .top-grid td {
+            vertical-align: top;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 12px;
+            background: #fafafa;
         }
 
+        .top-grid .info-block {
+            width: 48.5%;
+        }
+
+        .top-grid .spacer {
+            width: 3%;
+            border: 0;
+            background: transparent;
+            padding: 0;
+        }
+
+        .meta-table,
+        .summary-table,
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+        }
+
+        .meta-table td {
+            padding: 3px 0;
+            vertical-align: top;
+        }
+
+        .meta-label {
+            width: 42%;
+            color: #5f6368;
+        }
+
+        .block {
+            margin-top: 14px;
+        }
+
+        .items-table {
+            margin-top: 8px;
+            border: 1px solid #d1d5db;
         }
 
         .items-table th,
         .items-table td {
-            border: 1px solid #ddd;
+            border: 1px solid #d1d5db;
             padding: 8px;
-            text-align: left;
+            vertical-align: top;
         }
 
         .items-table th {
-            background-color: #f2f2f2;
+            background: #f3f4f6;
+            font-weight: bold;
+            text-align: left;
         }
 
-        .totals {
-            float: right;
-            width: 40%;
-            margin-top: 20px;
+        .text-right {
+            text-align: right;
         }
 
-        .totals table {
-            width: 100%;
+        .text-center {
+            text-align: center;
         }
 
-        .totals td {
-            padding: 5px;
+        .summary-wrap {
+            width: 42%;
+            margin-left: auto;
+            margin-top: 14px;
+        }
+
+        .summary-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .summary-table tr.total-row td {
+            border-top: 2px solid #111827;
+            border-bottom: 0;
+            font-size: 13px;
+            font-weight: bold;
+            padding-top: 9px;
+        }
+
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 11px;
+        }
+
+        .note-box {
+            margin-top: 14px;
+            border: 1px dashed #d1d5db;
+            padding: 10px;
+            background: #fcfcfc;
+        }
+
+        .note-box p {
+            margin: 0;
         }
     </style>
 </head>
 
 <body>
+    @php
+    $subtotal = $order->items->sum(fn($item) => (float) $item->price * (int) $item->quantity);
+    $discount = (float) ($order->discount_amount ?? 0);
+    $shippingFee = (float) ($order->shipping_fee ?? 0);
+    $payment = $order->latestPayment;
+
+    $paymentMethodLabel = match ((string) $order->payment_method) {
+    'bank_transfer_qr' => 'Chuyển khoản QR',
+    'cod' => 'Thanh toán khi nhận hàng (COD)',
+    default => $order->payment_method ? strtoupper((string) $order->payment_method) : 'Chưa cập nhật',
+    };
+
+    $paymentStatusLabel = match ((string) ($payment?->status ?? '')) {
+    'pending' => 'Chờ thanh toán',
+    'paid' => 'Đã thanh toán',
+    'failed' => 'Thanh toán thất bại',
+    default => $payment?->status ? ucfirst((string) $payment->status) : 'Chưa cập nhật',
+    };
+
+    $provinceName = $order->customer?->shipping_province_name ?? 'Chưa cập nhật';
+    $districtName = $order->customer?->shipping_district_name ?? null;
+    $wardName = $order->customer?->shipping_ward_name ?? null;
+    @endphp
+
     <div class="container">
-        <div class="header">
-            <h1>HÓA ĐƠN</h1>
-            <p>Mint Cosmetics</p>
-        </div>
+        <p class="invoice-title">HÓA ĐƠN</p>
+        <p class="company-name">{{ setting('site_name', ' Cửa hàng ') }}</p>
+        <p class="muted" style="margin: 4px 0 0;">Mã hóa đơn #{{ $order->id }} | Ngày lập: {{ $order->created_at->format('d/m/Y H:i') }}</p>
 
-        <div class="invoice-details">
-            <table>
-                <tr>
-                    <td><strong>Hóa đơn #:</strong> {{ $order->id }}</td>
-                    <td style="text-align: right;"><strong>Date:</strong> {{ $order->created_at->format('d/m/Y') }}</td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>Đã lập hóa đơn cho:</strong></td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        {{ $order->first_name }} {{ $order->last_name }}<br>
-                        {{ $order->address }}<br>
-                        {{ $order->phone }}<br>
-                        {{ $order->email }}
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <strong>GHN:</strong> {{ strtoupper($order->shipping_provider ?? 'N/A') }}<br>
-                        <strong>Mã đơn GHN:</strong> {{ $order->ghn_order_code ?? 'Chưa tạo' }}<br>
-                        <strong>Khu vực giao:</strong> District {{ $order->shipping_district_id ?? 'N/A' }}, Ward {{ $order->shipping_ward_code ?? 'N/A' }}
-                    </td>
-                </tr>
-            </table>
-        </div>
+        <table class="top-grid block">
+            <tr>
+                <td class="info-block">
+                    <p class="section-title">Thông Tin Khách Hàng</p>
+                    <table class="meta-table">
+                        <tr>
+                            <td class="meta-label">Họ tên</td>
+                            <td><strong>{{ trim(($order->first_name ?? '') . ' ' . ($order->last_name ?? '')) ?: 'N/A' }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">Điện thoại</td>
+                            <td>{{ $order->phone ?: 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">Email</td>
+                            <td>{{ $order->email ?: 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">Địa chỉ giao hàng</td>
+                            <td>{{ $order->address ?: 'N/A' }}</td>
+                        </tr>
+                    </table>
+                </td>
+                <td class="spacer"></td>
+                <td class="info-block">
+                    <p class="section-title">Thông Tin Đơn Hàng</p>
+                    <table class="meta-table">
+                        <tr>
+                            <td class="meta-label">Trạng thái</td>
+                            <td><strong>{{ $order->status->label() }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">Thanh toán</td>
+                            <td>{{ $paymentMethodLabel }}</td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">TT thanh toán</td>
+                            <td>{{ $paymentStatusLabel }}</td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">Mã giao dịch</td>
+                            <td>{{ $payment?->transaction_id ?: ($order->transaction_id ?: 'Chưa cập nhật') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">Đơn vị vận chuyển</td>
+                            <td>{{ $order->shipping_provider ? strtoupper((string) $order->shipping_provider) : 'N/A' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">Mã đơn vận chuyển</td>
+                            <td>{{ $order->ghn_order_code ?: 'Chưa tạo' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="meta-label">Khu vực GHN</td>
+                            <td>
+                                {{ $provinceName }}
+                                @if($districtName || $order->shipping_district_id)
+                                <br>
+                                Quận/Huyện: {{ $districtName ?? 'Mã ' . $order->shipping_district_id }}
+                                @endif
+                                @if($wardName || $order->shipping_ward_code)
+                                <br>
+                                Phường/Xã: {{ $wardName ?? 'Mã ' . $order->shipping_ward_code }}
+                                @endif
+                                <br>
+                                <span class="muted">Mã GHN:</span>
+                                Huyện {{ $order->shipping_district_id ?? 'N/A' }}, Phường {{ $order->shipping_ward_code ?? 'N/A' }}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
 
-        <table class="items-table">
+        @if(!empty($order->notes))
+        <div class="note-box">
+            <p><strong>Ghi chú khách hàng:</strong> {{ $order->notes }}</p>
+        </div>
+        @endif
+
+        <table class="items-table block">
             <thead>
                 <tr>
+                    <th style="width: 5%;" class="text-center">#</th>
                     <th>Sản phẩm</th>
-                    <th>Số lượng</th>
-                    <th>Đơn giá</th>
-                    <th>Tổng cộng</th>
+                    <th style="width: 10%;" class="text-center">SL</th>
+                    <th style="width: 18%;" class="text-right">Đơn giá</th>
+                    <th style="width: 20%;" class="text-right">Thành tiền</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($order->items as $item)
+                @forelse($order->items as $index => $item)
                 <tr>
+                    <td class="text-center">{{ $index + 1 }}</td>
                     <td>{{ $item->product_name }}</td>
-                    <td>{{ $item->quantity }}</td>
-                    <td>{{ number_format($item->price, 0, ',', '.') }} VNĐ</td>
-                    <td>{{ number_format($item->price * $item->quantity, 0, ',', '.') }} VNĐ</td>
+                    <td class="text-center">{{ $item->quantity }}</td>
+                    <td class="text-right">{{ number_format((float) $item->price, 0, ',', '.') }} VNĐ</td>
+                    <td class="text-right">{{ number_format((float) $item->price * (int) $item->quantity, 0, ',', '.') }} VNĐ</td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="5" class="text-center muted">Không có sản phẩm trong đơn hàng.</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
 
-        <div class="totals">
-            <table>
-                @php
-                $subtotal = $order->items->sum(fn($item) => $item->price * $item->quantity);
-                @endphp
+        <div class="summary-wrap">
+            <table class="summary-table">
                 <tr>
                     <td><strong>Tổng phụ :</strong></td>
                     <td style="text-align: right;">{{ number_format($subtotal, 0, ',', '.') }} VNĐ</td>
                 </tr>
+                @if($discount > 0)
                 <tr>
-                    <td><strong>Vận chuyển GHN :</strong></td>
-                    <td style="text-align: right;">{{ number_format((float) $order->shipping_fee, 0, ',', '.') }} VNĐ</td>
+                    <td><strong>Giảm giá :</strong></td>
+                    <td style="text-align: right;">-{{ number_format($discount, 0, ',', '.') }} VNĐ</td>
                 </tr>
-                <tr style="font-weight: bold; border-top: 2px solid black;">
+                @endif
+                @if(!empty($order->coupon_code))
+                <tr>
+                    <td><strong>Mã ưu đãi :</strong></td>
+                    <td style="text-align: right;">{{ $order->coupon_code }}</td>
+                </tr>
+                @endif
+                <tr>
+                    <td><strong>Phí vận chuyển :</strong></td>
+                    <td style="text-align: right;">{{ number_format($shippingFee, 0, ',', '.') }} VNĐ</td>
+                </tr>
+                <tr class="total-row">
                     <td><strong>Tổng cộng:</strong></td>
-                    <td style="text-align: right;">{{ number_format($order->total_price, 0, ',', '.') }} VNĐ</td>
+                    <td style="text-align: right;">{{ number_format((float) $order->total_price, 0, ',', '.') }} VNĐ</td>
                 </tr>
             </table>
         </div>
 
-        <div class="footer" style="margin-top: 100px;">
+        <div class="footer">
             <p>Cảm ơn quý khách đã tin dùng sản phẩm của chúng tôi!</p>
+            <p>Hóa đơn được tạo tự động từ hệ thống Mint Cosmetics.</p>
         </div>
     </div>
 </body>

@@ -165,7 +165,7 @@ class ChatController extends Controller
         }
 
         // Gửi tin nhắn mặc định
-        $defaultMessage = "Xin lỗi, quản trị viên hiện đang bận. Bạn có thể chọn một trong những câu hỏi thường gặp bên dưới để nhận được câu trả lời ngay lập tức! 😊";
+        $defaultMessage = "Xin lỗi, quản trị viên hiện đang bận. Bạn có thể chọn một trong những câu hỏi thường gặp bên dưới để nhận được câu trả lời ngay lập tức!";
         $botMessage = ChatFacade::message($defaultMessage)
             ->from($admin)
             ->to($conversation)
