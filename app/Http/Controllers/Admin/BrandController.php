@@ -20,6 +20,7 @@ use App\Services\Admin\BrandService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
 
@@ -158,5 +159,29 @@ class BrandController extends Controller
         });
 
         return response()->json(['data' => $data]);
+    }
+
+    /**
+     * Handle bulk actions for brands.
+     */
+    public function bulkUpdate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'action'     => ['required', 'string', 'in:change_status'],
+            'brand_ids'  => ['required', 'array'],
+            'brand_ids.*' => ['integer', 'exists:brands,id'],
+            'value'      => ['required'],
+        ]);
+
+        try {
+            $count = $this->brandService->bulkUpdate(
+                $validated['action'],
+                $validated['brand_ids'],
+                $validated['value']
+            );
+            return response()->json(['success' => true, 'message' => "{$count} thương hiệu đã được cập nhật thành công."]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Đã xảy ra lỗi.'], 500);
+        }
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author PhamTra
@@ -60,4 +61,16 @@ class CouponService
         return $coupon->delete();
     }
 
+    /**
+     * Bulk update coupons (change status).
+     */
+    public function bulkUpdate(string $action, array $couponIds, mixed $value): int
+    {
+        if ($action !== 'change_status') {
+            throw new \InvalidArgumentException('Action không hợp lệ.');
+        }
+
+        $count = Coupon::whereIn('id', $couponIds)->update(['is_active' => $value]);
+        return $count;
+    }
 }

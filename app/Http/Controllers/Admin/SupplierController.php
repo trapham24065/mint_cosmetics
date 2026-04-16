@@ -186,7 +186,7 @@ class SupplierController extends Controller
         $isActive = $action === 'activate';
         Supplier::whereIn('id', $ids)->update(['is_active' => $isActive]);
 
-        $statusText = $isActive ? 'activated' : 'deactivated';
+        $statusText = $isActive ? 'đã được kích hoạt' : 'đã được vô hiệu hóa';
         return response()->json(['success' => true, 'message' => "$count nhà cung cấp $statusText thành công."]);
     }
 }

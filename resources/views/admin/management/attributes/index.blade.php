@@ -1,28 +1,38 @@
 @extends('admin.layouts.app')
 @section('content')
-    <div class="container-xxl">
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="card">
-                    <div class="d-flex card-header justify-content-between align-items-center">
-                        <h4 class="card-title">Tất cả các thuộc tính</h4>
-                        {{-- Add a "Create" button --}}
-                        <a href="{{ route('admin.attributes.create') }}" class="btn btn-sm btn-primary">
-                            <i class="fas fa-plus me-1"></i> Thêm thuộc tính
-                        </a>
-                    </div>
-                    <div>
-                        <div class="card-body">
-                            <div id="table-data-attributes"></div>
+<div class="container-xxl">
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="d-flex card-header justify-content-between align-items-center">
+                    <h4 class="card-title">Tất cả các thuộc tính</h4>
+                    {{-- Add a "Create" button --}}
+                    <a href="{{ route('admin.attributes.create') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-1"></i> Thêm thuộc tính
+                    </a>
+                </div>
+                <div>
+                    <div class="card-body">
+                        <div id="bulk-actions-container" class="mb-3" style="display: none;">
+                            <div class="d-flex align-items-center gap-2">
+                                <span id="selected-count" class="fw-bold"></span>
+                                <select id="bulk-action-select" class="form-select form-select-sm" style="width: 220px;">
+                                    <option value="">Hãy chọn hành động...</option>
+                                    <option value="delete">Xóa mục đã chọn</option>
+                                </select>
+                                <button id="apply-bulk-action-btn" class="btn btn-sm btn-danger">Áp dụng</button>
+                            </div>
                         </div>
+                        <div id="table-data-attributes"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @endsection
 @push('scripts')
-    <!-- @formatter:off -->
+<!-- @formatter:off -->
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -31,6 +41,16 @@
 
                 new gridjs.Grid({
                     columns: [
+                        {
+                            id: 'checkbox_select',
+                            name: gridjs.html('<input type="checkbox" class="gridjs-checkbox-all"/>'),
+                            formatter: (cell, row) => {
+                                const attributeId = row.cells[1].data;
+                                return gridjs.html(`<input type="checkbox" class="gridjs-checkbox-row" data-id="${attributeId}"/>`);
+                            },
+                            sort: false,
+                            width: '40px'
+                        },
                         { id: 'id', name: 'ID', width: '80px' },
                         { id: 'name', name: 'Tên' },
                         { id: 'values', name: 'Giá trị' },
@@ -40,8 +60,8 @@
                             width: '80px',
                             sort: false,
                             formatter: (cell, row) => {
-                                const attributeId = row.cells[0].data;
-                                const attributeName=row.cells[2].data;
+                                const attributeId = row.cells[1].data;
+                                const attributeName = row.cells[2].data;
 
                                 const showUrl = `{{ route('admin.attributes.index') }}/${attributeId}`;
                                 const editUrl = `{{ route('admin.attributes.index') }}/${attributeId}/edit`;
@@ -79,7 +99,14 @@
                     ],
                     server: {
                         url: '{{ route('admin.api.attributes.data') }}',
-                        then: results => results.data,
+                        then: results => results.data.map(attribute => [
+                            null,
+                            attribute.id,
+                            attribute.name,
+                            attribute.values,
+                            attribute.created_at,
+                            null,
+                        ]),
                     },
                     sort: true,
                     search: true,
@@ -87,6 +114,84 @@
                         limit: 10
                     },
                 }).render(document.getElementById("table-data-attributes"));
+
+                const bulkActionsContainer = document.getElementById('bulk-actions-container');
+                const selectedCountEl = document.getElementById('selected-count');
+                const applyBtn = document.getElementById('apply-bulk-action-btn');
+                const actionSelect = document.getElementById('bulk-action-select');
+
+                function getSelectedIds() {
+                    const selected = [];
+                    document.querySelectorAll('.gridjs-checkbox-row:checked').forEach(checkbox => {
+                        selected.push(checkbox.dataset.id);
+                    });
+                    return selected;
+                }
+
+                function updateBulkUi() {
+                    const selectedIds = getSelectedIds();
+                    if (selectedIds.length > 0) {
+                        bulkActionsContainer.style.display = 'block';
+                        selectedCountEl.textContent = `${selectedIds.length} mục đã chọn`;
+                    } else {
+                        bulkActionsContainer.style.display = 'none';
+                    }
+                }
+
+                document.getElementById('table-data-attributes').addEventListener('change', function(e) {
+                    if (e.target.classList.contains('gridjs-checkbox-row') || e.target.classList.contains('gridjs-checkbox-all')) {
+                        if (e.target.classList.contains('gridjs-checkbox-all')) {
+                            document.querySelectorAll('.gridjs-checkbox-row').forEach(checkbox => {
+                                checkbox.checked = e.target.checked;
+                            });
+                        }
+                        updateBulkUi();
+                    }
+                });
+
+                applyBtn.addEventListener('click', function() {
+                    const selectedIds = getSelectedIds();
+                    const action = actionSelect.value;
+
+                    if (selectedIds.length === 0 || !action) {
+                        alert('Vui lòng chọn các mục và hành động.');
+                        return;
+                    }
+
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        },
+                    });
+
+                    fetch('{{ route('admin.attributes.bulkUpdate') }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify({
+                            action: 'delete',
+                            attribute_ids: selectedIds,
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            Toast.fire({ icon: 'success', title: data.message }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Toast.fire({ icon: 'error', title: data.message });
+                        }
+                    })
+                    .catch(() => {
+                        Toast.fire({ icon: 'error', title: 'Đã xảy ra lỗi.' });
+                    });
+                });
             }
         });
         AdminCRUD.initDeleteHandler('.delete-item', {
