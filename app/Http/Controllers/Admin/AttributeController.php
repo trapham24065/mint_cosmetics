@@ -21,6 +21,7 @@ use App\Services\Admin\AttributeService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -197,5 +198,55 @@ class AttributeController extends Controller
         });
 
         return response()->json(['data' => $data]);
+    }
+
+    /**
+     * Handle bulk actions for attributes.
+     */
+    public function bulkUpdate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'action'          => ['required', 'string', 'in:delete'],
+            'attribute_ids'   => ['required', 'array'],
+            'attribute_ids.*' => ['integer', 'exists:attributes,id'],
+        ]);
+
+        try {
+            $deletedCount = 0;
+            $blockedCount = 0;
+
+            $attributes = Attribute::whereIn('id', $validated['attribute_ids'])->get();
+
+            foreach ($attributes as $attribute) {
+                try {
+                    $this->attributeService->deleteAttribute($attribute);
+                    $deletedCount++;
+                } catch (\Exception $e) {
+                    $blockedCount++;
+                }
+            }
+
+            if ($deletedCount === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể xóa các thuộc tính đã chọn do ràng buộc dữ liệu.',
+                ], 422);
+            }
+
+            $message = "{$deletedCount} thuộc tính đã được xóa thành công.";
+            if ($blockedCount > 0) {
+                $message .= " {$blockedCount} thuộc tính bị bỏ qua do đang được sử dụng.";
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đã xảy ra lỗi.',
+            ], 500);
+        }
     }
 }

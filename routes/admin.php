@@ -57,11 +57,16 @@ Route::middleware(['role:admin,sale'])->group(function () {
         'coupons'    => CouponController::class,
         'blog-posts' => BlogPostController::class,
     ]);
+    // Bulk update routes
+    Route::post('attributes/bulk-update', [AttributeController::class, 'bulkUpdate'])->name('attributes.bulkUpdate');
+    Route::post('brands/bulk-update', [BrandController::class, 'bulkUpdate'])->name('brands.bulkUpdate');
+    Route::post('coupons/bulk-update', [CouponController::class, 'bulkUpdate'])->name('coupons.bulkUpdate');
 
     // --- Category Management ---
     Route::get('categories/{category}/attributes', [CategoryController::class, 'getAttributes'])->name(
         'categories.attributes'
     );
+    Route::post('categories/bulk-update', [CategoryController::class, 'bulkUpdate'])->name('categories.bulkUpdate');
     Route::resource('categories', CategoryController::class);
 
     // --- Product Management ---
@@ -141,6 +146,7 @@ Route::middleware(['role:admin,sale'])->group(function () {
 // User Management (Admin Dashboard Users) - Only Admin can access
 Route::middleware(['role:admin'])->group(function () {
     Route::resource('users', UserController::class);
+    Route::post('users/bulk-update', [UserController::class, 'bulkUpdate'])->name('users.bulkUpdate');
     // --- Settings ---
     Route::controller(SettingsController::class)->prefix('settings')->name('settings.')->group(function () {
         Route::get('/', 'index')->name('index');

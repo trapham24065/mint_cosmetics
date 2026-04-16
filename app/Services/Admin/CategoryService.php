@@ -97,4 +97,17 @@ class CategoryService
         }
         return $category->delete();
     }
+
+    /**
+     * Bulk update categories (change status).
+     */
+    public function bulkUpdate(string $action, array $categoryIds, mixed $value): int
+    {
+        if ($action !== 'change_status') {
+            throw new \InvalidArgumentException('Action không hợp lệ.');
+        }
+
+        $count = Category::whereIn('id', $categoryIds)->update(['active' => $value]);
+        return $count;
+    }
 }

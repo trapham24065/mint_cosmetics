@@ -22,6 +22,7 @@ use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -230,5 +231,29 @@ class CategoryController extends Controller
         });
 
         return response()->json(['data' => $data]);
+    }
+
+    /**
+     * Handle bulk actions for categories.
+     */
+    public function bulkUpdate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'action'        => ['required', 'string', 'in:change_status'],
+            'category_ids'  => ['required', 'array'],
+            'category_ids.*' => ['integer', 'exists:categories,id'],
+            'value'         => ['required'],
+        ]);
+
+        try {
+            $count = $this->categoryService->bulkUpdate(
+                $validated['action'],
+                $validated['category_ids'],
+                $validated['value']
+            );
+            return response()->json(['success' => true, 'message' => "{$count} danh mục đã được cập nhật thành công."]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Đã xảy ra lỗi.'], 500);
+        }
     }
 }

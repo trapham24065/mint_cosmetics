@@ -68,7 +68,7 @@ class UserController extends Controller
      */
     public function edit(User $user): View
     {
-        $title = 'Chỉnh sửa tài khoản: '.$user->name;
+        $title = 'Chỉnh sửa tài khoản: ' . $user->name;
         $roles = ['admin', 'sale', 'warehouse'];
 
         return view('admin.management.users.edit', compact('user', 'roles', 'title'));
@@ -81,7 +81,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'role'     => ['required', 'in:admin,sale,warehouse'],
             'status'   => ['nullable', 'boolean'],
@@ -140,4 +140,40 @@ class UserController extends Controller
         return response()->json(['data' => $data]);
     }
 
+    /**
+     * Handle bulk actions for users.
+     */
+    public function bulkUpdate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'action'   => ['required', 'string', 'in:change_status'],
+            'user_ids' => ['required', 'array'],
+            'user_ids.*' => ['integer', 'exists:users,id'],
+            'value'    => ['required'],
+        ]);
+
+        try {
+            // Prevent changing yourself
+            $currentUserId = auth()->id();
+            if (in_array($currentUserId, $validated['user_ids'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không thể thay đổi trạng thái của chính mình!',
+                ], 422);
+            }
+
+            $count = User::whereIn('id', $validated['user_ids'])
+                ->update(['status' => $validated['value']]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$count} người dùng đã được cập nhật thành công.",
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Đã xảy ra lỗi.',
+            ], 500);
+        }
+    }
 }

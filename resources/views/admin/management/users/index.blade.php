@@ -1,35 +1,35 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <div class="container-xxl">
-        <div class="card">
-            <div class="d-flex card-header justify-content-between align-items-center">
-                <h4 class="card-title">Quản lý tài khoản quản trị</h4>
-                <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-1"></i> Tạo tài khoản mới
-                </a>
-            </div>
-            <div class="card-body">
-                <div id="bulk-actions-container" class="mb-3" style="display: none;">
-                    <div class="d-flex align-items-center gap-2">
-                        <span id="selected-count" class="fw-bold"></span>
-                        <select id="bulk-action-select" class="form-select form-select-sm" style="width: 200px;">
-                            <option value="">Hãy chọn hành động...</option>
-                            <option value="activate">Kích hoạt mục đã chọn</option>
-                            <option value="deactivate">Vô hiệu hóa mục đã chọn</option>
-                        </select>
-                        <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
-                    </div>
+<div class="container-xxl">
+    <div class="card">
+        <div class="d-flex card-header justify-content-between align-items-center">
+            <h4 class="card-title">Quản lý tài khoản quản trị</h4>
+            <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-1"></i> Tạo tài khoản mới
+            </a>
+        </div>
+        <div class="card-body">
+            <div id="bulk-actions-container" class="mb-3" style="display: none;">
+                <div class="d-flex align-items-center gap-2">
+                    <span id="selected-count" class="fw-bold"></span>
+                    <select id="bulk-action-select" class="form-select form-select-sm" style="width: 200px;">
+                        <option value="">Hãy chọn hành động...</option>
+                        <option value="activate">Kích hoạt mục đã chọn</option>
+                        <option value="deactivate">Vô hiệu hóa mục đã chọn</option>
+                    </select>
+                    <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
                 </div>
-                {{-- Grid.js will render the table here --}}
-                <div id="table-users-gridjs"></div>
             </div>
+            {{-- Grid.js will render the table here --}}
+            <div id="table-users-gridjs"></div>
         </div>
     </div>
+</div>
 @endsection
 @push('scripts')
 
-    <!-- @formatter:off -->
+<!-- @formatter:off -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (document.getElementById("table-users-gridjs")) {
@@ -135,9 +135,100 @@
                     confirmText: 'Bạn sắp xóa tài khoản:',
                     successText: 'Tài khoản đã được xóa thành công.'
                 });
+
+                const bulkActionsContainer = document.getElementById('bulk-actions-container');
+                const selectedCountEl = document.getElementById('selected-count');
+                const applyBtn = document.getElementById('apply-bulk-action-btn');
+                const actionSelect = document.getElementById('bulk-action-select');
+
+                function getSelectedIds() {
+                    const selected = [];
+                    document.querySelectorAll('.gridjs-checkbox-row:checked').forEach(checkbox => {
+                        selected.push(checkbox.dataset.id);
+                    });
+                    return selected;
+                }
+
+                function updateBulkUi() {
+                    const selectedIds = getSelectedIds();
+                    if (selectedIds.length > 0) {
+                        bulkActionsContainer.style.display = 'block';
+                        selectedCountEl.textContent = `${selectedIds.length} mục đã chọn`;
+                    } else {
+                        bulkActionsContainer.style.display = 'none';
+                    }
+                }
+
+                document.getElementById('table-users-gridjs').addEventListener('change', function(e) {
+                    if (e.target.classList.contains('gridjs-checkbox-row') || e.target.classList.contains('gridjs-checkbox-all')) {
+                        if (e.target.classList.contains('gridjs-checkbox-all')) {
+                            document.querySelectorAll('.gridjs-checkbox-row').forEach(checkbox => {
+                                checkbox.checked = e.target.checked;
+                            });
+                        }
+                        updateBulkUi();
+                    }
+                });
+
+                applyBtn.addEventListener('click', function() {
+                    const selectedIds = getSelectedIds();
+                    const action = actionSelect.value;
+
+                    if (selectedIds.length === 0 || !action) {
+                        alert('Vui lòng chọn các mục và hành động.');
+                        return;
+                    }
+
+                    let value;
+                    if (action === 'activate') value = true;
+                    if (action === 'deactivate') value = false;
+
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        },
+                    });
+
+                    fetch('{{ route('admin.users.bulkUpdate') }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                        body: JSON.stringify({
+                            action: 'change_status',
+                            user_ids: selectedIds,
+                            value: value
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.success) {
+                            Toast.fire({
+                                icon: 'success',
+                                title: data.message,
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Toast.fire({
+                                icon: 'error',
+                                title: data.message,
+                            });
+                        }
+                    })
+                    .catch(() => {
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Đã xảy ra lỗi.',
+                        });
+                    });
+                });
             }
         });
     </script>
     <!-- @formatter:on -->
 @endpush
-

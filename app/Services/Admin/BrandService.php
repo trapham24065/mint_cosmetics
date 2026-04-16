@@ -60,4 +60,17 @@ class BrandService
             return $brand->delete();
         });
     }
+
+    /**
+     * Bulk update brands (change status).
+     */
+    public function bulkUpdate(string $action, array $brandIds, mixed $value): int
+    {
+        if ($action !== 'change_status') {
+            throw new \InvalidArgumentException('Action không hợp lệ.');
+        }
+
+        $count = Brand::whereIn('id', $brandIds)->update(['is_active' => $value]);
+        return $count;
+    }
 }

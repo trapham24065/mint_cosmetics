@@ -21,6 +21,7 @@ use App\Services\Admin\CouponService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -183,5 +184,29 @@ class CouponController extends Controller
         return response()->json([
             'data' => $data,
         ]);
+    }
+
+    /**
+     * Handle bulk actions for coupons.
+     */
+    public function bulkUpdate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'action'      => ['required', 'string', 'in:change_status'],
+            'coupon_ids'  => ['required', 'array'],
+            'coupon_ids.*' => ['integer', 'exists:coupons,id'],
+            'value'       => ['required'],
+        ]);
+
+        try {
+            $count = $this->couponService->bulkUpdate(
+                $validated['action'],
+                $validated['coupon_ids'],
+                $validated['value']
+            );
+            return response()->json(['success' => true, 'message' => "{$count} phiếu giảm giá đã được cập nhật thành công."]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Đã xảy ra lỗi.'], 500);
+        }
     }
 }

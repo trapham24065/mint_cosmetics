@@ -82,7 +82,7 @@ class ProductController extends Controller
                     }
                 }
             }
-            
+
             $this->productService->createProduct($data);
 
             return redirect()->route('admin.products.index')
@@ -250,7 +250,7 @@ class ProductController extends Controller
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Không thể xóa sản phẩm: '.$e->getMessage(),
+                    'message' => 'Không thể xóa sản phẩm: ' . $e->getMessage(),
                 ], 500);
             }
 
@@ -304,7 +304,7 @@ class ProductController extends Controller
                 $validated['product_ids'],
                 $validated['value']
             );
-            return response()->json(['success' => true, 'message' => "Đã cập nhật thành công {$count} sản phẩm."]);
+            return response()->json(['success' => true, 'message' => "{$count} sản phẩm đã được cập nhật thành công."]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Đã xảy ra lỗi.'], 500);
         }
@@ -318,11 +318,11 @@ class ProductController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $filename = time().'_'.$file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('products/descriptions', $filename, 'public');
 
             return response()->json([
-                'location' => asset('storage/'.$path),
+                'location' => asset('storage/' . $path),
             ]);
         }
 
@@ -376,5 +376,4 @@ class ProductController extends Controller
 
         return response()->json(['error' => 'Upload failed'], 400);
     }
-
 }

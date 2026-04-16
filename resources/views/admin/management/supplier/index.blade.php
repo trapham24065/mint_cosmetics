@@ -1,35 +1,35 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <div class="container-xxl">
-        <div class="card">
-            <div class="d-flex card-header justify-content-between align-items-center">
-                <h4 class="card-title">Quản lý nhà cung cấp</h4>
-                <a href="{{ route('admin.suppliers.create') }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus me-1"></i> Thêm nhà cung cấp
-                </a>
-            </div>
-            <div class="card-body">
-                <div id="bulk-actions-container" class="mb-3" style="display: none;">
-                    <div class="d-flex align-items-center gap-2">
-                        <span id="selected-count" class="fw-bold"></span>
-                        <select id="bulk-action-select" class="form-select form-select-sm" style="width: 200px;">
-                            <option value="">Hãy chọn hành động...</option>
-                            <option value="activate">Kích hoạt mục đã chọn</option>
-                            <option value="deactivate">Vô hiệu hóa mục đã chọn</option>
-                        </select>
-                        <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
-                    </div>
+<div class="container-xxl">
+    <div class="card">
+        <div class="d-flex card-header justify-content-between align-items-center">
+            <h4 class="card-title">Quản lý nhà cung cấp</h4>
+            <a href="{{ route('admin.suppliers.create') }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus me-1"></i> Thêm nhà cung cấp
+            </a>
+        </div>
+        <div class="card-body">
+            <div id="bulk-actions-container" class="mb-3" style="display: none;">
+                <div class="d-flex align-items-center gap-2">
+                    <span id="selected-count" class="fw-bold"></span>
+                    <select id="bulk-action-select" class="form-select form-select-sm" style="width: 200px;">
+                        <option value="">Hãy chọn hành động...</option>
+                        <option value="activate">Kích hoạt mục đã chọn</option>
+                        <option value="deactivate">Vô hiệu hóa mục đã chọn</option>
+                    </select>
+                    <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
                 </div>
-                {{-- Grid.js will render the table here --}}
-                <div id="table-customers-gridjs"></div>
             </div>
+            {{-- Grid.js will render the table here --}}
+            <div id="table-customers-gridjs"></div>
         </div>
     </div>
+</div>
 @endsection
 @push('scripts')
 
-    <!-- @formatter:off -->
+<!-- @formatter:off -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (document.getElementById("table-customers-gridjs")) {
@@ -178,6 +178,18 @@
                         confirmButtonText: 'Vâng, hãy áp dụng'
                     }).then((result) => {
                         if (result.isConfirmed) {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                                },
+                            });
+
                             fetch('{{ route("admin.suppliers.bulkUpdate") }}', {
                                 method: 'POST',
                                 headers: {
@@ -190,17 +202,26 @@
                             .then(res => res.json())
                             .then(data => {
                                 if(data.success) {
-                                    Swal.fire('Success', data.message, 'success');
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: data.message,
+                                    });
                                     grid.forceRender();
                                     bulkActionsContainer.style.display = 'none';
                                     document.querySelector('.gridjs-checkbox-all').checked = false;
                                 } else {
-                                    Swal.fire('Error', data.message, 'error');
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: data.message,
+                                    });
                                 }
                             })
                             .catch(err => {
                                 console.error(err);
-                                Swal.fire('Error', 'Đã xảy ra lỗi.', 'error');
+                                Toast.fire({
+                                    icon: 'error',
+                                    title: 'Đã xảy ra lỗi.',
+                                });
                             });
                         }
                     });

@@ -191,6 +191,18 @@
                     if (action === 'activate') value = true;
                     if (action === 'deactivate') value = false;
 
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        },
+                    });
+
                     fetch('{{ route('admin.products.bulkUpdate') }}', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
@@ -203,10 +215,16 @@
                     .then(res => res.json())
                     .then(data => {
                         if(data.success) {
-                            Swal.fire('Success', data.message, 'success');
+                            Toast.fire({
+                                icon: 'success',
+                                title: data.message,
+                            });
                             grid.forceRender(); // Tải lại dữ liệu bảng
                         } else {
-                            Swal.fire('Error', data.message, 'error');
+                            Toast.fire({
+                                icon: 'error',
+                                title: data.message,
+                            });
                         }
                     });
                 });
