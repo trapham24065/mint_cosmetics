@@ -39,7 +39,7 @@ window.addToCart = function (variantId, quantity, buttonElement) {
       // Fill in the modal
       const modalImage = document.getElementById('modal-product-image');
       const modalProductName = document.getElementById('modal-product-name');
-      const imageUrl = data.addedItem.image ? `/storage/${data.addedItem.image}` : '/assets/storefront/images/shop/modal1.webp';
+      const imageUrl = data.addedItem.image ? `/storage/${data.addedItem.image}` : '/assets/storefront/images/shop/default.webp';
 
       if (modalImage) modalImage.src = imageUrl;
       if (modalProductName) modalProductName.textContent = data.addedItem.product_name;

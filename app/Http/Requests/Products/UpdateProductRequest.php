@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Products;
 
+use App\Models\Category;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -14,29 +15,93 @@ class UpdateProductRequest extends FormRequest
     {
         $variants = $this->input('variants', []);
         $newVariants = $this->input('new_variants', []);
+        $deletedVariants = $this->input('deleted_variants', []);
 
+        $normalizedDeletedVariantIds = [];
+        if (is_array($deletedVariants)) {
+            $normalizedDeletedVariantIds = array_values(array_unique(array_map(
+                static fn($id) => (int)$id,
+                array_filter($deletedVariants, static fn($id) => is_numeric($id) && (int)$id > 0)
+            )));
+        }
+
+        $normalizedVariants = [];
         if (is_array($variants)) {
-            foreach ($variants as $index => $variant) {
+            foreach ($variants as $variant) {
                 if (!is_array($variant)) {
                     continue;
                 }
 
-                $percentage = $variant['discount_percentage'] ?? null;
-                if ($percentage === null || $percentage === '') {
-                    $variants[$index]['discount_percentage'] = 0;
+                $hasId = !empty($variant['id']);
+                $hasAttributes = !empty($variant['attributes']) || !empty($variant['attribute_value_ids']);
+                $hasPrice = isset($variant['price']) && $variant['price'] !== '';
+                $hasSku = isset($variant['sku']) && trim((string)$variant['sku']) !== '';
+
+                $variantId = isset($variant['id']) && is_numeric($variant['id']) ? (int)$variant['id'] : null;
+                if ($variantId !== null && in_array($variantId, $normalizedDeletedVariantIds, true)) {
+                    continue;
+                }
+
+                if ($hasId || $hasAttributes || $hasPrice || $hasSku) {
+                    $normalizedVariants[] = $variant;
                 }
             }
         }
 
+        $normalizedNewVariants = [];
         if (is_array($newVariants)) {
-            foreach ($newVariants as $index => $variant) {
+            foreach ($newVariants as $variant) {
+                if (!is_array($variant)) {
+                    continue;
+                }
+
+                $hasAttributes = !empty($variant['attributes']) || !empty($variant['attribute_value_ids']);
+                $hasPrice = isset($variant['price']) && $variant['price'] !== '';
+                $hasSku = isset($variant['sku']) && trim((string)$variant['sku']) !== '';
+
+                if ($hasAttributes || $hasPrice || $hasSku) {
+                    $normalizedNewVariants[] = $variant;
+                }
+            }
+        }
+
+        $incomingType = (string)$this->input('product_type', 'simple');
+        $hasSimplePayload = $this->filled('price')
+            || $this->filled('sku')
+            || $this->filled('discount_price')
+            || $this->filled('discount_percentage');
+
+        if (
+            $incomingType === 'variable'
+            && empty($normalizedVariants)
+            && empty($normalizedNewVariants)
+            && $hasSimplePayload
+        ) {
+            $incomingType = 'simple';
+        }
+
+        if (is_array($normalizedVariants)) {
+            foreach ($normalizedVariants as $index => $variant) {
                 if (!is_array($variant)) {
                     continue;
                 }
 
                 $percentage = $variant['discount_percentage'] ?? null;
                 if ($percentage === null || $percentage === '') {
-                    $newVariants[$index]['discount_percentage'] = 0;
+                    $normalizedVariants[$index]['discount_percentage'] = 0;
+                }
+            }
+        }
+
+        if (is_array($normalizedNewVariants)) {
+            foreach ($normalizedNewVariants as $index => $variant) {
+                if (!is_array($variant)) {
+                    continue;
+                }
+
+                $percentage = $variant['discount_percentage'] ?? null;
+                if ($percentage === null || $percentage === '') {
+                    $normalizedNewVariants[$index]['discount_percentage'] = 0;
                 }
             }
         }
@@ -44,9 +109,11 @@ class UpdateProductRequest extends FormRequest
         $simpleDiscountPercentage = $this->input('discount_percentage');
 
         $this->merge([
+            'product_type' => $incomingType,
             'discount_percentage' => ($simpleDiscountPercentage === null || $simpleDiscountPercentage === '') ? 0 : $simpleDiscountPercentage,
-            'variants' => $variants,
-            'new_variants' => $newVariants,
+            'variants' => $normalizedVariants,
+            'new_variants' => $normalizedNewVariants,
+            'deleted_variants' => $normalizedDeletedVariantIds,
         ]);
     }
 
@@ -71,7 +138,20 @@ class UpdateProductRequest extends FormRequest
 
         $rules = [
             'name'                  => ['required', 'string', 'max:255', Rule::unique('products')->ignore($productId)],
-            'category_id'           => ['required', 'exists:categories,id'],
+            'category_id'           => [
+                'required',
+                'exists:categories,id',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if ($value === null || $value === '') {
+                        return;
+                    }
+
+                    $hasChildren = Category::query()->where('parent_id', (int)$value)->exists();
+                    if ($hasChildren) {
+                        $fail('Vui lòng chọn danh mục con cuối cùng để cập nhật sản phẩm.');
+                    }
+                },
+            ],
             'brand_id'              => ['nullable', 'exists:brands,id'],
             'description'           => ['nullable', 'string', 'max:65535'],
             'image'                 => ['nullable', 'image', 'mimes:jpg,png,jpeg,webp', 'max:2048'],
@@ -80,7 +160,12 @@ class UpdateProductRequest extends FormRequest
             'active'                => ['sometimes', 'boolean'],
             'product_type'          => ['required', Rule::in(['simple', 'variable'])],
             'deleted_variants'      => ['nullable', 'array'],
-            'deleted_variants.*'    => ['integer', 'exists:product_variants,id'],
+            'deleted_variants.*'    => [
+                'integer',
+                Rule::exists('product_variants', 'id')->where(static function ($query) use ($productId) {
+                    $query->where('product_id', $productId);
+                }),
+            ],
             'selected_attributes'   => ['nullable', 'array'],
             'selected_attributes.*' => ['exists:attributes,id'],
         ];
@@ -243,53 +328,5 @@ class UpdateProductRequest extends FormRequest
             'sku.unique'                                    => 'SKU này đã tồn tại.',
             'new_variants.*.sku.distinct'                   => 'Phát hiện SKU bị trùng trong danh sách biến thể mới.',
         ];
-    }
-
-    /**
-     * Get the index of the current variant being validated.
-     * Needed for Rule::when inside variants array validation.
-     *
-     * @param  string  $arrayName  'variants' or 'new_variants'
-     *
-     * @return int|null
-     */
-    protected function getVariantIndex(string $arrayName): ?int
-    {
-        $validator = $this->getValidatorInstance();
-        if (!$validator || !method_exists($validator, 'currentRule')) {
-            return null;
-        }
-        $currentRule = $validator->currentRule();
-        if (!is_string($currentRule)) {
-            return null;
-        }
-
-        // Example: 'variants.0.discount_price' or 'new_variants.1.price'
-        $keys = explode('.', $currentRule);
-
-        // Check if the first part matches the array name we're interested in
-        if (isset($keys[0], $keys[1]) && $keys[0] === $arrayName && is_numeric($keys[1])) {
-            return (int)$keys[1];
-        }
-
-        return null;
-    }
-
-    /**
-     * Get the ID of the current variant being validated (for unique rule).
-     *
-     * @param  string  $arrayName  'variants'
-     *
-     * @return int|null
-     */
-    protected function getVariantIdBeingValidated(string $arrayName): ?int
-    {
-        $index = $this->getVariantIndex($arrayName);
-        if ($index === null) {
-            return null;
-        }
-        // Access the input data submitted for this variant
-        $variantData = $this->input("{$arrayName}.{$index}");
-        return isset($variantData['id']) ? (int)$variantData['id'] : null;
     }
 }

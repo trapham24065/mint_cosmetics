@@ -74,7 +74,7 @@
             <label for="starts-at" class="form-label">Ngày bắt đầu</label>
             <input type="date" id="starts-at" name="starts_at"
                    class="form-control @error('starts_at') is-invalid @enderror"
-                   value="{{ old('starts_at', isset($coupon->starts_at) ? $coupon->starts_at->format('Y-m-d') : '') }}"
+                   value="{{ old('starts_at', isset($coupon->starts_at) ? $coupon->starts_at->format('d/m/Y') : '') }}"
                    required>
             @error('starts_at')
             <div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -85,7 +85,7 @@
             <label for="expires-at" class="form-label">Ngày kết thúc</label>
             <input type="date" id="expires-at" name="expires_at"
                    class="form-control @error('expires_at') is-invalid @enderror"
-                   value="{{ old('expires_at', isset($coupon->expires_at) ? $coupon->expires_at->format('Y-m-d') : '') }}"
+                   value="{{ old('expires_at', isset($coupon->expires_at) ? $coupon->expires_at->format('d/m/Y') : '') }}"
                    required>
             @error('expires_at')
             <div class="invalid-feedback">{{ $message }}</div>@enderror

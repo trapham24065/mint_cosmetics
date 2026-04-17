@@ -25,7 +25,10 @@
 
             <div class="col-xl-9 col-lg-8">
                 @php
-                $productType = old('product_type', $product->variants->count() > 1 ? 'variable' : 'simple');
+                $hasVariantAttributes = $product->variants->contains(static function ($variant) {
+                return $variant->attributeValues->isNotEmpty();
+                });
+                $productType = old('product_type', $hasVariantAttributes ? 'variable' : 'simple');
                 @endphp
                 <div class="card">
                     <div class="card-header">
@@ -63,11 +66,12 @@
                                     class="form-select @error('category_id') is-invalid @enderror" required>
                                     @foreach($categories as $category)
                                     <option value="{{ $category->id }}"
-                                        @selected(old('category_id', $product->category_id) === $category->id)>
-                                        {{ $category->name }}
+                                        @selected((int) old('category_id', $product->category_id) === $category->id)>
+                                        {{ $category->hierarchy_name }}
                                     </option>
                                     @endforeach
                                 </select>
+                                <small class="text-muted">Chỉ danh mục con cuối cùng (danh mục lá) mới dùng cho sản phẩm.</small>
                                 @error('category_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -650,18 +654,36 @@
 
                 // --- 6. Variant Deletion Logic ---
                 variantsContainer.addEventListener('click', function(event) {
-                    if (event.target.classList.contains('btn-close')) {
-                        const variantRow = event.target.closest('.variant-form-row');
-                        const variantId = variantRow.dataset.variantId;
+                    const closeBtn = event.target.closest('.btn-close');
+                    if (!closeBtn) {
+                        return;
+                    }
 
+                    const variantRow = closeBtn.closest('.variant-form-row');
+                    if (!variantRow) {
+                        return;
+                    }
+
+                    const variantId = variantRow.dataset.variantId;
+                    if (!variantId) {
+                        return;
+                    }
+
+                    // Avoid appending duplicated deleted_variants[] for the same variant.
+                    const existingDeletedInput = mainForm.querySelector(`input[name="deleted_variants[]"][value="${variantId}"]`);
+                    if (!existingDeletedInput) {
                         const hiddenInput = document.createElement('input');
                         hiddenInput.type = 'hidden';
                         hiddenInput.name = 'deleted_variants[]';
                         hiddenInput.value = variantId;
                         mainForm.appendChild(hiddenInput);
-
-                        variantRow.style.display = 'none';
                     }
+
+                    // Prevent removed row fields from being submitted as variants payload.
+                    variantRow.querySelectorAll('input, select, textarea, button').forEach(el => {
+                        el.disabled = true;
+                    });
+                    variantRow.classList.add('d-none');
                 });
 
                 function normalizePercentageValue(rawValue) {
@@ -770,6 +792,7 @@
                     calculateVariantDiscount(row);
                 });
                 if (document.getElementById('type_variable').checked && attributesContainer.children.length === 0) {
+                    categorySelect.dispatchEvent(new Event('change'));
                 }
             });
         </script>

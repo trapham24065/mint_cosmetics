@@ -52,7 +52,11 @@ class ProductController extends Controller
     public function create(): View
     {
         // Fetch data needed for form dropdowns
-        $categories = Category::where('active', true)->get();
+        $categories = Category::query()
+            ->where('active', true)
+            ->leaf()
+            ->orderBy('name')
+            ->get();
         $brands = Brand::where('is_active', true)->get();
 
         return view('admin.management.products.create', compact('categories', 'brands'));
@@ -90,9 +94,15 @@ class ProductController extends Controller
         } catch (QueryException $e) {
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            Log::error('Tạo sản phẩm thất bại', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
             return back()->withInput()
-                ->with('error', $e->getMessage());
+                ->with('error', $e->getMessage() ?: 'Đã xảy ra lỗi khi tạo sản phẩm. Vui lòng thử lại.');
         }
     }
 
@@ -118,7 +128,13 @@ class ProductController extends Controller
         // Eager-load all necessary data for the form
         $product->load(['variants.attributeValues', 'images']);
 
-        $categories = Category::where('active', true)->get();
+        $categories = Category::query()
+            ->where('active', true)
+            ->where(function ($query) use ($product) {
+                $query->leaf()->orWhere('id', $product->category_id);
+            })
+            ->orderBy('name')
+            ->get();
         $brands = Brand::where('is_active', true)->get();
 
         // Get all attributes available for the product's current category
@@ -224,7 +240,14 @@ class ProductController extends Controller
         } catch (QueryException $e) {
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            Log::error('Cập nhật sản phẩm thất bại', [
+                'product_id' => $product->id,
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
             return back()->withInput()->with('error', $e->getMessage());
         }
     }

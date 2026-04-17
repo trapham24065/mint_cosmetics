@@ -49,6 +49,24 @@
                                     @enderror
                                 </div>
                             </div>
+                            <div class="col-lg-12">
+                                <div class="mb-3">
+                                    <label for="parent-category" class="form-label">Danh mục cha (tuỳ chọn)</label>
+                                    <select id="parent-category" name="parent_id"
+                                        class="form-select @error('parent_id') is-invalid @enderror">
+                                        <option value="">Không có danh mục cha (danh mục gốc)</option>
+                                        @foreach ($parentCategories as $parentCategory)
+                                        <option value="{{ $parentCategory->id }}"
+                                            @selected((int) old('parent_id')===$parentCategory->id)>
+                                            {{ $parentCategory->hierarchy_name }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                    @error('parent_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                             {{-- Category Image --}}
                             <div class="col-12 mb-3">
                                 <label for="category-image" class="form-label">Hình ảnh theo danh mục</label>

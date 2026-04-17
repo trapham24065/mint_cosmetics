@@ -17,6 +17,7 @@ use App\Models\Brand;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -33,14 +34,20 @@ class ShopController extends Controller
 
         // SEARCH
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%'.$request->search.'%');
+            $query->where('name', 'like', '%' . $request->search . '%');
         }
 
         // CATEGORY
         if ($request->filled('category')) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('slug', $request->category);
-            });
+            $selectedCategory = Category::query()
+                ->where('active', true)
+                ->where('slug', $request->category)
+                ->first();
+
+            if ($selectedCategory) {
+                $categoryIds = array_merge([$selectedCategory->id], $selectedCategory->getDescendantIds());
+                $query->whereIn('category_id', $categoryIds);
+            }
         }
 
         // BRAND
@@ -84,13 +91,12 @@ class ShopController extends Controller
 
         $products = $query->paginate(9)->withQueryString();
 
-        $categories = Category::where('active', true)
-            ->withCount([
-                'products' => function ($q) {
-                    $q->where('active', true);
-                },
-            ])
-            ->get();
+        $categories = Category::query()
+            ->where('active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug', 'parent_id']);
+
+        $categoryTree = $this->buildCategoryTreeWithCounts($categories);
         $brands = Brand::where('is_active', true)->get();
 
         $priceRange = DB::table('product_variants')
@@ -102,10 +108,56 @@ class ShopController extends Controller
         return view('storefront.shop', [
             'products'   => $products,
             'categories' => $categories,
+            'categoryTree' => $categoryTree,
             'brands'     => $brands,
             'minPrice'   => $priceRange->min_price ?? 0,
             'maxPrice'   => $priceRange->max_price ?? 0,
         ]);
+    }
+
+    private function buildCategoryTreeWithCounts(Collection $categories): Collection
+    {
+        $categoriesByParent = $categories->groupBy(static fn(Category $category) => $category->parent_id ?? 0);
+
+        $productCountsByCategory = Product::query()
+            ->where('active', true)
+            ->selectRaw('category_id, COUNT(*) as total')
+            ->groupBy('category_id')
+            ->pluck('total', 'category_id');
+
+        $attachChildren = function (Category $category) use (&$attachChildren, $categoriesByParent): void {
+            $children = ($categoriesByParent->get($category->id, collect()))->values();
+
+            $children->each(function (Category $child) use (&$attachChildren): void {
+                $attachChildren($child);
+            });
+
+            $category->setRelation('children', $children);
+        };
+
+        $calculateSubtreeCount = function (Category $category) use (&$calculateSubtreeCount, $productCountsByCategory): int {
+            $count = (int)($productCountsByCategory[$category->id] ?? 0);
+
+            foreach ($category->children as $child) {
+                $count += $calculateSubtreeCount($child);
+            }
+
+            $category->setAttribute('subtree_products_count', $count);
+
+            return $count;
+        };
+
+        $rootCategories = ($categoriesByParent->get(0, collect()))->values();
+
+        $rootCategories->each(function (Category $category) use (&$attachChildren): void {
+            $attachChildren($category);
+        });
+
+        $rootCategories->each(function (Category $category) use (&$calculateSubtreeCount): void {
+            $calculateSubtreeCount($category);
+        });
+
+        return $rootCategories;
     }
 
     /**
@@ -135,5 +187,4 @@ class ShopController extends Controller
             ], 500);
         }
     }
-
 }

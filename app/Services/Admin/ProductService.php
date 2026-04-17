@@ -161,12 +161,17 @@ class ProductService
                 }
             } elseif ($data['product_type'] === 'variable') {
                 $incomingVariantIds = [];
+                $deletedVariantIds = array_map('intval', $data['deleted_variants'] ?? []);
 
                 // 5.1. Update existing variants
                 if (!empty($data['variants'])) {
                     foreach ($data['variants'] as $index => $variantData) {
                         $variantId = $variantData['id'] ?? null;
                         if ($variantId) {
+                            if (in_array((int)$variantId, $deletedVariantIds, true)) {
+                                continue;
+                            }
+
                             $variant = $product->variants()->find($variantId);
                             if ($variant) {
                                 // Xử lý cập nhật SKU (đã được validate bên FormRequest)
@@ -193,9 +198,9 @@ class ProductService
                 }
 
                 // 5.2. Delete variants marked for deletion
-                if (!empty($data['deleted_variants'])) {
-                    foreach ($data['deleted_variants'] as $variantId) {
-                        $variantToDelete = ProductVariant::find($variantId);
+                if (!empty($deletedVariantIds)) {
+                    foreach ($deletedVariantIds as $variantId) {
+                        $variantToDelete = $product->variants()->find($variantId);
                         if ($variantToDelete) {
                             if ($variantToDelete->orderItems()->exists()) {
                                 throw new \RuntimeException(

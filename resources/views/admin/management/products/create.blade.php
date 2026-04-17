@@ -3,6 +3,21 @@
 <div class="container-xxl">
     <form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" novalidate>
         @csrf
+        @if ($errors->any())
+        <div class="alert alert-danger" role="alert">
+            <div class="fw-semibold mb-1">Không thể tạo sản phẩm. Vui lòng kiểm tra lại:</div>
+            <ul class="mb-0 ps-3">
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
+        @if (session('error'))
+        <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
+        @endif
+
         <div class="row">
             <div class="col-xl-3 col-lg-4">
                 <div class="card">
@@ -58,9 +73,10 @@
                                     <option value="">Chọn một danh mục...</option>
                                     @foreach($categories as $category)
                                     <option
-                                        value="{{ $category->id }}" @selected(old('category_id')===$category->id)>{{ $category->name }}</option>
+                                        value="{{ $category->id }}" @selected((int) old('category_id')===$category->id)>{{ $category->hierarchy_name }}</option>
                                     @endforeach
                                 </select>
+                                <small class="text-muted">Chỉ danh mục con cuối cùng (danh mục lá) mới dùng để tạo sản phẩm.</small>
                                 @error('category_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -369,13 +385,27 @@
         const variableFields = document.getElementById('variable-product-fields');
         const typeRadios = document.querySelectorAll('input[name="product_type"]');
 
+        function setSectionEnabled(section, enabled) {
+            if (!section) {
+                return;
+            }
+
+            section.querySelectorAll('input, select, textarea, button').forEach(el => {
+                el.disabled = !enabled;
+            });
+        }
+
         function toggleProductTypeFields() {
             if (document.getElementById('type_simple').checked) {
                 simpleFields.style.display = 'block';
                 variableFields.style.display = 'none';
+                setSectionEnabled(simpleFields, true);
+                setSectionEnabled(variableFields, false);
             } else {
                 simpleFields.style.display = 'none';
                 variableFields.style.display = 'block';
+                setSectionEnabled(simpleFields, false);
+                setSectionEnabled(variableFields, true);
             }
         }
 

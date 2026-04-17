@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Products;
 
+use App\Models\Category;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -14,15 +15,42 @@ class StoreProductRequest extends FormRequest
     {
         $variants = $this->input('variants', []);
 
+        $normalizedVariants = [];
         if (is_array($variants)) {
-            foreach ($variants as $index => $variant) {
+            foreach ($variants as $variant) {
+                if (!is_array($variant)) {
+                    continue;
+                }
+
+                $hasAttributeValues = !empty($variant['attribute_value_ids']);
+                $hasPrice = isset($variant['price']) && $variant['price'] !== '';
+                $hasSku = isset($variant['sku']) && trim((string)$variant['sku']) !== '';
+
+                if ($hasAttributeValues || $hasPrice || $hasSku) {
+                    $normalizedVariants[] = $variant;
+                }
+            }
+        }
+
+        $incomingType = (string)$this->input('product_type', 'simple');
+        $hasSimplePayload = $this->filled('price')
+            || $this->filled('sku')
+            || $this->filled('discount_price')
+            || $this->filled('discount_percentage');
+
+        if ($incomingType === 'variable' && empty($normalizedVariants) && $hasSimplePayload) {
+            $incomingType = 'simple';
+        }
+
+        if (is_array($normalizedVariants)) {
+            foreach ($normalizedVariants as $index => $variant) {
                 if (!is_array($variant)) {
                     continue;
                 }
 
                 $percentage = $variant['discount_percentage'] ?? null;
                 if ($percentage === null || $percentage === '') {
-                    $variants[$index]['discount_percentage'] = 0;
+                    $normalizedVariants[$index]['discount_percentage'] = 0;
                 }
             }
         }
@@ -30,8 +58,9 @@ class StoreProductRequest extends FormRequest
         $simpleDiscountPercentage = $this->input('discount_percentage');
 
         $this->merge([
+            'product_type' => $incomingType,
             'discount_percentage' => ($simpleDiscountPercentage === null || $simpleDiscountPercentage === '') ? 0 : $simpleDiscountPercentage,
-            'variants' => $variants,
+            'variants' => $normalizedVariants,
         ]);
     }
 
@@ -50,10 +79,25 @@ class StoreProductRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $isSimple = $this->input('product_type') === 'simple';
+
+        $rules = [
             // --- General Product Rules ---
             'name'         => ['required', 'string', 'max:255'],
-            'category_id'  => ['required', 'exists:categories,id'],
+            'category_id'  => [
+                'required',
+                'exists:categories,id',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if ($value === null || $value === '') {
+                        return;
+                    }
+
+                    $hasChildren = Category::query()->where('parent_id', (int)$value)->exists();
+                    if ($hasChildren) {
+                        $fail('Vui lòng chọn danh mục con cuối cùng để tạo sản phẩm.');
+                    }
+                },
+            ],
             'brand_id'     => ['nullable', 'exists:brands,id'],
             'description'  => 'nullable|string|max:65535',
             'image'        => ['nullable', 'image', 'mimes:jpg,png,jpeg,webp', 'max:2048'],
@@ -77,27 +121,27 @@ class StoreProductRequest extends FormRequest
 
             'discount_price'                 => ['nullable', 'numeric', 'min:0', 'lte:price'],
             'discount_percentage'            => ['nullable', 'numeric', 'min:0', 'max:100'],
+        ];
 
-            // --- Rules for Variable Product ---
-            'variants'                       => [
-                Rule::requiredIf($this->input('product_type') === 'variable'),
-                'nullable',
-                'array',
-                'min:1',
-            ],
-            'variants.*.price'               => ['required', 'numeric', 'min:0'],
-            'variants.*.discount_price'      => ['nullable', 'numeric', 'min:0', 'lte:variants.*.price'],
-            'variants.*.discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'variants.*.attribute_value_ids' => ['required', 'string'],
-            // ✅ FIX: Thêm validation cho SKU của variable product
-            'variants.*.sku'                 => [
+        if ($isSimple) {
+            // Khi là sản phẩm đơn giản, bỏ validate biến thể để tránh false-positive.
+            $rules['variants'] = ['prohibited'];
+        } else {
+            $rules['variants'] = ['required', 'array', 'min:1'];
+            $rules['variants.*.price'] = ['required', 'numeric', 'min:0'];
+            $rules['variants.*.discount_price'] = ['nullable', 'numeric', 'min:0', 'lte:variants.*.price'];
+            $rules['variants.*.discount_percentage'] = ['nullable', 'numeric', 'min:0', 'max:100'];
+            $rules['variants.*.attribute_value_ids'] = ['required', 'string'];
+            $rules['variants.*.sku'] = [
                 'required',
                 'string',
                 'max:255',
-                'distinct', // Không được trùng nhau trong cùng 1 request
+                'distinct',
                 Rule::unique('product_variants', 'sku'),
-            ],
-        ];
+            ];
+        }
+
+        return $rules;
     }
 
     /**
@@ -140,6 +184,7 @@ class StoreProductRequest extends FormRequest
             'variants.required'                         => 'Sản phẩm biến thể phải có ít nhất một biến thể.',
             'variants.array'                            => 'Định dạng dữ liệu biến thể không hợp lệ.',
             'variants.min'                              => 'Sản phẩm biến thể phải có ít nhất một biến thể.',
+            'variants.prohibited'                       => 'Sản phẩm đơn giản không được chứa dữ liệu biến thể.',
             'variants.*.sku.required'                   => 'Vui lòng nhập SKU cho biến thể.',
 
             // Messages for fields inside variants array
@@ -164,28 +209,5 @@ class StoreProductRequest extends FormRequest
             'variants.*.sku.unique'                     => 'Một trong các SKU của biến thể đã tồn tại.',
             'variants.*.sku.distinct'                   => 'Phát hiện SKU bị trùng trong danh sách biến thể.',
         ];
-    }
-
-    /**
-     * Get the index of the current variant being validated.
-     * Helper function needed for Rule::when inside variants array.
-     * Note: This relies on internal validation structure and might need adjustment
-     * if Laravel changes how it provides context for array validation.
-     */
-    protected function getVariantIndex(): ?int
-    {
-        // Try to safely get the current rule being validated
-        $validator = $this->getValidatorInstance();
-        if (!$validator || !method_exists($validator, 'currentRule')) {
-            return null;
-        }
-        $currentRule = $validator->currentRule();
-        if (!is_string($currentRule)) {
-            return null;
-        }
-
-        $keys = explode('.', $currentRule);
-        // Example: 'variants.0.discount_price' -> keys[1] would be '0'
-        return isset($keys[1]) && is_numeric($keys[1]) ? (int)$keys[1] : null;
     }
 }
