@@ -14,6 +14,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -26,12 +28,87 @@ class Category extends Model
         'name',
         'slug',
         'image',
+        'parent_id',
         'active',
     ];
 
     protected $casts = [
+        'parent_id' => 'integer',
         'active' => 'boolean',
     ];
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
+    public function scopeLeaf(Builder $query): Builder
+    {
+        return $query->whereDoesntHave('children');
+    }
+
+    public function getAncestorsAndSelfIds(): array
+    {
+        $ids = [];
+        $current = $this;
+
+        while ($current) {
+            if (in_array($current->id, $ids, true)) {
+                break;
+            }
+
+            $ids[] = $current->id;
+            $current = $current->parent;
+        }
+
+        return $ids;
+    }
+
+    public function getDescendantIds(): array
+    {
+        $descendantIds = [];
+        $queue = $this->children()->pluck('id')->all();
+
+        while (!empty($queue)) {
+            $currentId = array_shift($queue);
+            if ($currentId === null || in_array($currentId, $descendantIds, true)) {
+                continue;
+            }
+
+            $descendantIds[] = $currentId;
+
+            $childIds = self::query()
+                ->where('parent_id', $currentId)
+                ->pluck('id')
+                ->all();
+
+            foreach ($childIds as $childId) {
+                if (!in_array($childId, $descendantIds, true)) {
+                    $queue[] = $childId;
+                }
+            }
+        }
+
+        return $descendantIds;
+    }
+
+    public function getHierarchyNameAttribute(): string
+    {
+        $parts = [$this->name];
+        $current = $this->parent;
+
+        while ($current) {
+            array_unshift($parts, $current->name);
+            $current = $current->parent;
+        }
+
+        return implode(' > ', $parts);
+    }
 
     public function products(): HasMany|Category
     {
@@ -59,8 +136,29 @@ class Category extends Model
     protected static function booted(): void
     {
         static::creating(static function (Category $category) {
-            $category->slug = Str::slug($category->name);
+            $category->slug = self::generateUniqueSlug($category->name);
+        });
+
+        static::updating(static function (Category $category) {
+            if ($category->isDirty('name')) {
+                $category->slug = self::generateUniqueSlug($category->name, $category->id);
+            }
         });
     }
 
+    protected static function generateUniqueSlug(string $name, ?int $exceptId = null): string
+    {
+        $baseSlug = Str::slug($name);
+        $slug = $baseSlug;
+        $counter = 1;
+
+        while (self::query()->where('slug', $slug)->when($exceptId, function ($query) use ($exceptId) {
+            return $query->where('id', '!=', $exceptId);
+        })->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
+    }
 }

@@ -35,7 +35,7 @@
             if (document.getElementById("table-users-gridjs")) {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                new gridjs.Grid({
+                const grid = new gridjs.Grid({
                     columns: [
                         {
                             id: 'checkbox_select',
@@ -210,9 +210,9 @@
                             Toast.fire({
                                 icon: 'success',
                                 title: data.message,
-                            }).then(() => {
-                                location.reload();
                             });
+                            grid.forceRender();
+                            bulkActionsContainer.style.display = 'none';
                         } else {
                             Toast.fire({
                                 icon: 'error',

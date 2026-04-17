@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const itemHtml = `
                         <li class="aside-product-list-item">
                                 <a href="javascript:void(0);" class="remove action-btn-remove-cart-item" data-variant-id="${item.variant_id}">×</a>                            <a href="/products/${item.slug}">
-                                <img src="${item.image ? '/storage/' + item.image : '/assets/storefront/images/shop/cart1.webp'}" width="68" height="84" alt="${item.product_name}">
+                                <img src="${item.image ? '/storage/' + item.image : '/assets/storefront/images/shop/default.webp'}" width="68" height="84" alt="${item.product_name}">
                                 <span class="product-title">${item.product_name}</span>
                             </a>
                             <span class="product-price">${item.quantity} × ${item.price.toLocaleString('vi-VN')} VNĐ</span>

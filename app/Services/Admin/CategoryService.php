@@ -26,6 +26,8 @@ class CategoryService
     public function createCategory(array $data): Category
     {
         return DB::transaction(function () use ($data) {
+            $data['parent_id'] = $data['parent_id'] ?? null;
+
             if (!empty($data['image'])) {
                 $data['image'] = $data['image']->store('categories', 'public');
             }
@@ -46,6 +48,15 @@ class CategoryService
      */
     public function updateCategory(Category $category, array $data): Category
     {
+        $data['parent_id'] = $data['parent_id'] ?? null;
+
+        if ($data['parent_id'] !== null) {
+            $descendantIds = $category->getDescendantIds();
+            if (in_array((int)$data['parent_id'], $descendantIds, true)) {
+                throw new \RuntimeException('Không thể chọn danh mục con làm danh mục cha.');
+            }
+        }
+
         $newAttributeIds = $data['attribute_ids'] ?? [];
         $currentAttributeIds = $category->productAttributes()->pluck('attribute_id')->toArray();
         $attributesToBeRemoved = array_diff($currentAttributeIds, $newAttributeIds);

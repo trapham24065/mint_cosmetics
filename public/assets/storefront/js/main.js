@@ -40,6 +40,11 @@
   // Offcanvas Nav Js
   var $offcanvasNav = $('#offcanvasNav a');
   $offcanvasNav.on('click', function () {
+    // Let Bootstrap handle collapse toggles (Danh mục and nested arrows)
+    if ($(this).is('[data-bs-toggle="collapse"]')) {
+      return;
+    }
+
     var link = $(this);
     var closestUl = link.closest('ul');
     var activeLinks = closestUl.find('.active');

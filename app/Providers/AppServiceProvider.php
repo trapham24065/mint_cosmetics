@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\View\Composers\HeaderComposer;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +26,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register View Composer for storefront navigation components
+        View::composer([
+            'storefront.partials.header',
+            'storefront.partials.aside-menu',
+            'storefront.partials.megamenu',
+        ], HeaderComposer::class);
+
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
@@ -42,5 +51,4 @@ class AppServiceProvider extends ServiceProvider
             'mail.from.name'    => setting('mail_from_name', config('mail.from.name')),
         ]);
     }
-
 }

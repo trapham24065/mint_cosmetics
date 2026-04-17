@@ -13,7 +13,8 @@
                     <div class="modal-action-product">
                         <div class="thumb">
 
-                            <img id="modal-product-image" src="{{ asset('assets/storefront/images/shop/modal1.webp') }}"
+                            <img id="modal-product-image"
+                                 src="{{ asset('assets/storefront/images/shop/default.webp') }}"
                                  alt="Product" width="466" height="320">
                         </div>
                         <h4 class="product-name"><a id="modal-product-name">Tên sản phẩm</a>

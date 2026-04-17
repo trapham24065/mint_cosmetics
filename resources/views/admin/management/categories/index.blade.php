@@ -65,7 +65,7 @@
             if (document.getElementById("table-data-categoies")) {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-                new gridjs.Grid({
+                const grid = new gridjs.Grid({
                     columns: [
                         {
                             id: 'checkbox_select',
@@ -243,9 +243,8 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            Toast.fire({ icon: 'success', title: data.message }).then(() => {
-                                location.reload();
-                            });
+                            Toast.fire({ icon: 'success', title: data.message });
+                            grid.forceRender();
                         } else {
                             Toast.fire({ icon: 'error', title: data.message });
                         }

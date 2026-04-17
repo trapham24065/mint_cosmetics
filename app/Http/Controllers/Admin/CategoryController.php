@@ -69,7 +69,12 @@ class CategoryController extends Controller
     public function create(): View
     {
         $attributes = Attribute::all();
-        return view('admin.management.categories.create', compact('attributes'));
+        $parentCategories = Category::query()
+            ->with('parent')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.management.categories.create', compact('attributes', 'parentCategories'));
     }
 
     /**
@@ -114,13 +119,20 @@ class CategoryController extends Controller
     {
         $attributes = Attribute::all();
         $selectedAttributeIds = $category->productAttributes()->pluck('attribute_id')->toArray();
+        $excludedIds = array_merge([$category->id], $category->getDescendantIds());
+        $parentCategories = Category::query()
+            ->with('parent')
+            ->whereNotIn('id', $excludedIds)
+            ->orderBy('name')
+            ->get();
 
         return view(
             'admin.management.categories.edit',
             compact(
                 'category',
                 'attributes',
-                'selectedAttributeIds'
+                'selectedAttributeIds',
+                'parentCategories'
             )
         );
     }
@@ -186,8 +198,17 @@ class CategoryController extends Controller
      */
     public function getAttributes(Category $category): JsonResponse
     {
-        // Eager-load the values for each attribute
-        $attributes = $category->productAttributes()->with('values')->get();
+        // Attributes are inherited from the selected category and its ancestors.
+        $category->load('parent');
+        $sourceCategoryIds = $category->getAncestorsAndSelfIds();
+
+        $attributes = Attribute::query()
+            ->whereHas('categories', function ($query) use ($sourceCategoryIds) {
+                $query->whereIn('categories.id', $sourceCategoryIds);
+            })
+            ->with('values')
+            ->distinct()
+            ->get();
 
         return response()->json($attributes);
     }
