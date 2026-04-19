@@ -25,6 +25,35 @@
             display: flex;
             align-items: center;
         }
+        .table-responsive {
+            overflow: visible !important;
+        }
+
+        .choices {
+            position: relative;
+            z-index: 1000;
+        }
+
+        .choices__list--dropdown {
+            z-index: 9999 !important;
+        }
+        .choices[data-type*="select-one"] .choices__list--dropdown {
+            top: 100% !important;
+            bottom: auto !important;
+            transform: none !important;
+        }
+        #items-table tr {
+            position: relative;
+            z-index: 1;
+        }
+
+        #items-table tr:hover {
+            z-index: 10;
+        }
+
+        #items-table tr:has(.choices.is-open) {
+            z-index: 999;
+        }
     </style>
 
     <div class="container-xxl">
@@ -96,17 +125,34 @@
                                 <h4 class="fs-18 mb-3">Thông tin nhà cung cấp</h4>
 
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Chọn nhà cung cấp <span
-                                            class="text-danger">*</span></label>
-                                    <select name="supplier_id" class="form-select" required>
+                                    <label class="form-label fw-bold">
+                                        Chọn nhà cung cấp <span class="text-danger">*</span>
+                                    </label>
+
+                                    <select
+                                        name="supplier_id"
+                                        id="supplier-select"
+                                        class="form-control @error('supplier_id') is-invalid @enderror"
+                                        data-choices
+                                        data-choices-search="true"
+                                        data-choices-placeholder="true"
+                                        required
+                                    >
                                         <option value="">-- Chọn nhà cung cấp --</option>
+
                                         @foreach($suppliers as $supplier)
                                             <option
-                                                value="{{ $supplier->id }}" {{ old('supplier_id') === $supplier->id ? 'selected' : '' }}>
+                                                value="{{ $supplier->id }}"
+                                                @selected((int) old('supplier_id') === $supplier->id)
+                                            >
                                                 {{ $supplier->name }}
                                             </option>
                                         @endforeach
                                     </select>
+
+                                    @error('supplier_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
 
                                 <div class="alert alert-info py-2">
@@ -132,26 +178,40 @@
             <template id="item-row-template">
                 <tr class="item-row">
                     <td>
-                        <select name="items[INDEX][variant_id]" class="form-select variant-select" required>
+                        <select
+                            name="items[INDEX][variant_id]"
+                            class="form-control variant-select"
+                            data-choices
+                            data-choices-search="true"
+                            required
+                        >
                             <option value="">Tìm kiếm sản phẩm...</option>
+
                             @foreach($variants as $variant)
-                                <option value="{{ $variant->id }}">{{ $variant->full_name }}</option>
+                                <option value="{{ $variant->id }}">
+                                    [{{ $variant->sku ?? ('VAR-' . $variant->id) }}]
+                                    {{ $variant->product->name }}
+                                    (Tồn: {{ $variant->stock }})
+                                </option>
                             @endforeach
                         </select>
                     </td>
+
                     <td>
-                        <input type="number" name="items[INDEX][quantity]" class="form-control qty-input" min="1"
-                               value="1" required>
+                        <input type="number" name="items[INDEX][quantity]"
+                               class="form-control qty-input" min="1" value="1" required>
                     </td>
+
                     <td>
-                        <input type="number" name="items[INDEX][import_price]" class="form-control price-input"
-                               min="0"
-                               step="0.01" value="0" required>
+                        <input type="number" name="items[INDEX][import_price]"
+                               class="form-control price-input" min="0" step="0.01" value="0" required>
                     </td>
+
                     <td class="text-end subtotal-display">0.00</td>
+
                     <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-danger remove-row-btn" title="Remove">
-                            <iconify-icon icon="solar:trash-bin-trash-bold-duotone" width="16"></iconify-icon>
+                        <button type="button" class="btn btn-sm btn-danger remove-row-btn">
+                            🗑
                         </button>
                     </td>
                 </tr>
@@ -162,84 +222,120 @@
 @endsection
 
 @push('scripts')
-    {{-- Select2 JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
             const container = document.getElementById('items-container');
             const template = document.getElementById('item-row-template').innerHTML;
             const grandTotalEl = document.getElementById('grand-total');
+
             let rowCount = 0;
 
-            function initSelect2 (selectElement) {
-                $(selectElement).select2({
-                    theme: 'bootstrap-5',
-                    width: '100%',
-                    placeholder: 'Chọn một sản phẩm...',
-                    allowClear: true,
+            // =============================
+            // INIT CHOICES
+            // =============================
+            function initChoices (selectElement) {
+                if (!selectElement) {
+                    return;
+                }
+
+                new Choices(selectElement, {
+                    searchEnabled: true,
+                    itemSelectText: '',
+                    shouldSort: false,
+                    searchResultLimit: 10,
+                    allowHTML: true,
                 });
             }
 
-            // Thêm dòng mới
+            // =============================
+            // ADD ROW
+            // =============================
             function addRow () {
-                const html = template.replace(/INDEX/g, rowCount++);
+                const html = template.replace(/INDEX/g, rowCount);
                 container.insertAdjacentHTML('beforeend', html);
 
-                // Tìm thẻ select vừa được thêm và khởi tạo Select2
-                const newSelect = container.querySelector(`select[name="items[${rowCount - 1}][variant_id]"]`);
-                if (newSelect) {
-                    initSelect2(newSelect);
-                }
+                const newSelect = container.querySelector(
+                    `select[name="items[${rowCount}][variant_id]"]`,
+                );
+
+                initChoices(newSelect);
+
+                rowCount++;
             }
 
-            // Thêm dòng đầu tiên mặc định
-            addRow();
-
-            // Sự kiện click nút "Add Item"
-            document.getElementById('add-item-btn').addEventListener('click', addRow);
-
-            // Sự kiện click nút "Xóa dòng"
+            // =============================
+            // REMOVE ROW
+            // =============================
             container.addEventListener('click', function(e) {
                 if (e.target.closest('.remove-row-btn')) {
                     const row = e.target.closest('tr');
+
                     if (container.querySelectorAll('tr').length > 1) {
-                        // Cần destroy select2 trước khi xóa DOM để tránh rò rỉ bộ nhớ
-                        const selectEl = $(row).find('.variant-select');
-                        if (selectEl.hasClass('select2-hidden-accessible')) {
-                            selectEl.select2('destroy');
-                        }
                         row.remove();
                         calculateTotal();
                     } else {
-                        alert('Bạn phải có ít nhất một.');
+                        alert('Phải có ít nhất một sản phẩm');
                     }
                 }
             });
 
+            // =============================
+            // CALCULATE ROW
+            // =============================
+            function calculateRowTotal (row) {
+                const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+                const price = parseFloat(row.querySelector('.price-input').value) || 0;
+
+                const subtotal = qty * price;
+
+                row.querySelector('.subtotal-display').textContent =
+                    new Intl.NumberFormat('vi-VN').format(subtotal);
+            }
+
+            // =============================
+            // CALCULATE TOTAL
+            // =============================
+            function calculateTotal () {
+                let total = 0;
+
+                container.querySelectorAll('tr').forEach(row => {
+                    const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+                    const price = parseFloat(row.querySelector('.price-input').value) || 0;
+
+                    total += qty * price;
+                });
+
+                grandTotalEl.textContent =
+                    new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                    }).format(total);
+            }
+
+            // =============================
+            // INPUT CHANGE
+            // =============================
             container.addEventListener('input', function(e) {
-                if (e.target.classList.contains('qty-input') || e.target.classList.contains('price-input')) {
-                    calculateRowTotal(e.target.closest('tr'));
+                if (e.target.classList.contains('qty-input') ||
+                    e.target.classList.contains('price-input')) {
+
+                    const row = e.target.closest('tr');
+                    calculateRowTotal(row);
                     calculateTotal();
                 }
             });
 
-            function calculateRowTotal (row) {
-                const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
-                const price = parseFloat(row.querySelector('.price-input').value) || 0;
-                const subtotal = qty * price;
-                row.querySelector('.subtotal-display').textContent = new Intl.NumberFormat('vi-VN').format(subtotal);
-            }
+            // =============================
+            // ADD FIRST ROW
+            // =============================
+            addRow();
 
-            function calculateTotal () {
-                let total = 0;
-                container.querySelectorAll('tr').forEach(row => {
-                    const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
-                    const price = parseFloat(row.querySelector('.price-input').value) || 0;
-                    total += (qty * price);
-                });
-                grandTotalEl.textContent = new Intl.NumberFormat('vi-VN',
-                    { style: 'currency', currency: 'VND' }).format(total);
-            }
+            // =============================
+            // BUTTON ADD
+            // =============================
+            document.getElementById('add-item-btn').addEventListener('click', addRow);
+
         });
     </script>
 @endpush

@@ -27,29 +27,67 @@
                             @csrf
 
                             <div class="mb-3">
-                                <label class="form-label">Biến thể sản phẩm <span class="text-danger">*</span></label>
-                                <select name="variant_id" class="form-select" required>
+                                <label class="form-label">
+                                    Biến thể sản phẩm <span class="text-danger">*</span>
+                                </label>
+
+                                <select
+                                    name="variant_id"
+                                    id="product-variant"
+                                    class="form-control @error('variant_id') is-invalid @enderror"
+                                    data-choices
+                                    data-choices-search="true"
+                                    data-choices-placeholder="true"
+                                    required
+                                >
                                     <option value="">Chọn biến thể</option>
+
                                     @foreach($variants as $variant)
-                                        <option value="{{ $variant->id }}" @selected(old('variant_id')===$variant->id)>
+                                        <option
+                                            value="{{ $variant->id }}"
+                                            @selected((int) old('variant_id') === $variant->id)
+                                        >
                                             SKU: {{ $variant->sku ?? ('VAR-' . $variant->id) }}
                                             | {{ $variant->product->name }}
                                             | Tồn: {{ $variant->stock }}
                                         </option>
                                     @endforeach
                                 </select>
+
+                                @error('variant_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Loại điều chỉnh <span class="text-danger">*</span></label>
-                                <select name="adjustment_type" class="form-select" required>
+                                <label class="form-label">
+                                    Loại điều chỉnh <span class="text-danger">*</span>
+                                </label>
+
+                                <select
+                                    name="adjustment_type"
+                                    id="adjustment-type"
+                                    class="form-control @error('adjustment_type') is-invalid @enderror"
+                                    data-choices
+                                    data-choices-search="false"
+                                    data-choices-placeholder="true"
+                                    required
+                                >
                                     <option value="">Chọn loại</option>
+
                                     @foreach($adjustmentTypes as $key => $label)
-                                        <option value="{{ $key }}" @selected(old('adjustment_type')===$key)>
+                                        <option
+                                            value="{{ $key }}"
+                                            @selected(old('adjustment_type') === $key)
+                                        >
                                             {{ $label }}
                                         </option>
                                     @endforeach
                                 </select>
+
+                                @error('adjustment_type')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="mb-3">
