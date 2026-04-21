@@ -87,11 +87,11 @@ class CouponController extends Controller
             return redirect()->route('admin.coupons.index')
                 ->with('success', 'Phiếu giảm giá đã được tạo thành công.');
         } catch (QueryException $e) {
-            Log::error('Coupon Creation Failed: ' . $e->getMessage());
+            Log::error('Coupon Creation Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Coupon Creation Failed: ' . $e->getMessage());
+            Log::error('Coupon Creation Failed: '.$e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -119,11 +119,11 @@ class CouponController extends Controller
             return redirect()->route('admin.coupons.index')
                 ->with('success', 'Phiếu giảm giá đã được cập nhật thành công.');
         } catch (QueryException $e) {
-            Log::error('Coupon Update Failed: ' . $e->getMessage());
+            Log::error('Coupon Update Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Coupon Update Failed: ' . $e->getMessage());
+            Log::error('Coupon Update Failed: '.$e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -146,14 +146,14 @@ class CouponController extends Controller
             return redirect()->route('admin.coupons.index')
                 ->with('success', 'Phiếu giảm giá đã được xóa thành công.');
         } catch (QueryException $e) {
-            Log::error('Coupon Deletion Failed: ' . $e->getMessage());
+            Log::error('Coupon Deletion Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json(['success' => false, 'message' => $message], 500);
             }
             return back()->with('error', $message);
         } catch (\Exception $e) {
-            Log::error('Coupon Deletion Failed: ' . $e->getMessage());
+            Log::error('Coupon Deletion Failed: '.$e->getMessage());
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
             }
@@ -171,13 +171,14 @@ class CouponController extends Controller
         // Format data for Grid.js
         $data = $coupons->map(function ($coupon) {
             return [
-                'id'        => $coupon->id,
-                'code'      => $coupon->code,
-                'type'      => $coupon->type->value,
-                'value'     => (float)$coupon->value,
-                'usage'     => ($coupon->times_used ?? 0) . ' / ' . ($coupon->max_uses ?? '∞'),
-                'dates'     => $coupon->starts_at->format('d/m/Y') . ' - ' . $coupon->expires_at->format('d/m/Y'),
-                'is_active' => $coupon->isValid(),
+                'id'         => $coupon->id,
+                'code'       => $coupon->code,
+                'type'       => $coupon->type->value,
+                'type_label' => $coupon->type->label(),
+                'value'      => (float)$coupon->value,
+                'usage'      => ($coupon->times_used ?? 0).' / '.($coupon->max_uses ?? '∞'),
+                'dates'      => $coupon->starts_at->format('d/m/Y').' - '.$coupon->expires_at->format('d/m/Y'),
+                'is_active'  => $coupon->isValid(),
             ];
         });
 
@@ -192,10 +193,10 @@ class CouponController extends Controller
     public function bulkUpdate(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'action'      => ['required', 'string', 'in:change_status'],
-            'coupon_ids'  => ['required', 'array'],
+            'action'       => ['required', 'string', 'in:change_status'],
+            'coupon_ids'   => ['required', 'array'],
             'coupon_ids.*' => ['integer', 'exists:coupons,id'],
-            'value'       => ['required'],
+            'value'        => ['required'],
         ]);
 
         try {
@@ -204,9 +205,12 @@ class CouponController extends Controller
                 $validated['coupon_ids'],
                 $validated['value']
             );
-            return response()->json(['success' => true, 'message' => "{$count} phiếu giảm giá đã được cập nhật thành công."]);
+            return response()->json(
+                ['success' => true, 'message' => "{$count} phiếu giảm giá đã được cập nhật thành công."]
+            );
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Đã xảy ra lỗi.'], 500);
         }
     }
+
 }

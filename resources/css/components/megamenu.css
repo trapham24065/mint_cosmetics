@@ -1,12 +1,20 @@
 /* ===================================
-   Megamenu Styles
+   Megamenu Styles (FIX RESPONSIVE)
    =================================== */
 
-/* Desktop Megamenu */
+:root {
+    --primary: #ff6565;
+    --primary-hover: #e55353;
+    --primary-light: #ffe5e5;
+    --primary-border: #ffd6d6;
+}
+
+/* Wrapper */
 .megamenu-wrapper {
     width: 100%;
 }
 
+/* Top menu */
 .megamenu-list {
     list-style: none;
     margin: 0;
@@ -29,6 +37,7 @@
     height: 14px;
 }
 
+/* Link */
 .megamenu-link {
     display: flex;
     align-items: center;
@@ -43,8 +52,8 @@
 }
 
 .megamenu-link:hover {
-    color: #d97706;
-    background-color: #f3f4f6;
+    color: var(--primary);
+    background-color: var(--primary-light);
 }
 
 .megamenu-arrow {
@@ -53,7 +62,7 @@
     transition: transform 0.3s ease;
 }
 
-/* Category Menu with Megadropdown */
+/* Hover */
 .megamenu-category-item:hover .megamenu-dropdown {
     opacity: 1;
     visibility: visible;
@@ -64,51 +73,80 @@
     transform: rotate(180deg);
 }
 
+.megamenu-item:hover > .megamenu-link {
+    color: var(--primary);
+}
+
+/* ===================================
+   DROPDOWN (FIX CỨNG WIDTH)
+   =================================== */
+
 .megamenu-dropdown {
     position: absolute;
     top: 100%;
     left: 0;
-    min-width: 1000px;
+    transform: none;
+
+    width: 800px;
+    max-width: 90vw;
+
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+
+    transition: all 0.25s ease;
     display: flex;
     z-index: 1000;
-    margin-top: 0;
 }
+
+.megamenu-dropdown {
+    transform: translateY(10px);
+}
+
+.megamenu-category-item:hover .megamenu-dropdown {
+    transform: translateY(0);
+}
+/* ===================================
+   CONTENT GRID (AUTO RESPONSIVE)
+   =================================== */
 
 .megamenu-content {
     flex: 1;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2rem;
-    padding: 2rem;
-    border-right: 1px solid #e5e7eb;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 1.5rem;
+    padding: 1.5rem;
+
     max-height: 450px;
     overflow-y: auto;
     overflow-x: hidden;
+    border-right: none;
+
 }
 
+/* Column */
 .megamenu-column {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
+/* Title */
 .megamenu-column-title {
     margin: 0;
-    padding: 0;
     font-size: 0.95rem;
     font-weight: 600;
     color: #1f2937;
 }
 
 .megamenu-parent-link {
-    color: #d97706 !important;
+    color: var(--primary) !important;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -117,15 +155,16 @@
 }
 
 .megamenu-parent-link:hover {
+    color: var(--primary-hover) !important;
     text-decoration: underline;
 }
 
 .product-count {
     font-size: 0.8rem;
-    color: #6b7280;
-    font-weight: 500;
+    color: #999;
 }
 
+/* Sub list */
 .megamenu-sublist {
     list-style: none;
     margin: 0;
@@ -148,18 +187,17 @@
 }
 
 .megamenu-sublink:hover {
-    color: #d97706;
-    background-color: #fef3c7;
+    color: var(--primary);
+    background-color: var(--primary-light);
     padding-left: 1rem;
 }
 
-/* Level 3 subcategories */
+/* Level 3 */
 .megamenu-sublist-level-3 {
     list-style: none;
     margin: 0.5rem 0 0 0.5rem;
-    padding: 0;
     padding-left: 1rem;
-    border-left: 2px solid #e5e7eb;
+    border-left: 2px solid var(--primary-border);
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
@@ -172,30 +210,32 @@
     padding: 0.3rem 0.5rem;
     border-radius: 3px;
     transition: all 0.2s ease;
-    display: block;
 }
 
 .megamenu-sub-item:hover {
-    color: #d97706;
-    background-color: #fef3c7;
+    color: var(--primary);
+    background-color: var(--primary-light);
 }
 
 .megamenu-view-more {
     font-style: italic;
-    color: #9ca3af;
+    color: #bbb;
 }
 
-/* Banner/Promo area in megamenu */
+/* ===================================
+   BANNER (FIX ÉP WIDTH)
+   =================================== */
+
 .megamenu-banner {
-    width: 250px;
-    background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+    flex: 0 0 250px;
+    background: linear-gradient(135deg, var(--primary) 0%, #ff8a8a 100%);
     color: #fff;
-    padding: 2rem;
+    padding: 1.5rem;
     border-radius: 0 8px 8px 0;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
     gap: 1rem;
 }
 
@@ -205,129 +245,50 @@
     gap: 0.5rem;
 }
 
-.promo-tag {
-    margin: 0;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity: 0.9;
-}
-
 .promo-title {
-    margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    line-height: 1.2;
-}
-
-.promo-desc {
-    margin: 0;
-    font-size: 0.9rem;
-    opacity: 0.95;
-    line-height: 1.4;
 }
 
 .promo-link {
     color: #fff;
     text-decoration: none;
-    font-weight: 600;
-    font-size: 0.95rem;
-    display: inline-block;
-    margin-top: 0.5rem;
     padding: 0.6rem 1.2rem;
-    background-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 4px;
-    transition: all 0.3s ease;
 }
 
-.promo-link:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    text-decoration: underline;
-}
+/* ===================================
+   SCROLLBAR
+   =================================== */
 
-/* Scrollbar styling for megamenu content when many categories */
 .megamenu-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.megamenu-content::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 4px;
+    width: 6px;
 }
 
 .megamenu-content::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 4px;
-    transition: background 0.3s ease;
-}
-
-.megamenu-content::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
 }
 
 /* ===================================
-   Responsive Breakpoints
+   RESPONSIVE
    =================================== */
 
-@media (max-width: 1199px) {
-    .megamenu-dropdown {
-        left: 0;
-        right: auto;
-        width: min(900px, calc(100vw - 32px));
-        min-width: 0;
-        max-width: calc(100vw - 32px);
-    }
-
-    .megamenu-content {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1.5rem;
-        padding: 1.5rem;
-    }
-
-    .megamenu-banner {
-        width: 200px;
-        padding: 1.5rem;
-    }
-
-    .promo-title {
-        font-size: 1.2rem;
-    }
-}
-
-@media (max-width: 991px) {
+@media (max-width: 992px) {
     .megamenu-list {
         display: none;
     }
 
-    .mobile-menu-content {
-        display: block;
+    .megamenu-banner {
+        display: none; /* 🔥 bỏ banner khi nhỏ */
     }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 576px) {
     .megamenu-dropdown {
-        min-width: 100vw;
-    }
-
-    .megamenu-content {
-        grid-template-columns: repeat(2, 1fr);
-        max-height: 400px;
-        gap: 1rem;
-        padding: 1rem;
-    }
-
-    .mobile-menu-link,
-    .mobile-submenu-link {
-        padding: 0.875rem;
-    }
-
-    .mobile-submenu-link {
-        padding-left: 1.75rem;
-    }
-
-    .mobile-nested-link {
-        padding-left: 2.5rem;
-        font-size: 0.85rem;
+        width: 100vw;
+        left: 0;
+        transform: none;
     }
 }

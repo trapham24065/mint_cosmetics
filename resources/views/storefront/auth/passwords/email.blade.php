@@ -6,6 +6,11 @@
             <div class="row">
                 <div class="col-md-5">
                     <div class="page-header-st3-content text-center text-md-start">
+                        <ol class="breadcrumb justify-content-center justify-content-md-start">
+                            <li class="breadcrumb-item"><a class="text-dark" href="{{route('home')}}">Trang chủ</a>
+                            </li>
+                            <li class="breadcrumb-item active text-dark" aria-current="page">Tài khoản</li>
+                        </ol>
                         <h2 class="page-header-title">Đặt lại mật khẩu</h2>
                     </div>
                 </div>
@@ -20,12 +25,6 @@
                     <div class="my-account-item-wrap">
                         <h3 class="title">Quên mật khẩu</h3>
                         <div class="my-account-form">
-                            @if (session('status'))
-                                <div class="alert alert-success" role="alert">
-                                    {{ session('status') }}
-                                </div>
-                            @endif
-
                             <form method="POST" action="{{ route('customer.password.email') }}">
                                 @csrf
                                 <div class="form-group mb-6">

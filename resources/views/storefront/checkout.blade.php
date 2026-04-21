@@ -64,11 +64,13 @@
                             <div class="row">
                                 <div class="col-md-6 form-group">
                                     <label>Tên<abbr class="required">*</abbr></label>
-                                    <input name="first_name" type="text" class="form-control" value="{{ old('first_name', $customer->first_name ?? '') }}" required>
+                                    <input name="first_name" type="text" class="form-control"
+                                        value="{{ old('first_name', $customer->first_name ?? '') }}" required>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label>Họ<abbr class="required">*</abbr></label>
-                                    <input name="last_name" type="text" class="form-control" value="{{ old('last_name', $customer->last_name ?? '') }}" required>
+                                    <input name="last_name" type="text" class="form-control"
+                                        value="{{ old('last_name', $customer->last_name ?? '') }}" required>
                                 </div>
 
                                 <div class="col-md-4 form-group">
@@ -103,13 +105,15 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Điện thoại <abbr class="required">*</abbr></label>
-                                        <input name="phone" type="text" class="form-control" value="{{ old('phone', $customer->phone ?? '') }}" required>
+                                        <input name="phone" type="text" class="form-control"
+                                            value="{{ old('phone', $customer->phone ?? '') }}" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Địa chỉ email<abbr class="required">*</abbr></label>
-                                        <input name="email" type="email" class="form-control" value="{{ old('email', $customer->email ?? '') }}" required>
+                                        <input name="email" type="email" class="form-control"
+                                            value="{{ old('email', $customer->email ?? '') }}" required>
                                     </div>
                                 </div>
 
@@ -123,11 +127,33 @@
                             </div>
                         </div>
                     </div>
+                    <div class="coupon-wrap mb-4" style="padding-top:5% ">
+                        <h4 class="title">Mã giảm giá</h4>
+                        <p class="desc">Nhập mã giảm giá của bạn nếu có.</p>
+                        <div id="checkout-coupon-form-container">
+                            @if ($coupon)
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <p class="m-0">Đang áp dụng mã: <strong>{{ $coupon->code }}</strong></p>
+                                <button type="button" id="checkout-remove-coupon-btn" class="btn-coupon">Tháo
+                                </button>
+                            </div>
+                            @else
+                            <div class="d-flex gap-2 flex-wrap">
+                                <input type="text" id="checkout-coupon-code-input" class="form-control"
+                                    placeholder="Mã phiếu giảm giá" style="max-width: 280px;">
+                                <button type="button" id="checkout-apply-coupon-btn" class="btn-coupon">Áp
+                                    dụng
+                                </button>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-lg-6">
                     <div class="checkout-order-details-wrap">
                         <h2 class="title mb-25">Đơn hàng của bạn</h2>
+
                         <div class="order-details-table-wrap table-responsive">
                             <table class="table">
                                 <thead>
@@ -151,6 +177,12 @@
                                     <tr class="cart-subtotal">
                                         <th>Tổng phụ</th>
                                         <td id="subtotal-value">{{ number_format($subtotal, 0, ',', '.') }} VNĐ</td>
+                                    </tr>
+                                    <tr class="cart-discount {{ !$coupon ? 'd-none' : '' }}" id="checkout-discount-row">
+                                        <th>Giảm giá</th>
+                                        <td id="checkout-discount-value" class="text-danger">
+                                            -{{ number_format($discount, 0, ',', '.') }} VNĐ
+                                        </td>
                                     </tr>
                                     <tr class="shipping-fee-row">
                                         <th>Phí vận chuyển GHN</th>
@@ -184,9 +216,14 @@
             if (!form) return;
 
             // Các thành phần DOM
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
             const provinceSelect = $('#province_id');
             const districtSelect = $('#district_id');
             const wardSelect = $('#ward_code');
+            const couponContainer = document.getElementById('checkout-coupon-form-container');
+            const discountRow = document.getElementById('checkout-discount-row');
+            const discountValueEl = document.getElementById('checkout-discount-value');
+            const subtotalValueEl = document.getElementById('subtotal-value');
             const provinceNameInput = document.getElementById('province_name');
             const districtNameInput = document.getElementById('district_name');
             const wardNameInput = document.getElementById('ward_name');
@@ -198,6 +235,135 @@
 
             const subtotal = parseFloat('{{ $subtotal ?? 0 }}');
             const money = (v) => Number(v).toLocaleString('vi-VN');
+            let currentShippingFee = 0;
+            let cartTotalAfterDiscount = parseFloat('{{ $total ?? 0 }}');
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                },
+            });
+
+            const updateGrandTotal = () => {
+                if (grandTotalValue) {
+                    grandTotalValue.textContent = `${money(cartTotalAfterDiscount + currentShippingFee)} VNĐ`;
+                }
+            };
+
+            function updateCheckoutTotals(cart) {
+                if (!cart) return;
+
+                if (subtotalValueEl) {
+                    subtotalValueEl.textContent = `${money(cart.subtotal)} VNĐ`;
+                }
+
+                cartTotalAfterDiscount = Number(cart.total || 0);
+
+                if (cart.coupon) {
+                    if (discountValueEl) {
+                        discountValueEl.textContent = `-${money(cart.discount)} VNĐ`;
+                    }
+                    if (discountRow) {
+                        discountRow.classList.remove('d-none');
+                    }
+
+                    if (couponContainer) {
+                        couponContainer.innerHTML = `
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <p class="m-0">Đang áp dụng mã: <strong>${cart.coupon.code}</strong></p>
+                                <button type="button" id="checkout-remove-coupon-btn" class="btn-coupon">Tháo</button>
+                            </div>
+                        `;
+                    }
+                } else {
+                    if (discountRow) {
+                        discountRow.classList.add('d-none');
+                    }
+
+                    if (couponContainer) {
+                        couponContainer.innerHTML = `
+                            <div class="d-flex gap-2 flex-wrap">
+                                <input type="text" id="checkout-coupon-code-input" class="form-control" placeholder="Mã phiếu giảm giá" style="max-width: 280px;">
+                                <button type="button" id="checkout-apply-coupon-btn" class="btn-coupon">Áp dụng</button>
+                            </div>
+                        `;
+                    }
+                }
+
+                updateGrandTotal();
+            }
+
+            function applyCoupon(code) {
+                fetch("{{ route('cart.applyCoupon') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify({ coupon_code: code }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCheckoutTotals(data.cart);
+                        Toast.fire({ icon: 'success', title: 'Đã áp dụng mã giảm giá' });
+                    } else {
+                        Toast.fire({ icon: 'error', title: data.message || 'Không thể áp dụng mã giảm giá.' });
+                    }
+                })
+                .catch(() => Toast.fire({ icon: 'error', title: 'Không thể áp dụng mã giảm giá.' }));
+            }
+
+            function removeCoupon() {
+                fetch("{{ route('cart.removeCoupon') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCheckoutTotals(data.cart);
+                        Toast.fire({ icon: 'success', title: 'Đã tháo mã giảm giá' });
+                    }
+                })
+                .catch(() => Toast.fire({ icon: 'error', title: 'Không thể tháo mã giảm giá.' }));
+            }
+
+            if (couponContainer) {
+                couponContainer.addEventListener('click', function(event) {
+                    if (event.target.id === 'checkout-apply-coupon-btn') {
+                        const input = document.getElementById('checkout-coupon-code-input');
+                        const code = input?.value?.trim();
+                        if (!code) {
+                            Toast.fire({ icon: 'info', title: 'Vui lòng nhập mã giảm giá.' });
+                            return;
+                        }
+                        applyCoupon(code);
+                    }
+
+                    if (event.target.id === 'checkout-remove-coupon-btn') {
+                        removeCoupon();
+                    }
+                });
+
+                couponContainer.addEventListener('keydown', function(event) {
+                    if (event.key === 'Enter' && event.target.id === 'checkout-coupon-code-input') {
+                        event.preventDefault();
+                        const code = event.target.value?.trim();
+                        if (code) {
+                            applyCoupon(code);
+                        }
+                    }
+                });
+            }
 
             // Khởi tạo Select2 cho tất cả
             if (!provinceSelect.hasClass("select2-hidden-accessible")) {
@@ -289,6 +455,8 @@
 
                 if (!dId || !wCode) {
                     shippingFeeValue.textContent = 'Chọn địa chỉ giao hàng';
+                    currentShippingFee = 0;
+                    updateGrandTotal();
                     return;
                 }
 
@@ -299,11 +467,14 @@
                     const data = await res.json();
 
                     if (data.shipping_fee !== undefined) {
+                        currentShippingFee = Number(data.shipping_fee || 0);
                         shippingFeeValue.textContent = `${money(data.shipping_fee)} VNĐ`;
-                        grandTotalValue.textContent = `${money(data.grand_total)} VNĐ`;
+                        updateGrandTotal();
                     }
                 } catch (e) {
+                    currentShippingFee = 0;
                     shippingFeeValue.textContent = 'Lỗi tính phí';
+                    updateGrandTotal();
                 }
             };
 

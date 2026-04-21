@@ -16,4 +16,12 @@ enum CouponType: string
     case FIXED_AMOUNT = 'fixed_amount';
     case PERCENTAGE = 'percentage';
 
+    public function label(): string
+    {
+        return match ($this) {
+            self::PERCENTAGE => 'Giảm theo %',
+            self::FIXED_AMOUNT => 'Giảm số tiền',
+        };
+    }
+
 }

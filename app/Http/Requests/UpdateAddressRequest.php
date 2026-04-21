@@ -75,6 +75,9 @@ class UpdateAddressRequest extends FormRequest
             'shipping_province_id.required' => 'Vui lòng chọn tỉnh/thành phố.',
             'shipping_district_id.required' => 'Vui lòng chọn quận/huyện.',
             'shipping_ward_code.required' => 'Vui lòng chọn phường/xã.',
+            'shipping_province_name.required' => 'Vui lòng chọn tỉnh/thành phố.',
+            'shipping_district_name.required' => 'Vui lòng chọn quận/huyện.',
+            'shipping_ward_name.required' => 'Vui lòng chọn phường/xã.',
         ];
     }
 }

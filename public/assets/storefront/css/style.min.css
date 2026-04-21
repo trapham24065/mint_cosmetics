@@ -1286,7 +1286,8 @@ hr {
   border: 1px solid #343538;
 }
 .myaccount-content .account-details-form .single-input-item button {
-  border: none;
+  border: none !important;
+  border-radius: 50px;
   background-color: #ff6565;
   text-transform: uppercase;
   font-weight: 600;
@@ -4478,8 +4479,9 @@ hr {
   text-align: center;
   font-size: 12px;
   padding: 15px 19px 14px;
-  background-color: #231942;
-  border: 1px solid #231942;
+  background-color: #ff6565;
+  border: 1px solid #ff6565;
+  border-radius: 50px;
   color: #fff;
   text-transform: uppercase;
   font-weight: 600;
@@ -4497,8 +4499,8 @@ hr {
   }
 }
 .aside-cart-wrapper .btn-total:hover {
-  background-color: #ff6565;
-  border-color: #ff6565;
+  background-color: #231942;
+  border-color: #231942;
 }
 .aside-cart-wrapper .btn-total + .btn-total {
   margin-top: 10px;
@@ -4633,7 +4635,7 @@ hr {
   height: 50px;
   line-height: 46px;
   padding: 0 35px;
-  border-radius: 4px;
+  border-radius: 50px;
   transition: all 0.3s ease 0s;
   text-transform: capitalize;
 }
@@ -4642,7 +4644,6 @@ hr {
   border-color: #e5e5e5;
 }
 .coupon-wrap .title {
-  border-bottom: 1px solid #e5e5e5;
   font-size: 18px;
   margin: 0 0 22px;
   padding: 0 0 10px;
@@ -4808,7 +4809,7 @@ hr {
   text-transform: uppercase;
   vertical-align: middle;
   white-space: nowrap;
-  border-radius: 4px;
+  border-radius: 50px;
   transition: all 0.3s ease-out;
   -webkit-transition: all 0.3s ease-out;
   -moz-transition: all 0.3s ease-out;
@@ -6700,15 +6701,15 @@ hr {
 }
 .my-account-form .btn {
   padding: 5px 30px;
-  border-radius: 0;
-  background-color: #262626;
-  border-color: #262626;
+  border-radius: 50px;
+  background-color: #ff6565;
+  border-color: #ff6565;
   font-size: 12px;
   letter-spacing: 1.5px;
 }
 .my-account-form .btn:hover {
-  background-color: #ff6565;
-  border-color: #ff6565;
+  background-color: #262626;
+  border-color: #262626;
 }
 .my-account-form .form-check {
   line-height: 1;
