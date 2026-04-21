@@ -81,15 +81,6 @@
                         @endforeach
                     </div>
 
-                    {{-- Megamenu Banner/Promo Area (Optional) --}}
-                    <div class="megamenu-banner">
-                        <div class="megamenu-promo-box">
-                            <p class="promo-tag">Khuyến mại</p>
-                            <h3 class="promo-title">Ưu đãi đặc biệt</h3>
-                            <p class="promo-desc">Giảm giá lên đến 50% cho các sản phẩm chọn lọc</p>
-                            <a href="{{ route('shop') }}" class="promo-link">Khám phá ngay</a>
-                        </div>
-                    </div>
                 </div>
             </li>
         @endif

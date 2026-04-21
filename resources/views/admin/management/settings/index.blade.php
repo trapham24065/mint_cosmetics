@@ -63,8 +63,8 @@
                                                     @endphp
                                                     <select class="form-select" name="{{ $setting->key }}">
                                                         @foreach($options as $optValue => $optLabel)
-                                                            <option
-                                                                value="{{ $optValue }}" {{ $setting->value === $optValue ? 'selected' : '' }}>
+                                                            <option value="{{ $optValue }}"
+                                                                {{ (string)$setting->value === (string)$optValue ? 'selected' : '' }}>
                                                                 {{ $optLabel }}
                                                             </option>
                                                         @endforeach

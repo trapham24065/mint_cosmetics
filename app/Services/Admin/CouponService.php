@@ -54,7 +54,7 @@ class CouponService
     {
         if ($coupon->times_used > 0) {
             throw new \RuntimeException(
-                "Cannot delete coupon '{$coupon->code}'. It has already been used {$coupon->times_used} time(s). Please deactivate it instead."
+                "Không thể xóa mã giảm giá '{$coupon->code}'. Mã này đã được sử dụng {$coupon->times_used} lần. Vui lòng hủy kích hoạt mã này."
             );
         }
 
@@ -73,4 +73,5 @@ class CouponService
         $count = Coupon::whereIn('id', $couponIds)->update(['is_active' => $value]);
         return $count;
     }
+
 }

@@ -150,7 +150,7 @@ class CustomerDashboardController extends Controller
         $customer->email = $validated['email'];
         $customer->save();
 
-        return redirect()->route('customer.dashboard')->with('success', 'Account details updated successfully.');
+        return redirect()->route('customer.dashboard')->with('success', 'Cập nhật thông tin tài khoản thành công!');
     }
 
     /**

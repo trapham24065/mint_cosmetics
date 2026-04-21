@@ -22,7 +22,7 @@
                     {{ $isUsed ? 'disabled' : '' }} required>
                 @foreach($types as $type)
                     <option value="{{ $type->value }}" @selected(old('type', $coupon->type ?? '') === $type)>
-                        {{ $type->name }}
+                        {{ $type->label() }}
                     </option>
                 @endforeach
             </select>

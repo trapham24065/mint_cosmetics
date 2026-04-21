@@ -1,20 +1,20 @@
 @extends('storefront.layouts.app')
 @section('content')
-    <main class="main-content">
-        <nav aria-label="breadcrumb" class="breadcrumb-style1">
-            <div class="container">
-                <ol class="breadcrumb justify-content-center">
-                    <li class="breadcrumb-item"><a href="{{route('home')}}">Trang chủ</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Giỏ hàng</li>
-                </ol>
-            </div>
-        </nav>
+<main class="main-content">
+    <nav aria-label="breadcrumb" class="breadcrumb-style1">
+        <div class="container">
+            <ol class="breadcrumb justify-content-center">
+                <li class="breadcrumb-item"><a href="{{route('home')}}">Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Giỏ hàng</li>
+            </ol>
+        </div>
+    </nav>
 
-        <section class="section-space">
-            <div class="container">
-                <div class="shopping-cart-form table-responsive">
-                    <table class="table text-center">
-                        <thead>
+    <section class="section-space">
+        <div class="container">
+            <div class="shopping-cart-form table-responsive">
+                <table class="table text-center">
+                    <thead>
                         <tr>
                             <th class="product-remove">&nbsp;</th>
                             <th class="product-thumbnail">&nbsp;</th>
@@ -23,47 +23,47 @@
                             <th class="product-quantity">Số lượng</th>
                             <th class="product-subtotal">Tổng cộng</th>
                         </tr>
-                        </thead>
-                        <tbody>
+                    </thead>
+                    <tbody>
                         @forelse ($items as $variantId => $item)
-                            <tr class="tbody-item" data-variant-id="{{ $variantId }}">
-                                <td class="product-remove">
-                                    <a class="remove" href="javascript:void(0)">×</a>
-                                </td>
-                                <td class="product-thumbnail">
-                                    <div class="thumb">
-                                        <a href="{{-- route('products.show', $item['product_slug']) --}}">
-                                            <img src="{{ $item['image'] ? asset('storage/' . $item['image']) : '' }}"
-                                                 width="68" height="84" alt="Image">
-                                        </a>
-                                    </div>
-                                </td>
-                                <td class="product-name">
-                                    <a class="title"
-                                       href="{{-- route('products.show', $item['product_slug']) --}}">{{ $item['product_name'] }}</a>
-                                    @if($item['variant_name'])
-                                        <br><small>{{ $item['variant_name'] }}</small>
-                                    @endif
-                                </td>
-                                <td class="product-price">
-                                    <span class="price">{{ number_format($item['price'], 0, ',', '.') }} VNĐ</span>
-                                </td>
-                                <td class="product-quantity">
-                                    <div class="pro-qty">
-                                        <input type="number" class="quantity" title="Quantity"
-                                               value="{{ $item['quantity'] }}" min="1">
-                                    </div>
-                                </td>
-                                <td class="product-subtotal">
-                                    <span class="price subtotal-price">{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }} VNĐ</span>
-                                </td>
-                            </tr>
+                        <tr class="tbody-item" data-variant-id="{{ $variantId }}">
+                            <td class="product-remove">
+                                <a class="remove" href="javascript:void(0)">×</a>
+                            </td>
+                            <td class="product-thumbnail">
+                                <div class="thumb">
+                                    <a href="{{-- route('products.show', $item['product_slug']) --}}">
+                                        <img src="{{ $item['image'] ? asset('storage/' . $item['image']) : '' }}"
+                                            width="68" height="84" alt="Image">
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="product-name">
+                                <a class="title"
+                                    href="{{-- route('products.show', $item['product_slug']) --}}">{{ $item['product_name'] }}</a>
+                                @if($item['variant_name'])
+                                <br><small>{{ $item['variant_name'] }}</small>
+                                @endif
+                            </td>
+                            <td class="product-price">
+                                <span class="price">{{ number_format($item['price'], 0, ',', '.') }} VNĐ</span>
+                            </td>
+                            <td class="product-quantity">
+                                <div class="pro-qty">
+                                    <input type="number" class="quantity" title="Quantity"
+                                        value="{{ $item['quantity'] }}" min="1">
+                                </div>
+                            </td>
+                            <td class="product-subtotal">
+                                <span class="price subtotal-price">{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }} VNĐ</span>
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="6">
-                                    Giỏ hàng của bạn trống.
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="6">
+                                Giỏ hàng của bạn trống.
+                            </td>
+                        </tr>
                         @endforelse
 
                         <tr class="tbody-item-actions">
@@ -73,44 +73,21 @@
                                 </button>
                             </td>
                         </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="row">
-                    <div class="col-12 col-lg-6">
-                        <div class="coupon-wrap">
-                            <h4 class="title">Mã giảm giá
-                            </h4>
-                            <p class="desc">
-                                Nhập mã giảm giá của bạn nếu có.</p>
-                            <div id="coupon-form-container">
-                                @if ($coupon)
-                                    <div class="d-flex align-items-center">
-                                        <p class="me-2">
-                                            Phiếu giảm giá áp dụng:<strong>{{ $coupon->code }}</strong></p>
-                                        <button type="button" id="remove-coupon-btn" class="btn-coupon">Tháo</button>
-                                    </div>
-                                @else
-                                    <input type="text" id="coupon-code-input" class="form-control"
-                                           placeholder="Mã phiếu giảm giá">
-                                    <button type="button" id="apply-coupon-btn" class="btn-coupon">Áp dụng phiếu giảm
-                                        giá
-                                    </button>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-lg-6">
-                        <div class="cart-totals-wrap">
-                            <h2 class="title">Tổng cộng giỏ hàng</h2>
-                            <table>
-                                <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-12 col-lg-6 ms-lg-auto">
+                    <div class="cart-totals-wrap">
+                        <h2 class="title">Tổng cộng giỏ hàng</h2>
+                        <table>
+                            <tbody>
                                 <tr class="cart-subtotal">
                                     <th>Tổng phụ</th>
                                     <td><span class="amount" id="cart-subtotal">{{ number_format($subtotal, 0, ',', '.') }} VNĐ</span>
                                     </td>
                                 </tr>
-                                <tr class="cart-discount" style="{{ !$coupon ? 'display: none;' : '' }}">
+                                <tr class="cart-discount {{ !$coupon ? 'd-none' : '' }}">
                                     <th>Giảm giá</th>
                                     <td><span class="amount text-danger" id="cart-discount">-{{ number_format($discount, 0, ',', '.') }} VNĐ</span>
                                     </td>
@@ -120,27 +97,26 @@
                                     <td><span class="amount" id="cart-total">{{ number_format($total, 0, ',', '.') }} VNĐ</span>
                                     </td>
                                 </tr>
-                                </tbody>
-                            </table>
-                            <div class="text-end">
-                                <a href="{{route('customer.checkout.index')}}" class="checkout-button">Tiếp tục thanh
-                                    toán</a>
-                            </div>
+                            </tbody>
+                        </table>
+                        <div class="text-end">
+                            <a href="{{route('customer.checkout.index')}}" class="checkout-button">Tiếp tục thanh
+                                toán</a>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
+</main>
 
-    @push('scripts')
-        <!-- @formatter:off -->
+@push('scripts')
+<!-- @formatter:off -->
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
                     const updateCartBtn = document.getElementById('update-cart-btn');
                     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                     const cartForm = document.querySelector('.shopping-cart-form'); // Tìm đến form cha
-                    const couponContainer = document.getElementById('coupon-form-container');
 
                     if (!cartForm) return;
 
@@ -229,7 +205,7 @@
                             }
                         });
 
-                        fetch('{{ route('cart.update') }}', {
+                        fetch("{{ route('cart.update') }}", {
                             method: 'PATCH',
                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
                             body: JSON.stringify({ updates: updates }),
@@ -238,76 +214,16 @@
                         .then(data => {
                             if (data.success) {
                                 updateCartView(data.cart);
-                                Swal.fire({ toast: true, icon: 'success', title: 'Cart updated!', position: 'top-end', showConfirmButton: false, timer: 2000 });
+                                Swal.fire({ toast: true, icon: 'success', title: 'Đã cập nhật giỏ hàng', position: 'top-end', showConfirmButton: false, timer: 2000 });
                             } else {
-                                Swal.fire('Error', data.message, 'error');
+                                Swal.fire('Lỗi', data.message, 'error');
                             }
                         })
                         .catch(error => console.error('Update Cart Error:', error));
                     });
-                    couponContainer.addEventListener('click', function(event) {
-                        // Xử lý khi nhấn nút Apply
-                        if (event.target.id === 'apply-coupon-btn') {
-                            const codeInput = document.getElementById('coupon-code-input');
-                            if (codeInput.value) {
-                                applyCoupon(codeInput.value);
-                            }
-                        }
-                        // Xử lý khi nhấn nút Remove
-                        if (event.target.id === 'remove-coupon-btn') {
-                            removeCoupon();
-                        }
-                    });
-
-                    function applyCoupon(code) {
-                        fetch('{{ route('cart.applyCoupon') }}', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                            body: JSON.stringify({ coupon_code: code })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                updateTotalsAndCoupon(data.cart);
-                                Swal.fire({ toast: true, icon: 'success', title: 'Coupon applied!', position: 'top-end', showConfirmButton: false, timer: 2000 });
-                            } else {
-                                Swal.fire('Error', data.message, 'error');
-                            }
-                        });
-                    }
-
-                    function removeCoupon() {
-                        fetch('{{ route('cart.removeCoupon') }}', {
-                            method: 'POST',
-                            headers: { 'X-CSRF-TOKEN': csrfToken }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                updateTotalsAndCoupon(data.cart);
-                            }
-                        });
-                    }
-
-                    function updateTotalsAndCoupon(cart) {
-                        // Cập nhật Subtotal, Discount, Total
-                        document.getElementById('cart-subtotal').textContent = cart.subtotal.toLocaleString('vi-VN') + ' VNĐ';
-                        document.getElementById('cart-total').textContent = cart.total.toLocaleString('vi-VN') + ' VNĐ';
-                        const discountRow = document.querySelector('.cart-discount');
-                        const discountAmountEl = document.getElementById('cart-discount');
-
-                        if (cart.coupon) {
-                            discountAmountEl.textContent = '-' + cart.discount.toLocaleString('vi-VN') + ' VNĐ';
-                            discountRow.style.display = '';
-                            couponContainer.innerHTML = `<div class="d-flex align-items-center"><p class="me-2">Applied coupon: <strong>${cart.coupon.code}</strong></p><button type="button" id="remove-coupon-btn" class="btn-coupon">Remove</button></div>`;
-                        } else {
-                            discountRow.style.display = 'none';
-                            couponContainer.innerHTML = `<input type="text" id="coupon-code-input" class="form-control" placeholder="Coupon code"><button type="button" id="apply-coupon-btn" class="btn-coupon">Apply coupon</button>`;
-                        }
-                    }
                 });
             </script>
 
         <!-- @formatter:on -->
-    @endpush
+@endpush
 @endsection

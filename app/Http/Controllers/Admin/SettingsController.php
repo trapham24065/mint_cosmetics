@@ -99,4 +99,5 @@ class SettingsController extends Controller
 
         return back()->with('success', 'Cài đặt đã được cập nhật thành công.');
     }
+
 }
