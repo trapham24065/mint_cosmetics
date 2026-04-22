@@ -163,24 +163,11 @@
     $subtotal = $order->items->sum(fn($item) => (float) $item->price * (int) $item->quantity);
     $discount = (float) ($order->discount_amount ?? 0);
     $shippingFee = (float) ($order->shipping_fee ?? 0);
-    $payment = $order->latestPayment;
 
-    $paymentMethodLabel = match ((string) $order->payment_method) {
-    'bank_transfer_qr' => 'Chuyển khoản QR',
-    'cod' => 'Thanh toán khi nhận hàng (COD)',
-    default => $order->payment_method ? strtoupper((string) $order->payment_method) : 'Chưa cập nhật',
-    };
-
-    $paymentStatusLabel = match ((string) ($payment?->status ?? '')) {
-    'pending' => 'Chờ thanh toán',
-    'paid' => 'Đã thanh toán',
-    'failed' => 'Thanh toán thất bại',
-    default => $payment?->status ? ucfirst((string) $payment->status) : 'Chưa cập nhật',
-    };
-
-    $provinceName = $order->customer?->shipping_province_name ?? 'Chưa cập nhật';
-    $districtName = $order->customer?->shipping_district_name ?? null;
-    $wardName = $order->customer?->shipping_ward_name ?? null;
+    $provinceName = $order->shipping_province_name ?? $order->customer?->shipping_province_name ?? null;
+    $districtName = $order->shipping_district_name ?? $order->customer?->shipping_district_name ?? null;
+    $wardName = $order->shipping_ward_name ?? $order->customer?->shipping_ward_name ?? null;
+    $fullShippingArea = implode(', ', array_filter([$wardName, $districtName, $provinceName]));
     @endphp
 
     <div class="container">
@@ -207,7 +194,13 @@
                         </tr>
                         <tr>
                             <td class="meta-label">Địa chỉ giao hàng</td>
-                            <td>{{ $order->address ?: 'N/A' }}</td>
+                            <td>
+                                {{ $order->address ?: 'N/A' }}
+                                @if($fullShippingArea !== '')
+                                <br>
+                                {{ $fullShippingArea }}
+                                @endif
+                            </td>
                         </tr>
                     </table>
                 </td>
@@ -221,15 +214,7 @@
                         </tr>
                         <tr>
                             <td class="meta-label">Thanh toán</td>
-                            <td>{{ $paymentMethodLabel }}</td>
-                        </tr>
-                        <tr>
-                            <td class="meta-label">TT thanh toán</td>
-                            <td>{{ $paymentStatusLabel }}</td>
-                        </tr>
-                        <tr>
-                            <td class="meta-label">Mã giao dịch</td>
-                            <td>{{ $payment?->transaction_id ?: ($order->transaction_id ?: 'Chưa cập nhật') }}</td>
+                            <td>Đã thanh toán trước qua QR</td>
                         </tr>
                         <tr>
                             <td class="meta-label">Đơn vị vận chuyển</td>
@@ -238,23 +223,6 @@
                         <tr>
                             <td class="meta-label">Mã đơn vận chuyển</td>
                             <td>{{ $order->ghn_order_code ?: 'Chưa tạo' }}</td>
-                        </tr>
-                        <tr>
-                            <td class="meta-label">Khu vực GHN</td>
-                            <td>
-                                {{ $provinceName }}
-                                @if($districtName || $order->shipping_district_id)
-                                <br>
-                                Quận/Huyện: {{ $districtName ?? 'Mã ' . $order->shipping_district_id }}
-                                @endif
-                                @if($wardName || $order->shipping_ward_code)
-                                <br>
-                                Phường/Xã: {{ $wardName ?? 'Mã ' . $order->shipping_ward_code }}
-                                @endif
-                                <br>
-                                <span class="muted">Mã GHN:</span>
-                                Huyện {{ $order->shipping_district_id ?? 'N/A' }}, Phường {{ $order->shipping_ward_code ?? 'N/A' }}
-                            </td>
                         </tr>
                     </table>
                 </td>

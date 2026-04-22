@@ -27,13 +27,28 @@
         <div class="container">
             <div class="row product-details">
                 <div class="col-lg-6">
+                    @php
+                    $galleryImages = $product->images->pluck('path')->filter()->values();
+
+                    // Backward-compatible fallback in case old records still store gallery in list_image.
+                    if ($galleryImages->isEmpty() && !empty($product->list_image)) {
+                    if (is_array($product->list_image)) {
+                    $galleryImages = collect($product->list_image)->filter()->values();
+                    } elseif (is_string($product->list_image)) {
+                    $decoded = json_decode($product->list_image, true);
+                    if (is_array($decoded)) {
+                    $galleryImages = collect($decoded)->filter()->values();
+                    }
+                    }
+                    }
+                    @endphp
                     <div class="product-details-thumb product-image-container">
                         <img id="product-main-image"
                             src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/storefront/images/shop/default.webp') }}"
                             width="570" height="693" alt="{{ $product->name }}">
                     </div>
                     {{-- START A NEW ADDITION TO THE GALLERY --}}
-                    @if(!empty($product->list_image) && is_array($product->list_image))
+                    @if($galleryImages->isNotEmpty() || $product->image)
                     <div id="product-thumbnails-gallery"
                         class="product-details-nav-wrap d-flex flex-wrap gap-2 mt-3">
                         @if($product->image)
@@ -44,7 +59,7 @@
                         </div>
                         @endif
                         {{-- Loop through images in gallery --}}
-                        @foreach($product->list_image as $galleryImage)
+                        @foreach($galleryImages as $galleryImage)
                         <div class="nav-item">
                             <img class="product-thumbnail-item"
                                 src="{{ asset('storage/' . $galleryImage) }}"

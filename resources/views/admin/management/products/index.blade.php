@@ -4,7 +4,7 @@
 <div class="container-xxl">
     <div class="card">
         <div class="d-flex card-header justify-content-between align-items-center">
-            <h4 class="card-title">Quản lý sản phẩm</h4>
+            <h4 class="card-title">Quản lý sản phẩm ({{ $totalProducts }})</h4>
             <a href="{{ route('admin.products.create') }}" class="btn btn-sm btn-primary">
                 <i class="fas fa-plus me-1"></i> Thêm sản phẩm
             </a>
@@ -48,7 +48,7 @@
                             sort: false,
                             width: '40px'
                         },
-                        { id: 'id', name: 'ID', hidden: true },
+                        { id: 'id', name: 'ID' },
                         {
                             id: 'image',
                             name: 'Hình ảnh',

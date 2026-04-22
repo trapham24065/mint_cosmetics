@@ -146,7 +146,17 @@ class UpdateProductRequest extends FormRequest
                         return;
                     }
 
-                    $hasChildren = Category::query()->where('parent_id', (int)$value)->exists();
+                    $product = $this->route('product');
+                    $currentCategoryId = $product ? (int)$product->category_id : null;
+                    $selectedCategoryId = (int)$value;
+
+                    // Cho phép giữ nguyên danh mục cũ (legacy) khi danh mục đó đã có danh mục con.
+                    // Chỉ bắt buộc danh mục lá khi người dùng đổi sang danh mục khác.
+                    if ($currentCategoryId !== null && $selectedCategoryId === $currentCategoryId) {
+                        return;
+                    }
+
+                    $hasChildren = Category::query()->where('parent_id', $selectedCategoryId)->exists();
                     if ($hasChildren) {
                         $fail('Vui lòng chọn danh mục con cuối cùng để cập nhật sản phẩm.');
                     }
@@ -238,6 +248,25 @@ class UpdateProductRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator): void {
+            if ($this->input('product_type') !== 'variable') {
+                return;
+            }
+
+            $existingVariants = $this->input('variants', []);
+            $newVariants = $this->input('new_variants', []);
+
+            $existingCount = is_array($existingVariants) ? count($existingVariants) : 0;
+            $newCount = is_array($newVariants) ? count($newVariants) : 0;
+
+            if (($existingCount + $newCount) < 1) {
+                $validator->errors()->add('variants', 'Sản phẩm biến thể phải có ít nhất một biến thể.');
+            }
+        });
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author PhamTra
@@ -27,6 +28,7 @@ class ProductController extends Controller
         $product->load([
             'category',
             'brand',
+            'images',
             'variants.attributeValues.attribute',
         ]);
 
@@ -60,12 +62,11 @@ class ProductController extends Controller
         }
 
         $products = Product::where('active', true)
-            ->where('name', 'like', '%'.$query.'%')
+            ->where('name', 'like', '%' . $query . '%')
             ->with('variants')
             ->limit(5)
             ->get();
 
         return response()->json($products);
     }
-
 }

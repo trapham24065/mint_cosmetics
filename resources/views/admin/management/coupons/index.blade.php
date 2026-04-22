@@ -1,68 +1,68 @@
 @extends('admin.layouts.app')
 @section('content')
-    <div class="container-xxl">
+<div class="container-xxl">
 
-        <div class="row">
-            <div class="col-md-6 col-xl-4">
-                <div class="card bg-primary-subtle">
-                    <div class="card-body">
-                        <h4 class="mb-1">{{ $totalCoupons }} Tổng số phiếu giảm giá</h4>
-                        <p>Tất cả các phiếu giảm giá được tạo trong hệ thống.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-xl-4">
-                <div class="card bg-success-subtle">
-                    <div class="card-body">
-                        <h4 class=" mb-1">{{ $activeCoupons }} Mã giảm giá đang hoạt động</h4>
-                        <p class="">Các phiếu giảm giá hiện đang có hiệu lực.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-xl-4">
-                <div class="card bg-danger-subtle">
-                    <div class="card-body">
-                        <h4 class=" mb-1">{{ $expiredCoupons }} Phiếu giảm giá đã hết hạn</h4>
-                        <p class="">Các phiếu giảm giá đã hết hạn.</p>
-                    </div>
+    <div class="row">
+        <div class="col-md-6 col-xl-4">
+            <div class="card bg-primary-subtle">
+                <div class="card-body">
+                    <h4 class="mb-1">{{ $totalCoupons }} Tổng số phiếu giảm giá</h4>
+                    <p>Tất cả các phiếu giảm giá được tạo trong hệ thống.</p>
                 </div>
             </div>
         </div>
-
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="card">
-                    <div class="d-flex card-header justify-content-between align-items-center">
-                        <h4 class="card-title">Danh sách tất cả phiếu giảm giá</h4>
-                        <a href="{{ route('admin.coupons.create') }}" class="btn btn-sm btn-primary">
-                            <i class="bx bx-plus"></i> Mã giảm giá mới
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        <div id="bulk-actions-container" class="mb-3" style="display: none;">
-                            <div class="d-flex align-items-center gap-2">
-                                <span id="selected-count" class="fw-bold"></span>
-                                <select id="bulk-action-select" class="form-select form-select-sm"
-                                        style="width: 220px;">
-                                    <option value="">Hãy chọn hành động...</option>
-                                    <option value="activate">Kích hoạt mục đã chọn</option>
-                                    <option value="deactivate">Vô hiệu hóa mục đã chọn</option>
-                                </select>
-                                <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
-                            </div>
-                        </div>
-
-                        <div id="table-coupons-gridjs"></div>
-                    </div>
+        <div class="col-md-6 col-xl-4">
+            <div class="card bg-success-subtle">
+                <div class="card-body">
+                    <h4 class=" mb-1">{{ $activeCoupons }} Mã giảm giá đang hoạt động</h4>
+                    <p class="">Các phiếu giảm giá hiện đang có hiệu lực.</p>
                 </div>
             </div>
         </div>
-
+        <div class="col-md-6 col-xl-4">
+            <div class="card bg-danger-subtle">
+                <div class="card-body">
+                    <h4 class=" mb-1">{{ $expiredCoupons }} Phiếu giảm giá đã hết hạn</h4>
+                    <p class="">Các phiếu giảm giá đã hết hạn.</p>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="d-flex card-header justify-content-between align-items-center">
+                    <h4 class="card-title">Danh sách tất cả phiếu giảm giá ({{ $totalCoupons }})</h4>
+                    <a href="{{ route('admin.coupons.create') }}" class="btn btn-sm btn-primary">
+                        <i class="bx bx-plus"></i> Mã giảm giá mới
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div id="bulk-actions-container" class="mb-3" style="display: none;">
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="selected-count" class="fw-bold"></span>
+                            <select id="bulk-action-select" class="form-select form-select-sm"
+                                style="width: 220px;">
+                                <option value="">Hãy chọn hành động...</option>
+                                <option value="activate">Kích hoạt mục đã chọn</option>
+                                <option value="deactivate">Vô hiệu hóa mục đã chọn</option>
+                            </select>
+                            <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
+                        </div>
+                    </div>
+
+                    <div id="table-coupons-gridjs"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 
 @endsection
 @push('scripts')
-    <!-- @formatter:off -->
+<!-- @formatter:off -->
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

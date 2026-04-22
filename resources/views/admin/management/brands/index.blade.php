@@ -5,7 +5,7 @@
         <div class="col-xl-12">
             <div class="card">
                 <div class="d-flex card-header justify-content-between align-items-center">
-                    <h4 class="card-title">Danh sách tất cả các thương hiệu</h4>
+                    <h4 class="card-title">Danh sách tất cả các thương hiệu ({{ $totalBrands }})</h4>
                     <a href="{{ route('admin.brands.create') }}" class="btn btn-sm btn-primary">
                         <i class="bx bx-plus"></i> Thương hiệu mới
                     </a>

@@ -36,7 +36,8 @@ class BrandController extends Controller
 
     public function index(): View
     {
-        return view('admin.management.brands.index');
+        $totalBrands = Brand::count();
+        return view('admin.management.brands.index', compact('totalBrands'));
     }
 
     public function create(): View
