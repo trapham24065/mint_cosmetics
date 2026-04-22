@@ -43,7 +43,8 @@ class ProductController extends Controller
      */
     public function index(Request $request): View
     {
-        return view('admin.management.products.index');
+        $totalProducts = Product::count();
+        return view('admin.management.products.index', compact('totalProducts'));
     }
 
     /**
@@ -129,9 +130,10 @@ class ProductController extends Controller
         $product->load(['variants.attributeValues', 'images']);
 
         $categories = Category::query()
-            ->where('active', true)
             ->where(function ($query) use ($product) {
-                $query->leaf()->orWhere('id', $product->category_id);
+                $query->where(function ($leafQuery) {
+                    $leafQuery->where('active', true)->leaf();
+                })->orWhere('id', $product->category_id);
             })
             ->orderBy('name')
             ->get();

@@ -28,8 +28,9 @@ class CustomerController extends Controller
         $title = 'Customer Management';
         // Get customers with their order count
         $customers = Customer::withCount('orders')->latest()->paginate(15);
+        $totalCustomers = Customer::count();
 
-        return view('admin.management.customer.index', compact('customers', 'title'));
+        return view('admin.management.customer.index', compact('customers', 'title', 'totalCustomers'));
     }
 
     public function show(Customer $customer): View

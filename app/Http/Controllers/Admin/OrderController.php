@@ -63,8 +63,9 @@ class OrderController extends Controller
             ->pluck('total', 'status');
 
         $statuses = OrderStatus::cases();
+        $totalOrders = Order::count();
 
-        return view('admin.management.orders.index', compact('orders', 'statuses', 'statusCounts'));
+        return view('admin.management.orders.index', compact('orders', 'statuses', 'statusCounts', 'totalOrders'));
     }
 
     public function show(Order $order): View

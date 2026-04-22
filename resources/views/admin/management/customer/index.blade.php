@@ -1,32 +1,32 @@
 @extends('admin.layouts.app')
 
 @section('content')
-    <div class="container-xxl">
-        <div class="card">
-            <div class="d-flex card-header justify-content-between align-items-center">
-                <h4 class="card-title">Quản lý khách hàng</h4>
-            </div>
-            <div class="card-body">
-                <div id="bulk-actions-container" class="mb-3" style="display: none;">
-                    <div class="d-flex align-items-center gap-2">
-                        <span id="selected-count" class="fw-bold"></span>
-                        <select id="bulk-action-select" class="form-select form-select-sm" style="width: 200px;">
-                            <option value="">Hãy chọn hành động...</option>
-                            <option value="activate">Kích hoạt mục đã chọn</option>
-                            <option value="deactivate">Vô hiệu hóa mục đã chọn</option>
-                        </select>
-                        <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
-                    </div>
+<div class="container-xxl">
+    <div class="card">
+        <div class="d-flex card-header justify-content-between align-items-center">
+            <h4 class="card-title">Quản lý khách hàng ({{ $totalCustomers }})</h4>
+        </div>
+        <div class="card-body">
+            <div id="bulk-actions-container" class="mb-3" style="display: none;">
+                <div class="d-flex align-items-center gap-2">
+                    <span id="selected-count" class="fw-bold"></span>
+                    <select id="bulk-action-select" class="form-select form-select-sm" style="width: 200px;">
+                        <option value="">Hãy chọn hành động...</option>
+                        <option value="activate">Kích hoạt mục đã chọn</option>
+                        <option value="deactivate">Vô hiệu hóa mục đã chọn</option>
+                    </select>
+                    <button id="apply-bulk-action-btn" class="btn btn-sm btn-secondary">Áp dụng</button>
                 </div>
-                {{-- Grid.js will render the table here --}}
-                <div id="table-customers-gridjs"></div>
             </div>
+            {{-- Grid.js will render the table here --}}
+            <div id="table-customers-gridjs"></div>
         </div>
     </div>
+</div>
 @endsection
 @push('scripts')
 
-    <!-- @formatter:off -->
+<!-- @formatter:off -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (document.getElementById("table-customers-gridjs")) {
