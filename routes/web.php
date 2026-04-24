@@ -11,6 +11,7 @@ use App\Http\Controllers\Storefront\{
     ProductController,
     ReviewController,
     ShopController,
+    WebhookController,
     WishlistController
 };
 use Illuminate\Support\Facades\Route;
@@ -66,6 +67,9 @@ Route::controller(ChatController::class)->prefix('chat')->name('chat.')->group(f
     Route::get('/suggestions', 'getSuggestions')->name('suggestions');
     Route::post('/default-message', 'sendDefaultMessage')->name('default-message');
 });
+
+// --- Payment Webhooks (public endpoint for payment provider callbacks) ---
+Route::post('/hooks/sepay-payment', [WebhookController::class, 'handlePaymentWebhook']);
 
 // --- Admin & Other Auth Routes ---
 require __DIR__ . '/auth.php';
