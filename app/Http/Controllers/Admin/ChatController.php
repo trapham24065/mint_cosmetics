@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @project mint_cosmetics
  * @author M397
@@ -9,6 +10,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,19 +22,35 @@ class ChatController extends Controller
 
     public function index(Request $request)
     {
+        /** @var User|null $admin */
         $admin = Auth::user();
+        $isAdmin = $admin instanceof User && $admin->isAdmin();
 
-        //$conversations = $admin->conversations->sortByDesc('updated_at');
-        $conversations = $admin->conversations()
-            ->with('participants.messageable') // <-- QUAN TRỌNG: Tải thông tin Customer/Guest
-            ->orderBy('updated_at', 'desc')
-            ->get();
+        if ($isAdmin) {
+            // Admin can monitor all customer conversations.
+            $conversations = Conversation::query()
+                ->with('participants.messageable')
+                ->orderBy('updated_at', 'desc')
+                ->get();
+        } else {
+            $conversations = $admin instanceof User
+                ? $admin->conversations()
+                ->with('participants.messageable')
+                ->orderBy('updated_at', 'desc')
+                ->get()
+                : collect();
+        }
+
         $currentConversation = null;
         $messages = [];
 
         if ($request->has('conversation_id')) {
-            $conversationId = $request->conversation_id;
-            $currentConversation = Chat::conversations()->getById($conversationId);
+            $conversationId = (int) $request->conversation_id;
+            $currentConversation = $conversations->firstWhere('id', $conversationId);
+
+            if ($currentConversation && $admin instanceof User && $isAdmin && !$this->isParticipant($admin, $currentConversation)) {
+                $admin->conversations()->syncWithoutDetaching([$currentConversation->id]);
+            }
 
             if ($currentConversation) {
                 $messages = $currentConversation->messages()
@@ -51,8 +69,21 @@ class ChatController extends Controller
     {
         $request->validate(['message' => 'required|string']);
 
+        /** @var User|null $admin */
         $admin = Auth::user();
         $conversation = Chat::conversations()->getById($conversationId);
+
+        if (!$admin instanceof User || !$conversation) {
+            return response()->json(['success' => false, 'message' => 'Cuộc trò chuyện không tồn tại.'], 404);
+        }
+
+        if (!$this->canAccessConversation($admin, $conversation)) {
+            return response()->json(['success' => false, 'message' => 'Bạn không có quyền truy cập cuộc trò chuyện này.'], 403);
+        }
+
+        if ($this->isAdminUser($admin) && !$this->isParticipant($admin, $conversation)) {
+            $admin->conversations()->syncWithoutDetaching([$conversation->id]);
+        }
 
         // Gửi tin nhắn
         $message = Chat::message($request->message)
@@ -75,7 +106,22 @@ class ChatController extends Controller
     // API để polling tin nhắn mới cho Admin
     public function fetchMessages(Request $request, $conversationId)
     {
+        /** @var User|null $admin */
+        $admin = Auth::user();
         $conversation = Chat::conversations()->getById($conversationId);
+
+        if (!$admin instanceof User || !$conversation) {
+            return response()->json(['messages' => []]);
+        }
+
+        if (!$this->canAccessConversation($admin, $conversation)) {
+            return response()->json(['messages' => []], 403);
+        }
+
+        if ($this->isAdminUser($admin) && !$this->isParticipant($admin, $conversation)) {
+            $admin->conversations()->syncWithoutDetaching([$conversation->id]);
+        }
+
         $lastId = $request->input('last_id');
 
         $query = $conversation->messages()
@@ -133,4 +179,25 @@ class ChatController extends Controller
         return response()->json(['messages' => $formattedMessages]);
     }
 
+    private function isAdminUser(?User $user): bool
+    {
+        return $user instanceof User && $user->isAdmin();
+    }
+
+    private function isParticipant(User $user, Conversation $conversation): bool
+    {
+        return $conversation->participants()
+            ->where('messageable_id', $user->id)
+            ->where('messageable_type', get_class($user))
+            ->exists();
+    }
+
+    private function canAccessConversation(User $user, Conversation $conversation): bool
+    {
+        if ($this->isAdminUser($user)) {
+            return true;
+        }
+
+        return $this->isParticipant($user, $conversation);
+    }
 }

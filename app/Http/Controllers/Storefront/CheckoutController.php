@@ -54,7 +54,10 @@ class CheckoutController extends Controller
 
         // If the cart is empty, redirect the user back to the shop page
         if (empty($cartData['items'])) {
-            return redirect()->route('shop')->with('info', 'Your cart is empty. Please add products to proceed.');
+            return redirect()->route('shop')->with(
+                'info',
+                'Giỏ hàng của bạn trống. Vui lòng thêm sản phẩm để tiếp tục.'
+            );
         }
 
         $customer = Auth::guard('customer')->user();
@@ -72,12 +75,12 @@ class CheckoutController extends Controller
         // Otherwise, show the checkout page with the cart data
         return view('storefront.checkout', array_merge($cartData, [
             'shipping_fee' => 30000,
-            'grand_total'  => $cartData['total'] + 30000,
+            'grand_total' => $cartData['total'] + 30000,
             'customer' => $customer,
             'shipping_defaults' => [
                 'province_id' => $customer?->shipping_province_id ?? $latestOrder?->shipping_province_id,
                 'district_id' => $customer?->shipping_district_id ?? $latestOrder?->shipping_district_id,
-                'ward_code' => $customer?->shipping_ward_code ?? $latestOrder?->shipping_ward_code,
+                'ward_code'   => $customer?->shipping_ward_code ?? $latestOrder?->shipping_ward_code,
             ],
         ]));
     }
@@ -135,4 +138,5 @@ class CheckoutController extends Controller
             ]);
         }
     }
+
 }

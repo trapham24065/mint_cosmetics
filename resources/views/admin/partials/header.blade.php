@@ -1,4 +1,10 @@
 <!-- ========== Topbar Start ========== -->
+@php
+$adminUser = auth()->user();
+$canUseNotifications = $adminUser && method_exists($adminUser, 'unreadNotifications');
+$unreadNotifications = $canUseNotifications ? $adminUser->unreadNotifications : collect();
+$unreadCount = $unreadNotifications->count();
+@endphp
 <header class="topbar">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -28,22 +34,22 @@
                 <!-- Notification -->
                 <div class="dropdown topbar-item">
                     <button type="button" class="topbar-button position-relative"
-                            id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="false">
+                        id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false">
                         <iconify-icon icon="solar:bell-bing-bold-duotone" class="fs-24 align-middle"></iconify-icon>
 
                         {{-- Hiển thị badge nếu có thông báo chưa đọc --}}
-                        @if(auth()->user()->unreadNotifications->count() > 0)
-                            <span
-                                class="position-absolute topbar-badge fs-10 translate-middle badge bg-danger rounded-pill">
-                                {{ auth()->user()->unreadNotifications->count() }}
-                                <span class="visually-hidden">tin nhắn chưa đọc</span>
-                            </span>
+                        @if($unreadCount > 0)
+                        <span
+                            class="position-absolute topbar-badge fs-10 translate-middle badge bg-danger rounded-pill">
+                            {{ $unreadCount }}
+                            <span class="visually-hidden">tin nhắn chưa đọc</span>
+                        </span>
                         @endif
                     </button>
 
                     <div class="dropdown-menu py-0 dropdown-lg dropdown-menu-end"
-                         aria-labelledby="page-header-notifications-dropdown">
+                        aria-labelledby="page-header-notifications-dropdown">
                         <div class="p-3 border-top-0 border-start-0 border-end-0 border-dashed border">
                             <div class="row align-items-center">
                                 <div class="col">
@@ -52,7 +58,7 @@
                                 <div class="col-auto">
                                     {{-- Link xóa/đọc tất cả thông báo --}}
                                     <a href="{{ route('admin.notifications.readAll') }}"
-                                       class="text-dark text-decoration-underline">
+                                        class="text-dark text-decoration-underline">
                                         <small>Xóa tất cả</small>
                                     </a>
                                 </div>
@@ -61,51 +67,51 @@
 
                         <div data-simplebar style="max-height: 280px;">
                             {{-- Lặp qua danh sách thông báo chưa đọc --}}
-                            @forelse(auth()->user()->unreadNotifications as $notification)
-                                <!-- Item -->
-                                <a href="{{ $notification->data['link'] ?? '#' }}"
-                                   class="dropdown-item py-3 border-bottom text-wrap">
-                                    <div class="d-flex">
-                                        <div class="flex-shrink-0">
-                                            <div class="avatar-sm me-2">
-                                                <span class="avatar-title bg-soft-info text-info fs-20 rounded-circle">
-                                                     <iconify-icon
-                                                         icon="solar:cart-large-2-bold-duotone"></iconify-icon>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <p class="mb-0 fw-semibold">
-                                                {{-- Tiêu đề thông báo --}}
-                                                Đơn hàng mới #{{ $notification->data['order_id'] ?? 'N/A' }}
-                                            </p>
-                                            <p class="mb-0 text-wrap text-muted small">
-                                                {{-- Nội dung chi tiết --}}
-                                                {{ $notification->data['message'] ?? 'Bạn có thông báo mới.' }}
-                                            </p>
-                                            <small
-                                                class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                            @forelse($unreadNotifications as $notification)
+                            <!-- Item -->
+                            <a href="{{ $notification->data['link'] ?? '#' }}"
+                                class="dropdown-item py-3 border-bottom text-wrap">
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar-sm me-2">
+                                            <span class="avatar-title bg-soft-info text-info fs-20 rounded-circle">
+                                                <iconify-icon
+                                                    icon="solar:cart-large-2-bold-duotone"></iconify-icon>
+                                            </span>
                                         </div>
                                     </div>
-                                </a>
-                            @empty
-                                <div class="text-center py-4">
-                                    <p class="text-muted mb-0">Không có thông báo mới.</p>
+                                    <div class="flex-grow-1">
+                                        <p class="mb-0 fw-semibold">
+                                            {{-- Tiêu đề thông báo --}}
+                                            Đơn hàng mới #{{ $notification->data['order_id'] ?? 'N/A' }}
+                                        </p>
+                                        <p class="mb-0 text-wrap text-muted small">
+                                            {{-- Nội dung chi tiết --}}
+                                            {{ $notification->data['message'] ?? 'Bạn có thông báo mới.' }}
+                                        </p>
+                                        <small
+                                            class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                    </div>
                                 </div>
+                            </a>
+                            @empty
+                            <div class="text-center py-4">
+                                <p class="text-muted mb-0">Không có thông báo mới.</p>
+                            </div>
                             @endforelse
                         </div>
 
-                        {{--                        <div class="text-center py-3">--}}
-                        {{--                            <a href="javascript:void(0);" class="btn btn-primary btn-sm">Xem tất cả thông báo<i--}}
-                        {{--                                    class="bx bx-right-arrow-alt ms-1"></i></a>--}}
-                        {{--                        </div>--}}
+                        {{-- <div class="text-center py-3">--}}
+                        {{-- <a href="javascript:void(0);" class="btn btn-primary btn-sm">Xem tất cả thông báo<i--}}
+                        {{-- class="bx bx-right-arrow-alt ms-1"></i></a>--}}
+                        {{-- </div>--}}
                     </div>
                 </div>
 
                 <!-- Theme Setting -->
                 <div class="topbar-item d-none d-md-flex">
                     <button type="button" class="topbar-button" id="theme-settings-btn" data-bs-toggle="offcanvas"
-                            data-bs-target="#theme-settings-offcanvas" aria-controls="theme-settings-offcanvas">
+                        data-bs-target="#theme-settings-offcanvas" aria-controls="theme-settings-offcanvas">
                         <iconify-icon icon="solar:settings-bold-duotone" class="fs-24 align-middle"></iconify-icon>
                     </button>
                 </div>
@@ -113,17 +119,17 @@
                 <!-- User -->
                 <div class="dropdown topbar-item">
                     <a type="button" class="topbar-button" id="page-header-user-dropdown" data-bs-toggle="dropdown"
-                       aria-haspopup="true" aria-expanded="false">
-                            <span class="d-flex align-items-center">
-                                 <img class="rounded-circle" width="32"
-                                      src="{{ auth()->user()->avatar ? asset('storage/' . auth()->user()->avatar) : asset('assets/admin/images/users/dummy-avatar.jpg') }}"
-                                      alt="{{ auth()->user()->name ?? 'Admin Avatar' }}"
-                                      style="object-fit: cover; height: 32px;">
-                            </span>
+                        aria-haspopup="true" aria-expanded="false">
+                        <span class="d-flex align-items-center">
+                            <img class="rounded-circle" width="32"
+                                src="{{ $adminUser?->avatar ? asset('storage/' . $adminUser->avatar) : asset('assets/admin/images/users/dummy-avatar.jpg') }}"
+                                alt="{{ $adminUser?->name ?? 'Admin Avatar' }}"
+                                style="object-fit: cover; height: 32px;">
+                        </span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end">
                         <!-- item-->
-                        <h6 class="dropdown-header">Chào mừng {{ auth()->user()->name ?? 'Admin Avatar' }}</h6>
+                        <h6 class="dropdown-header">Chào mừng {{ $adminUser?->name ?? 'Admin Avatar' }}</h6>
                         <a class="dropdown-item" href="{{ route('admin.profile.index') }}">
                             <i class="bx bx-user-circle text-muted fs-18 align-middle me-1"></i><span
                                 class="align-middle">Hồ sơ</span>
@@ -141,7 +147,7 @@
                         <form method="POST" action="{{ route('admin.logout') }}">
                             @csrf
                             <a class="dropdown-item text-danger" href="{{ route('admin.logout') }}"
-                               onclick="event.preventDefault(); this.closest('form').submit();">
+                                onclick="event.preventDefault(); this.closest('form').submit();">
                                 <i class="las la-power-off fs-18 me-1 align-text-bottom"></i> Đăng xuất
                             </a>
                         </form>
@@ -150,14 +156,14 @@
 
                 <!-- App Search-->
                 <form class="app-search d-none d-md-block ms-2" action="{{ route('admin.global.search') }}"
-                      method="GET">
+                    method="GET">
                     <div class="position-relative">
                         <input type="search"
-                               name="query"
-                               class="form-control"
-                               placeholder="Tìm kiếm sản phẩm, đơn đặt hàng, khách hàng..."
-                               autocomplete="off"
-                               value="{{ request('query') }}">
+                            name="query"
+                            class="form-control"
+                            placeholder="Tìm kiếm sản phẩm, đơn đặt hàng, khách hàng..."
+                            autocomplete="off"
+                            value="{{ request('query') }}">
                         <iconify-icon icon="solar:magnifer-linear" class="search-widget-icon"></iconify-icon>
                     </div>
                 </form>

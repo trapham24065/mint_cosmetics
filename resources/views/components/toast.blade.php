@@ -24,7 +24,7 @@ $toastItems[] = ['icon' => 'warning', 'title' => (string) session('warning')];
 if (!empty($toastStatusMessage)) {
 $toastItems[] = ['icon' => 'success', 'title' => (string) $toastStatusMessage];
 }
-if ($errors->any()) {
+if (isset($errors) && method_exists($errors, 'any') && $errors->any()) {
 $toastItems[] = ['icon' => 'error', 'title' => (string) $errors->first()];
 }
 @endphp

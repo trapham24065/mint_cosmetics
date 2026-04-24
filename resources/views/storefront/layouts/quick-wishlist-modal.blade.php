@@ -8,7 +8,8 @@
                         <i class="fa fa-times"></i>
                     </button>
                     <div class="modal-action-messages">
-                        <i class="fa fa-check-square-o"></i> Added to wishlist successfully!
+                        <i class="fa fa-check-square-o"></i>
+                        Đã thêm vào danh sách yêu thích thành công!
                     </div>
                     <div class="modal-action-product">
                         <div class="thumb">
@@ -18,7 +19,8 @@
                                  width="466"
                                  height="320">
                         </div>
-                        <h4 class="product-name"><a id="modal-product-name">Product wishlist</a></h4>
+                        <h4 class="product-name"><a id="modal-product-name">Danh sách yêu thích sản phẩm
+                            </a></h4>
                     </div>
                 </div>
             </div>

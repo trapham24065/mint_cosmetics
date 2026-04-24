@@ -1,10 +1,25 @@
 // Make the addToCart function globally accessible
 window.addToCart = function (variantId, quantity, buttonElement) {
 
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 4000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer);
+      toast.addEventListener('mouseleave', Swal.resumeTimer);
+    },
+  });
+
   const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
   if (!variantId || !quantity) {
-    alert('Could not determine product variant or quantity.');
+    Toast.fire({
+      icon: 'error',
+      title: 'Vui lòng chọn các tùy chọn sản phẩm trước.',
+    });
     return;
   }
 
@@ -46,12 +61,18 @@ window.addToCart = function (variantId, quantity, buttonElement) {
 
     } else {
       // If there is an error from the server, display a message
-      Swal.fire('Error', data.message || 'Could not add product to cart.', 'error');
+      Toast.fire({
+        icon: 'error',
+        title: data.message || 'Không thể thêm sản phẩm vào giỏ hàng.',
+      });
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    Swal.fire('Error', 'An unexpected error occurred.', 'error');
+    Toast.fire({
+      icon: 'error',
+      title: 'Đã xảy ra lỗi không mong muốn.',
+    });
   })
   .finally(() => {
     // Restore button state

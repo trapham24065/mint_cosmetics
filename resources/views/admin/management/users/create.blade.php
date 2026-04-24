@@ -6,7 +6,7 @@
             <div class="card-header">
                 <h2 class="card-title">Tạo tài khoản mới</h2>
             </div>
-            <form action="{{ route('admin.users.store') }}" method="POST">
+            <form action="{{ route('admin.users.store') }}" method="POST" autocomplete="off">
                 @include('admin.management.users._form', ['buttonText' => 'Tạo tài khoản'])
             </form>
         </div>

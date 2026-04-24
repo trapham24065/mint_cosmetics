@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Notifications\NewOrderNotification;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
+use RuntimeException;
 
 class PaymentController extends Controller
 {
@@ -126,7 +127,11 @@ class PaymentController extends Controller
         $validatedData['shipping_ward_code'] = $validatedData['ward_code'];
 
         // 3. Call the OrderService to create a new order in the database
-        $order = $this->orderService->createOrder($validatedData, $cartData);
+        try {
+            $order = $this->orderService->createOrder($validatedData, $cartData);
+        } catch (RuntimeException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
 
         try {
             $ghnOrder = $this->ghnService->createOrder($order, $validatedData, $weightGram);

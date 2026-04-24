@@ -18,7 +18,7 @@
                     <i class="fa fa-heart" aria-hidden="true"></i>
                 </div>
                 <div class="header-text">
-                    <h5>Mint Beauty Care</h5>
+                    <h5>Chăm sóc khách hàng</h5>
                     <span class="status">Trực tuyến</span>
                 </div>
             </div>

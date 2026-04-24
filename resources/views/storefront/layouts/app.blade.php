@@ -39,6 +39,24 @@
     <!-- SweetAlert2 CSS -->
 
 </head>
+<style>
+    /* Ẩn nút tăng giảm trên Chrome, Safari, Edge */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Ẩn trên Firefox */
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+
+    /* Căn giữa số */
+    .pro-qty input[type="number"] {
+        text-align: center;
+    }
+</style>
 
 <body>
     <!--== Wrapper Start ==-->
@@ -73,7 +91,7 @@
     <script src="{{asset('assets/storefront/js/main.js')}}"></script>
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{{asset('assets/storefront/js/cart.js')}}"></script>
+    <script src="{{ asset('assets/storefront/js/cart.js') }}?v={{ @filemtime(public_path('assets/storefront/js/cart.js')) }}"></script>
     <script src="{{ asset('assets/storefront/js/aside-cart.js') }}"></script>
     <script src="{{ asset('assets/storefront/js/chatbot.js') }}"></script>
     <script src="{{ asset('assets/storefront/js/wishlist.js') }}"></script>
@@ -83,6 +101,18 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                },
+            });
 
             // === QUICK VIEW LOGIC ===
             const quickViewModalElement = document.getElementById('action-QuickViewModal');
@@ -155,10 +185,9 @@
                     }
 
                     if (!variantId) {
-                        Swal.fire({
+                        Toast.fire({
                             icon: 'error',
-                            title: 'Lỗi',
-                            text: 'Vui lòng chọn các tùy chọn sản phẩm trước.',
+                            title: 'Vui lòng chọn các tùy chọn sản phẩm trước.',
                         });
                         return;
                     }
@@ -330,7 +359,7 @@
                         </div>
 
                         <div class="product-details-action">
-                            <h4 class="price mb-0" id="quickViewPrice" style="color: #e53637; font-size: 1.5rem; margin-bottom: 15px !important;">
+                            <h4 class="price mb-0" id="quickViewPrice" style="color: #e53637; font-size: 1.5rem; ">
                                 ${currentProductVariants.length === 1
                 ? formatPrice(currentProductVariants[0].price)
                 : 'Chọn các tùy chọn để xem giá'}
