@@ -1,4 +1,10 @@
 <!-- ========== App Menu Start ========== -->
+@php
+    $adminUser = auth()->user();
+    $isAdmin = $adminUser && method_exists($adminUser, 'isAdmin') && $adminUser->isAdmin();
+    $isSale = $adminUser && method_exists($adminUser, 'isSale') && $adminUser->isSale();
+    $isWarehouse = $adminUser && method_exists($adminUser, 'isWarehouse') && $adminUser->isWarehouse();
+@endphp
 <div class="main-nav">
     <!-- Sidebar Logo -->
     <div class="logo-box">
@@ -33,7 +39,7 @@
                 </a>
             </li>
 
-            @if(auth()->user()->isAdmin() || auth()->user()->isSale())
+            @if($isAdmin || $isSale)
                 <li class="nav-item">
                     <a class="nav-link menu-arrow" href="#sidebarProducts" data-bs-toggle="collapse"
                        role="button" aria-expanded="false" aria-controls="sidebarProducts">
@@ -55,7 +61,7 @@
                 </li>
             @endif
 
-            @if(auth()->user()->isAdmin() || auth()->user()->isSale())
+            @if($isAdmin || $isSale)
                 <li class="nav-item">
                     <a class="nav-link menu-arrow" href="#sidebarCategory" data-bs-toggle="collapse"
                        role="button" aria-expanded="false" aria-controls="sidebarCategory">
@@ -135,7 +141,7 @@
                     </div>
                 </li>
             @endif
-            @if(auth()->user()->isAdmin() || auth()->user()->isWarehouse())
+            @if($isAdmin || $isWarehouse)
                 <li class="nav-item">
                     <a class="nav-link menu-arrow" href="#sidebarSuppliers" data-bs-toggle="collapse"
                        role="button" aria-expanded="false" aria-controls="sidebarSuppliers">
@@ -175,7 +181,7 @@
                     </div>
                 </li>
             @endif
-            @if(auth()->user()->isAdmin() || auth()->user()->isSale())
+            @if($isAdmin || $isSale)
                 <li class="nav-item">
                     <a class="nav-link menu-arrow" href="#sidebarOrders" data-bs-toggle="collapse" role="button"
                        aria-expanded="false" aria-controls="sidebarOrders">
@@ -215,7 +221,7 @@
                     </div>
                 </li>
             @endif
-            @if(auth()->user()->isAdmin())
+            @if($isAdmin)
                 <li class="nav-item">
                     <a class="nav-link menu-arrow" href="#sidebarUsers" data-bs-toggle="collapse"
                        role="button" aria-expanded="false" aria-controls="sidebarUsers">
@@ -261,42 +267,46 @@
             {{-- </div>--}}
             {{-- </li>--}}
             <!-- ========== Blog Posts Menu End ========== -->
-            <li class="nav-item">
-                <a class="nav-link menu-arrow" href="#sidebarChatbot" data-bs-toggle="collapse"
-                   role="button" aria-expanded="false" aria-controls="sidebarChatbot">
+            @if($isAdmin || $isSale)
+                <li class="nav-item">
+                    <a class="nav-link menu-arrow" href="#sidebarChatbot" data-bs-toggle="collapse"
+                       role="button" aria-expanded="false" aria-controls="sidebarChatbot">
                     <span class="nav-icon">
                         <iconify-icon icon="solar:chat-round-bold-duotone"></iconify-icon>
                     </span>
-                    <span class="nav-text"> Tin nhắn tự động </span>
-                </a>
-                <div class="collapse" id="sidebarChatbot">
-                    <ul class="nav sub-navbar-nav">
-                        <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('admin.chatbot.index') }}">Câu trả lời nhanh</a>
-                        </li>
-                        {{-- Training Center has been disabled - keyword matching removed --}}
-                        {{-- <li class="sub-nav-item">
-                            <a class="sub-nav-link" href="{{ route('admin.chatbot-replies.index') }}">Training
-                        Center</a>
-            </li> --}}
-                    </ul>
-                </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('admin.chat.index') }}">
-                    <span class="nav-icon"><iconify-icon icon="solar:chat-line-bold-duotone"></iconify-icon></span>
-                    <span class="nav-text"> Trò chuyện hỗ trợ </span>
-                </a>
-            </li>
-            <li class="nav-item ">
-                <a class="nav-link " href="{{route('admin.reviews.index')}}">
+                        <span class="nav-text"> Tin nhắn tự động </span>
+                    </a>
+                    <div class="collapse" id="sidebarChatbot">
+                        <ul class="nav sub-navbar-nav">
+                            <li class="sub-nav-item">
+                                <a class="sub-nav-link" href="{{ route('admin.chatbot.index') }}">Câu trả lời nhanh</a>
+                            </li>
+                            {{-- Training Center has been disabled - keyword matching removed --}}
+                            {{-- <li class="sub-nav-item">
+                                <a class="sub-nav-link" href="{{ route('admin.chatbot-replies.index') }}">Training
+                            Center</a>
+                </li> --}}
+                        </ul>
+                    </div>
+                </li>
+            @endif
+            @if($isAdmin || $isSale)
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('admin.chat.index') }}">
+                        <span class="nav-icon"><iconify-icon icon="solar:chat-line-bold-duotone"></iconify-icon></span>
+                        <span class="nav-text"> Trò chuyện hỗ trợ </span>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link " href="{{route('admin.reviews.index')}}">
             <span class="nav-icon">
                 <iconify-icon icon="solar:chat-square-like-bold-duotone"></iconify-icon>
             </span>
-                    <span class="nav-text"> Đánh giá </span>
-                </a>
-            </li>
-            @if(auth()->user()->isAdmin() )
+                        <span class="nav-text"> Đánh giá </span>
+                    </a>
+                </li>
+            @endif
+            @if($isAdmin)
                 <li class="nav-item ">
                     <a class="nav-link " href="{{route('admin.settings.index')}}">
             <span class="nav-icon">

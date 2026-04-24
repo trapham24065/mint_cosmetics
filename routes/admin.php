@@ -43,7 +43,7 @@ use Illuminate\Support\Facades\Route;
 | Prefix: 'admin', Middleware: 'auth' (Applied globally)
 */
 
-require __DIR__ . '/api.php';
+require __DIR__.'/api.php';
 
 // --- Dashboard ---
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -106,17 +106,21 @@ Route::middleware(['role:admin,sale'])->group(function () {
         Route::put('/{review}/reject', 'reject')->name('reject');
         Route::delete('/{review}', 'destroy')->name('destroy');
     });
-});
-
 // --- Chatbot System ---
 // Chatbot Rules (Converted manual routes to Resource)
-Route::resource('chatbot', ChatbotController::class)->except(['show']);
+    Route::resource('chatbot', ChatbotController::class)->except(['show']);
 
 // Chatbot Replies & Keywords
-Route::resource('chatbot-replies', ChatbotReplyController::class);
-Route::controller(ChatbotReplyController::class)->group(function () {
-    Route::post('chatbot-replies/{reply}/keywords', 'storeKeyword')->name('chatbot-replies.keywords.store');
-    Route::delete('chatbot-keywords/{keyword}', 'destroyKeyword')->name('chatbot-keywords.destroy');
+    Route::resource('chatbot-replies', ChatbotReplyController::class);
+    Route::controller(ChatbotReplyController::class)->group(function () {
+        Route::post('chatbot-replies/{reply}/keywords', 'storeKeyword')->name('chatbot-replies.keywords.store');
+        Route::delete('chatbot-keywords/{keyword}', 'destroyKeyword')->name('chatbot-keywords.destroy');
+    });
+    Route::controller(AdminChatController::class)->prefix('chat')->name('chat.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/{conversation}/reply', 'reply')->name('reply');
+        Route::get('/{conversation}/fetch', 'fetchMessages')->name('fetch');
+    });
 });
 
 // --- Scraper ---
@@ -152,12 +156,6 @@ Route::middleware(['role:admin'])->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'update')->name('update');
     });
-});
-
-Route::controller(AdminChatController::class)->prefix('chat')->name('chat.')->group(function () {
-    Route::get('/', 'index')->name('index');
-    Route::post('/{conversation}/reply', 'reply')->name('reply');
-    Route::get('/{conversation}/fetch', 'fetchMessages')->name('fetch');
 });
 
 // Warehouse Management (Admin & Warehouse)

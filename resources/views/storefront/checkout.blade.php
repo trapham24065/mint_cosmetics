@@ -37,10 +37,6 @@
 </style>
 <section class="shopping-checkout-wrap section-space">
     <div class="container">
-        @if (session('error'))
-        <div class="alert alert-danger mb-4">{{ session('error') }}</div>
-        @endif
-
         <form
             action="{{ route('customer.checkout.placeOrder') }}"
             method="post"

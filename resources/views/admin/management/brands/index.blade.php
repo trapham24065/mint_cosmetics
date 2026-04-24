@@ -62,7 +62,18 @@
                             }
                         },
                         { id: 'name', name: 'Tên' },
-                        { id: 'slug', name: 'Đường dẫn' },
+                        {
+                            id: 'slug',
+                            name: 'Đường dẫn',
+                            formatter: (cell) => {
+                                if (!cell) {
+                                    return '-';
+                                }
+
+                                const brandUrl = `{{ route('shop') }}?brand=${encodeURIComponent(cell)}`;
+                                return gridjs.html(`<a href="${brandUrl}" target="_blank" rel="noopener noreferrer">${cell}</a>`);
+                            }
+                        },
                         {
                             id: 'is_active',
                             name: 'Trạng thái',

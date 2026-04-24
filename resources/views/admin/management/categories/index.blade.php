@@ -88,7 +88,18 @@
                             }
                         },
                         { id: 'name', name: 'Tên' },
-                        { id: 'slug', name: 'Slug' },
+                        {
+                            id: 'slug',
+                            name: 'Slug',
+                            formatter: (cell) => {
+                                if (!cell) {
+                                    return '-';
+                                }
+
+                                const categoryUrl = `{{ route('shop') }}?category=${encodeURIComponent(cell)}`;
+                                return gridjs.html(`<a href="${categoryUrl}" target="_blank" rel="noopener noreferrer">${cell}</a>`);
+                            }
+                        },
                         {
                             id: 'is_active',
                             name: 'Trạng thái',
