@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
-use App\Models\Customer;
 use App\Models\Order;
 use App\Services\Storefront\GhnService;
 use App\Services\Storefront\CartService;
@@ -42,8 +41,12 @@ class PaymentController extends Controller
 
     protected GhnService $ghnService;
 
-    public function __construct(CartService $cartService, OrderService $orderService, PaymentService $paymentService, GhnService $ghnService)
-    {
+    public function __construct(
+        CartService $cartService,
+        OrderService $orderService,
+        PaymentService $paymentService,
+        GhnService $ghnService
+    ) {
         $this->cartService = $cartService;
         $this->orderService = $orderService;
         $this->paymentService = $paymentService;
@@ -60,34 +63,41 @@ class PaymentController extends Controller
     public function placeOrder(Request $request): RedirectResponse
     {
         if (!Auth::guard('customer')->check()) {
-            return redirect()->route('customer.login')->with('error', 'Please login to place an order.');
+            return redirect()->route('customer.login')->with(
+                'error',
+                'Vui lòng đăng nhập để đặt hàng.'
+            );
         }
         // 1. Validate customer information from the checkout form
         $validatedData = $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name'  => ['required', 'string', 'max:255'],
-            'address'    => ['required', 'string'],
-            'phone'      => ['required', 'string'],
-            'email'      => ['required', 'email'],
-            'province_id' => ['required', 'integer'],
-            'district_id' => ['required', 'integer'],
-            'ward_code'   => ['required', 'string', 'max:50'],
+            'first_name'    => ['required', 'string', 'max:255'],
+            'last_name'     => ['required', 'string', 'max:255'],
+            'address'       => ['required', 'string'],
+            'phone'         => ['required', 'string'],
+            'email'         => ['required', 'email', 'max:255'],
+            'province_id'   => ['required', 'integer'],
+            'district_id'   => ['required', 'integer'],
+            'ward_code'     => ['required', 'string', 'max:50'],
             'province_name' => ['nullable', 'string', 'max:255'],
             'district_name' => ['nullable', 'string', 'max:255'],
             'ward_name'     => ['nullable', 'string', 'max:255'],
-            'notes'      => ['nullable', 'string'],
+            'notes'         => ['nullable', 'string'],
         ]);
 
         // 2. Get cart contents from the service
         $cartData = $this->cartService->getCartContents();
         if (empty($cartData['items'])) {
-            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+            return redirect()->route('cart.index')->with('error', 'Giỏ hàng của bạn trống.');
         }
 
         try {
             $weightGram = $this->ghnService->estimateWeight($cartData['items']);
-            $feeData = $this->ghnService->calculateFee((int) $validatedData['district_id'], (string) $validatedData['ward_code'], $weightGram);
-            $shippingFee = (float) ($feeData['total'] ?? 0);
+            $feeData = $this->ghnService->calculateFee(
+                (int)$validatedData['district_id'],
+                (string)$validatedData['ward_code'],
+                $weightGram
+            );
+            $shippingFee = (float)($feeData['total'] ?? 0);
         } catch (\Throwable $e) {
             Log::error('Failed to calculate GHN shipping fee: ' . $e->getMessage());
             return back()->withInput()->with('error', 'Không thể tính phí vận chuyển GHN sandbox. Vui lòng thử lại.');
@@ -96,27 +106,8 @@ class PaymentController extends Controller
         $customerId = Auth::guard('customer')->id();
         $customer = Auth::guard('customer')->user();
 
-        if ($customer instanceof Customer) {
-            $city = implode(', ', array_filter([
-                $validatedData['ward_name'] ?? null,
-                $validatedData['district_name'] ?? null,
-                $validatedData['province_name'] ?? null,
-            ]));
-
-            $customer->update([
-                'first_name' => $validatedData['first_name'],
-                'last_name'  => $validatedData['last_name'],
-                'email'      => $validatedData['email'],
-                'phone'      => $validatedData['phone'],
-                'address'    => $validatedData['address'],
-                'city'       => $city !== '' ? $city : $customer->city,
-                'shipping_province_id' => $validatedData['province_id'],
-                'shipping_district_id' => $validatedData['district_id'],
-                'shipping_ward_code'   => $validatedData['ward_code'],
-                'shipping_province_name' => $validatedData['province_name'] ?? null,
-                'shipping_district_name' => $validatedData['district_name'] ?? null,
-                'shipping_ward_name' => $validatedData['ward_name'] ?? null,
-            ]);
+        if (!$customer) {
+            return back()->withInput()->with('error', 'Không tìm thấy thông tin tài khoản đặt hàng.');
         }
 
         $validatedData['customer_id'] = $customerId;
@@ -137,7 +128,7 @@ class PaymentController extends Controller
             $ghnOrder = $this->ghnService->createOrder($order, $validatedData, $weightGram);
             $order->forceFill([
                 'ghn_order_code' => $ghnOrder['order_code'] ?? $ghnOrder['orderCode'] ?? null,
-                'ghn_response' => $ghnOrder,
+                'ghn_response'   => $ghnOrder,
             ])->save();
         } catch (\Throwable $e) {
             Log::warning('GHN sandbox shipping order creation failed: ' . $e->getMessage());
@@ -181,11 +172,12 @@ class PaymentController extends Controller
         $hasValidAbsoluteSignature = URL::hasValidSignature($request, absolute: true);
 
         if (!$hasValidRelativeSignature && !$hasValidAbsoluteSignature) {
-            abort(403, 'Invalid or expired payment link.');
+            abort(403, 'Liên kết thanh toán không hợp lệ hoặc đã hết hạn.');
         }
 
-        if ($order->customer_id !== Auth::guard('customer')->id()) {
-            abort(403, 'Unauthorized action.');
+        $customerId = Auth::guard('customer')->id();
+        if ($customerId !== null && (int)$order->customer_id !== (int)$customerId) {
+            abort(403, 'Hành vi trái phép.');
         }
 
         $qrString = $this->paymentService->generateVietQrString($order);
@@ -213,11 +205,15 @@ class PaymentController extends Controller
         $hasValidAbsoluteSignature = URL::hasValidSignature($request, absolute: true);
 
         if (!$hasValidRelativeSignature && !$hasValidAbsoluteSignature) {
-            abort(403, 'Invalid or expired payment link.');
+            abort(
+                403,
+                'Liên kết thanh toán không hợp lệ hoặc đã hết hạn.'
+            );
         }
 
-        if ($order->customer_id !== Auth::guard('customer')->id()) {
-            abort(403);
+        $customerId = Auth::guard('customer')->id();
+        if ($customerId !== null && (int)$order->customer_id !== (int)$customerId) {
+            abort(403, 'Hành vi trái phép.');
         }
 
         $order->load('items');

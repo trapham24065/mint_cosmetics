@@ -258,7 +258,8 @@ $errors->has('phone') ||
                                                 <label for="email" class="required">Địa chỉ email
                                                 </label>
                                                 <input type="email" id="email" name="email"
-                                                       value="{{ old('email', $customer->email) }}" required />
+                                                       value="{{ old('email', $customer->email) }}"
+                                                       autocomplete="email" required />
                                                 @error('email') <span
                                                     class="text-danger small">{{ $message }}</span> @enderror
                                             </div>
@@ -270,7 +271,8 @@ $errors->has('phone') ||
                                                     <label for="current_password" class="required">Mật khẩu hiện
                                                         tại</label>
                                                     <input type="password" id="current_password"
-                                                           name="current_password" />
+                                                           name="current_password"
+                                                           autocomplete="current-password" />
                                                     @error('current_password') <span
                                                         class="text-danger small">{{ $message }}</span> @enderror
                                                 </div>
@@ -280,7 +282,8 @@ $errors->has('phone') ||
                                                             <label for="new_password" class="required">Mật khẩu
                                                                 mới</label>
                                                             <input type="password" id="new_password"
-                                                                   name="new_password" />
+                                                                   name="new_password"
+                                                                   autocomplete="new-password" />
                                                             @error('new_password') <span
                                                                 class="text-danger small">{{ $message }}</span> @enderror
                                                         </div>
@@ -290,7 +293,8 @@ $errors->has('phone') ||
                                                             <label for="new_password_confirmation" class="required">Nhập
                                                                 lại mật khẩu</label>
                                                             <input type="password" id="new_password_confirmation"
-                                                                   name="new_password_confirmation" />
+                                                                   name="new_password_confirmation"
+                                                                   autocomplete="new-password" />
                                                         </div>
                                                     </div>
                                                 </div>
