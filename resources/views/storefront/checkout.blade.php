@@ -110,6 +110,7 @@
                                         <label>Địa chỉ email<abbr class="required">*</abbr></label>
                                         <input name="email" type="email" class="form-control"
                                             value="{{ old('email', $customer->email ?? '') }}" required>
+                                        <small class="text-muted">Email này chỉ áp dụng cho đơn hàng hiện tại, không thay đổi tài khoản của bạn.</small>
                                     </div>
                                 </div>
 
@@ -361,14 +362,26 @@
                 });
             }
 
-            // Khởi tạo Select2 cho tất cả
-            if (!provinceSelect.hasClass("select2-hidden-accessible")) {
+            // Khởi tạo Select2 nếu thư viện đã tải thành công.
+            if (typeof $.fn.select2 === 'function' && !provinceSelect.hasClass('select2-hidden-accessible')) {
                 $('.select2-shipping').select2({
                     width: '100%',
-                    placeholder: "Chọn thông tin"
+                    placeholder: 'Chọn thông tin',
                 });
             }
             const normalize = (res) => Array.isArray(res) ? res : (res.data || []);
+            const getProvince = (item) => ({
+                id: item?.ProvinceID ?? item?.province_id ?? item?.id ?? '',
+                name: item?.ProvinceName ?? item?.province_name ?? item?.name ?? '',
+            });
+            const getDistrict = (item) => ({
+                id: item?.DistrictID ?? item?.district_id ?? item?.id ?? '',
+                name: item?.DistrictName ?? item?.district_name ?? item?.name ?? '',
+            });
+            const getWard = (item) => ({
+                code: item?.WardCode ?? item?.ward_code ?? item?.code ?? '',
+                name: item?.WardName ?? item?.ward_name ?? item?.name ?? '',
+            });
 
             // ===== 1. TẢI TỈNH THÀNH =====
             const loadProvinces = async () => {
@@ -378,15 +391,20 @@
                     const items = normalize(data);
 
                     provinceSelect.empty().append('<option value="">Chọn tỉnh/thành phố</option>');
-                    items.forEach(p => {
-                        provinceSelect.append(`<option value="${p.ProvinceID}">${p.ProvinceName}</option>`);
+                    items.forEach(item => {
+                        const province = getProvince(item);
+                        if (!province.id || !province.name) return;
+                        provinceSelect.append(`<option value="${province.id}">${province.name}</option>`);
                     });
 
                     if (defaultProvinceId) {
                         provinceSelect.val(defaultProvinceId).trigger('change');
                     }
 
-                } catch (e) { console.error("Lỗi tỉnh:", e); }
+                } catch (e) {
+                    console.error('Lỗi tỉnh:', e);
+                    Toast.fire({ icon: 'error', title: 'Không tải được danh sách tỉnh/thành.' });
+                }
             };
 
             // ===== 2. TẢI QUẬN HUYỆN =====
@@ -400,20 +418,26 @@
                 districtSelect.prop('disabled', true).empty().append('<option value="">Đang tải...</option>').trigger('change');
 
                 try {
-                    const res = await fetch(`${form.dataset.districtsUrl}?province_id=${provinceId}`);
+                    const res = await fetch(`${form.dataset.districtsUrl}?province_id=${encodeURIComponent(provinceId)}`);
                     const data = await res.json();
                     const items = normalize(data);
 
                     districtSelect.empty().append('<option value="">Chọn quận/huyện</option>');
-                    items.forEach(d => {
-                        districtSelect.append(`<option value="${d.DistrictID}">${d.DistrictName}</option>`);
+                    items.forEach(item => {
+                        const district = getDistrict(item);
+                        if (!district.id || !district.name) return;
+                        districtSelect.append(`<option value="${district.id}">${district.name}</option>`);
                     });
                     districtSelect.prop('disabled', false);
 
                     if (defaultDistrictId && String(provinceId) === String(defaultProvinceId)) {
                         districtSelect.val(defaultDistrictId);
                     }
-                } catch (e) { console.error("Lỗi huyện:", e); }
+                } catch (e) {
+                    console.error('Lỗi huyện:', e);
+                    districtSelect.empty().append('<option value="">Không tải được quận/huyện</option>').prop('disabled', true);
+                    Toast.fire({ icon: 'error', title: 'Không tải được danh sách quận/huyện.' });
+                }
                 districtSelect.trigger('change');
             };
 
@@ -427,20 +451,26 @@
                 wardSelect.prop('disabled', true).empty().append('<option value="">Đang tải...</option>').trigger('change');
 
                 try {
-                    const res = await fetch(`${form.dataset.wardsUrl}?district_id=${districtId}`);
+                    const res = await fetch(`${form.dataset.wardsUrl}?district_id=${encodeURIComponent(districtId)}`);
                     const data = await res.json();
                     const items = normalize(data);
 
                     wardSelect.empty().append('<option value="">Chọn phường/xã</option>');
-                    items.forEach(w => {
-                        wardSelect.append(`<option value="${w.WardCode}">${w.WardName}</option>`);
+                    items.forEach(item => {
+                        const ward = getWard(item);
+                        if (!ward.code || !ward.name) return;
+                        wardSelect.append(`<option value="${ward.code}">${ward.name}</option>`);
                     });
                     wardSelect.prop('disabled', false);
 
                     if (defaultWardCode && String(districtId) === String(defaultDistrictId)) {
                         wardSelect.val(defaultWardCode);
                     }
-                } catch (e) { console.error("Lỗi xã:", e); }
+                } catch (e) {
+                    console.error('Lỗi xã:', e);
+                    wardSelect.empty().append('<option value="">Không tải được phường/xã</option>').prop('disabled', true);
+                    Toast.fire({ icon: 'error', title: 'Không tải được danh sách phường/xã.' });
+                }
                 wardSelect.trigger('change');
             };
 
