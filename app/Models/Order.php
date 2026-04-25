@@ -37,6 +37,7 @@ class Order extends Model
         'discount_amount',
         'shipping_fee',
         'shipping_provider',
+        'payment_token',
         'shipping_province_id',
         'shipping_district_id',
         'shipping_ward_code',

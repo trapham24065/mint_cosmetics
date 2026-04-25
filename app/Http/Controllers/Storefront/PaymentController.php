@@ -23,7 +23,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\NewOrderNotification;
 use App\Models\User;
@@ -152,10 +151,11 @@ class PaymentController extends Controller
         // 4. Clear the cart after the order is created (both session and database)
         $this->cartService->clear();
 
-        // 5. Redirect the user to the payment page with the new order ID
-        $signedUrl = URL::signedRoute('payment.show', ['order' => $order->id], absolute: false);
-
-        return redirect($signedUrl);
+        // 5. Redirect the user to the payment page with a per-order payment token
+        return redirect()->route('payment.show', [
+            'order' => $order->id,
+            'token' => $order->payment_token,
+        ]);
     }
 
     /**
@@ -167,11 +167,8 @@ class PaymentController extends Controller
      */
     public function showPaymentPage(Order $order): View
     {
-        $request = request();
-        $hasValidRelativeSignature = URL::hasValidSignature($request, absolute: false);
-        $hasValidAbsoluteSignature = URL::hasValidSignature($request, absolute: true);
-
-        if (!$hasValidRelativeSignature && !$hasValidAbsoluteSignature) {
+        $token = (string) request()->query('token', '');
+        if ($token === '' || !hash_equals((string)$order->payment_token, $token)) {
             abort(403, 'Liên kết thanh toán không hợp lệ hoặc đã hết hạn.');
         }
 
@@ -200,15 +197,9 @@ class PaymentController extends Controller
 
     public function thankYou(Order $order): View
     {
-        $request = request();
-        $hasValidRelativeSignature = URL::hasValidSignature($request, absolute: false);
-        $hasValidAbsoluteSignature = URL::hasValidSignature($request, absolute: true);
-
-        if (!$hasValidRelativeSignature && !$hasValidAbsoluteSignature) {
-            abort(
-                403,
-                'Liên kết thanh toán không hợp lệ hoặc đã hết hạn.'
-            );
+        $token = (string) request()->query('token', '');
+        if ($token === '' || !hash_equals((string)$order->payment_token, $token)) {
+            abort(403, 'Liên kết thanh toán không hợp lệ hoặc đã hết hạn.');
         }
 
         $customerId = Auth::guard('customer')->id();
