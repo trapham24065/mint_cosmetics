@@ -74,13 +74,19 @@ class CustomerOrderController extends Controller
         }
 
         $isCompleted = $order->status === OrderStatus::Completed;
+        $returnDays = (int)config('orders.return_days', 7);
+        $completedAt = $order->completed_at ?? $order->created_at;
+        $returnDeadline = $completedAt?->copy()->addDays($returnDays);
+        $isReturnWindowExpired = $isCompleted && (!$returnDeadline || now()->greaterThan($returnDeadline));
 
         return view('storefront.customer.order-detail', compact(
             'order',
             'returnedQtyByItem',
             'lockedQtyByItem',
             'hasReturnableItems',
-            'isCompleted'
+            'isCompleted',
+            'isReturnWindowExpired',
+            'returnDays'
         ));
     }
 
@@ -110,6 +116,13 @@ class CustomerOrderController extends Controller
         // Check if order is completed
         if ($order->status !== \App\Enums\OrderStatus::Completed) {
             return back()->with('error', 'Chỉ có thể yêu cầu trả hàng cho đơn hàng đã hoàn thành.');
+        }
+
+        $returnDays = (int)config('orders.return_days', 7);
+        $completedAt = $order->completed_at ?? $order->created_at;
+        $returnDeadline = $completedAt?->copy()->addDays($returnDays);
+        if (!$returnDeadline || now()->greaterThan($returnDeadline)) {
+            return back()->with('error', "Đơn hàng đã quá hạn {$returnDays} ngày để yêu cầu trả hàng.");
         }
 
         // Check if already has return request

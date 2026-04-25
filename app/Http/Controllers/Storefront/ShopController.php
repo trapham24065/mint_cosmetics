@@ -168,11 +168,11 @@ class ShopController extends Controller
         try {
             // Eager-load the first variant to get price info
             $product->load(['variants.attributeValues.attribute', 'category', 'brand']);
-            $product->loadCount('reviews');
-            $product->loadAvg('reviews', 'rating');
+            $product->loadCount('approvedReviews');
+            $product->loadAvg('approvedReviews', 'rating');
             $data = $product->toArray();
 
-            $data['rating'] = $product->reviews_avg_rating ?? 0;
+            $data['rating'] = $product->approved_reviews_avg_rating ?? 0;
 
             return response()->json($data);
         } catch (Exception $e) {

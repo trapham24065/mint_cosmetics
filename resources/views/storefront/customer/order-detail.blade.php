@@ -196,7 +196,7 @@
                                     @if($order->status === \App\Enums\OrderStatus::Completed)
                                     <tr class="review-row">
                                         <td colspan="4" class="ps-4 pe-4 pb-4">
-                                            @if($item->review)
+                                            @if($item->review && $item->review->is_public_visible)
                                             <div class="review-box">
                                                 <div class="review-header">
                                                     <div class="review-stars">
@@ -312,7 +312,12 @@
                         @endif
 
                         @if($isCompleted)
-                        @if($hasReturnableItems)
+                        @if($isReturnWindowExpired)
+                        <div class="alert alert-warning mb-0">
+                            <i class="fa fa-clock-o me-2"></i>
+                            Đơn hàng đã quá hạn {{ $returnDays }} ngày kể từ lúc hoàn thành nên không thể gửi yêu cầu trả hàng.
+                        </div>
+                        @elseif($hasReturnableItems)
                         <button
                             type="button"
                             class="btn btn-primary w-100 py-3 fw-bold shadow-sm rounded-pill d-flex justify-content-center align-items-center gap-2"

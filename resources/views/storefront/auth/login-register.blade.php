@@ -43,8 +43,10 @@
 
                                     <div class="form-group mb-6">
                                         <label for="login_pwsd">Mật khẩu <sup>*</sup></label>
-                                        <input type="password" id="login_pwsd" name="password" required
-                                               autocomplete="current-password">
+                                        <input type="password"
+                                               name="current_password"
+                                               readonly
+                                               onfocus="this.removeAttribute('readonly');">
                                         @error('password')
                                         <span class="text-danger small">{{ $message }}</span>
                                         @enderror

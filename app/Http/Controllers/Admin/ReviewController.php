@@ -66,6 +66,8 @@ class ReviewController extends Controller
                 'rating'        => $review->rating,
                 'review'        => \Illuminate\Support\Str::limit($review->review, 100),
                 'is_approved'   => $review->is_approved,
+                'is_public_visible' => (bool)$review->is_public_visible,
+                'hidden_reason' => $review->hidden_reason,
             ];
         });
 
