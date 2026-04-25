@@ -41,15 +41,24 @@
                         {
                             id: 'is_approved',
                             name: 'Trạng thái',
-                            formatter: (cell) => cell
-                                ? gridjs.html('<span class="badge bg-success">Đồng ý</span>')
-                                : gridjs.html('<span class="badge bg-warning">Chưa giải quyết</span>')
+                            formatter: (cell, row) => {
+                                const isPublicVisible = row.cells[6].data;
+                                const hiddenReason = row.cells[7].data;
+
+                                if (!isPublicVisible && hiddenReason === 'return_refunded') {
+                                    return gridjs.html('<span class="badge bg-danger">Đánh giá đã ẩn do hoàn trả</span>');
+                                }
+
+                                return cell
+                                    ? gridjs.html('<span class="badge bg-success">Đồng ý</span>')
+                                    : gridjs.html('<span class="badge bg-warning">Chưa giải quyết</span>');
+                            }
                         },
                         {
                             name: 'Hành động',
                             sort: false,
                             formatter: (cell, row) => {
-                                const reviewId = row.cells[6].data;
+                                const reviewId = row.cells[8].data;
                                 const isApproved = row.cells[4].data;
                                 const reviewProductName = row.cells[0].data;
 
@@ -84,6 +93,8 @@
                                 return gridjs.html(`<div class="d-flex gap-2">${approveOrRejectButton} ${deleteButton}</div>`);
                             }
                         },
+                        { id: 'is_public_visible', name: 'Public Visible', hidden: true },
+                        { id: 'hidden_reason', name: 'Hidden Reason', hidden: true },
                         { id: 'id', name: 'ID', hidden: true }
                     ],
                     server: {
@@ -95,6 +106,8 @@
                             review.review,
                             review.is_approved,
                             null, // Placeholder cho Actions
+                            review.is_public_visible,
+                            review.hidden_reason,
                             review.id
                         ])
                     },

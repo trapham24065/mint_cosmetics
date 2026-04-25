@@ -122,7 +122,7 @@ class Product extends Model
         while (self::where('slug', $slug)->when($exceptId, function ($query) use ($exceptId) {
             return $query->where('id', '!=', $exceptId);
         })->exists()) {
-            $slug = $baseSlug.'-'.$counter;
+            $slug = $baseSlug . '-' . $counter;
             $counter++;
         }
 
@@ -136,7 +136,9 @@ class Product extends Model
 
     public function approvedReviews(): HasMany
     {
-        return $this->hasMany(Review::class)->where('is_approved', true);
+        return $this->hasMany(Review::class)
+            ->where('is_approved', true)
+            ->where('is_public_visible', true);
     }
 
     /**
@@ -156,5 +158,4 @@ class Product extends Model
     {
         return $this->approvedReviews()->count();
     }
-
 }

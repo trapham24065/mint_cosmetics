@@ -24,6 +24,9 @@ class Review extends Model
         'media',
         'review',
         'is_approved',
+        'is_public_visible',
+        'hidden_reason',
+        'hidden_at',
     ];
 
     /**
@@ -32,9 +35,27 @@ class Review extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'is_approved' => 'boolean',
-        'media'       => 'array',
+        'is_approved'       => 'boolean',
+        'is_public_visible' => 'boolean',
+        'media'             => 'array',
+        'hidden_at'         => 'datetime',
     ];
+
+    public function scopePublicVisible($query)
+    {
+        return $query
+            ->where('is_approved', true)
+            ->where('is_public_visible', true);
+    }
+
+    public function hideFromPublic(string $reason = 'return_refunded'): void
+    {
+        $this->forceFill([
+            'is_public_visible' => false,
+            'hidden_reason'     => $reason,
+            'hidden_at'         => now(),
+        ])->save();
+    }
 
     /**
      * Get the product that the review belongs to.
@@ -48,5 +69,4 @@ class Review extends Model
     {
         return $this->belongsTo(OrderItem::class);
     }
-
 }

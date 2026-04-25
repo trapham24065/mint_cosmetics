@@ -17,9 +17,7 @@ use Illuminate\View\View;
 class ReturnRequestController extends Controller
 {
 
-    public function __construct(private readonly OrderReturnService $returnService)
-    {
-    }
+    public function __construct(private readonly OrderReturnService $returnService) {}
 
     public function create(Order $order): View|RedirectResponse
     {
@@ -87,9 +85,10 @@ class ReturnRequestController extends Controller
         }
 
         $returnDays = (int)config('orders.return_days', 7);
-        $completedAt = $order->completed_at ?? $order->updated_at;
+        $completedAt = $order->completed_at ?? $order->created_at;
+        $returnDeadline = $completedAt?->copy()->addDays($returnDays);
 
-        if (!$completedAt || now()->diffInDays($completedAt) > $returnDays) {
+        if (!$returnDeadline || now()->greaterThan($returnDeadline)) {
             return "Đơn hàng đã quá hạn {$returnDays} ngày để yêu cầu trả hàng.";
         }
 
@@ -207,5 +206,4 @@ class ReturnRequestController extends Controller
 
         return $paths;
     }
-
 }

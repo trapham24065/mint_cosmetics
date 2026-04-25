@@ -102,6 +102,8 @@ class OrderReturnService
         try {
             DB::beginTransaction();
 
+            $return->loadMissing('items.orderItem.review');
+
             // Cộng lại stock cho các sản phẩm
             foreach ($return->items as $returnItem) {
                 $orderItem = $returnItem->orderItem;
@@ -111,6 +113,11 @@ class OrderReturnService
                     if ($variant) {
                         $variant->increment('stock', $returnItem->quantity);
                     }
+                }
+
+                // Giữ dữ liệu review để audit, nhưng ẩn khỏi public sau khi đã hoàn trả.
+                if ($orderItem && $orderItem->review && $orderItem->review->is_public_visible) {
+                    $orderItem->review->hideFromPublic('return_refunded');
                 }
             }
 
