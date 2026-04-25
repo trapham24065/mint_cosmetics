@@ -16,6 +16,7 @@ use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class OrderService
 {
@@ -51,6 +52,7 @@ class OrderService
                 'total_price'     => $totalPrice,
                 'status'          => OrderStatus::Pending,
                 'payment_method'  => 'bank_transfer_qr',
+                'payment_token'   => Str::random(64),
                 'first_name'      => $customerData['first_name'],
                 'last_name'       => $customerData['last_name'],
                 'address'         => $customerData['address'],

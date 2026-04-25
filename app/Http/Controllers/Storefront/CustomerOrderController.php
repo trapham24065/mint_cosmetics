@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 class CustomerOrderController extends Controller
 {
@@ -28,6 +29,12 @@ class CustomerOrderController extends Controller
     {
         if ($order->customer_id !== Auth::guard('customer')->id()) {
             abort(403, 'You do not have permission to view this order.');
+        }
+
+        if ($order->status === OrderStatus::Pending && empty($order->payment_token)) {
+            $order->forceFill([
+                'payment_token' => Str::random(64),
+            ])->save();
         }
 
         $order->load(['items.product', 'items.productVariant', 'items.review', 'returns.items']);
