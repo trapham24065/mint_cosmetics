@@ -16,12 +16,14 @@
 
     {{-- Bootstrap Modal --}}
     <div class="modal fade" id="confirmUserDeletionModal" tabindex="-1" aria-labelledby="confirmUserDeletionModalLabel"
-         aria-hidden="true">
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+                <form method="post" action="{{ route('profile.destroy') }}" class="p-6" autocomplete="off">
                     @csrf
                     @method('delete')
+                    <input type="text" name="delete_account_fake_username" autocomplete="username" class="d-none" tabindex="-1" aria-hidden="true">
+                    <input type="password" name="delete_account_fake_password" autocomplete="new-password" class="d-none" tabindex="-1" aria-hidden="true">
 
                     <div class="modal-header">
                         <h5 class="modal-title text-lg font-medium text-gray-900 dark:text-gray-100"
@@ -49,15 +51,17 @@
                                 type="password"
                                 class="form-control mt-1 block w-3/4"
                                 placeholder="{{ __('Password') }}"
-                            />
+                                autocomplete="current-password"
+                                readonly
+                                onfocus="this.removeAttribute('readonly');" />
 
                             {{-- REPLACED x-input-error --}}
                             @if($errors->userDeletion->get('password'))
-                                <ul class="mt-2 text-sm text-danger space-y-1">
-                                    @foreach ((array) $errors->userDeletion->get('password') as $message)
-                                        <li>{{ $message }}</li>
-                                    @endforeach
-                                </ul>
+                            <ul class="mt-2 text-sm text-danger space-y-1">
+                                @foreach ((array) $errors->userDeletion->get('password') as $message)
+                                <li>{{ $message }}</li>
+                                @endforeach
+                            </ul>
                             @endif
                         </div>
                     </div>
@@ -81,10 +85,10 @@
 
 {{-- Script để tự động mở modal nếu có lỗi validation (giữ UX giống Breeze) --}}
 @if($errors->userDeletion->isNotEmpty())
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var myModal = new bootstrap.Modal(document.getElementById('confirmUserDeletionModal'));
-            myModal.show();
-        });
-    </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var myModal = new bootstrap.Modal(document.getElementById('confirmUserDeletionModal'));
+        myModal.show();
+    });
+</script>
 @endif

@@ -61,16 +61,26 @@ class ChatController extends Controller
         return response()->json([
             'success'   => true,
             'message'   => [
-                'id'         => $message->id,
-                'body'       => $message->body,
-                'created_at' => $message->created_at->format('H:i'),
-                'is_me'      => true,
+                'id'              => $message->id,
+                'body'            => $message->body,
+                'created_at'      => $message->created_at->format('H:i'),
+                'created_at_raw'  => $message->created_at->toIso8601String(),
+                'created_at_date' => $message->created_at->format('Y-m-d'),
+                'created_at_label' => $message->created_at->isToday()
+                    ? 'Hôm nay'
+                    : ($message->created_at->isYesterday() ? 'Hôm qua' : $message->created_at->format('d/m/Y')),
+                'is_me'           => true,
             ],
             'bot_reply' => $botMessage ? [
-                'id'         => $botMessage->id,
-                'body'       => $botMessage->body,
-                'created_at' => $botMessage->created_at->format('H:i'),
-                'is_me'      => false,
+                'id'              => $botMessage->id,
+                'body'            => $botMessage->body,
+                'created_at'      => $botMessage->created_at->format('H:i'),
+                'created_at_raw'  => $botMessage->created_at->toIso8601String(),
+                'created_at_date' => $botMessage->created_at->format('Y-m-d'),
+                'created_at_label' => $botMessage->created_at->isToday()
+                    ? 'Hôm nay'
+                    : ($botMessage->created_at->isYesterday() ? 'Hôm qua' : $botMessage->created_at->format('d/m/Y')),
+                'is_me'           => false,
             ] : null,
         ]);
     }
@@ -110,11 +120,16 @@ class ChatController extends Controller
             $isMe = $senderId === $participant->id && $senderType === get_class($participant);
 
             $formattedMessages[] = [
-                'id'          => $msgId,
-                'body'        => data_get($message, 'body'),
-                'created_at'  => $message->created_at->format('H:i'),
-                'is_me'       => $isMe,
-                'sender_name' => $isMe ? 'Bạn' : 'Hỗ trợ',
+                'id'              => $msgId,
+                'body'            => data_get($message, 'body'),
+                'created_at'      => $message->created_at->format('H:i'),
+                'created_at_raw'  => $message->created_at->toIso8601String(),
+                'created_at_date' => $message->created_at->format('Y-m-d'),
+                'created_at_label' => $message->created_at->isToday()
+                    ? 'Hôm nay'
+                    : ($message->created_at->isYesterday() ? 'Hôm qua' : $message->created_at->format('d/m/Y')),
+                'is_me'           => $isMe,
+                'sender_name'     => $isMe ? 'Bạn' : 'Hỗ trợ',
             ];
         }
 
@@ -174,12 +189,16 @@ class ChatController extends Controller
         return response()->json([
             'success'   => true,
             'bot_reply' => [
-                'id'         => $botMessage->id,
-                'body'       => $botMessage->body,
-                'created_at' => $botMessage->created_at->format('H:i'),
-                'is_me'      => false,
+                'id'              => $botMessage->id,
+                'body'            => $botMessage->body,
+                'created_at'      => $botMessage->created_at->format('H:i'),
+                'created_at_raw'  => $botMessage->created_at->toIso8601String(),
+                'created_at_date' => $botMessage->created_at->format('Y-m-d'),
+                'created_at_label' => $botMessage->created_at->isToday()
+                    ? 'Hôm nay'
+                    : ($botMessage->created_at->isYesterday() ? 'Hôm qua' : $botMessage->created_at->format('d/m/Y')),
+                'is_me'           => false,
             ],
         ]);
     }
-
 }

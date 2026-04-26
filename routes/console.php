@@ -12,3 +12,6 @@ Schedule::command('orders:cancel-expired')->everyMinute();
 
 // generate sitemap file once per day at midnight (use --force to avoid prompt)
 Schedule::command('sitemap:generate --force')->daily();
+
+// purge guest chats that have been inactive for more than 7 days
+Schedule::command('chat:purge-guest-chats --days=7')->daily();

@@ -30,7 +30,16 @@ class ForgotPasswordController extends Controller
      */
     public function sendResetLinkEmail(Request $request): RedirectResponse
     {
-        $request->validate(['email' => 'required|email']);
+        $request->validate(
+            ['email' => 'required|email'],
+            [
+                'email.required' => 'Email không được để trống',
+                'email.email'    => 'Email không đúng định dạng',
+            ],
+            [
+                'email' => 'Email',
+            ]
+        );
 
         // Gửi link reset password sử dụng broker 'customers'
         $status = Password::broker('customers')->sendResetLink(
@@ -59,11 +68,28 @@ class ForgotPasswordController extends Controller
      */
     public function reset(Request $request): RedirectResponse
     {
-        $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
-        ]);
+        $request->validate(
+            [
+                'token'    => 'required',
+                'email'    => 'required|email',
+                'password' => 'required|min:8|confirmed',
+            ],
+            [
+                'token.required' => 'Token không hợp lệ hoặc đã hết hạn',
+
+                'email.required' => 'Email không được để trống',
+                'email.email'    => 'Email không đúng định dạng',
+
+                'password.required'  => 'Mật khẩu không được để trống',
+                'password.min'       => 'Mật khẩu phải có ít nhất 8 ký tự',
+                'password.confirmed' => 'Xác nhận mật khẩu không khớp',
+            ],
+            [
+                'token'    => 'Token',
+                'email'    => 'Email',
+                'password' => 'Mật khẩu',
+            ]
+        );
 
         // Cố gắng reset password sử dụng broker 'customers'
         $status = Password::broker('customers')->reset(

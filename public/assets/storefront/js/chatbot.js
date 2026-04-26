@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let lastMessageId = 0;
   let isFirstLoad = true;
   let waitingForAdminTimeout = null;
+  let lastRenderedDateKey = null;
 
   chatWidget.style.display = 'block';
 
@@ -66,6 +67,59 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  function toDateKey(dateValue) {
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
+
+  function formatDateLabel(dateValue) {
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    const today = new Date();
+    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const startOfDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const diffDays = Math.round((startOfToday - startOfDate) / 86400000);
+
+    if (diffDays === 0) return 'Hôm nay';
+    if (diffDays === 1) return 'Hôm qua';
+
+    return new Intl.DateTimeFormat('vi-VN').format(date);
+  }
+
+  function appendDateSeparator(dateKey, label) {
+    if (!dateKey || dateKey === lastRenderedDateKey) {
+      return;
+    }
+
+    const separator = document.createElement('div');
+    separator.className = 'chat-date-separator';
+    separator.dataset.date = dateKey;
+    separator.style.display = 'flex';
+    separator.style.justifyContent = 'center';
+    separator.style.margin = '14px 0';
+
+    const badge = document.createElement('span');
+    badge.textContent = label;
+    badge.style.display = 'inline-flex';
+    badge.style.alignItems = 'center';
+    badge.style.justifyContent = 'center';
+    badge.style.padding = '6px 12px';
+    badge.style.borderRadius = '999px';
+    badge.style.border = '1px solid rgba(255, 107, 157, 0.18)';
+    badge.style.background = 'rgba(255, 255, 255, 0.85)';
+    badge.style.color = '#718096';
+    badge.style.fontSize = '12px';
+    badge.style.fontWeight = '600';
+    badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+
+    separator.appendChild(badge);
+    chatMessages.appendChild(separator);
+    lastRenderedDateKey = dateKey;
+  }
+
   function loadSuggestions() {
     if (!suggestionsUrl) return;
 
@@ -104,8 +158,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const now = new Date();
     const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    const dateKey = toDateKey(now);
 
-    appendMessage('user', messageText, tempId, timeString);
+    appendMessage('user', messageText, tempId, timeString, dateKey, formatDateLabel(now));
 
     chatInput.value = '';
     sendMessageToServer(messageText, tempId, isFromQuickHint);
@@ -145,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           setTimeout(() => {
             if (!document.querySelector(`.message-bubble[data-id="${data.bot_reply.id}"]`)) {
-              appendMessage('bot', data.bot_reply.body, data.bot_reply.id, data.bot_reply.created_at);
+              appendMessage('bot', data.bot_reply.body, data.bot_reply.id, data.bot_reply.created_at, data.bot_reply.created_at_date || toDateKey(data.bot_reply.created_at_raw || new Date()), formatDateLabel(data.bot_reply.created_at_raw || new Date()));
             }
             if (data.bot_reply.id > lastMessageId) {
               lastMessageId = data.bot_reply.id;
@@ -178,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(data => {
       if (data.success && data.bot_reply) {
         if (!document.querySelector(`.message-bubble[data-id="${data.bot_reply.id}"]`)) {
-          appendMessage('bot', data.bot_reply.body, data.bot_reply.id, data.bot_reply.created_at);
+          appendMessage('bot', data.bot_reply.body, data.bot_reply.id, data.bot_reply.created_at, data.bot_reply.created_at_date || toDateKey(data.bot_reply.created_at_raw || new Date()), formatDateLabel(data.bot_reply.created_at_raw || new Date()));
         }
         if (data.bot_reply.id > lastMessageId) {
           lastMessageId = data.bot_reply.id;
@@ -230,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Chỉ append nếu không phải là bản sao của tin nhắn tạm
             if (!isDuplicateOfTemp) {
-              appendMessage(senderType, msg.body, msg.id, msg.created_at);
+              appendMessage(senderType, msg.body, msg.id, msg.created_at, msg.created_at_date || toDateKey(msg.created_at_raw || new Date()), formatDateLabel(msg.created_at_raw || new Date()));
               if (!msg.is_me) {
                 hasNewMessage = true;
                 // Nếu nhận được tin nhắn từ admin/bot → Hủy timeout
@@ -258,11 +313,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // --- UI HELPER ---
 
-  function appendMessage(sender, text, id, time = '') {
+  function appendMessage(sender, text, id, time = '', dateKey = null, dateLabel = '') {
     const welcomeMsg = document.querySelector('.welcome-message');
     if (welcomeMsg) welcomeMsg.remove();
 
     if (document.querySelector(`.message-bubble[data-id="${id}"]`)) return;
+
+    if (dateKey) {
+      appendDateSeparator(dateKey, dateLabel || formatDateLabel(new Date()));
+    }
 
     const messageClass = sender === 'user' ? 'user-message' : 'bot-message';
     const alignItem = sender === 'user' ? 'flex-end' : 'flex-start';

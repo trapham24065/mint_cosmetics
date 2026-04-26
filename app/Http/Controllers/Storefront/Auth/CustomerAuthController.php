@@ -20,7 +20,7 @@ class CustomerAuthController extends Controller
      */
     public function showLoginForm()
     {
-        $title = "Login / Register";
+        $title = "Đăng nhập  / Đăng ký";
         return view('storefront.auth.login-register', compact('title'));
     }
 
@@ -29,10 +29,17 @@ class CustomerAuthController extends Controller
      */
     public function login(Request $request): \Illuminate\Http\RedirectResponse
     {
-        $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
-        ]);
+        $credentials = $request->validate(
+            [
+                'email'    => 'required|email',
+                'password' => 'required',
+            ],
+            [
+                'email.required'    => 'Email không được để trống',
+                'email.email'       => 'Email không đúng định dạng',
+                'password.required' => 'Mật khẩu không được để trống',
+            ]
+        );
 
         $credentials['status'] = 1;
 
@@ -61,7 +68,26 @@ class CustomerAuthController extends Controller
             'email'      => 'required|string|email|max:255|unique:customers',
             'phone'      => 'required|string|max:20',
             'password'   => 'required|string|min:8|confirmed',
-        ]);
+        ],
+            [
+                'first_name.required' => 'Tên không được để trống',
+                'first_name.max'      => 'Tên không được vượt quá 255 ký tự',
+
+                'last_name.required' => 'Họ không được để trống',
+                'last_name.max'      => 'Họ không được vượt quá 255 ký tự',
+
+                'email.required' => 'Email không được để trống',
+                'email.email'    => 'Email không đúng định dạng',
+                'email.unique'   => 'Email đã tồn tại',
+                'email.max'      => 'Email không được vượt quá 255 ký tự',
+
+                'phone.required' => 'Số điện thoại không được để trống',
+                'phone.max'      => 'Số điện thoại không được vượt quá 20 ký tự',
+
+                'password.required'  => 'Mật khẩu không được để trống',
+                'password.min'       => 'Mật khẩu phải có ít nhất 8 ký tự',
+                'password.confirmed' => 'Xác nhận mật khẩu không khớp',
+            ]);
 
         $customer = Customer::create([
             'first_name' => $request->first_name,
@@ -89,7 +115,9 @@ class CustomerAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('home');
+        return redirect()
+            ->route('home')
+            ->with('success', 'Đăng xuất thành công');
     }
 
     /**
