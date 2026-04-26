@@ -24,8 +24,18 @@ $toastItems[] = ['icon' => 'warning', 'title' => (string) session('warning')];
 if (!empty($toastStatusMessage)) {
 $toastItems[] = ['icon' => 'success', 'title' => (string) $toastStatusMessage];
 }
-if (isset($errors) && method_exists($errors, 'any') && $errors->any()) {
+
+if (isset($errors)) {
+if ($errors instanceof \Illuminate\Support\ViewErrorBag) {
+foreach ($errors->getBags() as $bag) {
+if ($bag->any()) {
+$toastItems[] = ['icon' => 'error', 'title' => (string) $bag->first()];
+break;
+}
+}
+} elseif (method_exists($errors, 'any') && $errors->any()) {
 $toastItems[] = ['icon' => 'error', 'title' => (string) $errors->first()];
+}
 }
 @endphp
 

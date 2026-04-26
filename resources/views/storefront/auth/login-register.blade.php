@@ -34,9 +34,10 @@
                                 @csrf
                                 <div class="form-group mb-6">
                                     <label for="login_email">Địa chỉ email <sup>*</sup></label>
-                                    <input type="email" id="login_email" name="email" value="{{ old('email') }}"
+                                    <input type="email" id="login_email" name="email"
+                                        value="{{ $errors->login->any() ? old('email') : '' }}"
                                         required autocomplete="username">
-                                    @error('email')
+                                    @error('email', 'login')
                                     <span class="text-danger small">{{ $message }}</span>
                                     @enderror
                                 </div>
@@ -48,7 +49,7 @@
                                         name="password"
                                         readonly
                                         onfocus="this.removeAttribute('readonly');">
-                                    @error('password')
+                                    @error('password', 'login')
                                     <span class="text-danger small">{{ $message }}</span>
                                     @enderror
                                 </div>
@@ -80,8 +81,8 @@
                                         <div class="form-group mb-6">
                                             <label for="register_firstname">Tên <sup>*</sup></label>
                                             <input type="text" id="register_firstname" name="first_name"
-                                                value="{{ old('first_name') }}" required>
-                                            @error('first_name')
+                                                value="{{ $errors->register->any() ? old('first_name') : '' }}" required>
+                                            @error('first_name', 'register')
                                             <span class="text-danger small">{{ $message }}</span>
                                             @enderror
                                         </div>
@@ -90,8 +91,8 @@
                                         <div class="form-group mb-6">
                                             <label for="register_lastname">Họ <sup>*</sup></label>
                                             <input type="text" id="register_lastname" name="last_name"
-                                                value="{{ old('last_name') }}" required>
-                                            @error('last_name')
+                                                value="{{ $errors->register->any() ? old('last_name') : '' }}" required>
+                                            @error('last_name', 'register')
                                             <span class="text-danger small">{{ $message }}</span>
                                             @enderror
                                         </div>
@@ -100,18 +101,20 @@
 
                                 <div class="form-group mb-6">
                                     <label for="register_phone">Điện thoại <sup>*</sup></label>
-                                    <input type="text" id="register_phone" name="phone" value="{{ old('phone') }}"
+                                    <input type="text" id="register_phone" name="phone"
+                                        value="{{ $errors->register->any() ? old('phone') : '' }}"
                                         required>
-                                    @error('phone')
+                                    @error('phone', 'register')
                                     <span class="text-danger small">{{ $message }}</span>
                                     @enderror
                                 </div>
 
                                 <div class="form-group mb-6">
                                     <label for="register_email">Địa chỉ email <sup>*</sup></label>
-                                    <input type="email" id="register_email" name="email" value="{{ old('email') }}"
+                                    <input type="email" id="register_email" name="email"
+                                        value="{{ $errors->register->any() ? old('email') : '' }}"
                                         required autocomplete="new-email">
-                                    @error('email')
+                                    @error('email', 'register')
                                     <span class="text-danger small">{{ $message }}</span>
                                     @enderror
                                 </div>
@@ -120,7 +123,7 @@
                                     <label for="register_pwsd">Mật khẩu <sup>*</sup></label>
                                     <input type="password" id="register_pwsd" name="password" required
                                         autocomplete="new-password">
-                                    @error('password')
+                                    @error('password', 'register')
                                     <span class="text-danger small">{{ $message }}</span>
                                     @enderror
                                 </div>
