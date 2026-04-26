@@ -1,5 +1,13 @@
 @extends('components.auth-layout')
 @section('content')
+    <style>
+        .swal2-popup.swal2-toast .swal2-title {
+            margin: 0.5em 1em;
+            padding: 0;
+            font-size: 1em;
+            text-align: initial;
+        }
+    </style>
     <x-auth-session-status class="mb-3" :status="session('status')" />
 
     <form class="my-4" method="POST" action="{{ route('admin.login') }}">

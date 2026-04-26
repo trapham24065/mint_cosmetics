@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Storefront\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\CustomerLoginRequest;
 use App\Models\Cart;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
-
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class CustomerAuthController extends Controller
@@ -27,34 +28,16 @@ class CustomerAuthController extends Controller
     /**
      * Login processing.
      */
-    public function login(Request $request): \Illuminate\Http\RedirectResponse
+    public function login(CustomerLoginRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $credentials = $request->validate(
-            [
-                'email'    => 'required|email',
-                'password' => 'required',
-            ],
-            [
-                'email.required'    => 'Email không được để trống',
-                'email.email'       => 'Email không đúng định dạng',
-                'password.required' => 'Mật khẩu không được để trống',
-            ]
-        );
+        $request->authenticate();
 
-        $credentials['status'] = 1;
+        $request->session()->regenerate();
 
-        if (Auth::guard('customer')->attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
+        $this->mergeCartOnLogin();
 
-            $this->mergeCartOnLogin();
-
-            return redirect()->intended(route('customer.dashboard'))
-                ->with('success', 'Chào mừng trở lại!');
-        }
-
-        throw ValidationException::withMessages([
-            'email' => __('Thông tin đăng nhập không chính xác hoặc tài khoản bị khóa.'),
-        ]);
+        return redirect()->intended(route('customer.dashboard'))
+            ->with('success', 'Chào mừng trở lại!');
     }
 
     /**
@@ -62,13 +45,15 @@ class CustomerAuthController extends Controller
      */
     public function register(Request $request): \Illuminate\Http\RedirectResponse
     {
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
-            'email'      => 'required|string|email|max:255|unique:customers',
-            'phone'      => 'required|string|max:20',
-            'password'   => 'required|string|min:8|confirmed',
-        ],
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'first_name' => 'required|string|max:255',
+                'last_name'  => 'required|string|max:255',
+                'email'      => 'required|string|email|max:255|unique:customers',
+                'phone'      => 'required|string|max:20',
+                'password'   => 'required|string|min:8|confirmed',
+            ],
             [
                 'first_name.required' => 'Tên không được để trống',
                 'first_name.max'      => 'Tên không được vượt quá 255 ký tự',
@@ -87,7 +72,14 @@ class CustomerAuthController extends Controller
                 'password.required'  => 'Mật khẩu không được để trống',
                 'password.min'       => 'Mật khẩu phải có ít nhất 8 ký tự',
                 'password.confirmed' => 'Xác nhận mật khẩu không khớp',
-            ]);
+            ]
+        );
+
+        try {
+            $validator->validate();
+        } catch (ValidationException $e) {
+            throw $e->errorBag('register');
+        }
 
         $customer = Customer::create([
             'first_name' => $request->first_name,
@@ -153,5 +145,4 @@ class CustomerAuthController extends Controller
             Session::forget('cart.items');
         }
     }
-
 }
