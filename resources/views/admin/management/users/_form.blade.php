@@ -36,7 +36,8 @@
                         @endif
                     </label>
                     <input type="password" class="form-control @error('password') is-invalid @enderror" id="password"
-                        name="password" placeholder="••••••••" {{ !isset($user) ? 'required' : '' }}>
+                        name="password" placeholder="••••••••" autocomplete="new-password"
+                        readonly onfocus="this.removeAttribute('readonly');" {{ !isset($user) ? 'required' : '' }}>
                     @error('password')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -51,7 +52,8 @@
                         @endif
                     </label>
                     <input type="password" class="form-control" id="password_confirmation" name="password_confirmation"
-                        placeholder="••••••••" {{ !isset($user) ? 'required' : '' }}>
+                        placeholder="••••••••" autocomplete="new-password"
+                        readonly onfocus="this.removeAttribute('readonly');" {{ !isset($user) ? 'required' : '' }}>
                 </div>
             </div>
         </div>

@@ -11,8 +11,8 @@
                         src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : asset('assets/admin/images/users/dummy-avatar.jpg') }}"
                         alt="avatar" class="rounded-circle img-fluid"
                         style="width: 150px; height: 150px; object-fit: cover;">
-                    <h5 class="my-3">{{ Auth::user()->name }}</h5>
-                    <p class="text-muted mb-1">{{ Auth::user()->email }}</p>
+                    <h5 class="my-3">{{ auth()->user()->name }}</h5>
+                    <p class="text-muted mb-1">{{ auth()->user()->email }}</p>
                     <p class="text-muted mb-4">Quản trị viên</p>
                 </div>
             </div>
@@ -86,21 +86,31 @@
 
                         <!-- Tab 2: change password -->
                         <div class="tab-pane fade" id="password" role="tabpanel">
-                            <form action="{{ route('admin.profile.password') }}" method="POST">
+                            <form action="{{ route('admin.profile.password') }}" method="POST" autocomplete="off">
                                 @csrf
                                 @method('PUT')
+                                <input type="text" name="admin_profile_fake_username" autocomplete="username"
+                                    class="d-none" tabindex="-1" aria-hidden="true">
+                                <input type="password" name="admin_profile_fake_password" autocomplete="new-password"
+                                    class="d-none" tabindex="-1" aria-hidden="true">
                                 <div class="mb-3">
                                     <label class="form-label">Mật khẩu hiện tại</label>
-                                    <input type="password" class="form-control" name="current_password">
+                                    <input type="password" class="form-control" id="current_password"
+                                        name="current_password" autocomplete="current-password"
+                                        readonly onfocus="this.removeAttribute('readonly');">
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Mật khẩu mới</label>
-                                        <input type="password" class="form-control" name="password">
+                                        <input type="password" class="form-control" id="new_password"
+                                            name="password" autocomplete="new-password"
+                                            readonly onfocus="this.removeAttribute('readonly');">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Xác nhận mật khẩu mới</label>
-                                        <input type="password" class="form-control" name="password_confirmation">
+                                        <input type="password" class="form-control" id="new_password_confirmation"
+                                            name="password_confirmation" autocomplete="new-password"
+                                            readonly onfocus="this.removeAttribute('readonly');">
                                     </div>
                                 </div>
                                 <button type="submit" class="btn btn-warning">Cập nhật mật khẩu</button>

@@ -49,7 +49,7 @@ class CartController extends Controller
             $cartData = $this->cartService->updateQuantities($request->input('updates'));
             return response()->json([
                 'success' => true,
-                'message' => 'Cart updated successfully.',
+                'message' => 'Giỏ hàng được cập nhật thành công.',
                 'cart'    => $cartData,
             ]);
         } catch (Exception $e) {
@@ -66,7 +66,7 @@ class CartController extends Controller
             $cartData = $this->cartService->remove($variantId);
             return response()->json([
                 'success' => true,
-                'message' => 'Item removed from cart.',
+                'message' => 'Sản phẩm đã được xóa khỏi giỏ hàng.',
                 'cart'    => $cartData,
             ]);
         } catch (\Exception $e) {
@@ -117,4 +117,5 @@ class CartController extends Controller
         $cartData = $this->cartService->removeCoupon();
         return response()->json(['success' => true, 'cart' => $cartData]);
     }
+
 }

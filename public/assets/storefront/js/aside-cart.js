@@ -4,8 +4,67 @@ document.addEventListener('DOMContentLoaded', function () {
     const asideCartList = document.getElementById('aside-cart-product-list');
     const asideCartSubtotal = document.getElementById('aside-cart-subtotal');
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    let pendingRemoveVariantId = null;
 
     if (!asideCart) return;
+
+    function ensureDeleteModal() {
+        let modalEl = document.getElementById('asideCartDeleteConfirmModal');
+
+        if (!modalEl) {
+            const modalHtml = `
+                <div class="modal fade" id="asideCartDeleteConfirmModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Xác nhận xóa</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="mb-0">Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                                <button type="button" class="btn btn-danger" id="aside-cart-delete-confirm-btn">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            modalEl = document.getElementById('asideCartDeleteConfirmModal');
+        }
+
+        return modalEl;
+    }
+
+    function openDeleteConfirmation(variantId) {
+        pendingRemoveVariantId = variantId;
+
+        if (typeof bootstrap === 'undefined') {
+            if (window.confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                handleRemoveItem(variantId);
+            }
+            return;
+        }
+
+        const modalEl = ensureDeleteModal();
+        const confirmBtn = document.getElementById('aside-cart-delete-confirm-btn');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+        if (confirmBtn) {
+            confirmBtn.onclick = function () {
+                modal.hide();
+                if (pendingRemoveVariantId) {
+                    handleRemoveItem(pendingRemoveVariantId);
+                    pendingRemoveVariantId = null;
+                }
+            };
+        }
+
+        modal.show();
+    }
 
     /**
      * Fetches cart data from the server and updates the aside cart UI.
@@ -27,7 +86,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     const item = cartData.items[key];
                     const itemHtml = `
                         <li class="aside-product-list-item">
-                                <a href="javascript:void(0);" class="remove action-btn-remove-cart-item" data-variant-id="${item.variant_id}">×</a>                            <a href="/products/${item.slug}">
+                            <a href="javascript:void(0);" class="remove action-btn-remove-cart-item" data-variant-id="${item.variant_id}">×</a>
+                            <a href="/products/${item.slug}">
                                 <img src="${item.image ? '/storage/' + item.image : '/assets/storefront/images/shop/default.webp'}" width="68" height="84" alt="${item.product_name}">
                                 <span class="product-title">${item.product_name}</span>
                             </a>
@@ -60,18 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (removeButton) {
             event.preventDefault();
             const variantId = removeButton.dataset.variantId;
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "Remove this item from your cart?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, remove it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    handleRemoveItem(variantId);
-                }
-            });
+            openDeleteConfirmation(variantId);
         }
     });
     async function handleRemoveItem(variantId) {
@@ -99,11 +148,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     cartCountEl.textContent = newCount > 0 ? `${newCount}` : '';
                 }
             } else {
-                Swal.fire('Error', 'Could not remove the item.', 'error');
+                console.error('Could not remove the item from cart.');
             }
         } catch (error) {
             console.error('Remove item error:', error);
-            Swal.fire('Error', 'An unexpected error occurred.', 'error');
         }
     }
 });

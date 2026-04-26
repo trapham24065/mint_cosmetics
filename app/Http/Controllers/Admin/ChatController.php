@@ -94,11 +94,16 @@ class ChatController extends Controller
         return response()->json([
             'success' => true,
             'message' => [
-                'id'          => $message->id,
-                'body'        => $message->body,
-                'created_at'  => $message->created_at->format('H:i'),
-                'sender_name' => 'You',
-                'is_me'       => true,
+                'id'              => $message->id,
+                'body'            => $message->body,
+                'created_at'      => $message->created_at->format('H:i'),
+                'created_at_raw'  => $message->created_at->toIso8601String(),
+                'created_at_date' => $message->created_at->format('Y-m-d'),
+                'created_at_label' => $message->created_at->isToday()
+                    ? 'Hôm nay'
+                    : ($message->created_at->isYesterday() ? 'Hôm qua' : $message->created_at->format('d/m/Y')),
+                'sender_name'     => 'You',
+                'is_me'           => true,
             ],
         ]);
     }
@@ -168,11 +173,20 @@ class ChatController extends Controller
             }
 
             $formattedMessages[] = [
-                'id'          => $messageId,
-                'body'        => $body,
-                'created_at'  => $timeDisplay,
-                'is_me'       => $isMe,
-                'sender_name' => $senderName,
+                'id'              => $messageId,
+                'body'            => $body,
+                'created_at'      => $timeDisplay,
+                'created_at_raw'  => data_get($message, 'created_at') ? data_get($message, 'created_at')->toIso8601String() : null,
+                'created_at_date' => data_get($message, 'created_at') ? data_get($message, 'created_at')->format('Y-m-d') : null,
+                'created_at_label' => data_get($message, 'created_at')
+                    ? (data_get($message, 'created_at')->isToday()
+                        ? 'Hôm nay'
+                        : (data_get($message, 'created_at')->isYesterday()
+                            ? 'Hôm qua'
+                            : data_get($message, 'created_at')->format('d/m/Y')))
+                    : null,
+                'is_me'           => $isMe,
+                'sender_name'     => $senderName,
             ];
         }
 
