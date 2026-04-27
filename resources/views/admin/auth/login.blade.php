@@ -1,13 +1,6 @@
 @extends('components.auth-layout')
 @section('content')
-    <style>
-        .swal2-popup.swal2-toast .swal2-title {
-            margin: 0.5em 1em;
-            padding: 0;
-            font-size: 1em;
-            text-align: initial;
-        }
-    </style>
+
     <x-auth-session-status class="mb-3" :status="session('status')" />
 
     <form class="my-4" method="POST" action="{{ route('admin.login') }}">
@@ -37,13 +30,17 @@
             @enderror
         </div>
         <br>
-        <div class="form-group mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="form-check">
                 <input type="checkbox" class="form-check-input" id="remember" name="remember">
                 <label class="form-check-label" for="remember">
                     Ghi nhớ tôi
                 </label>
             </div>
+
+            <a href="{{ route('password.request') }}" class="text-primary small">
+                Quên mật khẩu?
+            </a>
         </div>
 
         <div class="form-group mb-0 row">
