@@ -1,0 +1,246 @@
+// Mint Cosmetics Database Schema - Changes from 23/03/2026 to 26/04/2026
+// Use this at https://dbdiagram.io/
+
+Project MintCosmetics {
+  database_type: 'MySQL'
+  Note: 'E-commerce platform for cosmetics - Latest changes and additions'
+}
+
+// ===== NEW TABLES (Added from 23/03/2026) =====
+
+// Table: order_returns - Quản lý yêu cầu trả hàng từ khách hàng
+Table order_returns {
+  id bigint [pk, increment]
+  return_code varchar [unique, not null]
+  order_id bigint [not null]
+  customer_id bigint [null]
+  
+  // Thông tin trả hàng
+  reason text [not null]
+  description text [null]
+  status varchar [default: 'pending'] // pending, approved, rejected, refunded
+  
+  // Thông tin hoàn tiền
+  refund_amount decimal [default: 0]
+  refund_method varchar [null]
+  refund_transaction_id varchar [null]
+  refunded_at timestamp [null]
+  
+  // Ghi chú admin
+  admin_note text [null]
+  processed_by bigint [null]
+  processed_at timestamp [null]
+  
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Return requests from customers'
+  Indexes: "(order_id) (customer_id)"
+}
+
+// Table: order_return_items - Chi tiết sản phẩm trong đơn trả hàng
+Table order_return_items {
+  id bigint [pk, increment]
+  order_return_id bigint [not null]
+  order_item_id bigint [not null]
+  quantity int [not null]
+  refund_price decimal [not null]
+  item_reason text [null]
+  evidence_images json [null] // Hình ảnh chứng minh lỗi sản phẩm
+  created_at timestamp
+  updated_at timestamp
+  
+  Indexes: "(order_return_id) (order_item_id)"
+}
+
+// Table: stock_adjustments - Ghi nhận điều chỉnh tồn kho
+Table stock_adjustments {
+  id bigint [pk, increment]
+  product_variant_id bigint [not null]
+  user_id bigint [null]
+  adjustment_type varchar [not null]
+  quantity_change int [not null]
+  stock_before int [not null]
+  stock_after int [not null]
+  reason text [null]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Tracks all inventory adjustments (damaged, lost, expired, repairs, etc.)'
+  Indexes: "(product_variant_id, created_at) (adjustment_type, created_at)"
+}
+
+// Table: contact_messages - Thư liên hệ từ khách hàng
+Table contact_messages {
+  id bigint [pk, increment]
+  first_name varchar [not null]
+  last_name varchar [null]
+  email varchar [not null]
+  message text [not null]
+  
+  // Xử lý thư
+  processed_at timestamp [null]
+  processed_by bigint [null] // Admin xử lý
+  
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Contact form submissions from website'
+  Indexes: "(email) (created_at) (processed_at)"
+}
+
+// Table: payments - Thông tin thanh toán
+Table payments {
+  id bigint [pk, increment]
+  order_id bigint [not null]
+  amount decimal [not null]
+  payment_method varchar [null] // Credit card, Bank transfer, COD, etc.
+  transaction_id varchar [null]
+  status varchar [default: 'pending'] // pending, completed, failed, refunded
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Payment records for orders'
+  Indexes: "(order_id) (transaction_id) (status)"
+}
+
+// Table: product_images - Ảnh sản phẩm
+Table product_images {
+  id bigint [pk, increment]
+  product_id bigint [not null]
+  path varchar [not null]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Product images/gallery'
+  Indexes: "(product_id)"
+}
+
+// ===== MODIFIED TABLES (Field additions from 23/03/2026) =====
+
+// Users table additions:
+// - role: admin (added 23/03/2026)
+// - pending_email: varchar null (added 26/04/2026)
+
+Table users_changes {
+  id bigint [pk]
+  name varchar
+  email varchar [unique]
+  avatar varchar [null]
+  password varchar
+  role varchar [default: 'admin'] // ADDED: admin, sale, warehouse
+  status int [default: 1]
+  pending_email varchar [null] // ADDED: for email change verification
+  last_login_at timestamp [null]
+  last_login_ip varchar [null]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Admin users - Added role and pending_email fields'
+}
+
+// Orders table additions:
+// - completed_at: timestamp null (added 24/03/2026)
+// - shipping_fee: decimal (added 04/04/2026)
+// - shipping_provider: varchar (added 04/04/2026)
+// - shipping_province_id, shipping_district_id, shipping_ward_code: GHN integration
+// - ghn_order_code, ghn_response: GHN response data
+// - payment_token: varchar (added 25/04/2026)
+
+Table orders_changes {
+  id bigint [pk]
+  customer_id bigint [null]
+  order_code varchar
+  status varchar
+  total_amount decimal
+  discount_amount decimal [null]
+  payment_token varchar [null] // ADDED: for online payment processing
+  
+  // Shipping additions
+  shipping_fee decimal [default: 0] // ADDED
+  shipping_provider varchar [null] // ADDED: GHN, Viettel, SPX, etc.
+  shipping_province_id bigint [null] // ADDED
+  shipping_district_id bigint [null] // ADDED
+  shipping_ward_code varchar [null] // ADDED
+  ghn_order_code varchar [null] // ADDED: GHN integration
+  ghn_response json [null] // ADDED: GHN API response
+  
+  // Timestamps
+  created_at timestamp
+  completed_at timestamp [null] // ADDED: when order is completed
+  updated_at timestamp
+  
+  Note: 'Orders with new shipping and payment fields'
+  Indexes: "(customer_id) (completed_at)"
+}
+
+// Customers table additions:
+// - shipping_province_id, shipping_district_id, shipping_ward_code (added 05/04/2026)
+// - shipping_province_name, shipping_district_name, shipping_ward_name (added 05/04/2026)
+
+Table customers_changes {
+  id bigint [pk]
+  first_name varchar
+  last_name varchar
+  email varchar [unique]
+  phone varchar [null]
+  address varchar [null]
+  city varchar [null]
+  
+  // Shipping fields - ADDED
+  shipping_province_id bigint [null]
+  shipping_district_id bigint [null]
+  shipping_ward_code varchar [null]
+  shipping_province_name varchar [null]
+  shipping_district_name varchar [null]
+  shipping_ward_name varchar [null]
+  
+  status boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Customers with shipping location fields'
+}
+
+// Categories table additions:
+// - parent_id: bigint null (added 16/04/2026)
+
+Table categories_changes {
+  id bigint [pk]
+  name varchar
+  parent_id bigint [null] // ADDED: for category hierarchy
+  slug varchar
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Categories with parent_id for hierarchical structure'
+}
+
+// Reviews table additions:
+// - public_visibility: boolean (added 25/04/2026)
+
+Table reviews_changes {
+  id bigint [pk]
+  order_item_id bigint
+  rating int
+  comment text [null]
+  public_visibility boolean [default: true] // ADDED: control review visibility
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Reviews with public visibility control'
+}
+
+// ===== FOREIGN KEY RELATIONSHIPS =====
+
+Ref: order_returns.order_id > orders.id
+Ref: order_returns.customer_id > customers.id
+Ref: order_returns.processed_by > users.id
+Ref: order_return_items.order_return_id > order_returns.id
+Ref: order_return_items.order_item_id > order_items.id
+Ref: stock_adjustments.product_variant_id > product_variants.id
+Ref: stock_adjustments.user_id > users.id
+Ref: contact_messages.processed_by > users.id
+Ref: payments.order_id > orders.id
+Ref: product_images.product_id > products.id
+Ref: categories_changes.parent_id > categories.id
