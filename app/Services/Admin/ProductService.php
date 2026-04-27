@@ -199,12 +199,25 @@ class ProductService
 
                 // 5.2. Delete variants marked for deletion
                 if (!empty($deletedVariantIds)) {
+                    $inProgressStatuses = [
+                        OrderStatus::Pending->value,
+                        OrderStatus::Processing->value,
+                        OrderStatus::Shipped->value,
+                        OrderStatus::Delivered->value,
+                    ];
+
                     foreach ($deletedVariantIds as $variantId) {
                         $variantToDelete = $product->variants()->find($variantId);
                         if ($variantToDelete) {
-                            if ($variantToDelete->orderItems()->exists()) {
+                            $hasInProgressOrderItems = $variantToDelete->orderItems()
+                                ->whereHas('order', function ($query) use ($inProgressStatuses) {
+                                    $query->whereIn('status', $inProgressStatuses);
+                                })
+                                ->exists();
+
+                            if ($hasInProgressOrderItems) {
                                 throw new \RuntimeException(
-                                    "Không thể xóa biến thể (ID:{$variantId}) bởi vì nó là một phần của trật tự hiện có."
+                                    "Không thể xóa biến thể (ID:{$variantId}) vì đang nằm trong đơn hàng chưa hoàn tất xử lý."
                                 );
                             }
                             $variantToDelete->delete();
@@ -327,15 +340,22 @@ class ProductService
             );
         }
 
-        $hasUnsuccessfulOrderItems = $product->orderItems()
-            ->whereHas('order', function ($query) {
-                $query->where('status', '!=', OrderStatus::Completed->value);
+        $inProgressStatuses = [
+            OrderStatus::Pending->value,
+            OrderStatus::Processing->value,
+            OrderStatus::Shipped->value,
+            OrderStatus::Delivered->value,
+        ];
+
+        $hasInProgressOrderItems = $product->orderItems()
+            ->whereHas('order', function ($query) use ($inProgressStatuses) {
+                $query->whereIn('status', $inProgressStatuses);
             })
             ->exists();
 
-        if ($hasUnsuccessfulOrderItems) {
+        if ($hasInProgressOrderItems) {
             throw new \RuntimeException(
-                'Không thể xóa sản phẩm vì đang nằm trong đơn hàng chưa hoàn thành thành công.'
+                'Không thể xóa sản phẩm vì đang nằm trong đơn hàng chưa hoàn tất xử lý (chờ xử lý / đang xử lý / đang giao / đã giao). Vui lòng hoàn tất hoặc huỷ các đơn hàng đó trước.'
             );
         }
 
