@@ -32,7 +32,7 @@ class ProfileController extends Controller
     {
         /** @var \App\Models\User $admin */
         $admin = Auth::user();
-        $requestedEmail = (string) $request->input('email');
+        $requestedEmail = (string)$request->input('email');
         $emailChanged = $requestedEmail !== $admin->email;
 
         $rules = [
@@ -52,7 +52,33 @@ class ProfileController extends Controller
             $rules['current_password'] = 'required|current_password';
         }
 
-        $validated = $request->validate($rules);
+        $validated = $request->validate(
+            $rules,
+            [
+                'name.required' => 'Tên không được để trống',
+                'name.max'      => 'Tên không được vượt quá 255 ký tự',
+
+                'email.required' => 'Email không được để trống',
+                'email.email'    => 'Email không đúng định dạng',
+                'email.max'      => 'Email không được vượt quá 255 ký tự',
+                'email.unique'   => 'Email này đã tồn tại trong hệ thống',
+
+                'current_password.required'         => 'Vui lòng nhập mật khẩu hiện tại',
+                'current_password.current_password' => 'Mật khẩu hiện tại không đúng',
+
+                'avatar.image' => 'File phải là hình ảnh',
+                'avatar.mimes' => 'Ảnh phải có định dạng jpeg, png, jpg hoặc gif',
+                'avatar.max'   => 'Ảnh không được vượt quá 2MB',
+
+                'remove_current_avatar.boolean' => 'Dữ liệu không hợp lệ',
+            ],
+            [
+                'name'             => 'Tên',
+                'email'            => 'Email',
+                'current_password' => 'Mật khẩu hiện tại',
+                'avatar'           => 'Ảnh đại diện',
+            ]
+        );
 
         if (!empty($validated['remove_current_avatar']) && $admin->avatar) {
             Storage::disk('public')->delete($admin->avatar);
@@ -83,15 +109,17 @@ class ProfileController extends Controller
             Notification::route('mail', $oldEmail)
                 ->notify(new AdminEmailChangedNotification($oldEmail, $newEmail));
 
-            $admin->notify(new AdminPendingEmailVerificationNotification(
-                $newEmail,
-                $token,
-                EmailChangeController::HOURS_VALID
-            ));
+            $admin->notify(
+                new AdminPendingEmailVerificationNotification(
+                    $newEmail,
+                    $token,
+                    EmailChangeController::HOURS_VALID
+                )
+            );
 
             return back()->with(
                 'success',
-                'Đã gửi liên kết xác nhận tới ' . $newEmail . '. Email tài khoản chỉ được cập nhật sau khi bạn xác nhận tại địa chỉ đó. Một cảnh báo cũng đã được gửi tới email hiện tại.'
+                'Đã gửi liên kết xác nhận tới '.$newEmail.'. Email tài khoản chỉ được cập nhật sau khi bạn xác nhận tại địa chỉ đó. Một cảnh báo cũng đã được gửi tới email hiện tại.'
             );
         }
 
@@ -116,4 +144,5 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Mật khẩu đã được thay đổi thành công.');
     }
+
 }
