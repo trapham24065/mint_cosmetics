@@ -13,6 +13,14 @@
 </head>
 
 <body>
+<style>
+    .swal2-popup.swal2-toast .swal2-title {
+        margin: 0.5em 1em;
+        padding: 0;
+        font-size: 1em;
+        text-align: initial;
+    }
+</style>
 <div class="container-xxl">
     <div class="row vh-100 d-flex justify-content-center">
         <div class="col-12 align-self-center">

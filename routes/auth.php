@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\EmailChangeController;
 use App\Http\Controllers\Admin\LockScreenController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
@@ -31,6 +32,10 @@ Route::middleware(['web', 'guest:web'])->group(function () {
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
 });
+
+Route::get('admin/email/confirm-change/{token}', [EmailChangeController::class, 'confirm'])
+    ->middleware(['web', 'throttle:6,1'])
+    ->name('admin.email-change.confirm');
 
 Route::middleware('auth.admin')
     ->prefix('admin')

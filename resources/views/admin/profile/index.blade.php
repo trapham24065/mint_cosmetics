@@ -43,8 +43,54 @@
                     <div class="tab-content" id="profileTabContent">
                         <!-- Tab 1: Thông tin cá nhân -->
                         <div class="tab-pane fade show active" id="info" role="tabpanel">
+                            @if (! $admin->hasVerifiedEmail())
+                            <div class="alert alert-warning d-flex align-items-center justify-content-between mb-3" role="alert">
+                                <div>
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
+                                    Email của bạn chưa được xác minh. Vui lòng kiểm tra hộp thư.
+                                </div>
+                                <form method="POST" action="{{ route('admin.verification.send') }}" class="m-0">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-warning">Gửi lại email xác minh</button>
+                                </form>
+                            </div>
+                            @endif
+
+                            @if ($admin->hasPendingEmailChange())
+                            <div class="alert alert-info mb-3" role="alert">
+                                <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                                    <div>
+                                        <div class="fw-semibold mb-1">
+                                            <i class="bi bi-envelope-paper me-1"></i>
+                                            Có yêu cầu đổi email đang chờ xác nhận
+                                        </div>
+                                        <div class="small">
+                                            Email mới: <strong>{{ $admin->pending_email }}</strong><br>
+                                            Đã gửi lúc: {{ optional($admin->pending_email_sent_at)->format('d/m/Y H:i') }}.
+                                            Liên kết có hiệu lực trong 24 giờ.
+                                        </div>
+                                        <div class="small text-muted mt-1">
+                                            Tài khoản hiện vẫn đăng nhập bằng email cũ cho tới khi bạn xác nhận tại địa chỉ email mới.
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <form method="POST" action="{{ route('admin.email-change.resend') }}" class="m-0">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-info">Gửi lại</button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.email-change.cancel') }}" class="m-0"
+                                            onsubmit="return confirm('Huỷ yêu cầu đổi email?');">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Huỷ yêu cầu</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
                             <form action="{{ route('admin.profile.update') }}" method="POST"
-                                enctype="multipart/form-data">
+                                enctype="multipart/form-data" id="admin-profile-info-form" autocomplete="off"
+                                data-original-email="{{ $admin->email }}">
                                 @csrf
                                 @method('PUT')
                                 <div class="row mb-3">
@@ -55,9 +101,19 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Địa chỉ email</label>
-                                        <input type="email" class="form-control" name="email"
+                                        <input type="email" class="form-control" name="email" id="profile-email"
                                             value="{{ old('email', $admin->email) }}">
+                                        <small class="text-muted">
+                                            Đổi email yêu cầu nhập mật khẩu hiện tại. Email mới chỉ được áp dụng sau khi bạn xác nhận tại địa chỉ đó.
+                                        </small>
                                     </div>
+                                </div>
+                                <div class="mb-3 d-none" id="profile-current-password-wrapper">
+                                    <label class="form-label">Mật khẩu hiện tại <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="current_password"
+                                        id="profile-current-password" autocomplete="current-password"
+                                        readonly onfocus="this.removeAttribute('readonly');">
+                                    <small class="text-muted">Bắt buộc khi bạn thay đổi địa chỉ email.</small>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Ảnh đại diện</label>
@@ -141,6 +197,26 @@
             removeCurrentLabel: 'Xóa ảnh hiện tại',
             removeSelectedLabel: 'Xóa ảnh đã chọn'
         });
+
+        const profileForm = document.getElementById('admin-profile-info-form');
+        const emailInput = document.getElementById('profile-email');
+        const passwordWrapper = document.getElementById('profile-current-password-wrapper');
+        const passwordInput = document.getElementById('profile-current-password');
+
+        if (profileForm && emailInput && passwordWrapper && passwordInput) {
+            const originalEmail = (profileForm.dataset.originalEmail || '').trim().toLowerCase();
+
+            const togglePasswordField = () => {
+                const changed = emailInput.value.trim().toLowerCase() !== originalEmail;
+                passwordWrapper.classList.toggle('d-none', !changed);
+                if (!changed) {
+                    passwordInput.value = '';
+                }
+            };
+
+            emailInput.addEventListener('input', togglePasswordField);
+            togglePasswordField();
+        }
     });
 </script>
 @endpush

@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\{
     ContactMessageController,
     CustomerController,
     DashboardController,
+    EmailChangeController,
     GlobalSearchController,
     OrderController,
     OrderReturnController,
@@ -43,7 +44,7 @@ use Illuminate\Support\Facades\Route;
 | Prefix: 'admin', Middleware: 'auth' (Applied globally)
 */
 
-require __DIR__.'/api.php';
+require __DIR__ . '/api.php';
 
 // --- Dashboard ---
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -106,11 +107,11 @@ Route::middleware(['role:admin,sale'])->group(function () {
         Route::put('/{review}/reject', 'reject')->name('reject');
         Route::delete('/{review}', 'destroy')->name('destroy');
     });
-// --- Chatbot System ---
-// Chatbot Rules (Converted manual routes to Resource)
+    // --- Chatbot System ---
+    // Chatbot Rules (Converted manual routes to Resource)
     Route::resource('chatbot', ChatbotController::class)->except(['show']);
 
-// Chatbot Replies & Keywords
+    // Chatbot Replies & Keywords
     Route::resource('chatbot-replies', ChatbotReplyController::class);
     Route::controller(ChatbotReplyController::class)->group(function () {
         Route::post('chatbot-replies/{reply}/keywords', 'storeKeyword')->name('chatbot-replies.keywords.store');
@@ -186,6 +187,15 @@ Route::controller(ProfileController::class)->prefix('profile')->name('profile.')
     Route::put('/update', 'update')->name('update');
     Route::put('/password', 'updatePassword')->name('password');
 });
+
+// Admin email change (pending email management)
+Route::controller(EmailChangeController::class)
+    ->prefix('profile/email')
+    ->name('email-change.')
+    ->group(function () {
+        Route::post('/resend', 'resend')->middleware('throttle:3,1')->name('resend');
+        Route::post('/cancel', 'cancel')->name('cancel');
+    });
 
 // Global Search
 Route::get('/global-search', [GlobalSearchController::class, 'search'])->name('global.search');

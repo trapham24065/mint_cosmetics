@@ -1,4 +1,5 @@
-<x-auth-layout>
+@extends('components.auth-layout')
+@section('content')
     <form class="my-4" method="POST" action="{{ route('password.store') }}" autocomplete="off">
         @csrf
 
@@ -17,9 +18,9 @@
         </div>
 
         <div class="form-group mb-2">
-            <label class="form-label" for="password">New password</label>
+            <label class="form-label" for="password">Mật khẩu mới</label>
             <input type="password" class="form-control @error('password') is-invalid @enderror"
-                name="password" id="password" placeholder="Input new password"
+                name="password" id="password" placeholder="Nhập mật khẩu mới"
                 readonly onfocus="this.removeAttribute('readonly');"
                 required autocomplete="new-password">
             @error('password')
@@ -28,9 +29,9 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="password_confirmation">Confirm password</label>
+            <label class="form-label" for="password_confirmation">Xác nhận mật khẩu</label>
             <input type="password" class="form-control"
-                name="password_confirmation" id="password_confirmation" placeholder="Re-enter new password"
+                name="password_confirmation" id="password_confirmation" placeholder="Nhập lại mật khẩu mới"
                 readonly onfocus="this.removeAttribute('readonly');"
                 required autocomplete="new-password">
         </div>
@@ -39,10 +40,10 @@
             <div class="col-12">
                 <div class="d-grid mt-3">
                     <button class="btn btn-primary" type="submit">
-                        {{ __('Reset password') }} <i class="fas fa-key ms-1"></i>
+                        Đặt lại mật khẩu <i class="fas fa-key ms-1"></i>
                     </button>
                 </div>
             </div>
         </div>
     </form>
-</x-auth-layout>
+@endsection
