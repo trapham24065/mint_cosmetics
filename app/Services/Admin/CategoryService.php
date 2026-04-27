@@ -100,6 +100,11 @@ class CategoryService
      */
     public function deleteCategory(Category $category): bool
     {
+        if ($category->children()->exists()) {
+            throw new \RuntimeException(
+                "Không thể xóa '{$category->name}' vì danh mục này đang có danh mục con. Vui lòng xóa hoặc di chuyển các danh mục con trước."
+            );
+        }
         if ($category->products()->exists()) {
             throw new \RuntimeException("Không thể xóa '{$category->name}' danh mục này đã được gán cho sản phẩm.");
         }

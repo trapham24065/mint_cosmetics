@@ -88239,7 +88239,7 @@ var multi = (function () {
     let n = Array.from(t.childNodes).find((t) => t.hasAttribute && t.hasAttribute(Tt));
     (n || ((n = document.createElement('style')), n.setAttribute(Tt, Tt), t.appendChild(n)),
       (n.textContent =
-        ':host{display:inline-block;vertical-align:' +
+        ':host{vertical-align:' +
         (e ? '-0.125em' : '0') +
         '}span,svg{display:block}' +
         Ft));

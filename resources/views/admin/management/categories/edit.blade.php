@@ -1,6 +1,12 @@
 @extends('admin.layouts.app')
 
 @section('content')
+    <style>
+        .choices__list--dropdown {
+            top: 100% !important;
+            bottom: auto !important;
+        }
+    </style>
     <div class="container-xxl">
         <form method="POST" action="{{ route('admin.categories.update', $category) }}" enctype="multipart/form-data"
               novalidate>

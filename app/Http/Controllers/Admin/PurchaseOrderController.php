@@ -54,12 +54,34 @@ class PurchaseOrderController extends Controller
 
     public function adjustStock(Request $request): RedirectResponse
     {
-        $request->validate([
-            'variant_id'      => ['required', 'exists:product_variants,id'],
-            'adjustment_type' => ['required', 'string', Rule::in(array_keys($this->adjustmentTypes()))],
-            'quantity'        => ['required', 'integer', 'min:1', 'max:100000'],
-            'reason'          => ['nullable', 'string', 'max:2000'],
-        ]);
+        $request->validate(
+            [
+                'variant_id'      => ['required', 'exists:product_variants,id'],
+                'adjustment_type' => ['required', 'string', Rule::in(array_keys($this->adjustmentTypes()))],
+                'quantity'        => ['required', 'integer', 'min:1', 'max:100000'],
+                'reason'          => ['nullable', 'string', 'max:2000'],
+            ],
+            [
+                'variant_id.required' => 'Vui lòng chọn sản phẩm',
+                'variant_id.exists'   => 'Sản phẩm không tồn tại',
+
+                'adjustment_type.required' => 'Vui lòng chọn loại điều chỉnh',
+                'adjustment_type.in'       => 'Loại điều chỉnh không hợp lệ',
+
+                'quantity.required' => 'Vui lòng nhập số lượng',
+                'quantity.integer'  => 'Số lượng phải là số nguyên',
+                'quantity.min'      => 'Số lượng phải lớn hơn 0',
+                'quantity.max'      => 'Số lượng quá lớn',
+
+                'reason.max' => 'Lý do không được vượt quá 2000 ký tự',
+            ],
+            [
+                'variant_id'      => 'Sản phẩm',
+                'adjustment_type' => 'Loại điều chỉnh',
+                'quantity'        => 'Số lượng',
+                'reason'          => 'Lý do',
+            ]
+        );
 
         $type = $request->string('adjustment_type')->toString();
         $quantity = (int)$request->integer('quantity');
@@ -75,7 +97,9 @@ class PurchaseOrderController extends Controller
                 $after = $before + $change;
 
                 if ($after < 0) {
-                    throw new \RuntimeException('So luong ton kho khong du de tru theo yeu cau su co.');
+                    throw new \RuntimeException(
+                        'Hàng tồn kho không đủ để thực hiện thao tác này.'
+                    );
                 }
 
                 $variant->update(['stock' => $after]);
@@ -93,13 +117,13 @@ class PurchaseOrderController extends Controller
 
             return redirect()->route('admin.inventory.index')->with(
                 'success',
-                'Da cap nhat ton kho va ghi nhan bien dong su co thanh cong.'
+                'Kho dữ liệu đã được cập nhật và các thay đổi về sự cố đã được ghi nhận thành công.'
             );
         } catch (\RuntimeException $e) {
             return back()->with('error', $e->getMessage())->withInput();
         } catch (\Exception $e) {
             Log::error('Stock adjustment error: '.$e->getMessage());
-            return back()->with('error', 'Co loi xay ra khi dieu chinh ton kho.')->withInput();
+            return back()->with('error', 'Đã xảy ra lỗi khi điều chỉnh tồn kho.')->withInput();
         }
     }
 
@@ -131,14 +155,42 @@ class PurchaseOrderController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'supplier_id'          => 'required|exists:suppliers,id',
-            'note'                 => 'nullable|string',
-            'items'                => 'required|array|min:1',
-            'items.*.variant_id'   => 'required|exists:product_variants,id',
-            'items.*.quantity'     => 'required|integer|min:1',
-            'items.*.import_price' => 'required|numeric|min:0',
-        ]);
+        $request->validate(
+            [
+                'supplier_id'          => 'required|exists:suppliers,id',
+                'note'                 => 'nullable|string',
+                'items'                => 'required|array|min:1',
+                'items.*.variant_id'   => 'required|exists:product_variants,id',
+                'items.*.quantity'     => 'required|integer|min:1',
+                'items.*.import_price' => 'required|numeric|min:0',
+            ],
+            [
+                'supplier_id.required' => 'Vui lòng chọn nhà cung cấp',
+                'supplier_id.exists'   => 'Nhà cung cấp không tồn tại',
+
+                'items.required' => 'Vui lòng thêm ít nhất 1 sản phẩm',
+                'items.array'    => 'Dữ liệu sản phẩm không hợp lệ',
+                'items.min'      => 'Phải có ít nhất 1 sản phẩm',
+
+                'items.*.variant_id.required' => 'Vui lòng chọn sản phẩm',
+                'items.*.variant_id.exists'   => 'Sản phẩm không tồn tại',
+
+                'items.*.quantity.required' => 'Vui lòng nhập số lượng',
+                'items.*.quantity.integer'  => 'Số lượng phải là số nguyên',
+                'items.*.quantity.min'      => 'Số lượng phải lớn hơn 0',
+
+                'items.*.import_price.required' => 'Vui lòng nhập giá nhập',
+                'items.*.import_price.numeric'  => 'Giá nhập phải là số',
+                'items.*.import_price.min'      => 'Giá nhập phải lớn hơn hoặc bằng 0',
+            ],
+            [
+                'supplier_id'          => 'Nhà cung cấp',
+                'items'                => 'Danh sách sản phẩm',
+                'items.*.variant_id'   => 'Sản phẩm',
+                'items.*.quantity'     => 'Số lượng',
+                'items.*.import_price' => 'Giá nhập',
+            ]
+        );
 
         try {
             DB::transaction(function () use ($request) {

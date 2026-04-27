@@ -74,7 +74,7 @@
                                 </div>
 
                                 {{-- Limit columns to 4 for layout --}}
-                                @if($categoryCount >= 4)
+                                @if($categoryCount >= 6)
                                     @break
                                 @endif
                             @endif
