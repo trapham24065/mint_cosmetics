@@ -73,7 +73,7 @@ class PaymentController extends Controller
             'last_name'     => ['required', 'string', 'max:255'],
             'address'       => ['required', 'string', 'max:500'],
             'phone'         => ['required', 'string', 'regex:/^0[0-9]{9,10}$/'],
-            'email'         => ['required', 'email', 'lowercase', 'max:255'],
+            'email'         => ['required', 'email:rfc,strict', 'lowercase', 'max:255'],
             'province_id'   => ['required', 'integer'],
             'district_id'   => ['required', 'integer'],
             'ward_code'     => ['required', 'string', 'max:50'],

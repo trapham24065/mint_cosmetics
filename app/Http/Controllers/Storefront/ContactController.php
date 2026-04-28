@@ -27,7 +27,7 @@ class ContactController
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:100'],
             'last_name'  => ['nullable', 'string', 'max:100'],
-            'email'      => ['required', 'email', 'lowercase', 'max:255'],
+            'email'      => ['required', 'email:rfc,strict', 'lowercase', 'max:255'],
             'message'    => ['required', 'string', 'min:10', 'max:5000'],
         ], [
             'first_name.required' => 'Vui lòng nhập tên của bạn.',
@@ -43,6 +43,7 @@ class ContactController
 
         return redirect()
             ->route('contact.index')
-            ->with('success', 'Tin nhan cua ban da duoc gui. Mint Cosmetics se phan hoi som nhat co the.');
+            ->with('success', 'Tin nhắn của bạn đã được gửi. Mint Cosmetics sẽ phản hồi trong thời gian sớm nhất.');
     }
+
 }

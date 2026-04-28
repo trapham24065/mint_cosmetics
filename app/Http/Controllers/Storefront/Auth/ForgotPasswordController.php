@@ -32,7 +32,7 @@ class ForgotPasswordController extends Controller
     public function sendResetLinkEmail(Request $request): RedirectResponse
     {
         $request->validate(
-            ['email' => 'required|email'],
+            ['email' => 'required|email:rfc,strict'],
             [
                 'email.required' => 'Email không được để trống',
                 'email.email'    => 'Email không đúng định dạng',
@@ -72,7 +72,7 @@ class ForgotPasswordController extends Controller
         $request->validate(
             [
                 'token'    => 'required',
-                'email'    => 'required|email',
+                'email'    => 'required|email:rfc,strict',
                 'password' => ['required', 'confirmed', PasswordRule::min(8)->mixedCase()->numbers()],
             ],
             [
