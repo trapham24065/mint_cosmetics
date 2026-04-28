@@ -19,6 +19,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class CustomerDashboardController extends Controller
@@ -129,19 +130,47 @@ class CustomerDashboardController extends Controller
         /** @var Customer $customer */
         $customer = Auth::guard('customer')->user();
 
-        $validated = $request->validate([
+        $requestedEmail = strtolower((string) $request->input('email'));
+        $emailChanged = $requestedEmail !== strtolower((string) $customer->email);
+
+        $rules = [
             'first_name'       => 'required|string|max:255',
             'last_name'        => 'required|string|max:255',
-            'email'            => 'required|email|max:255|unique:customers,email,' . $customer->id,
+            'email'            => 'required|email|lowercase|max:255|unique:customers,email,' . $customer->id,
             'current_password' => 'nullable|required_with:new_password',
-            'new_password'     => 'nullable|string|min:8|confirmed',
+            'new_password'     => ['nullable', 'confirmed', Password::min(8)->mixedCase()->numbers()],
+        ];
+
+        if ($emailChanged) {
+            $rules['current_password'] = 'required';
+        }
+
+        $validated = $request->validate($rules, [
+            'first_name.required' => 'Tên không được để trống.',
+            'last_name.required'  => 'Họ không được để trống.',
+
+            'email.required'  => 'Email không được để trống.',
+            'email.email'     => 'Email không đúng định dạng.',
+            'email.lowercase' => 'Email phải viết thường.',
+            'email.unique'    => 'Email đã tồn tại.',
+
+            'current_password.required'      => 'Vui lòng nhập mật khẩu hiện tại.',
+            'current_password.required_with' => 'Vui lòng nhập mật khẩu hiện tại.',
+
+            'new_password.min'       => 'Mật khẩu mới phải có ít nhất 8 ký tự.',
+            'new_password.mixed'     => 'Mật khẩu mới phải có cả chữ hoa và chữ thường.',
+            'new_password.numbers'   => 'Mật khẩu mới phải chứa ít nhất một chữ số.',
+            'new_password.confirmed' => 'Xác nhận mật khẩu mới không khớp.',
         ]);
 
-        // Handle password change
-        if ($request->filled('current_password')) {
-            if (!Hash::check($request->current_password, $customer->password)) {
-                return back()->withErrors(['current_password' => 'Current password does not match.']);
+        // Verify current password if user is changing email or password
+        if ($emailChanged || $request->filled('new_password')) {
+            if (!Hash::check((string) $request->current_password, $customer->password)) {
+                return back()->withErrors(['current_password' => 'Mật khẩu hiện tại không đúng.']);
             }
+        }
+
+        if ($request->filled('new_password')) {
             $customer->password = Hash::make($request->new_password);
         }
 

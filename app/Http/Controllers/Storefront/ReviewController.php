@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
@@ -25,7 +26,7 @@ class ReviewController extends Controller
         $validated = $request->validate([
             'token'         => ['required', 'exists:order_items,review_token'],
             'rating'        => ['required', 'integer', 'min:1', 'max:5'],
-            'review'        => ['required', 'string', 'max:1000'],
+            'review'        => ['required', 'string', 'min:10', 'max:1000'],
             'reviewer_name' => ['required', 'string', 'max:255'],
             'media'         => ['nullable', 'array', 'max:5'],
             'media.*'       => ['image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
@@ -42,6 +43,7 @@ class ReviewController extends Controller
 
             // review
             'review.required'        => 'Vui lòng nhập nội dung đánh giá.',
+            'review.min'             => 'Đánh giá phải có ít nhất 10 ký tự.',
             'review.max'             => 'Đánh giá không được vượt quá 1000 ký tự.',
 
             // reviewer_name
@@ -80,5 +82,4 @@ class ReviewController extends Controller
 
         return redirect()->route('home')->with('success', 'Cảm ơn bạn đã đánh giá!');
     }
-
 }

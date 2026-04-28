@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
 class CustomerAuthController extends Controller
@@ -50,9 +51,9 @@ class CustomerAuthController extends Controller
             [
                 'first_name' => 'required|string|max:255',
                 'last_name'  => 'required|string|max:255',
-                'email'      => 'required|string|email|max:255|unique:customers',
-                'phone'      => 'required|string|max:20',
-                'password'   => 'required|string|min:8|confirmed',
+                'email'      => 'required|string|email|lowercase|max:255|unique:customers',
+                'phone'      => ['required', 'string', 'regex:/^0[0-9]{9,10}$/'],
+                'password'   => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->numbers()],
             ],
             [
                 'first_name.required' => 'Tên không được để trống',
@@ -61,16 +62,19 @@ class CustomerAuthController extends Controller
                 'last_name.required' => 'Họ không được để trống',
                 'last_name.max'      => 'Họ không được vượt quá 255 ký tự',
 
-                'email.required' => 'Email không được để trống',
-                'email.email'    => 'Email không đúng định dạng',
-                'email.unique'   => 'Email đã tồn tại',
-                'email.max'      => 'Email không được vượt quá 255 ký tự',
+                'email.required'  => 'Email không được để trống',
+                'email.email'     => 'Email không đúng định dạng',
+                'email.lowercase' => 'Email phải viết thường.',
+                'email.unique'    => 'Email đã tồn tại',
+                'email.max'       => 'Email không được vượt quá 255 ký tự',
 
                 'phone.required' => 'Số điện thoại không được để trống',
-                'phone.max'      => 'Số điện thoại không được vượt quá 20 ký tự',
+                'phone.regex'    => 'Số điện thoại không hợp lệ (10-11 chữ số, bắt đầu bằng 0).',
 
                 'password.required'  => 'Mật khẩu không được để trống',
                 'password.min'       => 'Mật khẩu phải có ít nhất 8 ký tự',
+                'password.mixed'     => 'Mật khẩu phải có cả chữ hoa và chữ thường.',
+                'password.numbers'   => 'Mật khẩu phải chứa ít nhất một chữ số.',
                 'password.confirmed' => 'Xác nhận mật khẩu không khớp',
             ]
         );
