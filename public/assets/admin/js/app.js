@@ -197,11 +197,11 @@ class FormAdvanced {
       if (isChoicesVal['data-choices-groups']) {
         choiceData.placeholderValue = 'This is a placeholder set in the config';
       }
-      if (isChoicesVal['data-choices-search-false']) {
-        choiceData.searchEnabled = false;
-      }
-      if (isChoicesVal['data-choices-search-true']) {
+      if (item.getAttribute('data-choices-search') === 'true') {
         choiceData.searchEnabled = true;
+      }
+      if (item.getAttribute('data-choices-search') === 'false') {
+        choiceData.searchEnabled = false;
       }
       if (isChoicesVal['data-choices-removeItem']) {
         choiceData.removeItemButton = true;
@@ -234,6 +234,8 @@ class FormAdvanced {
       if (isChoicesVal['data-choices-text-disabled-true']) {
         choiceData.addItems = false;
       }
+      choiceData.searchResultLimit = 9999;
+      choiceData.renderChoiceLimit = 9999;
       isChoicesVal['data-choices-text-disabled-true']
         ? new Choices(item, choiceData).disable()
         : new Choices(item, choiceData);

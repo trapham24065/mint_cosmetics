@@ -38,6 +38,7 @@ class ShopController extends Controller
         }
 
         // CATEGORY
+        $expandedCategoryIds = [];
         if ($request->filled('category')) {
             $selectedCategory = Category::query()
                 ->where('active', true)
@@ -47,6 +48,7 @@ class ShopController extends Controller
             if ($selectedCategory) {
                 $categoryIds = array_merge([$selectedCategory->id], $selectedCategory->getDescendantIds());
                 $query->whereIn('category_id', $categoryIds);
+                $expandedCategoryIds = $selectedCategory->getAncestorsAndSelfIds();
             }
         }
 
@@ -109,6 +111,7 @@ class ShopController extends Controller
             'products'   => $products,
             'categories' => $categories,
             'categoryTree' => $categoryTree,
+            'expandedCategoryIds' => $expandedCategoryIds,
             'brands'     => $brands,
             'minPrice'   => $priceRange->min_price ?? 0,
             'maxPrice'   => $priceRange->max_price ?? 0,

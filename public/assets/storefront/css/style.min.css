@@ -6859,7 +6859,7 @@ hr {
 }
 .product-sidebar-widget .product-widget-category li:first-child a {
   border-top: none;
-  padding-top: 0;
+    padding-left: 5px;
 }
 .product-sidebar-widget .product-widget-category li:last-child a {
   padding-bottom: 0;
