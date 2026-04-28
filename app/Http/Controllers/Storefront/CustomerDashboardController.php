@@ -134,8 +134,8 @@ class CustomerDashboardController extends Controller
         $emailChanged = $requestedEmail !== strtolower((string) $customer->email);
 
         $rules = [
-            'first_name'       => 'required|string|max:255',
-            'last_name'        => 'required|string|max:255',
+            'first_name'       => ['required', 'string', 'min:2', 'max:35', 'regex:/^(?=.*\\p{L})[\\p{L}\\s]+$/u'],
+            'last_name'        => ['required', 'string', 'min:2', 'max:35', 'regex:/^(?=.*\\p{L})[\\p{L}\\s]+$/u'],
             'email'            => 'required|email:rfc,strict|lowercase|max:255|unique:customers,email,' . $customer->id,
             'current_password' => 'nullable|required_with:new_password',
             'new_password'     => ['nullable', 'confirmed', Password::min(8)->mixedCase()->numbers()],
@@ -147,7 +147,13 @@ class CustomerDashboardController extends Controller
 
         $validated = $request->validate($rules, [
             'first_name.required' => 'Tên không được để trống.',
+            'first_name.min'      => 'Tên phải có ít nhất 2 ký tự.',
+            'first_name.max'      => 'Tên không được vượt quá 35 ký tự.',
+            'first_name.regex'    => 'Tên chỉ được chứa chữ cái và khoảng trắng, không chứa ký tự đặc biệt.',
             'last_name.required'  => 'Họ không được để trống.',
+            'last_name.min'       => 'Họ phải có ít nhất 2 ký tự.',
+            'last_name.max'       => 'Họ không được vượt quá 35 ký tự.',
+            'last_name.regex'     => 'Họ chỉ được chứa chữ cái và khoảng trắng, không chứa ký tự đặc biệt.',
 
             'email.required'  => 'Email không được để trống.',
             'email.email'     => 'Email không đúng định dạng.',

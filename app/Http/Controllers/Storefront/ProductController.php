@@ -11,6 +11,7 @@
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -55,18 +56,80 @@ class ProductController extends Controller
 
     public function searchApi(Request $request): JsonResponse
     {
-        $query = $request->input('query', '');
+        $query = trim($request->input('query', ''));
 
         if (strlen($query) < 2) {
             return response()->json([]);
         }
 
+        $matchedCategoryIds = $this->getCategoryIdsMatchingSearch($query);
+
         $products = Product::where('active', true)
-            ->where('name', 'like', '%' . $query . '%')
+            ->where(function ($q) use ($query, $matchedCategoryIds) {
+                $q->where('name', 'like', '%' . $query . '%');
+                if (!empty($matchedCategoryIds)) {
+                    $q->orWhereIn('category_id', $matchedCategoryIds);
+                }
+            })
             ->with('variants')
             ->limit(5)
             ->get();
 
         return response()->json($products);
+    }
+
+    /**
+     * Lấy danh sách category id (gồm cả descendant và ancestor) khớp với từ khóa.
+     * Mở rộng theo cả 2 chiều để bắt được sản phẩm dù gắn ở cha hay con.
+     */
+    private function getCategoryIdsMatchingSearch(string $term): array
+    {
+        if ($term === '') {
+            return [];
+        }
+
+        $allCategories = Category::query()
+            ->where('active', true)
+            ->get(['id', 'name', 'parent_id']);
+
+        $byId = $allCategories->keyBy('id');
+        $childrenByParent = $allCategories->groupBy(static fn(Category $c) => $c->parent_id ?? 0);
+
+        $matchedIds = $allCategories
+            ->filter(static fn(Category $c) => stripos($c->name, $term) !== false)
+            ->pluck('id')
+            ->all();
+
+        $collected = [];
+
+        // BFS xuôi để gom descendant
+        $queue = $matchedIds;
+        while (!empty($queue)) {
+            $currentId = array_shift($queue);
+            if (isset($collected[$currentId])) {
+                continue;
+            }
+            $collected[$currentId] = true;
+
+            foreach ($childrenByParent->get($currentId, collect()) as $child) {
+                if (!isset($collected[$child->id])) {
+                    $queue[] = $child->id;
+                }
+            }
+        }
+
+        // Đi ngược lên để gom ancestor (sản phẩm có thể được gắn ở category cha)
+        foreach ($matchedIds as $matchedId) {
+            $current = $byId->get($matchedId);
+            while ($current && $current->parent_id) {
+                if (isset($collected[$current->parent_id])) {
+                    break;
+                }
+                $collected[$current->parent_id] = true;
+                $current = $byId->get($current->parent_id);
+            }
+        }
+
+        return array_keys($collected);
     }
 }

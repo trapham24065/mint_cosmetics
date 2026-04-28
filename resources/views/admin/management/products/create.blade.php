@@ -82,11 +82,7 @@
 
                                         @foreach($categories as $category)
                                             <option
-                                                value="{{ $category->id }}"
-                                                @selected((int) old('category_id') === $category->id)
-                                            >
-                                                {{ $category->hierarchy_name }}
-                                            </option>
+                                                value="{{ $category->id }}" @selected((int) old('category_id', $current_id ?? 0) === $category->id)>{{ trim($category->hierarchy_name) }}</option>
                                         @endforeach
                                     </select>
 
