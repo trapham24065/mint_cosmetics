@@ -1,27 +1,162 @@
 @extends('storefront.layouts.app')
 @section('content')
 <style>
-    .product-widget-category a.active {
-        color: #ff6a28;
-        font-weight: 600;
+    /* === Category Tree Widget === */
+    .product-widget-category {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .product-widget-category .category-tree-item {
+        list-style: none;
+        margin-bottom: 2px;
     }
 
     .product-widget-category .category-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        transition: background-color .2s ease;
+    }
+
+    .product-widget-category .category-item:hover {
+        background-color: #fff5f5;
     }
 
     .product-widget-category .category-link {
         flex: 1;
+        min-width: 0;
+        font-size: 14px;
+        color: #364958;
+        text-decoration: none;
+        line-height: 1.4;
+        transition: color .2s ease;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        word-break: break-word;
+    }
+
+    .product-widget-category .category-link:hover {
+        color: #ff6565;
+    }
+
+    .product-widget-category .category-parent-toggle {
+        border: 0;
+        background: transparent;
+        padding: 0;
+        text-align: left;
+        cursor: pointer;
+        font: inherit;
+        color: #364958;
+    }
+
+    .product-widget-category .category-link.active,
+    .product-widget-category .category-parent-toggle.active,
+    .product-widget-category .category-all-link.active {
+        color: #ff6565;
+        font-weight: 600;
+    }
+
+    .product-widget-category .category-item:has(.active) {
+        background-color: #fff5f5;
+    }
+
+    .product-widget-category .category-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .product-widget-category .category-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 26px;
+        height: 22px;
+        padding: 0 8px;
+        background: #f3f3f3;
+        color: #6b6b6b;
+        font-size: 12px;
+        font-weight: 500;
+        border-radius: 11px;
+        transition: background-color .2s ease, color .2s ease;
+    }
+
+    .product-widget-category .category-item:hover .category-count,
+    .product-widget-category .category-item:has(.active) .category-count {
+        background: #ffe5e5;
+        color: #ff6565;
+    }
+
+    .product-widget-category .category-toggle {
+        width: 24px;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 0;
+        background: transparent;
+        color: #888;
+        border-radius: 50%;
+        padding: 0;
+        line-height: 1;
+        transition: background-color .2s ease, color .2s ease;
+    }
+
+    .product-widget-category .category-toggle:hover {
+        background: #ffe5e5;
+        color: #ff6565;
+    }
+
+    .product-widget-category .category-toggle:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .product-widget-category .category-toggle i {
+        font-size: 14px;
+        transition: transform .25s ease;
+    }
+
+    .product-widget-category .category-toggle[aria-expanded="true"] i {
+        transform: rotate(180deg);
     }
 
     .product-widget-category .category-children {
-        margin-top: 8px;
-        margin-left: 14px;
-        padding-left: 12px;
-        border-left: 1px dashed #dedede;
+        list-style: none;
+        margin: 4px 0 6px 4px;
+        padding: 4px 0 4px 14px;
+        border-left: 2px solid #ffd6d6;
+    }
+
+    .product-widget-category .category-tree-item-all {
+        list-style: none;
+        margin: 0 0 6px 12px;
+    }
+
+    .product-widget-category .category-all-link {
+        display: inline-block;
+        font-size: 12px;
+        color: #6b6b6b;
+        text-decoration: none;
+        padding: 3px 10px;
+        border-radius: 12px;
+        background: #f7f7f7;
+        transition: background-color .2s ease, color .2s ease;
+    }
+
+    .product-widget-category .category-all-link:hover,
+    .product-widget-category .category-all-link.active {
+        color: #ff6565;
+        background: #ffe5e5;
     }
 
     .product-widget-brand li {
@@ -130,6 +265,7 @@
                                     'category' => $category,
                                     'selectedCategorySlug' => request('category'),
                                     'queryParams' => request()->query(),
+                                    'expandedCategoryIds' => $expandedCategoryIds ?? [],
                                     ])
                                     @endforeach
 
