@@ -26,14 +26,17 @@ class ContactController
     {
         $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:100'],
-            'last_name' => ['nullable', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:255'],
-            'message' => ['required', 'string', 'max:5000'],
+            'last_name'  => ['nullable', 'string', 'max:100'],
+            'email'      => ['required', 'email', 'lowercase', 'max:255'],
+            'message'    => ['required', 'string', 'min:10', 'max:5000'],
         ], [
             'first_name.required' => 'Vui lòng nhập tên của bạn.',
-            'email.required' => 'Vui lòng nhập email.',
-            'email.email' => 'Email không đúng định dạng.',
-            'message.required' => 'Vui lòng nhập nội dung liên hệ.',
+            'email.required'      => 'Vui lòng nhập email.',
+            'email.email'         => 'Email không đúng định dạng.',
+            'email.lowercase'     => 'Email phải viết thường.',
+            'message.required'    => 'Vui lòng nhập nội dung liên hệ.',
+            'message.min'         => 'Nội dung liên hệ phải có ít nhất 10 ký tự.',
+            'message.max'         => 'Nội dung liên hệ không được vượt quá 5000 ký tự.',
         ]);
 
         ContactMessage::create($validated);

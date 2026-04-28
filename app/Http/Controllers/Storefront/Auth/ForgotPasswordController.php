@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Storefront\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
@@ -72,7 +73,7 @@ class ForgotPasswordController extends Controller
             [
                 'token'    => 'required',
                 'email'    => 'required|email',
-                'password' => 'required|min:8|confirmed',
+                'password' => ['required', 'confirmed', PasswordRule::min(8)->mixedCase()->numbers()],
             ],
             [
                 'token.required' => 'Token không hợp lệ hoặc đã hết hạn',
@@ -82,6 +83,8 @@ class ForgotPasswordController extends Controller
 
                 'password.required'  => 'Mật khẩu không được để trống',
                 'password.min'       => 'Mật khẩu phải có ít nhất 8 ký tự',
+                'password.mixed'     => 'Mật khẩu phải có cả chữ hoa và chữ thường.',
+                'password.numbers'   => 'Mật khẩu phải chứa ít nhất một chữ số.',
                 'password.confirmed' => 'Xác nhận mật khẩu không khớp',
             ],
             [
@@ -125,5 +128,4 @@ class ForgotPasswordController extends Controller
         // Tùy chọn: Đăng nhập ngay sau khi reset
         // Auth::guard('customer')->login($user);
     }
-
 }
