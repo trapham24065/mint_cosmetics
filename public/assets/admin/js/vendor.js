@@ -72792,17 +72792,17 @@ var Wizard = (function () {
             prependValue: null,
             appendValue: null,
             renderSelectedChoices: 'auto',
-            loadingText: 'Loading...',
-            noResultsText: 'No results found',
-            noChoicesText: 'No choices to choose from',
-            itemSelectText: 'Press to select',
-            uniqueItemText: 'Only unique values can be added',
-            customAddItemText: 'Only values matching specific conditions can be added',
+            loadingText: 'Đang tải...',
+            noResultsText: 'Không tìm thấy kết quả nào',
+            noChoicesText: 'Không có lựa chọn nào để chọn.',
+            itemSelectText: 'Nhấn để chọn',
+            uniqueItemText: 'Chỉ có thể thêm các giá trị duy nhất.',
+            customAddItemText: 'Chỉ những giá trị đáp ứng các điều kiện cụ thể mới có thể được thêm vào.',
             addItemText: function (e) {
-              return 'Press Enter to add <b>"'.concat((0, n.sanitise)(e), '"</b>');
+              return 'Nhấn Enter để thêm <b>"'.concat((0, n.sanitise)(e), '"</b>');
             },
             maxItemText: function (e) {
-              return 'Only '.concat(e, ' values can be added');
+              return 'Only '.concat(e, ' giá trị có thể được thêm vào');
             },
             valueComparer: function (e, t) {
               return e === t;

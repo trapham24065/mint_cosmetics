@@ -66,19 +66,14 @@
                                             class="form-control @error('parent_id') is-invalid @enderror"
                                             data-choices
                                             data-choices-search="true"
-                                            data-choices-placeholder="true"
-                                        >
+                                            data-choices-placeholder="true">
                                             <option value="">
                                                 Không có danh mục cha (danh mục gốc)
                                             </option>
 
                                             @foreach ($parentCategories as $parentCategory)
                                                 <option
-                                                    value="{{ $parentCategory->id }}"
-                                                    @selected((int) old('parent_id') === $parentCategory->id)
-                                                >
-                                                    {{ $parentCategory->hierarchy_name }}
-                                                </option>
+                                                    value="{{ $parentCategory->id }}">{{ trim($parentCategory->hierarchy_name) }}</option>
                                             @endforeach
                                         </select>
 

@@ -32,8 +32,8 @@ class UpdateAddressRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name'  => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'min:2', 'max:35', 'regex:/^(?=.*\\p{L})[\\p{L}\\s]+$/u'],
+            'last_name'  => ['required', 'string', 'min:2', 'max:35', 'regex:/^(?=.*\\p{L})[\\p{L}\\s]+$/u'],
             'address'    => ['required', 'string', 'max:500'],
             'city'       => ['nullable', 'string', 'max:255'],
             'phone'      => ['required', 'string', 'regex:/^[0-9]{10,11}$/'],
@@ -68,7 +68,13 @@ class UpdateAddressRequest extends FormRequest
     {
         return [
             'first_name.required' => 'Vui lòng nhập tên.',
+            'first_name.min' => 'Tên phải có ít nhất 2 ký tự.',
+            'first_name.max' => 'Tên không được vượt quá 35 ký tự.',
+            'first_name.regex' => 'Tên chỉ được chứa chữ cái và khoảng trắng, không chứa ký tự đặc biệt.',
             'last_name.required'  => 'Vui lòng nhập họ.',
+            'last_name.min'  => 'Họ phải có ít nhất 2 ký tự.',
+            'last_name.max'  => 'Họ không được vượt quá 35 ký tự.',
+            'last_name.regex' => 'Họ chỉ được chứa chữ cái và khoảng trắng, không chứa ký tự đặc biệt.',
             'address.required'    => 'Vui lòng nhập địa chỉ.',
             'phone.required'      => 'Vui lòng nhập số điện thoại.',
             'phone.regex'         => 'Định dạng số điện thoại không hợp lệ (10-11 chữ số).',

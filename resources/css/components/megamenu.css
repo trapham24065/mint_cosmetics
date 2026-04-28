@@ -43,15 +43,16 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    color: #333;
+    color: #364958;
     text-decoration: none;
     font-weight: 500;
     font-size: 0.95rem;
-    transition: all 0.3s ease;
+    transition: color 0.2s ease, background-color 0.2s ease;
     border-radius: 4px;
 }
 
-.megamenu-link:hover {
+.megamenu-link:hover,
+.megamenu-link.active {
     color: var(--primary);
     background-color: var(--primary-light);
 }
@@ -148,10 +149,21 @@
 .megamenu-parent-link {
     color: var(--primary) !important;
     text-decoration: none;
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.5rem;
     font-weight: 600;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.megamenu-link-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .megamenu-parent-link:hover {
@@ -160,8 +172,30 @@
 }
 
 .product-count {
-    font-size: 0.8rem;
-    color: #999;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 18px;
+    padding: 0 6px;
+    background: #f3f3f3;
+    color: #6b6b6b;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 9px;
+    flex-shrink: 0;
+    transition: background-color .2s ease, color .2s ease;
+}
+
+.megamenu-parent-link .product-count {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.megamenu-sublink:hover .product-count,
+.megamenu-sublink.active .product-count {
+    background: var(--primary-light);
+    color: var(--primary);
 }
 
 /* Sub list */
@@ -178,18 +212,26 @@
     color: #4b5563;
     text-decoration: none;
     font-size: 0.9rem;
+    line-height: 1.4;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.5rem;
     padding: 0.4rem 0.6rem;
     border-radius: 4px;
-    transition: all 0.2s ease;
+    transition: color .2s ease, background-color .2s ease;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
-.megamenu-sublink:hover {
+.megamenu-sublink:hover,
+.megamenu-sublink.active {
     color: var(--primary);
     background-color: var(--primary-light);
-    padding-left: 1rem;
+}
+
+.megamenu-sublink.active {
+    font-weight: 600;
 }
 
 /* Level 3 */
@@ -204,17 +246,25 @@
 }
 
 .megamenu-sub-item {
+    display: block;
     color: #6b7280;
     text-decoration: none;
     font-size: 0.85rem;
+    line-height: 1.4;
     padding: 0.3rem 0.5rem;
     border-radius: 3px;
-    transition: all 0.2s ease;
+    transition: color .2s ease, background-color .2s ease;
+    overflow-wrap: anywhere;
 }
 
-.megamenu-sub-item:hover {
+.megamenu-sub-item:hover,
+.megamenu-sub-item.active {
     color: var(--primary);
     background-color: var(--primary-light);
+}
+
+.megamenu-sub-item.active {
+    font-weight: 600;
 }
 
 .megamenu-view-more {

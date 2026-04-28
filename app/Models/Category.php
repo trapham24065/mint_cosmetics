@@ -34,7 +34,11 @@ class Category extends Model
 
     protected $casts = [
         'parent_id' => 'integer',
-        'active' => 'boolean',
+        'active'    => 'boolean',
+    ];
+
+    protected $appends = [
+        'hierarchy_name',
     ];
 
     public function parent(): BelongsTo
@@ -97,19 +101,6 @@ class Category extends Model
         return $descendantIds;
     }
 
-    public function getHierarchyNameAttribute(): string
-    {
-        $parts = [$this->name];
-        $current = $this->parent;
-
-        while ($current) {
-            array_unshift($parts, $current->name);
-            $current = $current->parent;
-        }
-
-        return implode(' > ', $parts);
-    }
-
     public function products(): HasMany|Category
     {
         return $this->hasMany(Product::class);
@@ -155,10 +146,24 @@ class Category extends Model
         while (self::query()->where('slug', $slug)->when($exceptId, function ($query) use ($exceptId) {
             return $query->where('id', '!=', $exceptId);
         })->exists()) {
-            $slug = $baseSlug . '-' . $counter;
+            $slug = $baseSlug.'-'.$counter;
             $counter++;
         }
 
         return $slug;
     }
+
+    public function getHierarchyNameAttribute()
+    {
+        $name = $this->name;
+        $parent = $this->parent;
+
+        while ($parent) {
+            $name = $parent->name.' > '.$name;
+            $parent = $parent->parent;
+        }
+
+        return $name;
+    }
+
 }

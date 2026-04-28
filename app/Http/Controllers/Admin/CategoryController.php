@@ -69,10 +69,24 @@ class CategoryController extends Controller
     public function create(): View
     {
         $attributes = Attribute::all();
-        $parentCategories = Category::query()
-            ->with('parent')
-            ->orderBy('name')
-            ->get();
+        // Get all categories with eager loaded parent chain
+        $parentCategories = Category::with('parent.parent.parent.parent.parent')
+            ->get()
+            ->map(function ($category) {
+                // Build and SET hierarchy name on model
+                $name = $category->name;
+                $parent = $category->parent;
+                while ($parent) {
+                    $name = $parent->name.' > '.$name;
+                    $parent = $parent->parent;
+                }
+                $category->hierarchy_name = $name;
+                return $category;
+            })
+            ->sortBy(function ($category) {
+                return $category->hierarchy_name;
+            })
+            ->values();
 
         return view('admin.management.categories.create', compact('attributes', 'parentCategories'));
     }
@@ -91,11 +105,11 @@ class CategoryController extends Controller
             return redirect()->route('admin.categories.index')
                 ->with('success', 'Danh mục đã được tạo thành công.');
         } catch (QueryException $e) {
-            Log::error('Category Creation Failed: ' . $e->getMessage());
+            Log::error('Category Creation Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (Exception $e) {
-            Log::error('Category Creation Failed: ' . $e->getMessage());
+            Log::error('Category Creation Failed: '.$e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -120,11 +134,26 @@ class CategoryController extends Controller
         $attributes = Attribute::all();
         $selectedAttributeIds = $category->productAttributes()->pluck('attribute_id')->toArray();
         $excludedIds = array_merge([$category->id], $category->getDescendantIds());
+        // Get all categories (excluding this category and its descendants) with eager loaded parent chain
         $parentCategories = Category::query()
-            ->with('parent')
+            ->with('parent.parent.parent.parent.parent')
             ->whereNotIn('id', $excludedIds)
-            ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function ($cat) {
+                // Build and SET hierarchy name on model
+                $name = $cat->name;
+                $parent = $cat->parent;
+                while ($parent) {
+                    $name = $parent->name.' > '.$name;
+                    $parent = $parent->parent;
+                }
+                $cat->hierarchy_name = $name;
+                return $cat;
+            })
+            ->sortBy(function ($cat) {
+                return $cat->hierarchy_name;
+            })
+            ->values();
 
         return view(
             'admin.management.categories.edit',
@@ -151,11 +180,11 @@ class CategoryController extends Controller
             return redirect()->route('admin.categories.index')
                 ->with('success', 'Danh mục đã được cập nhật thành công.');
         } catch (QueryException $e) {
-            Log::error('Category Update Failed: ' . $e->getMessage());
+            Log::error('Category Update Failed: '.$e->getMessage());
             $message = $this->getQueryExceptionMessage($e);
             return back()->withInput()->with('error', $message);
         } catch (Exception $e) {
-            Log::error('Category Update Failed: ' . $e->getMessage());
+            Log::error('Category Update Failed: '.$e->getMessage());
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
@@ -178,12 +207,12 @@ class CategoryController extends Controller
             return redirect()->route('admin.categories.index')
                 ->with('success', 'Danh mục đã được xóa thành công.');
         } catch (\Exception $e) {
-            Log::error('Category Deletion Failed: ' . $e->getMessage());
+            Log::error('Category Deletion Failed: '.$e->getMessage());
 
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to delete category: ' . $e->getMessage(),
+                    'message' => 'Failed to delete category: '.$e->getMessage(),
                 ], 500);
             }
 
@@ -243,10 +272,10 @@ class CategoryController extends Controller
 
         $data = $products->map(function ($product) {
             return [
-                'id' => $product->id,
-                'image' => $product->image,
-                'name' => $product->name,
-                'active' => (bool) $product->active,
+                'id'       => $product->id,
+                'image'    => $product->image,
+                'name'     => $product->name,
+                'active'   => (bool)$product->active,
                 'show_url' => route('admin.products.show', $product),
             ];
         });
@@ -260,10 +289,10 @@ class CategoryController extends Controller
     public function bulkUpdate(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'action'        => ['required', 'string', 'in:change_status'],
-            'category_ids'  => ['required', 'array'],
+            'action'         => ['required', 'string', 'in:change_status'],
+            'category_ids'   => ['required', 'array'],
             'category_ids.*' => ['integer', 'exists:categories,id'],
-            'value'         => ['required'],
+            'value'          => ['required'],
         ]);
 
         try {
@@ -277,4 +306,5 @@ class CategoryController extends Controller
             return response()->json(['success' => false, 'message' => 'Đã xảy ra lỗi.'], 500);
         }
     }
+
 }
