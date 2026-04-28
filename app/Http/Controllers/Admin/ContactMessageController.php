@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ContactReply;
 use App\Models\ContactMessage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class ContactMessageController extends Controller
@@ -63,17 +65,47 @@ class ContactMessageController extends Controller
         return back()->with('success', 'Đã đánh dấu liên hệ là đã xử lý.');
     }
 
+    public function replyContact(ContactMessage $contactMessage, Request $request): RedirectResponse
+    {
+        $request->validate([
+            'reply_message' => ['required', 'string', 'min:10', 'max:5000'],
+        ], [
+            'reply_message.required' => 'Vui lòng nhập nội dung phản hồi.',
+            'reply_message.min' => 'Nội dung phản hồi phải tối thiểu 10 ký tự.',
+            'reply_message.max' => 'Nội dung phản hồi không được vượt quá 5000 ký tự.',
+        ]);
+
+        try {
+            Mail::to($contactMessage->email)->send(new ContactReply($contactMessage, $request->string('reply_message')->toString()));
+
+            // Mark as processed if not already
+            if ($contactMessage->processed_at === null) {
+                $contactMessage->update([
+                    'processed_at' => now(),
+                    'processed_by' => Auth::id(),
+                ]);
+            }
+
+            return back()->with('success', 'Phản hồi đã được gửi thành công.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['reply_message' => 'Có lỗi khi gửi email: ' . $e->getMessage()]);
+        }
+    }
+
     public function getDataForGrid(): \Illuminate\Http\JsonResponse
     {
         $messages = \App\Models\ContactMessage::latest()->get();
 
         $data = $messages->map(function ($message) {
+            $statusKey = $message->processed_at ? 'processed' : 'pending';
+
             return [
                 'id'         => $message->id,
-                'name'       => trim($message->first_name.' '.$message->last_name) ?: 'N/A',
+                'name'       => trim($message->first_name . ' ' . $message->last_name) ?: 'N/A',
                 'email'      => $message->email,
                 'message'    => \Illuminate\Support\Str::limit($message->message, 80),
-                'status'     => $message->processed_at ? 'Đã xử lý' : 'Chưa xử lý',
+                'status'     => $statusKey,
+                'status_label' => $message->processed_at ? 'Đã xử lý' : 'Chưa xử lý',
                 'created_at' => $message->created_at->format('d/m/Y H:i'),
                 'action'     => route('admin.contacts.show', $message),
             ];
@@ -81,5 +113,4 @@ class ContactMessageController extends Controller
 
         return response()->json(['data' => $data]);
     }
-
 }

@@ -51,7 +51,7 @@ class CustomerAuthController extends Controller
             [
                 'first_name' => 'required|string|max:255',
                 'last_name'  => 'required|string|max:255',
-                'email'      => 'required|string|email|lowercase|max:255|unique:customers',
+                'email'      => 'required|string|email:rfc,strict|lowercase|max:255|unique:customers',
                 'phone'      => ['required', 'string', 'regex:/^0[0-9]{9,10}$/'],
                 'password'   => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->numbers()],
             ],

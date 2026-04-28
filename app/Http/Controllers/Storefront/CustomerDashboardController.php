@@ -136,7 +136,7 @@ class CustomerDashboardController extends Controller
         $rules = [
             'first_name'       => 'required|string|max:255',
             'last_name'        => 'required|string|max:255',
-            'email'            => 'required|email|lowercase|max:255|unique:customers,email,' . $customer->id,
+            'email'            => 'required|email:rfc,strict|lowercase|max:255|unique:customers,email,' . $customer->id,
             'current_password' => 'nullable|required_with:new_password',
             'new_password'     => ['nullable', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ];

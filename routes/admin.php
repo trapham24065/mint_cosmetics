@@ -145,6 +145,7 @@ Route::middleware(['role:admin,sale'])->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/{contactMessage}', 'show')->name('show');
         Route::post('/{contactMessage}/mark-processed', 'markProcessed')->name('markProcessed');
+        Route::post('/{contactMessage}/reply', 'replyContact')->name('reply');
     });
 });
 
