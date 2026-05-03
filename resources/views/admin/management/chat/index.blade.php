@@ -1,278 +1,278 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<style>
-    .admin-chat-bubble {
-        max-width: 70%;
-    }
+    <style>
+        .admin-chat-bubble {
+            max-width: 70%;
+        }
 
-    .admin-chat-bubble.has-image {
-        padding: 6px !important;
-        background: #fff !important;
-        border: 1px solid #e9ecef !important;
-        color: #212529 !important;
-    }
+        .admin-chat-bubble.has-image {
+            padding: 6px !important;
+            background: #fff !important;
+            border: 1px solid #e9ecef !important;
+            color: #212529 !important;
+        }
 
-    .admin-chat-image {
-        display: block;
-        max-width: 220px;
-        max-height: 220px;
-        border-radius: 8px;
-        cursor: zoom-in;
-        object-fit: cover;
-        transition: transform .2s ease;
-    }
+        .admin-chat-image {
+            display: block;
+            max-width: 220px;
+            max-height: 220px;
+            border-radius: 8px;
+            cursor: zoom-in;
+            object-fit: cover;
+            transition: transform .2s ease;
+        }
 
-    .admin-chat-image:hover {
-        transform: scale(1.02);
-    }
+        .admin-chat-image:hover {
+            transform: scale(1.02);
+        }
 
-    .admin-chat-text {
-        word-wrap: break-word;
-    }
+        .admin-chat-text {
+            word-wrap: break-word;
+        }
 
-    .admin-attachment-preview {
-        position: relative;
-        display: inline-block;
-        margin-bottom: 10px;
-        padding: 6px;
-        background: #fff;
-        border: 1px dashed #ff6565;
-        border-radius: 10px;
-    }
+        .admin-attachment-preview {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 10px;
+            padding: 6px;
+            background: #fff;
+            border: 1px dashed #ff6565;
+            border-radius: 10px;
+        }
 
-    .admin-attachment-preview img {
-        display: block;
-        max-width: 110px;
-        max-height: 110px;
-        border-radius: 6px;
-        object-fit: cover;
-    }
+        .admin-attachment-preview img {
+            display: block;
+            max-width: 110px;
+            max-height: 110px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
 
-    .admin-attachment-remove {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        border: none;
-        background: #ff6565;
-        color: #fff;
-        font-size: 11px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 6px rgba(255, 101, 101, .4);
-    }
+        .admin-attachment-remove {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: none;
+            background: #ff6565;
+            color: #fff;
+            font-size: 11px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(255, 101, 101, .4);
+        }
 
-    .admin-attachment-remove:hover {
-        transform: scale(1.1);
-    }
+        .admin-attachment-remove:hover {
+            transform: scale(1.1);
+        }
 
-    .admin-chat-lightbox {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, .85);
-        z-index: 2000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-    }
+        .admin-chat-lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .85);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
 
-    .admin-chat-lightbox img {
-        max-width: 90vw;
-        max-height: 90vh;
-        border-radius: 8px;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
-    }
+        .admin-chat-lightbox img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 8px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .5);
+        }
 
-    .admin-chat-lightbox-close {
-        position: absolute;
-        top: 20px;
-        right: 24px;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, .15);
-        border: 1px solid rgba(255, 255, 255, .25);
-        color: #fff;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
+        .admin-chat-lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 24px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .15);
+            border: 1px solid rgba(255, 255, 255, .25);
+            color: #fff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    .admin-chat-lightbox-close:hover {
-        background: rgba(255, 255, 255, .25);
-    }
-</style>
+        .admin-chat-lightbox-close:hover {
+            background: rgba(255, 255, 255, .25);
+        }
+    </style>
 
-<div class="container-fluid p-0">
-    <div class="row g-0">
-        {{-- Sidebar: Danh sách hội thoại --}}
-        <div class="col-md-4 border-end " style="height: calc(100vh - 100px); overflow-y: auto;">
-            <div class="p-3 border-bottom bg-light">
-                <h5 class="mb-0">Cuộc trò chuyện</h5>
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            {{-- Sidebar: Danh sách hội thoại --}}
+            <div class="col-md-4 border-end " style="height: calc(100vh - 100px); overflow-y: auto;">
+                <div class="p-3 border-bottom bg-light">
+                    <h5 class="mb-0">Cuộc trò chuyện</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    @forelse($conversations as $conv)
+                        @php
+                            $participants = $conv->participants ?? collect([]);
+                            $otherParticipant = $participants->first(function($p) {
+                            return $p->messageable_id !== auth()->id() || $p->messageable_type !== get_class(auth()->user());
+                            });
+
+                            $name = 'Không rõ';
+                            if ($otherParticipant && $otherParticipant->messageable) {
+                            $name = $otherParticipant->messageable->name ??
+                            ($otherParticipant->messageable->full_name ?? 'Guest');
+                            } elseif ($otherParticipant) {
+                            $name = 'Người dùng đã bị xóa';
+                            }
+
+                            $isActive = isset($currentConversation) && $currentConversation->id === $conv->id;
+                        @endphp
+                        <a href="{{ route('admin.chat.index', ['conversation_id' => $conv->id]) }}"
+                           class="list-group-item list-group-item-action {{ $isActive ? 'active' : '' }}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <small class="mb-1">{{ $name }}</small>
+                                <small>{{ $conv->updated_at->diffForHumans() }}</small>
+                            </div>
+                            <small class="text-truncate d-block">Nhấp vào để trò chuyện</small>
+                        </a>
+                    @empty
+                        <div class="p-4 text-center text-muted">Chưa có cuộc trò chuyện nào.</div>
+                    @endforelse
+                </div>
             </div>
-            <div class="list-group list-group-flush">
-                @forelse($conversations as $conv)
-                @php
-                $participants = $conv->participants ?? collect([]);
-                $otherParticipant = $participants->first(function($p) {
-                return $p->messageable_id !== auth()->id() || $p->messageable_type !== get_class(auth()->user());
-                });
 
-                $name = 'Không rõ';
-                if ($otherParticipant && $otherParticipant->messageable) {
-                $name = $otherParticipant->messageable->name ??
-                ($otherParticipant->messageable->full_name ?? 'Guest');
-                } elseif ($otherParticipant) {
-                $name = 'Người dùng đã bị xóa';
-                }
-
-                $isActive = isset($currentConversation) && $currentConversation->id === $conv->id;
-                @endphp
-                <a href="{{ route('admin.chat.index', ['conversation_id' => $conv->id]) }}"
-                    class="list-group-item list-group-item-action {{ $isActive ? 'active' : '' }}">
-                    <div class="d-flex w-100 justify-content-between">
-                        <small class="mb-1">{{ $name }}</small>
-                        <small>{{ $conv->updated_at->diffForHumans() }}</small>
+            {{-- Main: Khung Chat --}}
+            <div class="col-md-8 d-flex flex-column" style="height: calc(100vh - 100px);">
+                @if(isset($currentConversation))
+                    <div class="p-3 border-bottom">
+                        <h6 class="mb-0">Trò chuyện với khách hàng</h6>
                     </div>
-                    <small class="text-truncate d-block">Nhấp vào để trò chuyện</small>
-                </a>
-                @empty
-                <div class="p-4 text-center text-muted">Chưa có cuộc trò chuyện nào.</div>
-                @endforelse
-            </div>
-        </div>
 
-        {{-- Main: Khung Chat --}}
-        <div class="col-md-8 d-flex flex-column" style="height: calc(100vh - 100px);">
-            @if(isset($currentConversation))
-            <div class="p-3 border-bottom">
-                <h6 class="mb-0">Trò chuyện với khách hàng</h6>
-            </div>
+                    @php
+                        $lastMessageDate = data_get(collect($messages)->last(), 'created_at');
+                        $lastMessageDate = $lastMessageDate instanceof \Carbon\Carbon
+                        ? $lastMessageDate->format('Y-m-d')
+                        : ($lastMessageDate ? \Carbon\Carbon::parse($lastMessageDate)->format('Y-m-d') : '');
+                        $previousMessageDate = null;
+                    @endphp
+                    <div id="chat-box" class="flex-grow-1 p-3" style="overflow-y: auto;"
+                         data-last-date="{{ $lastMessageDate }}"
+                         data-last-message-id="{{ data_get(collect($messages)->last(), 'id', 0) }}"
+                         data-conversation-id="{{ isset($currentConversation) ? $currentConversation->id : 0 }}">
+                        @foreach($messages as $message)
+                            @php
 
-            @php
-            $lastMessageDate = data_get(collect($messages)->last(), 'created_at');
-            $lastMessageDate = $lastMessageDate instanceof \Carbon\Carbon
-            ? $lastMessageDate->format('Y-m-d')
-            : ($lastMessageDate ? \Carbon\Carbon::parse($lastMessageDate)->format('Y-m-d') : '');
-            $previousMessageDate = null;
-            @endphp
-            <div id="chat-box" class="flex-grow-1 p-3" style="overflow-y: auto;"
-                data-last-date="{{ $lastMessageDate }}"
-                data-last-message-id="{{ data_get(collect($messages)->last(), 'id', 0) }}"
-                data-conversation-id="{{ isset($currentConversation) ? $currentConversation->id : 0 }}">
-                @foreach($messages as $message)
-                @php
+                                $senderId = data_get($message, 'participation.messageable_id');
+                                $senderType = data_get($message, 'participation.messageable_type');
+                                $isSystemMessage = data_get($message, 'data.system_message') === 'admin_busy';
 
-                $senderId = data_get($message, 'participation.messageable_id');
-                $senderType = data_get($message, 'participation.messageable_type');
-                $isSystemMessage = data_get($message, 'data.system_message') === 'admin_busy';
+                                // So sánh với user hiện tại, nhưng tin nhắn hệ thống luôn hiển thị phía admin
+                                // Convert to int for comparison since database stores as string
+                                $senderType = trim($senderType);
+                                $userClass = get_class(auth()->user());
+                                $isMe = $isSystemMessage || (
+                                (int)$senderId === (int)auth()->id() &&
+                                ($senderType === $userClass || class_basename($senderType) === class_basename($userClass))
+                                );
 
-                // So sánh với user hiện tại, nhưng tin nhắn hệ thống luôn hiển thị phía admin
-                // Convert to int for comparison since database stores as string
-                $senderType = trim($senderType);
-                $userClass = get_class(auth()->user());
-                $isMe = $isSystemMessage || (
-                (int)$senderId === (int)auth()->id() &&
-                ($senderType === $userClass || class_basename($senderType) === class_basename($userClass))
-                );
+                                $body = data_get($message, 'body');
+                                $createdAt = data_get($message, 'created_at');
+                                $messageDateKey = $createdAt instanceof \Carbon\Carbon ? $createdAt->format('Y-m-d') : \Carbon\Carbon::parse($createdAt)->format('Y-m-d');
+                                $messageDateLabel = $createdAt instanceof \Carbon\Carbon
+                                ? ($createdAt->isToday() ? 'Hôm nay' : ($createdAt->isYesterday() ? 'Hôm qua' : $createdAt->format('d/m/Y')))
+                                : \Carbon\Carbon::parse($createdAt)->format('d/m/Y');
 
-                $body = data_get($message, 'body');
-                $createdAt = data_get($message, 'created_at');
-                $messageDateKey = $createdAt instanceof \Carbon\Carbon ? $createdAt->format('Y-m-d') : \Carbon\Carbon::parse($createdAt)->format('Y-m-d');
-                $messageDateLabel = $createdAt instanceof \Carbon\Carbon
-                ? ($createdAt->isToday() ? 'Hôm nay' : ($createdAt->isYesterday() ? 'Hôm qua' : $createdAt->format('d/m/Y')))
-                : \Carbon\Carbon::parse($createdAt)->format('d/m/Y');
-
-                $timeDisplay = $createdAt instanceof \Carbon\Carbon ? $createdAt->format('H:i') : \Carbon\Carbon::parse($createdAt)->format('H:i');
-                @endphp
-                @if($previousMessageDate !== $messageDateKey)
-                <div class="text-center my-3">
+                                $timeDisplay = $createdAt instanceof \Carbon\Carbon ? $createdAt->format('H:i') : \Carbon\Carbon::parse($createdAt)->format('H:i');
+                            @endphp
+                            @if($previousMessageDate !== $messageDateKey)
+                                <div class="text-center my-3">
                     <span class="badge rounded-pill bg-light text-muted border px-3 py-2" style="font-size: 0.8rem;">
                         {{ $messageDateLabel }}
                     </span>
-                </div>
-                @php
-                $previousMessageDate = $messageDateKey;
-                @endphp
+                                </div>
+                                @php
+                                    $previousMessageDate = $messageDateKey;
+                                @endphp
+                            @endif
+                            @php
+                                $messageId = data_get($message, 'id');
+                                $attachments = $attachmentsByMessage->get($messageId) ?? collect([]);
+                                $imageAttachments = $attachments->filter(fn($a) => str_starts_with((string) $a->mime_type, 'image/'));
+                                $hasImage = $imageAttachments->count() > 0;
+                            @endphp
+                            <div
+                                class="chat-message d-flex mb-3 {{ $isMe ? 'justify-content-end' : 'justify-content-start' }}"
+                                data-id="{{ $messageId }}">
+                                <div
+                                    class="admin-chat-bubble p-3 rounded {{ $isMe ? 'bg-primary text-white' : ' border' }} {{ $hasImage ? 'has-image' : '' }}">
+                                    @if($hasImage)
+                                        <div class="d-flex flex-wrap gap-2 mb-1">
+                                            @foreach($imageAttachments as $att)
+                                                <img src="{{ $att->url }}"
+                                                     alt="{{ $att->original_name ?? 'image' }}"
+                                                     class="admin-chat-image"
+                                                     data-full-url="{{ $att->url }}">
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                    @if(trim((string) $body) !== '')
+                                        <div class="admin-chat-text {{ $hasImage ? 'mt-2' : '' }}">{{ $body }}</div>
+                                    @endif
+                                    <div class="small {{ $isMe ? 'text-white-50' : 'text-muted' }} mt-1 text-end"
+                                         style="font-size: 0.7rem;">
+                                        {{ $timeDisplay }}
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="p-3 border-top">
+                        <div id="admin-attachment-preview" class="admin-attachment-preview" style="display:none;">
+                            <div id="admin-attachment-gallery" class="d-flex flex-wrap gap-2"></div>
+                            <div class="small text-muted mt-1">
+                                <span id="admin-attachment-count">0</span> / 5 ảnh
+                            </div>
+                        </div>
+                        <form id="admin-chat-form" class="d-flex gap-2 align-items-center">
+                            <button type="button" id="admin-attach-btn" class="btn btn-outline-secondary"
+                                    title="Đính kèm ảnh">
+                                <i class="bi bi-paperclip"></i>
+                            </button>
+                            <input type="file" id="admin-attachment-input"
+                                   accept="image/jpeg,image/jpg,image/png,image/webp" multiple hidden>
+                            <input type="text" id="message-input" class="form-control"
+                                   placeholder="Nhập câu trả lời của bạn..."
+                                   autocomplete="off">
+                            <button class="btn btn-primary" type="submit" id="send-btn"><i class="bi bi-send"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div id="admin-chat-lightbox" class="admin-chat-lightbox" style="display:none;" role="dialog"
+                         aria-modal="true">
+                        <button type="button" class="admin-chat-lightbox-close" id="admin-chat-lightbox-close"
+                                aria-label="Đóng">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                        <img id="admin-chat-lightbox-img" src="" alt="">
+                    </div>
+                @else
+                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                        <h5>Chọn một cuộc trò chuyện để bắt đầu.</h5>
+                    </div>
                 @endif
-                @php
-                $messageId = data_get($message, 'id');
-                $attachments = $attachmentsByMessage->get($messageId) ?? collect([]);
-                $imageAttachments = $attachments->filter(fn($a) => str_starts_with((string) $a->mime_type, 'image/'));
-                $hasImage = $imageAttachments->count() > 0;
-                @endphp
-                <div
-                    class="chat-message d-flex mb-3 {{ $isMe ? 'justify-content-end' : 'justify-content-start' }}"
-                    data-id="{{ $messageId }}">
-                    <div
-                        class="admin-chat-bubble p-3 rounded {{ $isMe ? 'bg-primary text-white' : ' border' }} {{ $hasImage ? 'has-image' : '' }}">
-                        @if($hasImage)
-                        <div class="d-flex flex-wrap gap-2 mb-1">
-                            @foreach($imageAttachments as $att)
-                            <img src="{{ $att->url }}"
-                                alt="{{ $att->original_name ?? 'image' }}"
-                                class="admin-chat-image"
-                                data-full-url="{{ $att->url }}">
-                            @endforeach
-                        </div>
-                        @endif
-                        @if(trim((string) $body) !== '')
-                        <div class="admin-chat-text {{ $hasImage ? 'mt-2' : '' }}">{{ $body }}</div>
-                        @endif
-                        <div class="small {{ $isMe ? 'text-white-50' : 'text-muted' }} mt-1 text-end"
-                            style="font-size: 0.7rem;">
-                            {{ $timeDisplay }}
-                        </div>
-                    </div>
-                </div>
-                @endforeach
             </div>
-
-            <div class="p-3 border-top">
-                <div id="admin-attachment-preview" class="admin-attachment-preview" style="display:none;">
-                    <div id="admin-attachment-gallery" class="d-flex flex-wrap gap-2"></div>
-                    <div class="small text-muted mt-1">
-                        <span id="admin-attachment-count">0</span> / 5 ảnh
-                    </div>
-                </div>
-                <form id="admin-chat-form" class="d-flex gap-2 align-items-center">
-                    <button type="button" id="admin-attach-btn" class="btn btn-outline-secondary"
-                        title="Đính kèm ảnh">
-                        <i class="bi bi-paperclip"></i>
-                    </button>
-                    <input type="file" id="admin-attachment-input"
-                        accept="image/jpeg,image/jpg,image/png,image/webp" multiple hidden>
-                    <input type="text" id="message-input" class="form-control"
-                        placeholder="Nhập câu trả lời của bạn..."
-                        autocomplete="off">
-                    <button class="btn btn-primary" type="submit" id="send-btn"><i class="bi bi-send"></i>
-                    </button>
-                </form>
-            </div>
-
-            <div id="admin-chat-lightbox" class="admin-chat-lightbox" style="display:none;" role="dialog"
-                aria-modal="true">
-                <button type="button" class="admin-chat-lightbox-close" id="admin-chat-lightbox-close"
-                    aria-label="Đóng">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-                <img id="admin-chat-lightbox-img" src="" alt="">
-            </div>
-            @else
-            <div class="d-flex align-items-center justify-content-center h-100 text-muted">
-                <h5>Chọn một cuộc trò chuyện để bắt đầu.</h5>
-            </div>
-            @endif
         </div>
     </div>
-</div>
 @endsection
 <!-- @formatter:off -->
 @push('scripts')
@@ -288,7 +288,9 @@
                     let lastMessageId = parseInt(chatBox.attr('data-last-message-id') || '0', 10);
                     const conversationId = parseInt(chatBox.attr('data-conversation-id') || '0', 10);
                     let lastRenderedDateKey = chatBox.attr('data-last-date') || '';
-
+                    function getCsrfToken() {
+                        return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                    }
                     function appendDateSeparator(dateKey, label) {
                         if (!dateKey || dateKey === lastRenderedDateKey) {
                             return;
@@ -457,7 +459,7 @@
                         $('#send-btn').prop('disabled', true);
 
                         const formData = new FormData();
-                        formData.append('_token', '{{ csrf_token() }}');
+                        formData.append('_token', getCsrfToken());
                         formData.append('message', message);
                         pendingFiles.forEach(function(file) {
                             formData.append('attachments[]', file);
@@ -507,6 +509,9 @@
                         });
                     }, 3000);
                 }
+            });
+            $(window).on('focus', function () {
+                lastMessageId = 0;
             });
         })(jQuery);
     </script>
