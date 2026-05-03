@@ -142,13 +142,13 @@ class ChatController extends Controller
             $isMe = $senderId === $participant->id && $senderType === get_class($participant);
 
             // Get all attachments for this message
-           
+
             $attachmentsData = collect($attachmentsByMessage->get($msgId))
                 ->map(fn($att) => $this->formatAttachment($att))
                 ->toArray();
             $payload = $this->formatMessagePayload($message, $isMe, $attachmentsData ?: null) + [
-                    'sender_name' => $isMe ? 'Bạn' : 'Hỗ trợ',
-                ];
+                'sender_name' => $isMe ? 'Bạn' : 'Hỗ trợ',
+            ];
 
             // Check if this is an admin reply (for quick hints)
             $messageData = $this->decodeMessageData($message->data);
@@ -187,8 +187,14 @@ class ChatController extends Controller
      */
     private function getParticipant()
     {
+        // Check if customer is logged in
         if (Auth::guard('customer')->check()) {
             return Auth::guard('customer')->user();
+        }
+
+        // Check if seller/admin is logged in (web guard)
+        if (Auth::guard('web')->check()) {
+            return Auth::guard('web')->user();
         }
 
         // Use guest_id from request (stored in client localStorage)
@@ -199,7 +205,7 @@ class ChatController extends Controller
         if (!$guestId) {
             // Generate a new guest_id if not provided (shouldn't happen in normal flow)
             $userAgent = request()->header('User-Agent', '');
-            $guestId = 'guest_'.time().'_'.hash('sha256', $ipAddress.$userAgent);
+            $guestId = 'guest_' . time() . '_' . hash('sha256', $ipAddress . $userAgent);
         }
 
         // Always use session_id for lookup to ensure session continuity
@@ -260,7 +266,7 @@ class ChatController extends Controller
      */
     private function storeAttachment($file, int $messageId): array
     {
-        $path = $file->store('chat-attachments/'.date('Y/m'), 'public');
+        $path = $file->store('chat-attachments/' . date('Y/m'), 'public');
 
         $attachment = ChatMessageAttachment::create([
             'message_id'    => $messageId,
@@ -321,5 +327,4 @@ class ChatController extends Controller
             'attachment'       => $formattedAttachments[0] ?? null, // For backward compatibility
         ];
     }
-
 }
