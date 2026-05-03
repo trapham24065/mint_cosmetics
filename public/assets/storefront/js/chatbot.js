@@ -12,19 +12,77 @@ document.addEventListener('DOMContentLoaded', function () {
   const suggestionsContainer = document.getElementById('chat-suggestions');
   const suggestionsList = document.querySelector('.suggestions-list');
 
+  const attachBtn = document.getElementById('chat-attach-btn');
+  const attachmentInput = document.getElementById('chat-attachment-input');
+  const attachmentPreview = document.getElementById('chat-attachment-preview');
+  const attachmentGallery = document.getElementById('chat-attachment-gallery');
+  const attachmentCounter = document.getElementById('chat-attachment-count');
+  const lightbox = document.getElementById('chat-lightbox');
+  const lightboxImg = document.getElementById('chat-lightbox-img');
+  const lightboxCloseBtn = document.getElementById('chat-lightbox-close');
+
   const sendUrl = chatWidget.dataset.sendUrl;
   const fetchUrl = chatWidget.dataset.fetchUrl;
   const suggestionsUrl = chatWidget.dataset.suggestionsUrl;
   const defaultMessageUrl = chatWidget.dataset.defaultMessageUrl || '/chat/default-message';
   const csrfToken = chatWidget.dataset.csrfToken;
 
+  const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
+  const MAX_ATTACHMENTS = 5;
+  const ALLOWED_ATTACHMENT_MIMES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
   let isChatOpen = false;
   let lastMessageId = 0;
   let isFirstLoad = true;
   let waitingForAdminTimeout = null;
   let lastRenderedDateKey = null;
+  let pendingAttachments = [];
+
+  // Generate and persist guest_id in localStorage for session continuity
+  let guestId = localStorage.getItem('chat_guest_id');
+  if (!guestId) {
+    guestId = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('chat_guest_id', guestId);
+    console.log('[Chat] Generated new guest_id:', guestId);
+  } else {
+    console.log('[Chat] Restored guest_id from localStorage:', guestId);
+  }
 
   chatWidget.style.display = 'block';
+
+  // Load messages immediately on page load (before user opens chat)
+  function loadInitialMessages() {
+    const url = new URL(fetchUrl, window.location.origin);
+    url.searchParams.append('last_id', 0);
+    url.searchParams.append('guest_id', guestId);
+
+    fetch(url, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+    .then(response => {
+      if (!response.ok) return { messages: [] };
+      return response.json();
+    })
+    .then(data => {
+      if (data.messages && data.messages.length > 0) {
+        data.messages.forEach(msg => {
+          if (msg.id > lastMessageId) {
+            lastMessageId = msg.id;
+          }
+          // Render message even if chat window not open
+          const senderType = msg.is_me ? 'user' : 'bot';
+          const attachments = msg.attachments || (msg.attachment ? [msg.attachment] : []);
+          appendMessage(senderType, msg.body, msg.id, msg.created_at, msg.created_at_date || toDateKey(msg.created_at_raw || new Date()), formatDateLabel(msg.created_at_raw || new Date()), attachments);
+        });
+      }
+    })
+    .catch(err => {
+      console.warn('[Chat] Initial load error:', err);
+    });
+  }
+
+  // Trigger initial load
+  loadInitialMessages();
 
   // --- UI FUNCTIONS ---
 
@@ -147,37 +205,290 @@ document.addEventListener('DOMContentLoaded', function () {
     .catch(err => console.log('Suggestions error:', err));
   }
 
+  // --- ATTACHMENT HANDLING ---
+
+  function setPendingAttachment(files) {
+    const incomingFiles = Array.isArray(files) ? files : (files ? [files] : []);
+
+    if (incomingFiles.length === 0) {
+      clearPendingAttachments();
+      return;
+    }
+
+    const remainingSlots = MAX_ATTACHMENTS - pendingAttachments.length;
+    if (remainingSlots <= 0) {
+      alert(`Bạn chỉ có thể chọn tối đa ${MAX_ATTACHMENTS} ảnh.`);
+      attachmentInput.value = '';
+      return;
+    }
+
+    const filesToAdd = incomingFiles.slice(0, remainingSlots);
+
+    filesToAdd.forEach((file) => {
+      if (!ALLOWED_ATTACHMENT_MIMES.includes(file.type)) {
+        alert(`File "${file.name}" không phải là hình ảnh hợp lệ.`);
+        return;
+      }
+
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        alert(`File "${file.name}" vượt quá 5MB.`);
+        return;
+      }
+
+      pendingAttachments.push(file);
+    });
+
+    if (attachmentGallery) {
+      attachmentGallery.innerHTML = '';
+      pendingAttachments.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            addPreviewThumb(file.name, e.target.result, idx);
+          } catch (err) {
+            console.error('Preview render error:', err, file.name);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    } else {
+      // If gallery element is missing, avoid FileReader operations to prevent runtime errors
+      console.warn('Attachment gallery not found in DOM');
+    }
+
+    attachmentCounter.textContent = pendingAttachments.length;
+    attachmentPreview.style.display = pendingAttachments.length > 0 ? 'block' : 'none';
+  }
+
+  function addPreviewThumb(fileName, dataUrl, index) {
+    const thumbContainer = document.createElement('div');
+    thumbContainer.className = 'chat-attachment-thumb';
+    thumbContainer.dataset.index = index;
+    thumbContainer.style.cssText = `
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f0f0f0;
+      cursor: pointer;
+    `;
+
+    const img = document.createElement('img');
+    try {
+      img.src = dataUrl;
+    } catch (err) {
+      console.error('Failed to set preview image src', err, fileName);
+      img.src = '';
+    }
+    img.alt = fileName;
+    img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+    img.addEventListener('click', () => openLightbox(dataUrl));
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'chat-attachment-thumb-remove';
+    removeBtn.setAttribute('aria-label', 'Xoá ảnh');
+    removeBtn.style.cssText = `
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      border-radius: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      padding: 0;
+    `;
+    removeBtn.innerHTML = '<i class="fa fa-times" aria-hidden="true"></i>';
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeAttachmentAtIndex(index);
+    });
+
+    thumbContainer.appendChild(img);
+    thumbContainer.appendChild(removeBtn);
+    if (attachmentGallery) {
+      attachmentGallery.appendChild(thumbContainer);
+    } else {
+      console.warn('Cannot append preview thumb, gallery missing');
+    }
+  }
+
+  function removeAttachmentAtIndex(index) {
+    pendingAttachments.splice(index, 1);
+    if (attachmentGallery) {
+      attachmentGallery.innerHTML = '';
+      pendingAttachments.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            addPreviewThumb(file.name, e.target.result, idx);
+          } catch (err) {
+            console.error('Preview render error:', err, file.name);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    attachmentCounter.textContent = pendingAttachments.length;
+    if (attachmentPreview) attachmentPreview.style.display = pendingAttachments.length > 0 ? 'block' : 'none';
+    attachmentInput.value = '';
+  }
+
+  function clearPendingAttachments() {
+    pendingAttachments = [];
+    if (attachmentGallery) attachmentGallery.innerHTML = '';
+    attachmentInput.value = '';
+    attachmentCounter.textContent = '0';
+    if (attachmentPreview) attachmentPreview.style.display = 'none';
+  }
+
+  if (attachBtn) {
+    attachBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        attachmentInput.click();
+      }
+    });
+  }
+
+  if (attachmentInput) {
+    attachmentInput.addEventListener('change', (e) => {
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        // Validate total count
+        if (pendingAttachments.length + files.length > MAX_ATTACHMENTS) {
+          alert(`Bạn chỉ có thể chọn tối đa ${MAX_ATTACHMENTS} ảnh. Hiện tại đã có ${pendingAttachments.length} ảnh, bạn chỉ có thể thêm ${MAX_ATTACHMENTS - pendingAttachments.length} ảnh nữa.`);
+          attachmentInput.value = '';
+          return;
+        }
+
+        // Validate each file
+        const validFiles = [];
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          if (!ALLOWED_ATTACHMENT_MIMES.includes(file.type)) {
+            alert(`File "${file.name}" không phải là hình ảnh hợp lệ.`);
+            continue;
+          }
+          if (file.size > MAX_ATTACHMENT_BYTES) {
+            alert(`File "${file.name}" vượt quá 5MB.`);
+            continue;
+          }
+          validFiles.push(file);
+        }
+
+        setPendingAttachment(validFiles);
+        attachmentInput.value = '';
+      }
+    });
+  }
+
+  // --- LIGHTBOX ---
+
+  function openLightbox(src) {
+    if (!lightbox || !lightboxImg) return;
+    try {
+      lightboxImg.src = src;
+    } catch (err) {
+      console.error('Lightbox image error', err, src);
+      lightboxImg.src = '';
+    }
+    lightbox.style.display = 'flex';
+  }
+
+  function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.style.display = 'none';
+    lightboxImg.src = '';
+  }
+
+  if (lightboxCloseBtn) {
+    lightboxCloseBtn.addEventListener('click', closeLightbox);
+  }
+
+  if (lightbox) {
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox && lightbox.style.display === 'flex') {
+      closeLightbox();
+    }
+  });
+
   // --- SEND MESSAGE ---
 
   function sendMessage(text = null, isFromQuickHint = false) {
-    const messageText = text || chatInput.value.trim();
-    if (!messageText) return;
+    const messageText = (text !== null ? text : chatInput.value).trim();
+    const hasAttachments = pendingAttachments.length > 0;
 
-    // Tạo ID tạm thời duy nhất
+    if (!messageText && !hasAttachments) return;
+
     const tempId = 'temp_' + Date.now();
-
     const now = new Date();
     const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
     const dateKey = toDateKey(now);
 
-    appendMessage('user', messageText, tempId, timeString, dateKey, formatDateLabel(now));
+    // Build optimistic attachments array from preview gallery
+    let optimisticAttachments = [];
+    if (hasAttachments) {
+      const thumbs = document.querySelectorAll('.chat-attachment-thumb') || [];
+      thumbs.forEach((thumb) => {
+        try {
+          const img = thumb ? thumb.querySelector('img') : null;
+          const url = img && img.src ? img.src : null;
+          if (url) {
+            optimisticAttachments.push({
+              url: url, // Data URL from preview
+              is_image: true,
+              original_name: img.alt || '',
+            });
+          }
+        } catch (err) {
+          console.error('Error reading preview thumb src', err);
+        }
+      });
+    }
+
+    appendMessage('user', messageText, tempId, timeString, dateKey, formatDateLabel(now), optimisticAttachments);
 
     chatInput.value = '';
-    sendMessageToServer(messageText, tempId, isFromQuickHint);
+    const filesToSend = Array.from(pendingAttachments);
+    clearPendingAttachments();
+
+    sendMessageToServer(messageText, tempId, isFromQuickHint, filesToSend);
   }
 
-  function sendMessageToServer(messageText, tempId, isFromQuickHint = false) {
+  function sendMessageToServer(messageText, tempId, isFromQuickHint = false, files = []) {
+    const formData = new FormData();
+    formData.append('message', messageText || '');
+    formData.append('is_quick_hint', isFromQuickHint ? '1' : '0');
+    formData.append('guest_id', guestId);
+
+    // Append multiple files
+    files.forEach((file) => {
+      formData.append('attachments[]', file);
+    });
+
     fetch(sendUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'X-CSRF-TOKEN': csrfToken,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
-      body: JSON.stringify({
-        message: messageText,
-        is_quick_hint: isFromQuickHint  // Gửi flag lên server
-      }),
+      body: formData,
     })
     .then(response => response.json())
     .then(data => {
@@ -192,7 +503,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (data.bot_reply) {
-          // Có bot reply ngay → Hủy timeout (nếu có)
           if (waitingForAdminTimeout) {
             clearTimeout(waitingForAdminTimeout);
             waitingForAdminTimeout = null;
@@ -200,19 +510,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
           setTimeout(() => {
             if (!document.querySelector(`.message-bubble[data-id="${data.bot_reply.id}"]`)) {
-              appendMessage('bot', data.bot_reply.body, data.bot_reply.id, data.bot_reply.created_at, data.bot_reply.created_at_date || toDateKey(data.bot_reply.created_at_raw || new Date()), formatDateLabel(data.bot_reply.created_at_raw || new Date()));
+              const attachments = data.bot_reply.attachments || (data.bot_reply.attachment ? [data.bot_reply.attachment] : []);
+              appendMessage('bot', data.bot_reply.body, data.bot_reply.id, data.bot_reply.created_at, data.bot_reply.created_at_date || toDateKey(data.bot_reply.created_at_raw || new Date()), formatDateLabel(data.bot_reply.created_at_raw || new Date()), attachments);
             }
             if (data.bot_reply.id > lastMessageId) {
               lastMessageId = data.bot_reply.id;
             }
           }, 500);
         } else if (!isFromQuickHint) {
-          // Nếu KHÔNG phải Quick Hint và KHÔNG có bot reply
-          // → Đặt timeout 30 giây để gửi tin nhắn mặc định
           waitingForAdminTimeout = setTimeout(() => {
             sendDefaultMessageIfNoReply();
-          }, 30000); // 30 giây
+          }, 120000);
         }
+      } else if (data.message) {
+        alert(data.message);
       }
     })
     .catch(error => {
@@ -228,12 +539,14 @@ document.addEventListener('DOMContentLoaded', function () {
         'X-CSRF-TOKEN': csrfToken,
         'Accept': 'application/json'
       },
+      body: JSON.stringify({ guest_id: guestId })
     })
     .then(response => response.json())
     .then(data => {
       if (data.success && data.bot_reply) {
         if (!document.querySelector(`.message-bubble[data-id="${data.bot_reply.id}"]`)) {
-          appendMessage('bot', data.bot_reply.body, data.bot_reply.id, data.bot_reply.created_at, data.bot_reply.created_at_date || toDateKey(data.bot_reply.created_at_raw || new Date()), formatDateLabel(data.bot_reply.created_at_raw || new Date()));
+          const attachments = data.bot_reply.attachments || (data.bot_reply.attachment ? [data.bot_reply.attachment] : []);
+          appendMessage('bot', data.bot_reply.body, data.bot_reply.id, data.bot_reply.created_at, data.bot_reply.created_at_date || toDateKey(data.bot_reply.created_at_raw || new Date()), formatDateLabel(data.bot_reply.created_at_raw || new Date()), attachments);
         }
         if (data.bot_reply.id > lastMessageId) {
           lastMessageId = data.bot_reply.id;
@@ -250,49 +563,58 @@ document.addEventListener('DOMContentLoaded', function () {
   function fetchNewMessages() {
     const url = new URL(fetchUrl, window.location.origin);
     url.searchParams.append('last_id', lastMessageId);
+    url.searchParams.append('guest_id', guestId);
 
     fetch(url, {
       headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
     })
     .then(response => {
-      if (!response.ok) return { messages: [] };
+      if (!response.ok) {
+        console.warn('[Chat] Fetch failed with status:', response.status);
+        return { messages: [] };
+      }
       return response.json();
     })
     .then(data => {
       if (data.messages && data.messages.length > 0) {
         let hasNewMessage = false;
         data.messages.forEach(msg => {
-          const existingMsg = document.querySelector(`.message-bubble[data-id="${msg.id}"]`);
+          // Check if message already exists (either from optimistic render or previous fetch)
+          let existingMsg = document.querySelector(`.message-bubble[data-id="${msg.id}"]`);
+
+          if (!existingMsg && msg.is_me) {
+            // For customer's own messages, check if there's a temp message that needs updating
+            const tempMsgs = document.querySelectorAll('.message-bubble[data-id^="temp_"]');
+            for (const tempMsg of tempMsgs) {
+              // Match by first temp message (FIFO approach) to avoid duplicate appends
+              tempMsg.dataset.id = msg.id;
+
+              // Update attachment URLs if server provided real URLs
+              const attachments = msg.attachments || (msg.attachment ? [msg.attachment] : []);
+              if (attachments.length > 0) {
+                const tempImgs = tempMsg.querySelectorAll('img.chat-bubble-image');
+                attachments.forEach((att, index) => {
+                  if (tempImgs[index] && att && att.url) {
+                    tempImgs[index].src = att.url;
+                  }
+                });
+              }
+              existingMsg = tempMsg;
+              break;
+            }
+          }
 
           if (!existingMsg) {
+            // Only append if message doesn't already exist
             const senderType = msg.is_me ? 'user' : 'bot';
+            const attachments = msg.attachments || (msg.attachment ? [msg.attachment] : []);
+            appendMessage(senderType, msg.body, msg.id, msg.created_at, msg.created_at_date || toDateKey(msg.created_at_raw || new Date()), formatDateLabel(msg.created_at_raw || new Date()), attachments);
 
-            // --- SỬA LỖI LẶP TIN NHẮN ---
-            // Nếu là tin nhắn của mình (user), kiểm tra xem có tin nhắn tạm (temp_) nào trùng nội dung không
-            let isDuplicateOfTemp = false;
-            if (msg.is_me) {
-              const tempMsgs = document.querySelectorAll('.message-bubble[data-id^="temp_"]');
-              for (const tempMsg of tempMsgs) {
-                // So sánh nội dung tin nhắn (trim khoảng trắng để chính xác hơn)
-                if (tempMsg.textContent.trim() === msg.body.trim()) {
-                  // Nếu trùng, cập nhật ID thật cho nó và đánh dấu là trùng để không thêm mới
-                  tempMsg.dataset.id = msg.id;
-                  isDuplicateOfTemp = true;
-                  break;
-                }
-              }
-            }
-
-            // Chỉ append nếu không phải là bản sao của tin nhắn tạm
-            if (!isDuplicateOfTemp) {
-              appendMessage(senderType, msg.body, msg.id, msg.created_at, msg.created_at_date || toDateKey(msg.created_at_raw || new Date()), formatDateLabel(msg.created_at_raw || new Date()));
-              if (!msg.is_me) {
-                hasNewMessage = true;
-                // Nếu nhận được tin nhắn từ admin/bot → Hủy timeout
-                if (waitingForAdminTimeout) {
-                  clearTimeout(waitingForAdminTimeout);
-                  waitingForAdminTimeout = null;
-                }
+            if (!msg.is_me) {
+              hasNewMessage = true;
+              if (waitingForAdminTimeout) {
+                clearTimeout(waitingForAdminTimeout);
+                waitingForAdminTimeout = null;
               }
             }
           }
@@ -306,14 +628,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     })
-    .catch(() => {});
+    .catch(err => {
+      console.warn('[Chat] Polling error:', err);
+    });
   }
 
-  setInterval(fetchNewMessages, 3000);
+  // Set up continuous polling - runs regardless of chat window state
+  let pollInterval = setInterval(fetchNewMessages, 3000);
 
   // --- UI HELPER ---
 
-  function appendMessage(sender, text, id, time = '', dateKey = null, dateLabel = '') {
+  function appendMessage(sender, text, id, time = '', dateKey = null, dateLabel = '', attachment = null) {
     const welcomeMsg = document.querySelector('.welcome-message');
     if (welcomeMsg) welcomeMsg.remove();
 
@@ -327,13 +652,64 @@ document.addEventListener('DOMContentLoaded', function () {
     const alignItem = sender === 'user' ? 'flex-end' : 'flex-start';
     const textAlign = sender === 'user' ? 'right' : 'left';
 
+    // Support both single attachment and array of attachments
+    const attachments = Array.isArray(attachment) ? attachment.filter(a => a) : (attachment ? [attachment] : []);
+    const hasImages = attachments.some(a => a && a.is_image && a.url);
+    const hasText = !!(text && String(text).trim().length);
+
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message-bubble ${messageClass}`;
+    messageDiv.className = `message-bubble ${messageClass}` + (hasImages ? ' has-image' : '');
     messageDiv.dataset.id = id;
-    messageDiv.innerHTML = text;
+
+    if (hasImages) {
+      // Create image gallery container
+      const galleryContainer = document.createElement('div');
+      galleryContainer.className = 'chat-image-gallery';
+      galleryContainer.style.cssText = `
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin-bottom: ${hasText ? '8px' : '0'};
+      `;
+
+      attachments.forEach(att => {
+        if (att && att.is_image && att.url) {
+          const imgWrapper = document.createElement('div');
+          imgWrapper.style.cssText = `
+            flex: 0 0 calc(50% - 2px);
+            min-height: 100px;
+            max-height: 150px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f0f0f0;
+          `;
+
+          const img = document.createElement('img');
+          img.className = 'chat-bubble-image';
+          img.src = att.url;
+          img.alt = att.original_name || 'image';
+          img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; cursor: pointer;';
+          img.addEventListener('click', () => openLightbox(att.url));
+
+          imgWrapper.appendChild(img);
+          galleryContainer.appendChild(imgWrapper);
+        }
+      });
+
+      messageDiv.appendChild(galleryContainer);
+
+      if (hasText) {
+        const caption = document.createElement('div');
+        caption.className = 'chat-bubble-caption';
+        caption.textContent = text;
+        messageDiv.appendChild(caption);
+      }
+    } else {
+      messageDiv.innerHTML = text;
+    }
 
     messageDiv.style.maxWidth = '100%';
-    messageDiv.style.padding = '10px 14px';
+    messageDiv.style.padding = hasImages ? '6px' : '10px 14px';
     messageDiv.style.borderRadius = '12px';
     messageDiv.style.fontSize = '14px';
     messageDiv.style.lineHeight = '1.4';
@@ -342,13 +718,17 @@ document.addEventListener('DOMContentLoaded', function () {
     messageDiv.style.wordWrap = 'break-word';
 
     if (sender === 'user') {
-      messageDiv.style.background = '#007bff';
-      messageDiv.style.color = '#fff';
+      if (!hasImages) {
+        messageDiv.style.background = '#007bff';
+        messageDiv.style.color = '#fff';
+      }
       messageDiv.style.borderBottomRightRadius = '2px';
     } else {
-      messageDiv.style.background = '#f1f3f5';
-      messageDiv.style.color = '#333';
-      messageDiv.style.border = '1px solid #dee2e6';
+      if (!hasImages) {
+        messageDiv.style.background = '#f1f3f5';
+        messageDiv.style.color = '#333';
+        messageDiv.style.border = '1px solid #dee2e6';
+      }
       messageDiv.style.borderBottomLeftRadius = '2px';
     }
 
