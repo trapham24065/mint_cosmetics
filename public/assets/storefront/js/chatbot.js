@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const fetchUrl = chatWidget.dataset.fetchUrl;
   const suggestionsUrl = chatWidget.dataset.suggestionsUrl;
   const defaultMessageUrl = chatWidget.dataset.defaultMessageUrl || '/chat/default-message';
-  const csrfToken = chatWidget.dataset.csrfToken;
 
   const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
   const MAX_ATTACHMENTS = 5;
@@ -49,7 +48,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   chatWidget.style.display = 'block';
-
+  function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+  }
   // Load messages immediately on page load (before user opens chat)
   function loadInitialMessages() {
     const url = new URL(fetchUrl, window.location.origin);
@@ -484,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch(sendUrl, {
       method: 'POST',
       headers: {
-        'X-CSRF-TOKEN': csrfToken,
+        'X-CSRF-TOKEN': getCsrfToken,
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
       },
@@ -536,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function () {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': csrfToken,
+        'X-CSRF-TOKEN': getCsrfToken,
         'Accept': 'application/json'
       },
       body: JSON.stringify({ guest_id: guestId })

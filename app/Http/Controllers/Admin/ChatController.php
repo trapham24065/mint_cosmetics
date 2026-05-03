@@ -78,7 +78,7 @@ class ChatController extends Controller
         );
     }
 
-    public function reply(Request $request, $conversationId): \Illuminate\Http\JsonResponse
+    public function reply(Request $request, $conversationId)
     {
         $request->validate([
             'message'       => 'nullable|string|max:1000',
@@ -92,136 +92,93 @@ class ChatController extends Controller
             'message.max'         => 'Nội dung không được vượt quá 1000 ký tự.',
         ]);
 
-        $messageText = trim((string)$request->input('message', ''));
-        $attachmentFiles = $request->file('attachments') ?? [];
-        $hasAttachments = count($attachmentFiles) > 0;
-        $messageBody = $messageText === '' && $hasAttachments ? ' ' : $messageText;
-
-        if ($messageText === '' && !$hasAttachments) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Vui lòng nhập nội dung hoặc đính kèm ảnh.',
-            ], 422);
-        }
-
-        /** @var User|null $admin */
         $admin = Auth::user();
         $conversation = Chat::conversations()->getById($conversationId);
 
         if (!$admin instanceof User || !$conversation) {
-            return response()->json(['success' => false, 'message' => 'Cuộc trò chuyện không tồn tại.'], 404);
+            return response()->json(['success' => false], 404);
         }
 
-        if (!$this->canAccessConversation($admin, $conversation)) {
-            return response()->json(
-                ['success' => false, 'message' => 'Bạn không có quyền truy cập cuộc trò chuyện này.'],
-                403
-            );
-        }
-
-        if ($this->isAdminUser($admin) && !$this->isParticipant($admin, $conversation)) {
+        if (!$this->isParticipant($admin, $conversation)) {
             $admin->conversations()->syncWithoutDetaching([$conversation->id]);
         }
 
-        // Gửi tin nhắn (body có thể rỗng nếu chỉ có ảnh)
+        $messageText = trim($request->input('message', ''));
+        $files = $request->file('attachments') ?? [];
+        $messageBody = $messageText === '' && count($files) ? ' ' : $messageText;
+
+        // ✅ QUAN TRỌNG: gắn sender_id
         $message = Chat::message($messageBody)
             ->from($admin)
             ->to($conversation)
+            ->data([
+                'sender_id'   => $admin->id,
+                'sender_type' => get_class($admin),
+            ])
             ->send();
 
-        // Lưu tất cả attachments
-        $attachmentsData = [];
-        foreach ($attachmentFiles as $file) {
-            $attachmentData = $this->storeAttachment($file, $message->id);
-            $attachmentsData[] = $attachmentData;
+        $attachments = [];
+        foreach ($files as $file) {
+            $attachments[] = $this->storeAttachment($file, $message->id);
         }
 
         return response()->json([
             'success' => true,
-            'message' => $this->formatMessagePayload($message, true, 'You', $attachmentsData),
+            'message' => $this->formatMessagePayload($message, true, 'You', $attachments),
         ]);
     }
 
     // API để polling tin nhắn mới cho Admin
     public function fetchMessages(Request $request, $conversationId)
     {
-        /** @var User|null $admin */
         $admin = Auth::user();
         $conversation = Chat::conversations()->getById($conversationId);
-
+        $conversation->unsetRelation('messages');
         if (!$admin instanceof User || !$conversation) {
             return response()->json(['messages' => []]);
         }
 
-        if (!$this->canAccessConversation($admin, $conversation)) {
-            return response()->json(['messages' => []], 403);
-        }
-
-        if ($this->isAdminUser($admin) && !$this->isParticipant($admin, $conversation)) {
+        if (!$this->isParticipant($admin, $conversation)) {
             $admin->conversations()->syncWithoutDetaching([$conversation->id]);
         }
 
         $lastId = (int)$request->input('last_id', 0);
 
-        $query = $conversation->messages()
-            ->with('participation.messageable')
-            ->orderBy('created_at', 'desc')
-            ->limit(20);
-
         $messages = $conversation->messages()
             ->with('participation.messageable')
-            ->when($lastId > 0, function ($q) use ($lastId) {
-                $q->where('id', '>', $lastId);
-            })
+            ->when($lastId > 0, fn($q) => $q->where('id', '>', $lastId))
             ->orderBy('id', 'asc')
             ->get();
-        $messageIds = $messages->pluck('id')->all();
-        $attachmentsByMessage = ChatMessageAttachment::whereIn('message_id', $messageIds)
+
+        $attachmentsByMessage = ChatMessageAttachment::whereIn('message_id', $messages->pluck('id'))
             ->get()
             ->groupBy('message_id');
 
         $formattedMessages = [];
+
         foreach ($messages as $message) {
-            $messageId = data_get($message, 'id');
-
-            $senderId = data_get($message, 'participation.messageable_id');
-            $senderType = data_get($message, 'participation.messageable_type');
-            $isSystemMessage = $this->isSystemMessage($message);
-            if ($isSystemMessage) {
-                $isMe = true;
-            }
-            // Decode message data to check for is_admin_reply flag
             $messageData = $this->decodeMessageData($message->data);
-            $isAdminReply = $messageData && isset($messageData['is_admin_reply']) && $messageData['is_admin_reply'] === true;
 
-            $currentUser = Auth::user();
+            $isMe = false;
 
-            $isMe = (int)$senderId === (int)$currentUser->id &&
-                (
-                    $senderType === get_class($currentUser) ||
-                    class_basename($senderType) === class_basename($currentUser)
-                );
+            if ($messageData && isset($messageData['sender_type'])) {
+                $senderType = $messageData['sender_type'];
 
-            if ($isSystemMessage) {
-                $isMe = true;
+                // 👉 tất cả staff (User) đều bên phải
+                if ($senderType === \App\Models\User::class) {
+                    $isMe = true;
+                }
             }
-
-            if ($messageData && isset($messageData['is_admin_reply']) && $messageData['is_admin_reply'] === true) {
-                $isMe = true;
-            }
-
-            $senderName = $isMe
-                ? 'You'
-                : (data_get($message, 'participation.messageable.name')
-                    ?? data_get($message, 'sender.name')
-                    ?? 'Customer');
-
-            // Get all attachments for this message
-            $attachmentsData = collect($attachmentsByMessage->get($messageId))
+            $attachments = collect($attachmentsByMessage->get($message->id))
                 ->map(fn($att) => $this->formatAttachment($att))
                 ->toArray();
 
-            $formattedMessages[] = $this->formatMessagePayload($message, $isMe, $senderName, $attachmentsData);
+            $formattedMessages[] = $this->formatMessagePayload(
+                $message,
+                $isMe,
+                $isMe ? 'You' : 'Customer',
+                $attachments
+            );
         }
 
         return response()->json(['messages' => $formattedMessages]);

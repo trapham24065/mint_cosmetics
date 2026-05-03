@@ -23,12 +23,6 @@ class ChatController extends Controller
             'attachments'   => 'nullable|array|max:5',
             'attachments.*' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             'is_quick_hint' => 'sometimes|boolean',
-        ], [
-            'attachments.max'     => 'Bạn chỉ có thể tải lên tối đa 5 ảnh.',
-            'attachments.*.image' => 'Tệp đính kèm phải là hình ảnh.',
-            'attachments.*.mimes' => 'Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.',
-            'attachments.*.max'   => 'Mỗi ảnh không được vượt quá 5MB.',
-            'message.max'         => 'Nội dung không được vượt quá 1000 ký tự.',
         ]);
 
         $messageText = trim((string)$request->input('message', ''));
@@ -44,54 +38,57 @@ class ChatController extends Controller
         }
 
         $participant = $this->getParticipant();
+
+        // ✅ FIX: lấy conversation đúng cách
         $conversation = $participant->conversations()->latest()->first();
 
         if (!$conversation) {
-            // fallback tạo mới
-            $admin = User::where('is_admin', 1)->first();
+            $admin = User::first();
+            if (!$admin) {
+                return response()->json(['success' => false, 'message' => 'Hệ thống chưa sẵn sàng'], 500);
+            }
+
             $conversation = ChatFacade::createConversation([$participant, $admin])->makeDirect();
         }
-        $admin = $conversation->participants
-            ->pluck('messageable')
-            ->first(fn($user) => $user instanceof User);
 
-        if (!$admin) {
-            return response()->json(['success' => false, 'message' => 'Hệ thống chưa sẵn sàng'], 500);
-        }
-
-        $conversation = $participant->conversations->sortByDesc('updated_at')->first();
-
-        if (!$conversation) {
-            $participants = [$participant, $admin];
-            $conversation = ChatFacade::createConversation($participants)->makeDirect();
-        }
-
-        // Lưu tin nhắn của khách hàng (body có thể rỗng nếu chỉ có ảnh)
+        // ✅ Gửi message + sender_id
         $message = ChatFacade::message($messageBody)
             ->from($participant)
             ->to($conversation)
+            ->data([
+                'sender_id'   => $participant->id,
+                'sender_type' => get_class($participant),
+            ])
             ->send();
 
-        // Lưu tất cả attachments
+        // attachments
         $attachmentsData = [];
         foreach ($attachmentFiles as $file) {
-            $attachmentData = $this->storeAttachment($file, $message->id);
-            $attachmentsData[] = $attachmentData;
+            $attachmentsData[] = $this->storeAttachment($file, $message->id);
         }
 
         $botMessage = null;
         $isFromQuickHint = $request->boolean('is_quick_hint');
 
-        // CHỈ tự động trả lời nếu tin nhắn từ Quick Hint (và có nội dung text)
+        // bot reply (giữ nguyên logic cũ)
         if ($isFromQuickHint && $messageText !== '') {
-            $botReplyText = $chatbotService->findReply($messageText);
+            $admin = User::first();
 
-            if ($botReplyText) {
-                $botMessage = ChatFacade::message($botReplyText)
-                    ->from($admin)
-                    ->to($conversation)
-                    ->data(['is_admin_reply' => true, 'auto_reply' => true])
-                    ->send();
+            if ($admin) {
+                $botReplyText = $chatbotService->findReply($messageText);
+
+                if ($botReplyText) {
+                    $botMessage = ChatFacade::message($botReplyText)
+                        ->from($admin)
+                        ->to($conversation)
+                        ->data([
+                            'sender_id'      => $admin->id,
+                            'sender_type'    => get_class($admin),
+                            'is_admin_reply' => true,
+                            'auto_reply'     => true,
+                        ])
+                        ->send();
+                }
             }
         }
 
@@ -100,7 +97,6 @@ class ChatController extends Controller
         $botReplyPayload = null;
         if ($botMessage) {
             $botReplyPayload = $this->formatMessagePayload($botMessage, false, []);
-            // Mark as admin reply for client-side rendering
             $botReplyPayload['is_admin_reply'] = true;
         }
 
@@ -117,58 +113,58 @@ class ChatController extends Controller
     public function fetchMessages(Request $request): JsonResponse
     {
         $participant = $this->getParticipant();
-        $conversation = $participant->conversations->sortByDesc('updated_at')->first();
+        $conversation = $participant->conversations()->latest()->first();
 
         if (!$conversation) {
             return response()->json(['messages' => []]);
         }
 
-        $lastId = $request->input('last_id');
+        $lastId = (int)$request->input('last_id', 0);
 
-        $query = $conversation->messages()
+        $messages = $conversation->messages()
             ->with('participation.messageable')
-            ->orderBy('created_at', 'desc')
-            ->limit(20);
-
-        $messages = $query->get();
+            ->when($lastId > 0, function ($q) use ($lastId) {
+                $q->where('id', '>', $lastId);
+            })
+            ->orderBy('id', 'asc')
+            ->get();
 
         $messageIds = $messages->pluck('id')->all();
+
         $attachmentsByMessage = ChatMessageAttachment::whereIn('message_id', $messageIds)
             ->get()
             ->groupBy('message_id');
 
         $formattedMessages = [];
-        foreach ($messages->reverse() as $message) {
-            $msgId = data_get($message, 'id');
 
-            if ($lastId && $msgId <= $lastId) {
-                continue;
+        foreach ($messages as $message) {
+            $msgId = $message->id;
+
+            $messageData = $this->decodeMessageData($message->data);
+
+            $isMe = false;
+
+            if ($messageData && isset($messageData['sender_type'], $messageData['sender_id'])) {
+                $isMe =
+                    $messageData['sender_type'] === get_class($participant) &&
+                    (int)$messageData['sender_id'] === (int)$participant->id;
             }
-
-            $senderId = data_get($message, 'participation.messageable_id');
-            $senderType = data_get($message, 'participation.messageable_type');
-
-            // Compare ID as integers (database stores as string) and normalize class comparison
-            $senderType = trim($senderType);
-            $participantClass = get_class($participant);
-            $isMe = (int)$senderId === (int)$participant->id &&
-                ($senderType === $participantClass || class_basename($senderType) === class_basename(
-                        $participantClass
-                    ));
-
-            // Get all attachments for this message
-
+            
             $attachmentsData = collect($attachmentsByMessage->get($msgId))
                 ->map(fn($att) => $this->formatAttachment($att))
                 ->toArray();
-            $payload = $this->formatMessagePayload($message, $isMe, $attachmentsData ?: null) + [
+
+            $payload = $this->formatMessagePayload(
+                    $message,
+                    $isMe,
+                    $attachmentsData ?: null
+                ) + [
                     'sender_name' => $isMe ? 'Bạn' : 'Hỗ trợ',
                 ];
 
-            // Check if this is an admin reply (for quick hints)
-            $messageData = $this->decodeMessageData($message->data);
-            if ($messageData && isset($messageData['is_admin_reply']) && $messageData['is_admin_reply'] === true) {
-                $payload['is_admin_reply'] = true;
+            // giữ flag bot nếu cần
+            if ($messageData && isset($messageData['is_admin_reply'])) {
+                $payload['is_admin_reply'] = $messageData['is_admin_reply'];
             }
 
             $formattedMessages[] = $payload;
@@ -265,11 +261,15 @@ class ChatController extends Controller
         // Gửi tin nhắn mặc định
         $defaultMessage = "Xin lỗi, quản trị viên hiện đang bận. Bạn có thể chọn một trong những câu hỏi thường gặp bên dưới để nhận được câu trả lời ngay lập tức!";
         $botMessage = ChatFacade::message($defaultMessage)
-            ->data(['system_message' => 'admin_busy'])
             ->from($admin)
             ->to($conversation)
+            ->data([
+                'is_admin_reply' => true,
+                'auto_reply'     => true,
+                'sender_id'      => $admin->id,
+                'sender_type'    => get_class($admin),
+            ])
             ->send();
-
         return response()->json([
             'success'   => true,
             'bot_reply' => $this->formatMessagePayload($botMessage, false, null),
