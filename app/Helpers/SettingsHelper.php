@@ -22,10 +22,16 @@ if (!function_exists('setting')) {
      */
     function setting(string $key, $default = null)
     {
-        $settings = Cache::rememberForever('all_settings', function () {
-            return Setting::all()->pluck('value', 'key')->all();
-        });
+        try {
+            $settings = Cache::rememberForever('all_settings', function () {
+                return Setting::all()->pluck('value', 'key')->all();
+            });
 
-        return $settings[$key] ?? $default;
+            return $settings[$key] ?? $default;
+        } catch (\Throwable $e) {
+            // If cache or DB is unavailable during boot (local dev),
+            // silently fall back to the provided default value.
+            return $default;
+        }
     }
 }

@@ -322,6 +322,154 @@
 }
 
 /* ===================================
+   TOGGLE BUTTON
+   =================================== */
+
+.megamenu-parent-toggle {
+    background: none;
+    border: none;
+    padding: 0.5rem 0.7rem;
+    color: #364958;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.megamenu-parent-toggle:hover {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+
+.megamenu-parent-toggle svg {
+    transition: transform 0.3s ease;
+}
+
+.megamenu-parent-toggle[aria-expanded="true"] svg {
+    transform: rotate(180deg);
+}
+
+/* ===================================
+   CASCADE DROPDOWN (Vertical + Hover Flyout)
+   =================================== */
+
+.megamenu-dropdown-cascade {
+    width: auto;
+    min-width: 260px;
+    max-width: 320px;
+    display: block;
+    padding: 0.5rem 0;
+}
+
+.megamenu-cascade-list,
+.megamenu-cascade-submenu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.megamenu-cascade-item {
+    position: relative;
+}
+
+.megamenu-cascade-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 1rem;
+    color: #364958;
+    text-decoration: none;
+    font-size: 0.92rem;
+    line-height: 1.35;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    min-width: 0;
+}
+
+.megamenu-cascade-link:hover,
+.megamenu-cascade-item:hover > .megamenu-cascade-link,
+.megamenu-cascade-link.active {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+
+.megamenu-cascade-link.active {
+    font-weight: 600;
+}
+
+.megamenu-cascade-link .megamenu-link-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.megamenu-cascade-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+
+.megamenu-cascade-arrow {
+    display: inline-flex;
+    align-items: center;
+    color: #9ca3af;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.megamenu-cascade-item:hover > .megamenu-cascade-link .megamenu-cascade-arrow {
+    color: var(--primary);
+    transform: translateX(2px);
+}
+
+.megamenu-cascade-link:hover .product-count,
+.megamenu-cascade-link.active .product-count {
+    background: #fff;
+    color: var(--primary);
+}
+
+.megamenu-cascade-submenu {
+    position: absolute;
+    top: -0.5rem;
+    left: 100%;
+    min-width: 240px;
+    max-width: 300px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    margin-left: 4px;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+    z-index: 1001;
+}
+
+.megamenu-cascade-item:hover > .megamenu-cascade-submenu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(0);
+}
+
+.megamenu-cascade-submenu::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -8px;
+    width: 8px;
+    height: 100%;
+}
+
+/* ===================================
    RESPONSIVE
    =================================== */
 
@@ -331,12 +479,12 @@
     }
 
     .megamenu-banner {
-        display: none; /* 🔥 bỏ banner khi nhỏ */
+        display: none;
     }
 }
 
 @media (max-width: 576px) {
-    .megamenu-dropdown {
+    .megamenu-dropdown:not(.megamenu-dropdown-cascade) {
         width: 100vw;
         left: 0;
         transform: none;

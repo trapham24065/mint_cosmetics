@@ -10,6 +10,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\ChatMessageAttachment;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -35,9 +36,9 @@ class ChatController extends Controller
         } else {
             $conversations = $admin instanceof User
                 ? $admin->conversations()
-                ->with('participants.messageable')
-                ->orderBy('updated_at', 'desc')
-                ->get()
+                    ->with('participants.messageable')
+                    ->orderBy('updated_at', 'desc')
+                    ->get()
                 : collect();
         }
 
@@ -45,10 +46,13 @@ class ChatController extends Controller
         $messages = [];
 
         if ($request->has('conversation_id')) {
-            $conversationId = (int) $request->conversation_id;
+            $conversationId = (int)$request->conversation_id;
             $currentConversation = $conversations->firstWhere('id', $conversationId);
 
-            if ($currentConversation && $admin instanceof User && $isAdmin && !$this->isParticipant($admin, $currentConversation)) {
+            if ($currentConversation && $admin instanceof User && $isAdmin && !$this->isParticipant(
+                    $admin,
+                    $currentConversation
+                )) {
                 $admin->conversations()->syncWithoutDetaching([$currentConversation->id]);
             }
 
@@ -59,15 +63,46 @@ class ChatController extends Controller
                     ->limit(50)
                     ->get()
                     ->reverse();
+
+                $attachmentsByMessage = ChatMessageAttachment::whereIn('message_id', $messages->pluck('id')->all())
+                    ->get()
+                    ->groupBy('message_id');
             }
         }
 
-        return view('admin.management.chat.index', compact('conversations', 'currentConversation', 'messages'));
+        $attachmentsByMessage = $attachmentsByMessage ?? collect();
+
+        return view(
+            'admin.management.chat.index',
+            compact('conversations', 'currentConversation', 'messages', 'attachmentsByMessage')
+        );
     }
 
     public function reply(Request $request, $conversationId): \Illuminate\Http\JsonResponse
     {
-        $request->validate(['message' => 'required|string']);
+        $request->validate([
+            'message'       => 'nullable|string|max:1000',
+            'attachments'   => 'nullable|array|max:5',
+            'attachments.*' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
+        ], [
+            'attachments.max'     => 'Bạn chỉ có thể tải lên tối đa 5 ảnh.',
+            'attachments.*.image' => 'Tệp đính kèm phải là hình ảnh.',
+            'attachments.*.mimes' => 'Chỉ hỗ trợ ảnh JPG, PNG hoặc WEBP.',
+            'attachments.*.max'   => 'Mỗi ảnh không được vượt quá 5MB.',
+            'message.max'         => 'Nội dung không được vượt quá 1000 ký tự.',
+        ]);
+
+        $messageText = trim((string)$request->input('message', ''));
+        $attachmentFiles = $request->file('attachments') ?? [];
+        $hasAttachments = count($attachmentFiles) > 0;
+        $messageBody = $messageText === '' && $hasAttachments ? ' ' : $messageText;
+
+        if ($messageText === '' && !$hasAttachments) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng nhập nội dung hoặc đính kèm ảnh.',
+            ], 422);
+        }
 
         /** @var User|null $admin */
         $admin = Auth::user();
@@ -78,33 +113,32 @@ class ChatController extends Controller
         }
 
         if (!$this->canAccessConversation($admin, $conversation)) {
-            return response()->json(['success' => false, 'message' => 'Bạn không có quyền truy cập cuộc trò chuyện này.'], 403);
+            return response()->json(
+                ['success' => false, 'message' => 'Bạn không có quyền truy cập cuộc trò chuyện này.'],
+                403
+            );
         }
 
         if ($this->isAdminUser($admin) && !$this->isParticipant($admin, $conversation)) {
             $admin->conversations()->syncWithoutDetaching([$conversation->id]);
         }
 
-        // Gửi tin nhắn
-        $message = Chat::message($request->message)
+        // Gửi tin nhắn (body có thể rỗng nếu chỉ có ảnh)
+        $message = Chat::message($messageBody)
             ->from($admin)
             ->to($conversation)
             ->send();
 
+        // Lưu tất cả attachments
+        $attachmentsData = [];
+        foreach ($attachmentFiles as $file) {
+            $attachmentData = $this->storeAttachment($file, $message->id);
+            $attachmentsData[] = $attachmentData;
+        }
+
         return response()->json([
             'success' => true,
-            'message' => [
-                'id'              => $message->id,
-                'body'            => $message->body,
-                'created_at'      => $message->created_at->format('H:i'),
-                'created_at_raw'  => $message->created_at->toIso8601String(),
-                'created_at_date' => $message->created_at->format('Y-m-d'),
-                'created_at_label' => $message->created_at->isToday()
-                    ? 'Hôm nay'
-                    : ($message->created_at->isYesterday() ? 'Hôm qua' : $message->created_at->format('d/m/Y')),
-                'sender_name'     => 'You',
-                'is_me'           => true,
-            ],
+            'message' => $this->formatMessagePayload($message, true, 'You', $attachmentsData),
         ]);
     }
 
@@ -127,67 +161,55 @@ class ChatController extends Controller
             $admin->conversations()->syncWithoutDetaching([$conversation->id]);
         }
 
-        $lastId = $request->input('last_id');
+        $lastId = (int)$request->input('last_id', 0);
 
         $query = $conversation->messages()
             ->with('participation.messageable')
             ->orderBy('created_at', 'desc')
             ->limit(20);
 
-        $messages = $query->get();
+        $messages = $conversation->messages()
+            ->with('participation.messageable')
+            ->when($lastId > 0, function ($q) use ($lastId) {
+                $q->where('id', '>', $lastId);
+            })
+            ->orderBy('id', 'asc')
+            ->get();
+        $messageIds = $messages->pluck('id')->all();
+        $attachmentsByMessage = ChatMessageAttachment::whereIn('message_id', $messageIds)
+            ->get()
+            ->groupBy('message_id');
 
         $formattedMessages = [];
-        foreach ($messages->reverse() as $message) {
-            // Lấy ID tin nhắn an toàn
+        foreach ($messages as $message) {
             $messageId = data_get($message, 'id');
 
-            if ($lastId && $messageId <= $lastId) {
-                continue;
-            }
-
-            // --- SỬA LỖI: Dùng data_get toàn diện ---
-            // Thay vì cố gắng lấy model sender, ta lấy thông tin ID và Type từ participation
-            // Cách này an toàn cho cả Object và Array
             $senderId = data_get($message, 'participation.messageable_id');
             $senderType = data_get($message, 'participation.messageable_type');
+            $isSystemMessage = $this->isSystemMessage($message);
 
-            // Kiểm tra xem có phải là Admin hiện tại không
-            $isMe = $senderId == Auth::id() && $senderType == get_class(Auth::user());
+            // Decode message data to check for is_admin_reply flag
+            $messageData = $this->decodeMessageData($message->data);
+            $isAdminReply = $messageData && isset($messageData['is_admin_reply']) && $messageData['is_admin_reply'] === true;
 
-            // Lấy body và created_at an toàn
-            $body = data_get($message, 'body');
-            $createdAt = data_get($message, 'created_at');
-            $timeDisplay = $createdAt instanceof \Carbon\Carbon ? $createdAt->format('H:i') : \Carbon\Carbon::parse(
-                $createdAt
-            )->format('H:i');
+            $isMe = ($senderId == Auth::id() && $senderType == get_class(Auth::user()));
 
-            // Lấy tên người gửi (nếu không phải mình)
-            $senderName = 'Customer';
-            if (!$isMe) {
-                // Thử lấy tên từ quan hệ messageable nếu có
-                $senderName = data_get($message, 'participation.messageable.name') ??
-                    data_get($message, 'sender.name') ??
-                    'Customer';
-            } else {
-                $senderName = 'You';
+            if ($messageData && isset($messageData['is_admin_reply'])) {
+                $isMe = true;
             }
 
-            $formattedMessages[] = [
-                'id'              => $messageId,
-                'body'            => $body,
-                'created_at'      => $timeDisplay,
-                'created_at_raw'  => data_get($message, 'created_at') ? data_get($message, 'created_at')->toIso8601String() : null,
-                'created_at_date' => data_get($message, 'created_at') ? data_get($message, 'created_at')->format('Y-m-d') : null,
-                'created_at_label' => data_get($message, 'created_at')
-                    ? (data_get($message, 'created_at')->isToday()
-                        ? 'Hôm nay'
-                        : (data_get($message, 'created_at')->isYesterday()
-                            ? 'Hôm qua'
-                            : data_get($message, 'created_at')->format('d/m/Y')))
-                    : null,
-                'is_me'           => $isMe,
-                'sender_name'     => $senderName,
-            ];
+            $senderName = $isMe
+                ? 'You'
+                : (data_get($message, 'participation.messageable.name')
+                    ?? data_get($message, 'sender.name')
+                    ?? 'Customer');
+
+            // Get all attachments for this message
+            $attachmentsData = collect($attachmentsByMessage->get($messageId))
+                ->map(fn($att) => $this->formatAttachment($att))
+                ->toArray();
+
+            $formattedMessages[] = $this->formatMessagePayload($message, $isMe, $senderName, $attachmentsData);
         }
 
         return response()->json(['messages' => $formattedMessages]);
@@ -196,6 +218,30 @@ class ChatController extends Controller
     private function isAdminUser(?User $user): bool
     {
         return $user instanceof User && $user->isAdmin();
+    }
+
+    private function isSystemMessage($message): bool
+    {
+        return data_get($message, 'data.system_message') === 'admin_busy';
+    }
+
+    /**
+     * Helper: Decode message data JSON field
+     */
+    private function decodeMessageData($data): ?array
+    {
+        if (empty($data)) {
+            return null;
+        }
+
+        try {
+            if (is_array($data)) {
+                return $data;
+            }
+            return json_decode($data, true);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     private function isParticipant(User $user, Conversation $conversation): bool
@@ -214,4 +260,79 @@ class ChatController extends Controller
 
         return $this->isParticipant($user, $conversation);
     }
+
+    /**
+     * Helper: Persist an uploaded attachment for a message.
+     */
+    private function storeAttachment($file, int $messageId): array
+    {
+        $path = $file->store('chat-attachments/'.date('Y/m'), 'public');
+
+        $attachment = ChatMessageAttachment::create([
+            'message_id'    => $messageId,
+            'disk'          => 'public',
+            'path'          => $path,
+            'original_name' => $file->getClientOriginalName(),
+            'mime_type'     => $file->getMimeType(),
+            'size_bytes'    => $file->getSize(),
+        ]);
+
+        return $this->formatAttachment($attachment);
+    }
+
+    /**
+     * Helper: Build the JSON payload for an attachment.
+     */
+    private function formatAttachment(ChatMessageAttachment $attachment): array
+    {
+        return [
+            'id'            => $attachment->id,
+            'url'           => $attachment->url,
+            'original_name' => $attachment->original_name,
+            'mime_type'     => $attachment->mime_type,
+            'size_bytes'    => $attachment->size_bytes,
+            'is_image'      => $attachment->is_image,
+        ];
+    }
+
+    /**
+     * Helper: Build the JSON payload for a message.
+     */
+    private function formatMessagePayload($message, bool $isMe, string $senderName, $attachments = null): array
+    {
+        $createdAt = $message->created_at instanceof \Carbon\Carbon
+            ? $message->created_at
+            : \Carbon\Carbon::parse($message->created_at);
+
+        // Handle both single attachment (legacy) and array of attachments
+        $formattedAttachments = [];
+        if ($attachments) {
+            if (is_array($attachments)) {
+                // Check if it's an array of attachment objects or an array of arrays
+                if (!empty($attachments) && is_array($attachments[0])) {
+                    // Array of attachments (already formatted)
+                    $formattedAttachments = $attachments;
+                } elseif (!empty($attachments) && isset($attachments['url'])) {
+                    // Single attachment (has url key)
+                    $formattedAttachments = [$attachments];
+                }
+            }
+        }
+
+        return [
+            'id'               => $message->id,
+            'body'             => $message->body,
+            'created_at'       => $createdAt->format('H:i'),
+            'created_at_raw'   => $createdAt->toIso8601String(),
+            'created_at_date'  => $createdAt->format('Y-m-d'),
+            'created_at_label' => $createdAt->isToday()
+                ? 'Hôm nay'
+                : ($createdAt->isYesterday() ? 'Hôm qua' : $createdAt->format('d/m/Y')),
+            'is_me'            => $isMe,
+            'sender_name'      => $senderName,
+            'attachments'      => $formattedAttachments,
+            'attachment'       => $formattedAttachments[0] ?? null, // For backward compatibility
+        ];
+    }
+
 }

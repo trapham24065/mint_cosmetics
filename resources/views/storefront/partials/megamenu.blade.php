@@ -25,70 +25,16 @@ $isOnShop = request()->routeIs('shop');
                 </span>
             </a>
 
-            <!-- Megamenu Dropdown -->
-            <div class="megamenu-dropdown">
-                <div class="megamenu-content">
-                    @php $categoryCount = 0; @endphp
+            <!-- Megamenu Dropdown (Cascade) -->
+            <div class="megamenu-dropdown megamenu-dropdown-cascade">
+                <ul class="megamenu-cascade-list">
                     @foreach($categoryTree as $category)
-                    @if($category->children->count() > 0)
-                    @php $categoryCount++; @endphp
-                    <div class="megamenu-column" data-column="{{ $categoryCount }}">
-                        <h5 class="megamenu-column-title">
-                            <a href="{{ route('shop', ['category' => $category->slug]) }}"
-                                class="megamenu-parent-link {{ $currentCategorySlug === $category->slug ? 'active' : '' }}"
-                                title="{{ $category->name }}">
-                                <span class="megamenu-link-text">{{ $category->name }}</span>
-                                @if($category->subtree_products_count > 0)
-                                <span class="product-count">{{ $category->subtree_products_count }}</span>
-                                @endif
-                            </a>
-                        </h5>
-                        <ul class="megamenu-sublist">
-                            @foreach($category->children as $child)
-                            <li>
-                                <a href="{{ route('shop', ['category' => $child->slug]) }}"
-                                    class="megamenu-sublink {{ $currentCategorySlug === $child->slug ? 'active' : '' }}"
-                                    title="{{ $child->name }}">
-                                    <span class="megamenu-link-text">{{ $child->name }}</span>
-                                    @if($child->subtree_products_count > 0)
-                                    <span class="product-count">{{ $child->subtree_products_count }}</span>
-                                    @endif
-                                </a>
-                                {{-- Show 3rd level if exists --}}
-                                @if($child->children->count() > 0)
-                                <ul class="megamenu-sublist-level-3">
-                                    @foreach($child->children->take(5) as $grandchild)
-                                    <li>
-                                        <a href="{{ route('shop', ['category' => $grandchild->slug]) }}"
-                                            class="megamenu-sub-item {{ $currentCategorySlug === $grandchild->slug ? 'active' : '' }}"
-                                            title="{{ $grandchild->name }}">
-                                            {{ $grandchild->name }}
-                                        </a>
-                                    </li>
-                                    @endforeach
-                                    @if($child->children->count() > 5)
-                                    <li>
-                                        <a href="{{ route('shop', ['category' => $child->slug]) }}"
-                                            class="megamenu-sub-item megamenu-view-more">
-                                            Xem thêm...
-                                        </a>
-                                    </li>
-                                    @endif
-                                </ul>
-                                @endif
-                            </li>
-                            @endforeach
-                        </ul>
-                    </div>
-
-                    {{-- Limit columns to 4 for layout --}}
-                    @if($categoryCount >= 6)
-                    @break
-                    @endif
-                    @endif
+                    @include('storefront.partials.megamenu-cascade-item', [
+                    'category' => $category,
+                    'currentCategorySlug' => $currentCategorySlug,
+                    ])
                     @endforeach
-                </div>
-
+                </ul>
             </div>
         </li>
         @endif

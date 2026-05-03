@@ -1,10 +1,10 @@
 <div id="chat-widget" class="chat-widget"
-     data-send-url="{{ route('chat.send') }}"
-     data-fetch-url="{{ route('chat.fetch') }}"
-     data-suggestions-url="{{ route('chat.suggestions') }}"
-     data-default-message-url="{{ route('chat.default-message') }}"
-     data-csrf-token="{{ csrf_token() }}"
-     style="display: none;">
+    data-send-url="{{ route('chat.send') }}"
+    data-fetch-url="{{ route('chat.fetch') }}"
+    data-suggestions-url="{{ route('chat.suggestions') }}"
+    data-default-message-url="{{ route('chat.default-message') }}"
+    data-csrf-token="{{ csrf_token() }}"
+    style="display: none;">
 
     <div id="chat-toggle" class="chat-toggle">
         <i class="fa fa-comments" aria-hidden="true"></i>
@@ -43,13 +43,30 @@
         </div>
 
         <div class="chat-input-area">
+            <div id="chat-attachment-preview" class="chat-attachment-preview" style="display:none;">
+                <div id="chat-attachment-gallery" class="chat-attachment-gallery"></div>
+                <div class="chat-attachment-counter">
+                    <span id="chat-attachment-count">0</span> / 5 ảnh
+                </div>
+            </div>
             <div class="input-wrapper">
+                <label for="chat-attachment-input" id="chat-attach-btn" class="chat-attach-btn" title="Đính kèm ảnh" role="button" tabindex="0">
+                    <i class="fa fa-paperclip" aria-hidden="true"></i>
+                </label>
+                <input type="file" id="chat-attachment-input" accept="image/jpeg,image/jpg,image/png,image/webp" multiple hidden>
                 <input type="text" id="chat-input" placeholder="Nhập tin nhắn..." autocomplete="off">
                 <button id="chat-send-btn">
                     <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
+    </div>
+
+    <div id="chat-lightbox" class="chat-lightbox" style="display:none;" role="dialog" aria-modal="true">
+        <button type="button" class="chat-lightbox-close" id="chat-lightbox-close" aria-label="Đóng">
+            <i class="fa fa-times" aria-hidden="true"></i>
+        </button>
+        <img id="chat-lightbox-img" src="" alt="">
     </div>
 </div>
 
@@ -604,5 +621,201 @@
         .chat-input-area {
             background: linear-gradient(to top, #2d1b2e, #1a1a1a);
         }
+    }
+
+    /* ===== ATTACHMENT BUTTON & PREVIEW ===== */
+    .chat-attach-btn {
+        background: transparent;
+        border: none;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        color: #ff6565;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    /* Gallery layout for multiple attachments */
+    .chat-attachment-gallery {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+        max-height: 96px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+
+    .chat-attachment-thumb {
+        flex: 0 0 auto;
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f0f0f0;
+        position: relative;
+    }
+
+    .chat-attachment-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .chat-attachment-counter {
+        font-size: 12px;
+        color: #666;
+        margin-left: 8px;
+        white-space: nowrap;
+    }
+
+    .chat-attachment-preview {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .chat-attach-btn:hover {
+        background: rgba(255, 101, 101, 0.12);
+        transform: scale(1.05);
+    }
+
+    .chat-attachment-preview {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 6px;
+        background: #fff;
+        border: 1px dashed rgba(255, 101, 101, 0.4);
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(255, 101, 101, 0.08);
+    }
+
+    .chat-attachment-preview img {
+        display: block;
+        max-width: 120px;
+        max-height: 120px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+
+    .chat-attachment-remove {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        border: none;
+        background: #ff6565;
+        color: #fff;
+        font-size: 11px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(255, 101, 101, 0.4);
+        transition: transform 0.2s ease;
+    }
+
+    .chat-attachment-remove:hover {
+        transform: scale(1.1);
+    }
+
+    /* ===== IMAGE BUBBLE ===== */
+    .message-bubble.has-image {
+        padding: 6px !important;
+        background: #fff !important;
+        border: 1px solid rgba(255, 101, 101, 0.15) !important;
+        color: #2d3748 !important;
+    }
+
+    .user-message .message-bubble.has-image,
+    .bot-message .message-bubble.has-image {
+        color: #2d3748 !important;
+    }
+
+    .chat-bubble-image {
+        display: block;
+        max-width: 220px;
+        max-height: 220px;
+        border-radius: 10px;
+        cursor: zoom-in;
+        object-fit: cover;
+        transition: transform 0.2s ease;
+    }
+
+    .chat-bubble-image:hover {
+        transform: scale(1.02);
+    }
+
+    .message-bubble.has-image+.message-bubble-caption,
+    .chat-bubble-caption {
+        margin-top: 6px;
+        padding: 0 4px 2px;
+        font-size: 13px;
+        line-height: 1.4;
+        color: inherit;
+    }
+
+    /* ===== LIGHTBOX ===== */
+    .chat-lightbox {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        animation: lightboxFadeIn 0.2s ease;
+    }
+
+    @keyframes lightboxFadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .chat-lightbox img {
+        max-width: 90vw;
+        max-height: 90vh;
+        border-radius: 8px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .chat-lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 24px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .chat-lightbox-close:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: scale(1.05);
     }
 </style>
