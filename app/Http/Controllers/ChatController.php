@@ -44,7 +44,16 @@ class ChatController extends Controller
         }
 
         $participant = $this->getParticipant();
-        $admin = User::first();
+        $conversation = $participant->conversations()->latest()->first();
+
+        if (!$conversation) {
+            // fallback tạo mới
+            $admin = User::where('is_admin', 1)->first();
+            $conversation = ChatFacade::createConversation([$participant, $admin])->makeDirect();
+        }
+        $admin = $conversation->participants
+            ->pluck('messageable')
+            ->first(fn($user) => $user instanceof User);
 
         if (!$admin) {
             return response()->json(['success' => false, 'message' => 'Hệ thống chưa sẵn sàng'], 500);
@@ -139,7 +148,13 @@ class ChatController extends Controller
             $senderId = data_get($message, 'participation.messageable_id');
             $senderType = data_get($message, 'participation.messageable_type');
 
-            $isMe = $senderId === $participant->id && $senderType === get_class($participant);
+            // Compare ID as integers (database stores as string) and normalize class comparison
+            $senderType = trim($senderType);
+            $participantClass = get_class($participant);
+            $isMe = (int)$senderId === (int)$participant->id &&
+                ($senderType === $participantClass || class_basename($senderType) === class_basename(
+                        $participantClass
+                    ));
 
             // Get all attachments for this message
 
@@ -147,8 +162,8 @@ class ChatController extends Controller
                 ->map(fn($att) => $this->formatAttachment($att))
                 ->toArray();
             $payload = $this->formatMessagePayload($message, $isMe, $attachmentsData ?: null) + [
-                'sender_name' => $isMe ? 'Bạn' : 'Hỗ trợ',
-            ];
+                    'sender_name' => $isMe ? 'Bạn' : 'Hỗ trợ',
+                ];
 
             // Check if this is an admin reply (for quick hints)
             $messageData = $this->decodeMessageData($message->data);
@@ -205,7 +220,7 @@ class ChatController extends Controller
         if (!$guestId) {
             // Generate a new guest_id if not provided (shouldn't happen in normal flow)
             $userAgent = request()->header('User-Agent', '');
-            $guestId = 'guest_' . time() . '_' . hash('sha256', $ipAddress . $userAgent);
+            $guestId = 'guest_'.time().'_'.hash('sha256', $ipAddress.$userAgent);
         }
 
         // Always use session_id for lookup to ensure session continuity
@@ -266,7 +281,7 @@ class ChatController extends Controller
      */
     private function storeAttachment($file, int $messageId): array
     {
-        $path = $file->store('chat-attachments/' . date('Y/m'), 'public');
+        $path = $file->store('chat-attachments/'.date('Y/m'), 'public');
 
         $attachment = ChatMessageAttachment::create([
             'message_id'    => $messageId,
@@ -327,4 +342,5 @@ class ChatController extends Controller
             'attachment'       => $formattedAttachments[0] ?? null, // For backward compatibility
         ];
     }
+
 }

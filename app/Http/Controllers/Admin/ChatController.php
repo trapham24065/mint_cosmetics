@@ -187,14 +187,26 @@ class ChatController extends Controller
             $senderId = data_get($message, 'participation.messageable_id');
             $senderType = data_get($message, 'participation.messageable_type');
             $isSystemMessage = $this->isSystemMessage($message);
-
+            if ($isSystemMessage) {
+                $isMe = true;
+            }
             // Decode message data to check for is_admin_reply flag
             $messageData = $this->decodeMessageData($message->data);
             $isAdminReply = $messageData && isset($messageData['is_admin_reply']) && $messageData['is_admin_reply'] === true;
 
-            $isMe = ($senderId == Auth::id() && $senderType == get_class(Auth::user()));
+            $currentUser = Auth::user();
 
-            if ($messageData && isset($messageData['is_admin_reply'])) {
+            $isMe = (int)$senderId === (int)$currentUser->id &&
+                (
+                    $senderType === get_class($currentUser) ||
+                    class_basename($senderType) === class_basename($currentUser)
+                );
+
+            if ($isSystemMessage) {
+                $isMe = true;
+            }
+
+            if ($messageData && isset($messageData['is_admin_reply']) && $messageData['is_admin_reply'] === true) {
                 $isMe = true;
             }
 
