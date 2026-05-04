@@ -25,7 +25,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const fetchUrl = chatWidget.dataset.fetchUrl;
   const suggestionsUrl = chatWidget.dataset.suggestionsUrl;
   const defaultMessageUrl = chatWidget.dataset.defaultMessageUrl || '/chat/default-message';
-
+  console.log('[Chat Debug] sendUrl:', sendUrl);
+  console.log('[Chat Debug] fetchUrl:', fetchUrl);
+  console.log('[Chat Debug] CSRF token:', getCsrfToken());
   const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024;
   const MAX_ATTACHMENTS = 5;
   const ALLOWED_ATTACHMENT_MIMES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -49,7 +51,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   chatWidget.style.display = 'block';
   function getCsrfToken() {
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    // Thử meta tag trước
+    const metaToken = document.querySelector('meta[name="csrf-token"]')
+    ?.getAttribute('content');
+    if (metaToken) return metaToken;
+
+    // Fallback: đọc từ cookie XSRF-TOKEN (Laravel tự set)
+    const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+    if (match) return decodeURIComponent(match[1]);
+
+    console.error('[Chat] CSRF token not found!');
+    return '';
   }
   // Load messages immediately on page load (before user opens chat)
   function loadInitialMessages() {
@@ -472,6 +484,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function sendMessageToServer(messageText, tempId, isFromQuickHint = false, files = []) {
+    const csrfToken = getCsrfToken();
+    if (!sendUrl || !csrfToken) {
+      console.error('[Chat] sendUrl hoặc CSRF token không hợp lệ', { sendUrl, csrfToken });
+      return;
+    }
     const formData = new FormData();
     formData.append('message', messageText || '');
     formData.append('is_quick_hint', isFromQuickHint ? '1' : '0');
@@ -543,29 +560,19 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   // ✅ Thêm hàm refresh CSRF token
   function refreshCsrfToken() {
-    return fetch('/sanctum/csrf-cookie', {
-      method: 'GET',
+    return fetch('/csrf-token', {
       credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' }
     })
-    .then(() => {
-      // Sau khi refresh cookie, lấy token mới từ meta tag
-      // Laravel tự update meta tag nếu dùng @csrf trong layout
-      return fetch('/', { credentials: 'same-origin' });
-    })
-    .then(response => response.text())
-    .then(html => {
-      // Parse token mới từ HTML trả về
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const newToken = doc.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-      if (newToken) {
-        document.querySelector('meta[name="csrf-token"]')?.setAttribute('content', newToken);
+    .then(response => response.json())
+    .then(data => {
+      if (data.token) {
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        if (metaTag) metaTag.setAttribute('content', data.token);
         console.log('[Chat] CSRF token refreshed');
       }
     })
-    .catch(err => {
-      console.warn('[Chat] Failed to refresh CSRF token:', err);
-    });
+    .catch(err => console.warn('[Chat] CSRF refresh failed:', err));
   }
   function sendDefaultMessageIfNoReply() {
     fetch(defaultMessageUrl, {
