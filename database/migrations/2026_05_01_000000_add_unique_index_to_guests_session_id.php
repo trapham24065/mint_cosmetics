@@ -6,13 +6,14 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use App\Models\Guest;
 
-return new class extends Migration
-{
+return new class extends Migration {
+
     /**
      * Run the migrations.
      */
     public function up(): void
     {
+        // Phần DML (data manipulation) giữ trong transaction
         DB::transaction(function () {
             $duplicateSessionIds = DB::table('guests')
                 ->select('session_id')
@@ -34,7 +35,6 @@ return new class extends Migration
                     continue;
                 }
 
-                // Reattach existing chat participation rows so the kept guest retains the full history.
                 DB::table('chat_participation')
                     ->where('messageable_type', Guest::class)
                     ->whereIn('messageable_id', $guestIds)
@@ -47,11 +47,17 @@ return new class extends Migration
                     ->whereIn('id', $guestIds)
                     ->delete();
             }
+        });
 
-            Schema::table('guests', function (Blueprint $table) {
-                // Prevent duplicate guest rows while preserving chat history.
-                $table->unique('session_id');
-            });
+        // Phần DDL (schema change) để NGOÀI transaction
+        Schema::table('guests', function (Blueprint $table) {
+            try {
+                $table->dropUnique(['session_id']);
+            } catch (\Exception $e) {
+                // Chưa có index → bỏ qua
+            }
+
+            $table->unique('session_id');
         });
     }
 
@@ -61,7 +67,14 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('guests', function (Blueprint $table) {
-            $table->dropUnique(['session_id']);
+            // Kiểm tra index đã tồn tại chưa trước khi tạo
+            $sm = Schema::getConnection()->getDoctrineSchemaManager();
+            $indexes = $sm->listTableIndexes('guests');
+
+            if (!array_key_exists('guests_session_id_unique', $indexes)) {
+                $table->unique('session_id');
+            }
         });
     }
+
 };
