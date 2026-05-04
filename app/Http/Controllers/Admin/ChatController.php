@@ -162,12 +162,11 @@ class ChatController extends Controller
             $isMe = false;
 
             if ($messageData && isset($messageData['sender_type'])) {
-                $senderType = $messageData['sender_type'];
-
-                // 👉 tất cả staff (User) đều bên phải
-                if ($senderType === \App\Models\User::class) {
-                    $isMe = true;
-                }
+                $isMe = $messageData['sender_type'] === \App\Models\User::class;
+            } else {
+                // Fallback: nếu không có data, check qua participation relationship
+                $messageable = optional($message->participation)->messageable;
+                $isMe = $messageable instanceof \App\Models\User;
             }
             $attachments = collect($attachmentsByMessage->get($message->id))
                 ->map(fn($att) => $this->formatAttachment($att))

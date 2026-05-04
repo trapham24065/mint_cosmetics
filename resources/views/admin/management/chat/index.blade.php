@@ -179,8 +179,8 @@
                                 $senderType = trim($senderType);
                                 $userClass = get_class(auth()->user());
                                 $isMe = $isSystemMessage || (
-                                (int)$senderId === (int)auth()->id() &&
-                                ($senderType === $userClass || class_basename($senderType) === class_basename($userClass))
+                                    $senderType === $userClass ||
+                                    class_basename($senderType) === class_basename($userClass)
                                 );
 
                                 $body = data_get($message, 'body');
@@ -509,9 +509,6 @@
                         });
                     }, 3000);
                 }
-            });
-            $(window).on('focus', function () {
-                lastMessageId = 0;
             });
         })(jQuery);
     </script>

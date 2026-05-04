@@ -485,14 +485,24 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch(sendUrl, {
       method: 'POST',
       headers: {
-        'X-CSRF-TOKEN': getCsrfToken,
+        'X-CSRF-TOKEN': getCsrfToken(),
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
       },
       body: formData,
     })
-    .then(response => response.json())
+    .then(response => {
+      // ✅ Bắt 419 CSRF expired
+      if (response.status === 419) {
+        return refreshCsrfToken().then(() => {
+          // Retry lại request với token mới
+          return sendMessageToServer(messageText, tempId, isFromQuickHint, files);
+        });
+      }
+      return response.json();
+    })
     .then(data => {
+      if (!data) return;
       if (data.success) {
         const tempMsg = document.querySelector(`.message-bubble[data-id="${tempId}"]`);
         if (tempMsg) {
@@ -531,19 +541,50 @@ document.addEventListener('DOMContentLoaded', function () {
       console.error('Chat error:', error);
     });
   }
-
+  // ✅ Thêm hàm refresh CSRF token
+  function refreshCsrfToken() {
+    return fetch('/sanctum/csrf-cookie', {
+      method: 'GET',
+      credentials: 'same-origin',
+    })
+    .then(() => {
+      // Sau khi refresh cookie, lấy token mới từ meta tag
+      // Laravel tự update meta tag nếu dùng @csrf trong layout
+      return fetch('/', { credentials: 'same-origin' });
+    })
+    .then(response => response.text())
+    .then(html => {
+      // Parse token mới từ HTML trả về
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const newToken = doc.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+      if (newToken) {
+        document.querySelector('meta[name="csrf-token"]')?.setAttribute('content', newToken);
+        console.log('[Chat] CSRF token refreshed');
+      }
+    })
+    .catch(err => {
+      console.warn('[Chat] Failed to refresh CSRF token:', err);
+    });
+  }
   function sendDefaultMessageIfNoReply() {
     fetch(defaultMessageUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': getCsrfToken,
+        'X-CSRF-TOKEN': getCsrfToken(),
         'Accept': 'application/json'
       },
       body: JSON.stringify({ guest_id: guestId })
     })
-    .then(response => response.json())
+    .then(response => {
+      if (response.status === 419) {
+        return refreshCsrfToken().then(() => sendDefaultMessageIfNoReply());
+      }
+      return response.json();
+    })
     .then(data => {
+      if (!data) return;
       if (data.success && data.bot_reply) {
         if (!document.querySelector(`.message-bubble[data-id="${data.bot_reply.id}"]`)) {
           const attachments = data.bot_reply.attachments || (data.bot_reply.attachment ? [data.bot_reply.attachment] : []);
