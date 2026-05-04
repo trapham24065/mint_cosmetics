@@ -3374,7 +3374,7 @@ hr {
 .product-details-content .product-details-title {
   font-weight: 400;
   font-size: 50px;
-  line-height: 66px;
+  line-height: 40px;
   margin-bottom: 22px;
 }
 @media only screen and (max-width: 767px),
