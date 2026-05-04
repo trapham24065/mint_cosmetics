@@ -1,306 +1,308 @@
 @extends('storefront.layouts.app')
 
 @section('content')
-<main class="main-content">
-    <section class="page-header-area pt-10 pb-9" data-bg-color="#FFF3DA">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="page-header-st3-content text-center text-md-start">
-                        <ol class="breadcrumb justify-content-center justify-content-md-start">
-                            <li class="breadcrumb-item"><a class="text-dark" href="{{ route('home') }}">Trang
-                                    chủ</a>
-                            </li>
-                            <li class="breadcrumb-item"><a class="text-dark" href="{{ route('shop') }}">Các sản
-                                    phẩm</a>
-                            </li>
-                            <li class="breadcrumb-item active text-dark"
-                                aria-current="page">{{ $product->name }}</li>
-                        </ol>
-                        <h2 class="page-header-title" style="font-size: 24px; margin-bottom: 0; line-height: 1.3;">{{ $product->name }}</h2>
+    <main class="main-content">
+        <section class="page-header-area pt-10 pb-9" data-bg-color="#FFF3DA">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="page-header-st3-content text-center text-md-start">
+                            <ol class="breadcrumb justify-content-center justify-content-md-start">
+                                <li class="breadcrumb-item"><a class="text-dark" href="{{ route('home') }}">Trang
+                                        chủ</a>
+                                </li>
+                                <li class="breadcrumb-item"><a class="text-dark" href="{{ route('shop') }}">Các sản
+                                        phẩm</a>
+                                </li>
+                                <li class="breadcrumb-item active text-dark"
+                                    aria-current="page">{{ $product->name }}</li>
+                            </ol>
+                            <h2 class="page-header-title"
+                                style="font-size: 24px; margin-bottom: 0; line-height: 1.3;">{{ $product->name }}</h2>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-    <section class="section-space">
-        <div class="container">
-            <div class="row product-details">
-                <div class="col-lg-6">
-                    @php
-                    $galleryImages = $product->images->pluck('path')->filter()->values();
+        </section>
+        <section class="section-space">
+            <div class="container">
+                <div class="row product-details">
+                    <div class="col-lg-6">
+                        @php
+                            $galleryImages = $product->images->pluck('path')->filter()->values();
 
-                    // Backward-compatible fallback in case old records still store gallery in list_image.
-                    if ($galleryImages->isEmpty() && !empty($product->list_image)) {
-                    if (is_array($product->list_image)) {
-                    $galleryImages = collect($product->list_image)->filter()->values();
-                    } elseif (is_string($product->list_image)) {
-                    $decoded = json_decode($product->list_image, true);
-                    if (is_array($decoded)) {
-                    $galleryImages = collect($decoded)->filter()->values();
-                    }
-                    }
-                    }
-                    @endphp
-                    <div class="product-details-thumb product-image-container">
-                        <img id="product-main-image"
-                            src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/storefront/images/shop/default.webp') }}"
-                            width="570" height="693" alt="{{ $product->name }}">
-                    </div>
-                    {{-- START A NEW ADDITION TO THE GALLERY --}}
-                    @if($galleryImages->isNotEmpty() || $product->image)
-                    <div id="product-thumbnails-gallery"
-                        class="product-details-nav-wrap d-flex flex-wrap gap-2 mt-3">
-                        @if($product->image)
-                        <div class="nav-item">
-                            <img class="product-thumbnail-item"
-                                src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
-                                width="100" height="120" style="cursor: pointer;">
+                            // Backward-compatible fallback in case old records still store gallery in list_image.
+                            if ($galleryImages->isEmpty() && !empty($product->list_image)) {
+                            if (is_array($product->list_image)) {
+                            $galleryImages = collect($product->list_image)->filter()->values();
+                            } elseif (is_string($product->list_image)) {
+                            $decoded = json_decode($product->list_image, true);
+                            if (is_array($decoded)) {
+                            $galleryImages = collect($decoded)->filter()->values();
+                            }
+                            }
+                            }
+                        @endphp
+                        <div class="product-details-thumb product-image-container">
+                            <img id="product-main-image"
+                                 src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/storefront/images/shop/default.webp') }}"
+                                 width="570" height="693" alt="{{ $product->name }}">
                         </div>
+                        {{-- START A NEW ADDITION TO THE GALLERY --}}
+                        @if($galleryImages->isNotEmpty() || $product->image)
+                            <div id="product-thumbnails-gallery"
+                                 class="product-details-nav-wrap d-flex flex-wrap gap-2 mt-3">
+                                @if($product->image)
+                                    <div class="nav-item">
+                                        <img class="product-thumbnail-item"
+                                             src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
+                                             width="100" height="120" style="cursor: pointer;">
+                                    </div>
+                                @endif
+                                {{-- Loop through images in gallery --}}
+                                @foreach($galleryImages as $galleryImage)
+                                    <div class="nav-item">
+                                        <img class="product-thumbnail-item"
+                                             src="{{ asset('storage/' . $galleryImage) }}"
+                                             alt="{{ $product->name }} gallery image" width="100" height="120"
+                                             style="cursor: pointer;">
+                                    </div>
+                                @endforeach
+                            </div>
                         @endif
-                        {{-- Loop through images in gallery --}}
-                        @foreach($galleryImages as $galleryImage)
-                        <div class="nav-item">
-                            <img class="product-thumbnail-item"
-                                src="{{ asset('storage/' . $galleryImage) }}"
-                                alt="{{ $product->name }} gallery image" width="100" height="120"
-                                style="cursor: pointer;">
-                        </div>
-                        @endforeach
+                        {{-- END OF NEW ADDITIONAL SECTION --}}
                     </div>
-                    @endif
-                    {{-- END OF NEW ADDITIONAL SECTION --}}
-                </div>
-                <div class="col-lg-6">
-                    <div class="product-details-content">
-                        <h5 class="product-details-collection">{{ $product->category->name ?? 'Collection' }}</h5>
-                        @if($product->brand)
-                        <div class="product-details-brand mb-2 d-flex align-items-center gap-2">
-                            @if($product->brand->logo)
-                            <img src="{{ asset('storage/' . $product->brand->logo) }}"
-                                alt="{{ $product->brand->name }}"
-                                class="product-brand-logo"
-                                loading="lazy">
-                            @else
-                            <img src="{{ asset('assets/storefront/images/shop/default.webp') }}"
-                                alt="{{ $product->brand->name }}"
-                                class="product-brand-logo"
-                                loading="lazy">
-                            @endif
-                            <span>Thương hiệu: {{ $product->brand->name }}</span>
-                        </div>
-                        @endif
-                        <h3 class="product-details-title" style="font-size: 22px; margin-bottom: 15px; font-weight: 600;">{{ $product->name }}</h3>
-
-                        <div class="product-details-review">
-                            @php
-                            $averageRating = $product->averageRating();
-                            $reviewsCount = $product->approvedReviews->count();
-                            @endphp
-                            <div class="product-review-icon">
-                                @if ($reviewsCount > 0)
-                                @for ($i = 1; $i <= 5; $i++)
-                                    @if ($i <=$averageRating)
-                                    <i class="fa fa-star"></i>
+                    <div class="col-lg-6">
+                        <div class="product-details-content">
+                            <h5 class="product-details-collection">{{ $product->category->name ?? 'Collection' }}</h5>
+                            @if($product->brand)
+                                <div class="product-details-brand mb-2 d-flex align-items-center gap-2">
+                                    @if($product->brand->logo)
+                                        <img src="{{ asset('storage/' . $product->brand->logo) }}"
+                                             alt="{{ $product->brand->name }}"
+                                             class="product-brand-logo"
+                                             loading="lazy">
                                     @else
-                                    <i class="fa fa-star-o"></i>
+                                        <img src="{{ asset('assets/storefront/images/shop/default.webp') }}"
+                                             alt="{{ $product->brand->name }}"
+                                             class="product-brand-logo"
+                                             loading="lazy">
                                     @endif
-                                    @endfor
-                                    @else
-                                    @for ($i = 1; $i <= 5; $i++)
-                                        <i class="fa fa-star-o"></i>
+                                    <span>Thương hiệu: {{ $product->brand->name }}</span>
+                                </div>
+                            @endif
+                            <h3 class="product-details-title"
+                                style="font-size: 22px; margin-bottom: 15px; font-weight: 600; line-height: 38px">{{ $product->name }}</h3>
+
+                            <div class="product-details-review">
+                                @php
+                                    $averageRating = $product->averageRating();
+                                    $reviewsCount = $product->approvedReviews->count();
+                                @endphp
+                                <div class="product-review-icon">
+                                    @if ($reviewsCount > 0)
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            @if ($i <=$averageRating)
+                                                <i class="fa fa-star"></i>
+                                            @else
+                                                <i class="fa fa-star-o"></i>
+                                            @endif
                                         @endfor
-                                        @endif
+                                    @else
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <i class="fa fa-star-o"></i>
+                                        @endfor
+                                    @endif
+                                </div>
+                                <a href="#review-tab" class="product-review-show">{{ $reviewsCount }} đánh giá
+                                </a>
                             </div>
-                            <a href="#review-tab" class="product-review-show">{{ $reviewsCount }} đánh giá
-                            </a>
-                        </div>
 
-                        {{-- SKU Display --}}
-                        <div class="product-details-sku mb-3">
-                            <span class="fw-bold">SKU:</span> <span id="product-sku" class="text-muted">N/A</span>
-                        </div>
+                            {{-- SKU Display --}}
+                            <div class="product-details-sku mb-3">
+                                <span class="fw-bold">SKU:</span> <span id="product-sku" class="text-muted">N/A</span>
+                            </div>
 
-                        <div class="product-details-stock mb-3">
-                            <span class="fw-bold">Tồn kho:</span>
-                            <span id="product-stock" class="text-muted">Vui lòng chọn tùy chọn</span>
-                        </div>
+                            <div class="product-details-stock mb-3">
+                                <span class="fw-bold">Tồn kho:</span>
+                                <span id="product-stock" class="text-muted">Vui lòng chọn tùy chọn</span>
+                            </div>
 
-                        <div id="variant-options-container" class="mb-4"></div>
+                            <div id="variant-options-container" class="mb-4"></div>
 
-                        {{-- Price Display Section --}}
-                        <div class="product-price-wrapper mb-4">
-                            <div id="product-price" class="d-flex align-items-center gap-3 flex-wrap">
-                                <span class="text-muted">Chọn tùy chọn</span>
+                            {{-- Price Display Section --}}
+                            <div class="product-price-wrapper mb-4">
+                                <div id="product-price" class="d-flex align-items-center gap-3 flex-wrap">
+                                    <span class="text-muted">Chọn tùy chọn</span>
+                                </div>
+                            </div>
+
+                            {{-- Quantity Section --}}
+                            <div class="product-details-pro-qty mb-4">
+                                <label class="fw-bold mb-2" style="font-size: 14px;">Số lượng:</label>
+                                <div class="pro-qty">
+                                    <input type="number" id="productDetailQuantity" title="Quantity" value="1" min="1">
+                                </div>
+                            </div>
+
+                            {{-- Action Buttons Section --}}
+                            <div class="product-details-action-buttons d-flex gap-3 mb-3 flex-wrap">
+                                <button type="button" class="btn btn-primary flex-fill" id="buy-now-btn"
+                                        data-context="product-detail" disabled style="min-width: 200px;">
+                                    <i class="fa fa-bolt me-2"></i>Mua ngay
+                                </button>
+                                <button type="button" class="btn btn-outline-dark flex-fill action-btn-cart"
+                                        id="add-to-cart-btn"
+                                        data-context="product-detail" disabled style="min-width: 200px;">
+                                    <i class="fa fa-shopping-cart me-2"></i>Thêm vào giỏ hàng
+                                </button>
+                                <button type="button" class="btn btn-wishlist action-btn-wishlist"
+                                        data-product-id="{{ $product->id }}">
+                                    <i class="fa fa-heart-o"></i>
+                                </button>
                             </div>
                         </div>
-
-                        {{-- Quantity Section --}}
-                        <div class="product-details-pro-qty mb-4">
-                            <label class="fw-bold mb-2" style="font-size: 14px;">Số lượng:</label>
-                            <div class="pro-qty">
-                                <input type="number" id="productDetailQuantity" title="Quantity" value="1" min="1">
-                            </div>
-                        </div>
-
-                        {{-- Action Buttons Section --}}
-                        <div class="product-details-action-buttons d-flex gap-3 mb-3 flex-wrap">
-                            <button type="button" class="btn btn-primary flex-fill" id="buy-now-btn"
-                                data-context="product-detail" disabled style="min-width: 200px;">
-                                <i class="fa fa-bolt me-2"></i>Mua ngay
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="nav product-details-nav" id="product-details-nav-tab" role="tablist">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#description-tab"
+                                    type="button">Mô tả
                             </button>
-                            <button type="button" class="btn btn-outline-dark flex-fill action-btn-cart"
-                                id="add-to-cart-btn"
-                                data-context="product-detail" disabled style="min-width: 200px;">
-                                <i class="fa fa-shopping-cart me-2"></i>Thêm vào giỏ hàng
-                            </button>
-                            <button type="button" class="btn btn-wishlist action-btn-wishlist"
-                                data-product-id="{{ $product->id }}">
-                                <i class="fa fa-heart-o"></i>
+                            <button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review"
+                                    type="button">
+                                Đánh giá ({{ $product->approvedReviews->count() }})
                             </button>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="nav product-details-nav" id="product-details-nav-tab" role="tablist">
-                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#description-tab"
-                            type="button">Mô tả
-                        </button>
-                        <button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review"
-                            type="button">
-                            Đánh giá ({{ $product->approvedReviews->count() }})
-                        </button>
-                    </div>
-                    <div class="tab-content product-details-tab-content" id="product-details-tab-content">
-                        {{-- Tab Mô tả --}}
-                        <div class="tab-pane fade show active" id="description-tab" role="tabpanel">
-                            <x-product-description>
-                                {!! $product->description !!}
-                            </x-product-description>
-                        </div>
-                        {{-- Tab Đánh giá --}}
-                        <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
-                            {{-- Tạo một thẻ DIV bọc ngoài có ID cố định để thay thế nội dung bằng AJAX --}}
-                            <div id="ajax-reviews-container">
-                                {{-- Nhúng giao diện review lần đầu tiên --}}
-                                @include('storefront.partials.reviews_list', ['reviews' => $reviews])
+                        <div class="tab-content product-details-tab-content" id="product-details-tab-content">
+                            {{-- Tab Mô tả --}}
+                            <div class="tab-pane fade show active" id="description-tab" role="tabpanel">
+                                <x-product-description>
+                                    {!! $product->description !!}
+                                </x-product-description>
+                            </div>
+                            {{-- Tab Đánh giá --}}
+                            <div class="tab-pane fade" id="review" role="tabpanel" aria-labelledby="review-tab">
+                                {{-- Tạo một thẻ DIV bọc ngoài có ID cố định để thay thế nội dung bằng AJAX --}}
+                                <div id="ajax-reviews-container">
+                                    {{-- Nhúng giao diện review lần đầu tiên --}}
+                                    @include('storefront.partials.reviews_list', ['reviews' => $reviews])
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-    @if($relatedProducts->isNotEmpty())
-    <section class="section-space">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <div class="section-title">
-                        <h2 class="title">Sản phẩm liên quan</h2>
-                        <p class="m-0">Xem thêm các sản phẩm khác cùng loại.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="row mb-n10">
-                <div class="col-12">
-                    <div class="swiper related-product-slide-container">
-                        <div class="swiper-wrapper">
-                            @foreach($relatedProducts as $related)
-                            <div class="swiper-slide mb-10">
-                                {{-- Reuse the same component here --}}
-                                <x-product-card :product="$related" />
+        </section>
+        @if($relatedProducts->isNotEmpty())
+            <section class="section-space">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="section-title">
+                                <h2 class="title">Sản phẩm liên quan</h2>
+                                <p class="m-0">Xem thêm các sản phẩm khác cùng loại.</p>
                             </div>
-                            @endforeach
+                        </div>
+                    </div>
+                    <div class="row mb-n10">
+                        <div class="col-12">
+                            <div class="swiper related-product-slide-container">
+                                <div class="swiper-wrapper">
+                                    @foreach($relatedProducts as $related)
+                                        <div class="swiper-slide mb-10">
+                                            {{-- Reuse the same component here --}}
+                                            <x-product-card :product="$related" />
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-    @endif
-</main>
+            </section>
+        @endif
+    </main>
 
-@push('scripts')
-<style>
-    /* Chrome, Safari, Edge */
-    input[type=number]::-webkit-outer-spin-button,
-    input[type=number]::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
+    @push('scripts')
+        <style>
+            /* Chrome, Safari, Edge */
+            input[type=number]::-webkit-outer-spin-button,
+            input[type=number]::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
 
-    /* Firefox */
-    input[type=number] {
-        -moz-appearance: textfield;
-        text-align: center;
-    }
+            /* Firefox */
+            input[type=number] {
+                -moz-appearance: textfield;
+                text-align: center;
+            }
 
-    #productDetailQuantity {
-        text-align: center;
-    }
+            #productDetailQuantity {
+                text-align: center;
+            }
 
-    .product-image-container #product-main-image {
-        transition: opacity 0.4s ease-in-out;
-    }
+            .product-image-container #product-main-image {
+                transition: opacity 0.4s ease-in-out;
+            }
 
-    .product-image-container #product-main-image.fade-out {
-        opacity: 0;
-    }
+            .product-image-container #product-main-image.fade-out {
+                opacity: 0;
+            }
 
-    .product-details-brand {
-        color: #5a5a5a;
-        font-size: 14px;
-    }
+            .product-details-brand {
+                color: #5a5a5a;
+                font-size: 14px;
+            }
 
-    .product-brand-logo {
-        width: 22px;
-        height: 22px;
-        object-fit: contain;
-        border-radius: 50%;
-        border: 1px solid #ececec;
-        background: #fff;
-    }
+            .product-brand-logo {
+                width: 22px;
+                height: 22px;
+                object-fit: contain;
+                border-radius: 50%;
+                border: 1px solid #ececec;
+                background: #fff;
+            }
 
-    /* Product Price Styling */
-    .product-price-wrapper {
-        padding: 20px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border-left: 4px solid #FF6565;
-    }
+            /* Product Price Styling */
+            .product-price-wrapper {
+                padding: 20px;
+                background: #f8f9fa;
+                border-radius: 8px;
+                border-left: 4px solid #FF6565;
+            }
 
 
-    .product-details-action-buttons .btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
+            .product-details-action-buttons .btn:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
 
-    .product-details-action-buttons .btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
+            .product-details-action-buttons .btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
 
-    /* Variant buttons: force lowercase labels */
-    .variant-group .btn {
-        text-transform: lowercase;
-    }
+            /* Variant buttons: force lowercase labels */
+            .variant-group .btn {
+                text-transform: lowercase;
+            }
 
-    /* Responsive adjustments */
-    @media (max-width: 576px) {
-        .product-details-action-buttons {
-            flex-direction: column;
-        }
+            /* Responsive adjustments */
+            @media (max-width: 576px) {
+                .product-details-action-buttons {
+                    flex-direction: column;
+                }
 
-        .product-details-action-buttons .btn {
-            width: 100%;
-            min-width: auto !important;
-        }
-    }
-</style>
-<!-- @formatter:off -->
+                .product-details-action-buttons .btn {
+                    width: 100%;
+                    min-width: auto !important;
+                }
+            }
+        </style>
+        <!-- @formatter:off -->
         <script>
             $(document).ready(function() {
                 // Lắng nghe sự kiện click vào các nút phân trang (trong khu vực review)
@@ -657,5 +659,5 @@
         </script>
         <!-- @formatter:on -->
 
-@endpush
+    @endpush
 @endsection
