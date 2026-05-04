@@ -51,12 +51,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   chatWidget.style.display = 'block';
   function getCsrfToken() {
-    // Thử meta tag trước
+    // Ưu tiên 1: meta tag
     const metaToken = document.querySelector('meta[name="csrf-token"]')
     ?.getAttribute('content');
     if (metaToken) return metaToken;
 
-    // Fallback: đọc từ cookie XSRF-TOKEN (Laravel tự set)
+    // Ưu tiên 2: data-csrf-token trên chat widget (đây là nguồn đang có!)
+    const widgetToken = document.getElementById('chat-widget')
+    ?.getAttribute('data-csrf-token');
+    if (widgetToken) return widgetToken;
+
+    // Ưu tiên 3: cookie XSRF-TOKEN
     const match = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
     if (match) return decodeURIComponent(match[1]);
 
@@ -567,9 +572,15 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(response => response.json())
     .then(data => {
       if (data.token) {
+        // Update meta tag nếu có
         const metaTag = document.querySelector('meta[name="csrf-token"]');
         if (metaTag) metaTag.setAttribute('content', data.token);
-        console.log('[Chat] CSRF token refreshed');
+
+        // ✅ Update data attribute của widget
+        const widget = document.getElementById('chat-widget');
+        if (widget) widget.setAttribute('data-csrf-token', data.token);
+
+        console.log('[Chat] CSRF token refreshed:', data.token);
       }
     })
     .catch(err => console.warn('[Chat] CSRF refresh failed:', err));
