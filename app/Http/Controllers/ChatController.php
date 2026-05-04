@@ -48,7 +48,10 @@ class ChatController extends Controller
                 return response()->json(['success' => false, 'message' => 'Hệ thống chưa sẵn sàng'], 500);
             }
 
-            $conversation = ChatFacade::createConversation([$participant, $admin])->makeDirect();
+            $conversation = ChatFacade::createConversation([$participant, $admin]);
+            if (method_exists($conversation, 'makeDirect')) {
+                $conversation->makeDirect();
+            }
         }
 
         // ✅ Gửi message + sender_id
@@ -149,7 +152,7 @@ class ChatController extends Controller
                     $messageData['sender_type'] === get_class($participant) &&
                     (int)$messageData['sender_id'] === (int)$participant->id;
             }
-            
+
             $attachmentsData = collect($attachmentsByMessage->get($msgId))
                 ->map(fn($att) => $this->formatAttachment($att))
                 ->toArray();
